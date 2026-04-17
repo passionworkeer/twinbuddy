@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-04-17T15:52:36.495146+00:00",
+  "phase": "REPORT_GENERATED",
+  "persona_a_mbti": "ENFP",
+  "persona_b_mbti": "ISTJ",
+  "overall_score": 0.52,
+  "dimension_scores": {
+    "travel_rhythm": {
+      "score": 0.4,
+      "level": "low"
+    },
+    "food": {
+      "score": 0.55,
+      "level": "medium"
+    },
+    "budget": {
+      "score": 0.6,
+      "level": "medium"
+    },
+    "social": {
+      "score": 0.45,
+      "level": "low"
+    },
+    "boundaries": {
+      "score": 0.6,
+      "level": "medium"
+    },
+    "schedule": {
+      "score": 0.5,
+      "level": "medium"
+    }
+  },
+  "rounds": [
+    {
+      "round_num": 1,
+      "topic": "travel_rhythm",
+      "proposer_message": "ENFP：随性出发才是浪漫！",
+      "evaluator_message": "ISTJ：偏好提前规划，每天安排明确",
+      "evaluator_score": 0.4,
+      "resolution": "差异较大，需深度沟通",
+      "consensus_reached": false
+    },
+    {
+      "round_num": 2,
+      "topic": "food",
+      "proposer_message": "ENFP：路边摊才是灵魂！",
+      "evaluator_message": "ISTJ：干净卫生是底线，其他可以配合",
+      "evaluator_score": 0.55,
+      "resolution": "可以协调",
+      "consensus_reached": false
+    },
+    {
+      "round_num": 3,
+      "topic": "social",
+      "proposer_message": "ENFP：新朋友多多益善！",
+      "evaluator_message": "ISTJ：朋友圈稳定，看重深度关系",
+      "evaluator_score": 0.45,
+      "resolution": "需要磨合",
+      "consensus_reached": false
+    },
+    {
+      "round_num": 4,
+      "topic": "schedule",
+      "proposer_message": "ENFP：随性而为，熬夜是灵感~",
+      "evaluator_message": "ISTJ：早起是习惯，晚上10点后需要安静",
+      "evaluator_score": 0.5,
+      "resolution": "作息差异明显",
+      "consensus_reached": false
+    }
+  ],
+  "conflict_topics": [
+    "travel_rhythm",
+    "social",
+    "schedule"
+  ],
+  "strengths": [
+    "边界意识互补",
+    "预算观接近"
+  ],
+  "challenges": [
+    "旅行节奏相反",
+    "社交方式差异大"
+  ],
+  "recommendation": "建议谨慎了解，需要大量沟通"
+}

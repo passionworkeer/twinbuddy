@@ -30,6 +30,8 @@ class NegotiationState(TypedDict, total=False):
     current_topic: str
     consensus_scores: Dict[str, float]
     final_report: Optional[Dict[str, Any]]
+    # 兼容性分解数据，由前端在调用前计算并传入
+    user_compatibility_breakdown: Optional[Dict[str, Any]]
 
 def initial_state(up, tp) -> NegotiationState:
     return NegotiationState(
@@ -37,4 +39,5 @@ def initial_state(up, tp) -> NegotiationState:
         user_persona=up, twin_persona=tp,
         rounds=[], conflict_topics=[],
         current_topic="", consensus_scores={}, final_report=None,
+        user_compatibility_breakdown=None,
     )

@@ -7,6 +7,7 @@ llm_client.py — MiniMax LLM 客户端（双 Key 自动切换）
 """
 from __future__ import annotations
 
+import json
 import os
 import time
 import logging
@@ -25,8 +26,16 @@ def _load_keys():
         os.environ.get("MINIMAX_API_KEY_1", ""),
         os.environ.get("MINIMAX_API_KEY_2", ""),
     ]
-    # 过滤掉空字符串和以 "sk-" 开头的占位符（常见测试格式）
-    valid = [k for k in raw_keys if k and not k.startswith("sk-")]
+    # 过滤掉空字符串和明显的占位符
+    # MiniMax 真实 key 格式: sk-cp-xxxxxxxx，允许通过
+    # 占位符特征: sk- 后面紧跟很短的内容（如 sk-test、sk-placeholder）
+    valid = [
+        k for k in raw_keys
+        if k and not (
+            k.startswith("sk-")
+            and len(k) < 30  # MiniMax key 长度 > 30
+        )
+    ]
     if not valid:
         import warnings
         warnings.warn(
@@ -39,8 +48,8 @@ def _load_keys():
 
 
 _KEYS = _load_keys()
-_BASE_URL = "https://api.minimaxi.chat"
-_MODEL = "MiniMax-Text-01"
+_BASE_URL = "https://api.minimax.chat"
+_MODEL = "MiniMax-M2.7"
 
 # ── 全局状态 ────────────────────────────────────────────────────────────────
 
@@ -63,7 +72,8 @@ def _call_api(payload: Dict[str, Any], api_key: str) -> Dict[str, Any]:
             json=payload,
         )
         resp.raise_for_status()
-        data = resp.json()
+        # 强制用 utf-8 解码原始字节，防止中文乱码
+        data = json.loads(resp.content.decode("utf-8"))
         # MiniMax 返回结构：data.choices[0].message.content
         return data
 

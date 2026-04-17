@@ -2,7 +2,14 @@
 # TwinBuddy media source (use frontend/public/ instead)
 photo/
 video/
-fuwuqi.md
+
+# Runtime data (persisted stores)
+backend/data/
+agents/buddies/migrate.py
+agents/buddies/repair_encoding.py
+agents/persona_doc.py
+
+# Docs
 docs/期末大作业展示方案.md
 期末大作业展示方案.docx
 

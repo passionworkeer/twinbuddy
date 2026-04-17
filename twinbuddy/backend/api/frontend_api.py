@@ -4,27 +4,18 @@ backend/api/frontend_api.py — TwinBuddy 前端对接 API
 FastAPI 路由，为前端提供 Onboarding / Persona / Feed / Buddies / Negotiate 接口
 
 数据流：
-  前端 localStorage → POST /api/onboarding → 存储到内存 session + 持久化文件
-  前端 localStorage → GET /api/persona → 从 session 加载 persona
-  前端 GET /api/feed → 返回视频列表 + 搭子信息（基于用户 MBTI 兼容性）
-  前端 GET /api/buddies → 返回用户推荐搭子列表
-  前端 POST /api/negotiate → 返回预生成协商结果
+  前端 localStorage → POST /api/onboarding → persona .md 文件 + 内存 session
+  前端 localStorage → GET /api/persona → 从 .md 文件或内存加载
+  前端 GET /api/feed → MING 六维度算法评分 → Feed + 懂你卡片
+  前端 GET /api/buddies → top-N 搭子排序
+  前端 POST /api/negotiate → LangGraph 双 Agent 协商
 
 设计原则：
   - 不可变数据流：每个 handler 只读不解构输入
-  - Mock 数据优先：所有核心路径使用预生成结果，避免 LLM 调用
-  - 持久化 session：JSON 文件备份，防止服务器重启数据清空
-  - 搭子系统：优先从 agents/buddies/ JSON 文件加载，fallback 到 MOCK_BUDDIES
-
-Persona 生成逻辑：
-  - 优先从 mock_personas/ 加载完整数据
-  - 无 mock 时，基于用户 MBTI + interests + city + voiceText 动态生成
-  - 动态生成使用 MING 四维框架（认知/表达/行为/情感）映射到 L1-L4 层
-
-搭子推荐逻辑：
-  - 从 agents/buddies/ 目录加载预生成的搭子 JSON 文件
-  - 使用 MING 六维度评分算法（score_compatibility）计算兼容性
-  - 返回 top-N 搭子及雷达图维度评分（get_compatibility_breakdown）
+  - Persona 持久化：MiniMax LLM 生成 → .md 文件（YAML frontmatter + Markdown body）
+  - 算法/Agent 解耦：frontmatter 喂 MING 算法，Markdown body 喂 Agent
+  - 向后兼容：所有接口 fallback 到规则生成，保证系统在 LLM 不可用时仍工作
+  - 搭子系统：优先从 agents/buddies/ .md 文件加载，fallback 到 JSON，最后 fallback 到 MOCK_BUDDIES
 """
 
 from __future__ import annotations
@@ -45,9 +36,12 @@ from agents.buddies import (
     get_all_buddies,
     get_buddy_by_id,
     get_top_buddies,
-    get_compatibility_breakdown,
+    get_compatibility_breakdown as _get_buddy_breakdown,
     get_buddy_public,
 )
+from agents import persona_doc
+from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
+from persona_generator import generate_persona_from_onboarding
 
 # ---------------------------------------------------------------------------
 # 路由
@@ -229,17 +223,23 @@ _BUDDY_CONFIGS = {
 }
 
 
-def _build_user_prefs(onboarding: Dict[str, Any]) -> Dict[str, Any]:
+def _build_user_prefs(onboarding: Dict[str, Any], user_id: str = "") -> Dict[str, Any]:
     """
     将 onboarding 数据（mbti / interests / city / voiceText）转换为
     score_compatibility() 期望的 user_prefs 格式。
 
-    对于未提供的字段，根据 MBTI 类型推断合理的默认值，
-    确保在没有完整数据时仍能给出有意义的兼容性评分。
+    优先从 persona .md 文件读取 MING 算法所需的 frontmatter 数据，
+    缺失时根据 MBTI 类型推断合理的默认值。
     """
     mbti = (onboarding.get("mbti") or "ENFP").strip().upper()
     interests: List[str] = onboarding.get("interests") or []
     city = onboarding.get("city") or ""
+
+    # 尝试从 persona .md frontmatter 读取 prefs
+    if user_id:
+        md_prefs = persona_doc.get_persona_for_algorithm(user_id)
+        if md_prefs:
+            return md_prefs
 
     # MBTI 维度
     if len(mbti) >= 4:
@@ -295,6 +295,148 @@ def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:
         "travel_style": config["travel_style"],
         "compatibility_score": score,
     }
+
+
+# ---------------------------------------------------------------------------
+# 协商兼容性分解（供 LangGraph LLM 使用）
+# ---------------------------------------------------------------------------
+
+def _build_user_prefs_from_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    将完整的 persona dict 转换为 MING 算法期望的 user_prefs 格式。
+
+    字段映射（persona → user_prefs）：
+      mbti            ← identity.content 中的 MBTI 或 mbti_type
+      likes           ← identity.core_values
+      dislikes        ← layer0_hard_rules.dealbreakers
+      budget          ← travel_style.budget
+      pace            ← travel_style.preferred_pace
+      travel_style    ← travel_style (字符串)
+      negotiation_style ← negotiation_style (字符串)
+
+    适用于 negotiate 端点：将用户人格数据转换为兼容性算法输入，
+    结果传给 LangGraph LLM 以实现深度协商策略注入。
+    """
+    identity: Dict[str, Any] = persona.get("identity", {})
+    sp: Dict[str, Any] = persona.get("speaking_style", {})
+    travel: Dict[str, Any] = persona.get("travel_style", {})
+    neg: Dict[str, Any] = persona.get("negotiation_style", {})
+    layer0: Dict[str, Any] = persona.get("layer0_hard_rules", {})
+
+    # MBTI：从 identity.content 或 mbti_influence 提取
+    identity_content = str(identity.get("content", ""))
+    import re as _re
+    mbti_match = _re.search(r"\b([IE][NS][TF][JP])([AT])?\b", identity_content)
+    if not mbti_match:
+        mbti_influence = str(persona.get("mbti_influence", ""))
+        mbti_match = _re.search(r"\b([IE][NS][TF][JP])([AT])?\b", mbti_influence)
+    mbti = mbti_match.group(0) if mbti_match else persona.get("mbti_type") or persona.get("mbti", "ENFP")
+
+    # likes：优先 core_values，其次 language_markers
+    likes: List[str] = identity.get("core_values", []) or []
+    if not likes:
+        markers: List[str] = sp.get("language_markers", [])
+        likes = [m for m in markers if len(m) > 2][:5]
+
+    # dislikes
+    dealbreakers: List[str] = []
+    if isinstance(layer0, dict):
+        dealbreakers = layer0.get("dealbreakers", []) or []
+
+    # budget
+    budget = ""
+    if isinstance(travel, dict):
+        budget = travel.get("budget", "")
+    elif isinstance(travel, str):
+        budget = travel
+
+    # pace
+    pace = ""
+    if isinstance(travel, dict):
+        pace = travel.get("preferred_pace", "") or travel.get("pace_preference", "")
+
+    # negotiation_style（字符串）
+    neg_style_str = ""
+    if isinstance(neg, dict):
+        approach = neg.get("approach", "")
+        hard = neg.get("hard_to_compromise", [])
+        easy = neg.get("easy_to_compromise", [])
+        neg_style_str = f"{approach}。绝不妥协：{'、'.join(hard[:2])}。可以妥协：{'、'.join(easy[:2])}"
+    elif isinstance(neg, str):
+        neg_style_str = neg
+
+    return {
+        "mbti": mbti,
+        "likes": likes,
+        "dislikes": dealbreakers,
+        "budget": budget,
+        "pace": pace,
+        "travel_style": str(travel) if isinstance(travel, str) else "",
+        "negotiation_style": neg_style_str,
+        "city": persona.get("city", ""),
+    }
+
+
+def _get_negotiation_compatibility_breakdown(
+    user_prefs: Optional[Dict[str, Any]],
+    twin_persona: Dict[str, Any],
+) -> Optional[Dict[str, Any]]:
+    """
+    为协商流程计算兼容性分解数据，深度注入到 LLM prompt 中。
+
+    返回格式：
+      {
+        "total": float,           # 0.0-1.0
+        "strengths": List[str],   # 匹配度高的维度描述
+        "red_flags": List[str],   # 潜在冲突维度描述
+        "easy_to_compromise": List[str],  # 搭子愿意妥协的方面
+        "hard_to_compromise": List[str],  # 搭子绝不妥协的方面
+      }
+
+    数据来源（优先级）：
+      1. user_prefs + twin_persona → MING 六维度算法
+      2. twin_persona['negotiation_style']（rich buddy JSON 字段）
+      3. None（向后兼容）
+    """
+    if not user_prefs:
+        return None
+
+    # 方式1：从 MING 算法计算六维度分解
+    breakdown = None
+    try:
+        breakdown = _mock_compat_breakdown(user_prefs, twin_persona)
+    except Exception:
+        pass
+
+    if breakdown:
+        # 从 rich buddy JSON 补充 negotiation_style 字段
+        neg_style: Dict[str, Any] = twin_persona.get("negotiation_style", {})
+        if isinstance(neg_style, dict):
+            easy = neg_style.get("easy_to_compromise", [])
+            hard = neg_style.get("hard_to_compromise", [])
+        else:
+            easy = []
+            hard = []
+        return {
+            "total": breakdown.get("total", 50) / 100.0,  # 归一化到 0-1
+            "strengths": breakdown.get("strengths", []),
+            "red_flags": breakdown.get("red_flags", []),
+            "easy_to_compromise": easy[:3],
+            "hard_to_compromise": hard[:3],
+        }
+
+    # 方式2：从 rich buddy JSON 直接提取（无 MING 算法时）
+    neg_style: Dict[str, Any] = twin_persona.get("negotiation_style", {})
+    if isinstance(neg_style, dict):
+        return {
+            "total": 0.5,
+            "strengths": [],
+            "red_flags": [],
+            "easy_to_compromise": neg_style.get("easy_to_compromise", [])[:3],
+            "hard_to_compromise": neg_style.get("hard_to_compromise", [])[:3],
+        }
+
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -809,9 +951,9 @@ def _build_persona_from_onboarding(
 ) -> Dict[str, Any]:
     """
     根据 Onboarding 数据（MBTI + interests + city + voiceText）动态生成 Persona。
-    使用 MING 四维框架（认知/表达/行为/情感）映射到 L1-L4 层。
 
-    优先使用 mock_personas/ 中的完整数据；无 mock 时走动态生成路径。
+    优先使用 LLM 生成丰富的 persona 结构（persona_generator.py）。
+    LLM 不可用时 fallback 到硬编码的 MBTI 映射表。
 
     参数:
         mbti: MBTI 类型（如 ENFP）
@@ -823,12 +965,112 @@ def _build_persona_from_onboarding(
     if len(mbti) < 4:
         mbti = "ENFP"
     mbti_lower = mbti.lower()
+    interests = interests or []
+    voice_text = voice_text or ""
+
+    # ── 1. 尝试 LLM 生成 ──────────────────────────────────────────────────
+    llm_persona = generate_persona_from_onboarding(
+        mbti=mbti,
+        interests=interests,
+        voice_text=voice_text,
+        city=city,
+    )
+
+    if llm_persona:
+        # 合并 LLM 生成的数据与前端所需的必要元字段
+        fingerprint = f"twin-{mbti_lower}-{uuid.uuid4().hex[:8]}"
+        persona_id = f"persona-{mbti_lower}-{uuid.uuid4().hex[:8]}"
+        label = _MBTI_LABELS.get(mbti, mbti)
+        keyword = _MBTI_KEYWORDS.get(mbti, "")
+        city_name = _CITY_NAMES.get(city.lower(), city or "未选择")
+        travel_style_fallback = _TRAVEL_STYLES.get(mbti, "随性探索型")
+
+        # avatar_prompt
+        prompt_parts = [keyword, label]
+        if interests:
+            prompt_parts.append("热爱" + "、".join(interests[:3]))
+        if city_name and city_name != "未选择":
+            prompt_parts.append(f"向往{city_name}")
+        if voice_text and len(voice_text.strip()) > 5:
+            prompt_parts.append("真实自我描述：" + voice_text.strip()[:30])
+        avatar_prompt = "，".join(prompt_parts)
+
+        # layer0 硬规则
+        layer0_hard_rules = _build_layer0_rules(mbti, interests)
+
+        # travel_style 可能是 dict（LLM返回）或 str
+        travel_style_val = llm_persona.get("travel_style", "")
+        if isinstance(travel_style_val, dict):
+            travel_style_str = travel_style_val.get("overall", travel_style_fallback)
+        else:
+            travel_style_str = str(travel_style_val) or travel_style_fallback
+
+        # mbti_influence
+        mbti_influence = llm_persona.get(
+            "mbti_influence",
+            f"MBTI={mbti}，{keyword}，{label}。城市探索偏好：{city_name}。旅行风格：{travel_style_str}。",
+        )
+
+        # confidence_score：LLM 生成时更高
+        data_sources = ["mbti", "llm"]
+        if interests:
+            data_sources.append("interests")
+        if voice_text and len(voice_text.strip()) > 5:
+            data_sources.append("voice_text")
+        if llm_persona.get("_fallback"):
+            confidence = 0.70
+        else:
+            confidence = 0.90
+
+        return {
+            "persona_id": persona_id,
+            "name": label,
+            "avatar_prompt": avatar_prompt,
+            "avatar_emoji": _MBTI_EMOJI.get(mbti, "🤖"),
+            "layer0_hard_rules": layer0_hard_rules,
+            "mbti_influence": mbti_influence,
+            "travel_style": travel_style_str,
+            "soul_fingerprint": fingerprint,
+            "confidence_score": confidence,
+            "data_sources_used": data_sources,
+            # LLM 生成的完整结构
+            "identity": llm_persona.get("identity", {}),
+            "speaking_style": llm_persona.get("speaking_style", {}),
+            "emotion_decision": llm_persona.get("emotion_decision", {}),
+            "social_behavior": llm_persona.get("social_behavior", {}),
+            # 扩展字段（如果 LLM 返回了的话）
+            "negotiation_style": llm_persona.get("negotiation_style", {}),
+            "preferences": llm_persona.get("preferences", {}),
+            "conversation_examples": llm_persona.get("conversation_examples", {}),
+            "compatibility_notes": llm_persona.get("compatibility_notes", {}),
+            "travel_style_detail": (
+                llm_persona.get("travel_style")
+                if isinstance(llm_persona.get("travel_style"), dict)
+                else {}
+            ),
+        }
+
+    # ── 2. Fallback：使用硬编码 MBTI 映射表 ────────────────────────────────
+    return _build_persona_from_mbti(mbti, interests, city, voice_text)
+
+
+def _build_persona_from_mbti(
+    mbti: str,
+    interests: List[str],
+    city: str,
+    voice_text: str,
+) -> Dict[str, Any]:
+    """
+    Fallback 路径：使用硬编码的 MBTI 映射表生成 persona。
+    当 LLM 完全不可用时使用此函数。
+    """
+    mbti = mbti.strip().upper()
+    if len(mbti) < 4:
+        mbti = "ENFP"
+    mbti_lower = mbti.lower()
 
     # 尝试加载 Mock 数据
     mock = _load_mock_persona(mbti)
-
-    interests = interests or []
-    voice_text = voice_text or ""
 
     # 解析 MBTI 四个维度
     dims = _parse_mbti_dimensions(mbti)
@@ -841,7 +1083,6 @@ def _build_persona_from_onboarding(
     travel_style = _TRAVEL_STYLES.get(mbti, "随性探索型")
 
     # city emoji
-    city_emoji = _CITY_EMOJI.get(city.lower(), "")
     city_name = _CITY_NAMES.get(city.lower(), city or "未选择")
 
     # avatar_prompt：综合 MBTI + interests + city
@@ -999,30 +1240,54 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
     POST /api/onboarding
 
     保存用户引导数据（MBTI + 兴趣 + 语音 + 城市）。
-    基于用户完整输入动态生成 Persona（L1-L4层用 MING 四维框架）。
-    MVP 阶段存内存，重启清空。
+    调用 MiniMax LLM 生成 persona .md 文件（YAML frontmatter + Markdown body），
+    同时保留内存字典以支持向后兼容。
     """
+    import logging
+    logger = logging.getLogger("twinbuddy.api")
+
     user_id = str(uuid.uuid4())
     data = req.model_dump()
     _onboarding_store[user_id] = data
 
-    # 动态生成完整 Persona（使用 MING 四维框架）
+    # 生成 persona .md 文件（调用 MiniMax LLM）
+    doc, _, doc_path = persona_doc.generate_persona_doc(
+        mbti=req.mbti,
+        city=req.city,
+        interests=req.interests,
+        voice_text=req.voiceText,
+        user_id=user_id,
+    )
+
+    # 构建内存 persona dict（用于向后兼容和快速读取）
     persona = _build_persona_from_onboarding(
         mbti=req.mbti,
         city=req.city,
         interests=req.interests,
         voice_text=req.voiceText,
     )
+    # 如果 LLM 生成成功，用 frontmatter 补充内存 dict 的 prefs 字段
+    if doc:
+        fm = persona_doc.extract_frontmatter(doc)
+        if fm:
+            prefs = persona_doc.default_prefs_from_frontmatter(fm)
+            persona = {**persona, **prefs}
+    persona["persona_id"] = persona.get("persona_id") or f"persona-{req.mbti.lower()}-{user_id[:8]}"
     _persona_store[user_id] = persona
 
     # 异步持久化到文件（不阻塞响应）
     _save_store_async(_ONBOARDING_STORE_FILE, _onboarding_store)
     _save_store_async(_PERSONA_STORE_FILE, _persona_store)
 
+    if doc:
+        logger.info("Persona .md 已生成: %s", doc_path)
+    else:
+        logger.warning("Persona LLM 生成失败，使用规则生成 fallback | user_id=%s", user_id)
+
     return {
         "success": True,
         "data": {"user_id": user_id, "persona_id": persona["persona_id"]},
-        "meta": {"message": "已保存"},
+        "meta": {"message": "已保存", "doc_path": str(doc_path) if doc_path else ""},
     }
 
 
@@ -1032,11 +1297,21 @@ async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
     GET /api/persona?user_id=xxx
 
     获取当前用户的数字孪生人格。
-    如果内存中没有，尝试从 onboarding 数据重新生成。
+    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成
     """
+    # 1. 尝试从 .md 文件读取
+    md_doc = persona_doc.load_persona_doc(user_id)
+    if md_doc:
+        fm, body = persona_doc.parse_persona_doc(md_doc)
+        if fm:
+            persona = persona_doc.dict_from_frontmatter(fm, body)
+            return {"success": True, "data": persona}
+
+    # 2. 尝试从内存读取
     if user_id in _persona_store:
         return {"success": True, "data": _persona_store[user_id]}
 
+    # 3. 从 onboarding 重新生成
     if user_id in _onboarding_store:
         onboarding = _onboarding_store[user_id]
         persona = _build_persona_from_onboarding(
@@ -1074,13 +1349,20 @@ async def get_feed(
     # 1. 加载视频数据
     videos = _load_mock_videos()
 
-    # 2. 构建用户偏好（尝试从 onboarding store 获取）
+    # 2. 构建用户偏好（优先从 onboarding store，fallback 到 persona .md 文件）
     user_prefs: Optional[Dict[str, Any]] = None
     onboarding: Optional[Dict[str, Any]] = None
 
-    if user_id and user_id in _onboarding_store:
-        onboarding = _onboarding_store[user_id]
-        user_prefs = _build_user_prefs(onboarding)
+    if user_id:
+        if user_id in _onboarding_store:
+            onboarding = _onboarding_store[user_id]
+            user_prefs = _build_user_prefs(onboarding, user_id)
+        else:
+            # 服务器重启后：onboarding_store 可能有数据，但 user_id 不在当前内存
+            # 尝试直接从 persona .md 文件读取
+            md_prefs = persona_doc.get_persona_for_algorithm(user_id)
+            if md_prefs:
+                user_prefs = md_prefs
 
     # 3. 获取 top-N 搭子（使用 MING 六维度评分）
     top_buddies: List[Dict[str, Any]] = []
@@ -1095,6 +1377,13 @@ async def get_feed(
     #    兼容性分数 >= 60 时触发懂你卡片，否则显示为普通视频
     CARD_TRIGGER_THRESHOLD = 60.0
 
+    # Guest 用户的默认评分偏好（用于在没有 user_prefs 时展示兼容性分数）
+    _GUEST_PREFS = {
+        "mbti": "ENFP",
+        "travel_style": "随性探索型",
+        "preferences": {"likes": ["美食", "拍照", "自然风光"], "dislikes": ["暴走"], "pace": "慢悠悠"},
+    }
+
     enriched_videos = []
     for i, video in enumerate(videos):
         v = dict(video)
@@ -1105,19 +1394,31 @@ async def get_feed(
         if is_twin_card and i < len(top_buddies):
             buddy = top_buddies[i]
             score = buddy.get("_score", 0.0)
+            # Guest 用户：实时计算相对于默认 ENFP 的兼容性分数
+            if user_prefs is None:
+                score = round(_mock_compat_breakdown(_GUEST_PREFS, buddy)["total"], 1)
 
-            # 低于触发阈值，降级为普通视频
-            if score < CARD_TRIGGER_THRESHOLD:
+            # 低于触发阈值，降级为普通视频（仅对登录用户应用；guest 展示所有卡片）
+            if user_prefs is not None and score < CARD_TRIGGER_THRESHOLD:
                 v["type"] = "video"
                 v["buddy"] = None
+            elif user_prefs is None:
+                # Guest 用户：实时计算分数但不做阈值过滤；buddy 始终附加
+                v["buddy"] = get_buddy_public(buddy_with_score, user_prefs)
+                v["location"] = city or _CITY_NAMES.get(
+                    onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
+                )
             else:
-                v["buddy"] = get_buddy_public(buddy, user_prefs)
+                # 临时注入 score 供 get_buddy_public 使用
+                buddy_with_score = dict(buddy, _score=score)
+                v["buddy"] = get_buddy_public(buddy_with_score, user_prefs)
                 v["location"] = city or _CITY_NAMES.get(
                     onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
                 )
         elif is_twin_card:
-            # 没有更多搭子，降级
-            v["type"] = "video"
+            # 没有更多搭子（logged-in user 降级；guest 保持类型）
+            if user_prefs is not None:
+                v["type"] = "video"
             v["buddy"] = None
         # 普通视频保持原样
 
@@ -1125,7 +1426,7 @@ async def get_feed(
 
     return {
         "success": True,
-        "videos": enriched_videos,
+        "data": enriched_videos,
         "buddies": [get_buddy_public(b, user_prefs) for b in top_buddies[:10]],
         "user_prefs": user_prefs,
         "meta": {
@@ -1189,7 +1490,7 @@ async def get_buddies(
         )
 
     onboarding = _onboarding_store[user_id]
-    user_prefs = _build_user_prefs(onboarding)
+    user_prefs = _build_user_prefs(onboarding, user_id)
 
     # 2. 获取 top-N 搭子（使用 MING 六维度评分）
     top_buddies = get_top_buddies(user_prefs, limit=limit)
@@ -1213,7 +1514,11 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     """
     POST /api/negotiate
 
-    双数字人协商：优先使用 LLM 真实生成，fallback 到 Mock 数据。
+    双数字人协商：
+      - 用户端：优先从 persona .md 文件读取，其次查内存 _persona_store
+      - Buddy端：优先从 .md 文件读取（persona_doc.get_buddy_doc），
+                 其次从 buddies/ JSON 加载，最后 fallback 到规则生成
+      - LLM 调用失败时降级到 Mock 数据
     """
     import logging
     logger = logging.getLogger("twinbuddy.api")
@@ -1221,13 +1526,23 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     city = req.destination or "dali"
     city_name = _CITY_NAMES.get(city, city or "大理")
 
-    # 尝试获取用户真实 persona
-    user_persona = None
+    # ── 获取用户 persona（优先 .md 文件，其次内存）────────────────────
+    user_persona: Optional[Dict[str, Any]] = None
     user_mbti = "ENFP"
     user_name = "你"
+
     if req.user_persona_id:
-        for p in _persona_store.values():
+        # 方式1：从内存找到后，尝试升级到 .md 文件
+        for uid_key, p in _persona_store.items():
             if p.get("persona_id") == req.user_persona_id:
+                md_doc = persona_doc.load_persona_doc(uid_key)
+                if md_doc:
+                    fm, body = persona_doc.parse_persona_doc(md_doc)
+                    if fm:
+                        user_persona = persona_doc.dict_from_frontmatter(fm, body)
+                        user_name = str(user_persona.get("name") or user_name)
+                        user_mbti = fm.get("mbti", user_mbti)
+                        break
                 user_persona = p
                 user_name = str(p.get("name") or user_name)
                 user_mbti = (
@@ -1237,28 +1552,62 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 )
                 break
 
+    # ── 获取 Buddy persona（优先 .md 文件，其次 JSON，最后规则生成）──
     buddy_mbti = (req.buddy_mbti or "INFP").upper()
     buddy_config = _BUDDY_CONFIGS.get(buddy_mbti.lower(), _BUDDY_CONFIGS["enfp"])
 
-    # 构建搭子 persona（从 Mock 目录加载，缺失则动态生成）
-    import uuid as _uuid
-    twin_persona = _load_mock_persona(buddy_mbti) or {
-        "persona_id": f"persona-{buddy_mbti.lower()}-{_uuid.uuid4().hex[:8]}",
-        "mbti_type": buddy_mbti,
-        "travel_style": buddy_config["travel_style"],
-        "speaking_style": {
-            "chat_tone": "温和细腻",
-            "typical_phrases": buddy_config["typical_phrases"],
-        },
-        "mbti_dimension_evidence": {"energy": "introvert", "lifestyle": "perceiving"},
-    }
+    # 方式1：从 buddy .md 文件加载（persona_doc 统一接口）
+    buddy_md = persona_doc.get_buddy_doc(f"buddy_{buddy_mbti.lower()}") if req.buddy_mbti else None
+    if buddy_md:
+        fm, body = persona_doc.parse_persona_doc(buddy_md)
+        twin_persona = persona_doc.dict_from_frontmatter(fm, body) if fm else None
+    else:
+        twin_persona = None
+
+    # 方式2：从 buddies/ JSON 加载
+    if not twin_persona:
+        twin_persona = _load_mock_persona(buddy_mbti)
+
+    # 方式3：fallback 到规则生成
+    if not twin_persona:
+        import uuid as _uuid
+        twin_persona = {
+            "persona_id": f"persona-{buddy_mbti.lower()}-{_uuid.uuid4().hex[:8]}",
+            "mbti_type": buddy_mbti,
+            "travel_style": buddy_config["travel_style"],
+            "speaking_style": {
+                "chat_tone": "温和细腻",
+                "typical_phrases": buddy_config["typical_phrases"],
+            },
+            "mbti_dimension_evidence": {"energy": "introvert", "lifestyle": "perceiving"},
+        }
 
     # 尝试 LLM 真实协商
     try:
         from langgraph.graph import run_negotiation
+
+        # 使用的人格数据（优先用户 persona，fallback 到动态生成）
+        active_user_persona = (
+            user_persona
+            or _build_persona_from_onboarding(user_mbti, city, [], "")
+        )
+
+        # 构建 user_prefs 以计算兼容性分解（供 LLM 深度注入）
+        user_prefs_for_compat: Optional[Dict[str, Any]] = None
+        try:
+            user_prefs_for_compat = _build_user_prefs_from_persona(active_user_persona)
+        except Exception:
+            pass
+
+        # 计算协商兼容性分解（包含 total/strengths/red_flags/easy_to_compromise）
+        compat_breakdown = _get_negotiation_compatibility_breakdown(
+            user_prefs_for_compat, twin_persona
+        )
+
         langgraph_result = run_negotiation(
-            user_persona or _build_persona_from_onboarding(user_mbti, city, [], ""),
+            active_user_persona,
             twin_persona,
+            user_compatibility_breakdown=compat_breakdown,
         )
         rounds = langgraph_result.get("rounds", [])
         consensus_scores = langgraph_result.get("consensus_scores", {})

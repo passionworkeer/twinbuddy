@@ -171,26 +171,29 @@ def _load_all_buddy_raw() -> List[dict]:
         used_encoding = None
 
         # 编码策略：
-        # 1. latin-1 优先 — 保留原始字节，不丢失数据（部分文件混合 UTF-8/GBK）
-        # 2. utf-8 回退 — 纯 UTF-8 文件
-        for enc in ("latin-1", "utf-8"):
+        # 1. 严格 UTF-8 — 大多数 LLM 生成文件是标准 UTF-8
+        #    如果失败（因为有 GBK 字节），进入 except 分支
+        # 2. latin-1 — 读取原始字节，保持数据完整，由 _fix_inner_quotes 处理引号问题
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                raw_text = f.read()
+            used_encoding = "utf-8"
+        except UnicodeDecodeError:
+            # UTF-8 失败（文件含 GBK 字节），用 latin-1 读取原始字节
             try:
-                with open(fpath, "r", encoding=enc) as f:
+                with open(fpath, "r", encoding="latin-1") as f:
                     raw_text = f.read()
-                used_encoding = enc
-                break
-            except UnicodeDecodeError:
+                used_encoding = "latin-1"
+            except Exception:
+                errors.append(f"{fpath.name}: 编码读取失败")
                 continue
 
-        if raw_text is None:
-            errors.append(f"{fpath.name}: 所有编码均失败")
-            continue
-
-        # 修复 JSON 字符串值内部的未转义 ASCII 双引号
-        fixed_text = _fix_inner_quotes(raw_text)
+        # 修复 JSON 字符串值内部的未转义 ASCII 双引号（仅 latin-1 模式下需要）
+        if used_encoding == "latin-1":
+            raw_text = _fix_inner_quotes(raw_text)
 
         try:
-            raw = json.loads(fixed_text)
+            raw = json.loads(raw_text)
             normalized = _normalize_buddy(raw)
             buddies.append(normalized)
         except json.JSONDecodeError:
@@ -294,12 +297,11 @@ def get_all_buddies() -> List[dict]:
     返回所有搭子列表（已规范化）。
     如果 buddies/ 目录不存在或为空，自动回退到 agents.mock_database.MOCK_BUDDIES。
     """
-    from agents.mock_database import MOCK_BUDDIES
-
     raw = _load_all_buddy_raw()
     if raw:
         return raw
-    # 回退到内存中的 MOCK_BUDDIES
+    # 回退到 MOCK_BUDDIES
+    from twinbuddy.agents.mock_database import MOCK_BUDDIES
     _logger.info("使用 MOCK_BUDDIES 回退（共 %d 个搭子）", len(MOCK_BUDDIES))
     return MOCK_BUDDIES
 
@@ -307,9 +309,16 @@ def get_all_buddies() -> List[dict]:
 def get_buddy_by_id(buddy_id: str) -> Optional[dict]:
     """
     根据 buddy_id 查找单个搭子。
+    优先从 JSON 文件加载器查询；未找到时回退到 MOCK_BUDDIES 内存列表。
     未找到时返回 None。
     """
+    # 1. 先查 JSON 文件（已缓存）
     for b in get_all_buddies():
+        if b.get("id") == buddy_id:
+            return b
+    # 2. 回退到 MOCK_BUDDIES（处理 JSON 解析失败的搭子）
+    from twinbuddy.agents.mock_database import MOCK_BUDDIES
+    for b in MOCK_BUDDIES:
         if b.get("id") == buddy_id:
             return b
     return None
@@ -328,7 +337,7 @@ def get_top_buddies(user_prefs: dict, limit: int = 3) -> List[dict]:
           _score      — 整体兼容度 (0-100)
           _breakdown  — 六维度详细评分（雷达图用）
     """
-    from agents.mock_database import score_compatibility, get_compatibility_breakdown
+    from twinbuddy.agents.mock_database import score_compatibility, get_compatibility_breakdown
 
     buddies = get_all_buddies()
     scored: List[dict] = []
@@ -349,7 +358,7 @@ def get_compatibility_breakdown(user_prefs: dict, buddy_id: str) -> Optional[dic
     返回指定搭子的六维度兼容性雷达图数据。
     未找到 buddy_id 时返回 None。
     """
-    from mock_database import get_compatibility_breakdown as _score_breakdown
+    from twinbuddy.agents.mock_database import get_compatibility_breakdown as _score_breakdown
 
     buddy = get_buddy_by_id(buddy_id)
     if not buddy:
@@ -383,17 +392,21 @@ def get_buddy_prompt(buddy_id: str) -> str:
         return ""
 
 
-def get_buddy_public(buddy: dict, user_prefs: Optional[dict] = None) -> dict:
+def get_buddy_public(buddy, user_prefs: Optional[dict] = None) -> dict:
     """
     将搭子数据转换为前端 API 响应格式。
 
     参数:
-        buddy: 搭子字典（来自 get_buddy_by_id 或 get_top_buddies 的结果）
+        buddy: 搭子字典或 buddy_id 字符串（来自 get_buddy_by_id 或 get_top_buddies 的结果）
         user_prefs: 用户偏好（可选，用于附加兼容性数据）
 
     返回:
         前端期望的搭子公开字段字典。
     """
+    # 支持传入 buddy_id 字符串
+    if isinstance(buddy, str):
+        buddy = get_buddy_by_id(buddy) or {}
+
     result = {
         "id": buddy.get("id", ""),
         "name": buddy.get("name", ""),
@@ -422,7 +435,7 @@ def get_buddy_public(buddy: dict, user_prefs: Optional[dict] = None) -> dict:
 
     # 如果传入了 user_prefs 但没有预计算，重新算一次
     if user_prefs and "compatibility_score" not in result:
-        from agents.mock_database import score_compatibility, get_compatibility_breakdown
+        from twinbuddy.agents.mock_database import score_compatibility, get_compatibility_breakdown
         result["compatibility_score"] = round(score_compatibility(user_prefs, buddy), 1)
         result["compatibility_breakdown"] = get_compatibility_breakdown(user_prefs, buddy)
 

@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-04-17T15:52:36.495146+00:00",
+  "persona_id": "mock-ISTJ-44b1422e",
+  "soul_fingerprint": "ISTJ-f4336cc9",
+  "confidence_score": 0.88,
+  "mbti": "ISTJ",
+  "data_sources_used": [
+    "mbti",
+    "bio",
+    "chat_logs"
+  ],
+  "mbti_influence": "MBTI=ISTJ。理性主导，内倾。",
+  "layer0_hard_rules": {
+    "dealbreakers": [
+      "欺骗"
+    ],
+    "must_haves": [
+      "真诚"
+    ]
+  },
+  "identity": {
+    "core_values": [
+      "reading",
+      "sports",
+      "tech",
+      "nature"
+    ],
+    "life_goals": [
+      "自我成长"
+    ]
+  },
+  "speaking_style": {
+    "tone": "balanced",
+    "emoji_freq": "medium"
+  },
+  "emotion_decision": {
+    "decision_style": "thinking",
+    "risk_tolerance": "medium"
+  },
+  "social_behavior": {
+    "social_energy": "introvert",
+    "friend_circle": "small"
+  },
+  "travel_style": {
+    "preferred_pace": "planned",
+    "budget": "mid-high"
+  },
+  "mbti_summary": "ISTJ类型，独处充电。",
+  "_internal": {
+    "cognition": {
+      "mbti_dimension_evidence": {
+        "energy": "introvert",
+        "information": "sensing",
+        "decision": "thinking",
+        "lifestyle": "judging"
+      }
+    },
+    "expression": {
+      "speaking_style_evidence": {
+        "formality": "balanced",
+        "has_emoji": false
+      }
+    },
+    "behavior": {
+      "interest_tags": [
+        "reading",
+        "sports",
+        "tech",
+        "nature"
+      ]
+    },
+    "emotion": {
+      "decision_style": "thinking"
+    }
+  }
+}

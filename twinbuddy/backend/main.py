@@ -44,6 +44,7 @@ from pydantic import BaseModel, Field, field_validator
 
 # 项目内部模块
 from persona_engine import generate_persona
+from api.frontend_api import router as frontend_router
 
 # ---------------------------------------------------------------------------
 # 配置
@@ -78,6 +79,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# 前端对接路由
+app.include_router(frontend_router)
 
 # CORS — 允许前端 localhost:5173
 app.add_middleware(

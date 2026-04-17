@@ -28,9 +28,9 @@ class TestOnboardingEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["success"] is True
-        assert data["message"] == "已保存"
-        assert "user_id" in data
-        assert "persona_id" in data
+        assert data["meta"]["message"] == "已保存"
+        assert "user_id" in data["data"]
+        assert "persona_id" in data["data"]
 
     def test_save_onboarding_normalizes_mbti(self):
         resp = client.post("/api/onboarding", json={
@@ -40,7 +40,7 @@ class TestOnboardingEndpoint:
         })
         assert resp.status_code == 200
         data = resp.json()
-        assert data["persona_id"].startswith("persona-enfp-")
+        assert data["data"]["persona_id"].startswith("persona-enfp-")
 
     def test_save_onboarding_minimal(self):
         resp = client.post("/api/onboarding", json={
@@ -67,7 +67,7 @@ class TestPersonaEndpoint:
     def test_get_persona_after_onboarding(self):
         # 先保存 onboarding
         save_resp = client.post("/api/onboarding", json={"mbti": "INFP"})
-        user_id = save_resp.json()["user_id"]
+        user_id = save_resp.json()["data"]["user_id"]
 
         # 再获取 persona
         resp = client.get(f"/api/persona?user_id={user_id}")

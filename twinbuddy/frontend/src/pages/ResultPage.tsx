@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, MapPin, Calendar, Wallet, Heart, ArrowRight, RotateCcw } from 'lucide-react';
 import { RadarChart } from '../components/twin-card/RadarChart';
-import type { RadarData } from '../types';
+import type { RadarData, NegotiationResult } from '../types';
+import { STORAGE_KEYS } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 // ── Mock Result ───────────────────────────────────────
@@ -110,8 +111,8 @@ export default function ResultPage() {
 
   // Calculate overall score from radar
   const avgScore = Math.round(
-    MOCK_RESULT.radar.reduce((sum, d) => sum + (d.user_score + d.buddy_score) / 2 * d.weight, 0) /
-    MOCK_RESULT.radar.reduce((sum, d) => sum + d.weight, 0),
+    MOCK_RESULT.radar.reduce((sum: number, d: RadarData) => sum + (d.user_score + d.buddy_score) / 2 * d.weight, 0) /
+    MOCK_RESULT.radar.reduce((sum: number, d: RadarData) => sum + d.weight, 0),
   );
 
   useEffect(() => {

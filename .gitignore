@@ -4,6 +4,8 @@ node_modules/
 # Embedded git repos (not part of this project)
 digital-life/
 immortal-skill/
+relic.skill/
+yourself-skill/
 
 # Build outputs
 dist/
@@ -26,7 +28,6 @@ Thumbs.db
 # Python
 __pycache__/
 *.py[cod]
-.env
 
 # Temporary files
 *.tmp

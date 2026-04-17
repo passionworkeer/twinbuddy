@@ -24,12 +24,47 @@
 **所有超过 200 行改动的任务，必须用 Agent Teams 开发：**
 
 ```
-Lead Agent（主控）
-├── Frontend Agent（前端）
-├── Backend Agent（后端）
+Agent Teams（孪生搭子项目）
+│
+├── Lead Agent（主控/项目经理）
+│   └── 负责任务分解、协调、进度跟踪、最终交付
+│
+├── Frontend Agent（前端开发）
+│   └── React + Tailwind + Rive + 组件开发
+│
+├── Backend Agent（后端开发）
+│   └── FastAPI + LangGraph + Fusion 引擎
+│
 ├── Content Agent（内容/Mock）
-└── QA Agent（测试）
+│   └── Mock 人格（20个）+ 视频（10个）+ 预生成对话
+│
+├── QA Agent（测试）
+│   └── TDD + 单元测试 + 集成测试
+│
+├── E2E Agent（Playwright）
+│   └── 浏览器自动化测试 + 关键流程覆盖
+│
+├── Code Review Agent（代码审查）
+│   └── 代码质量 + 安全 + 最佳实践
+│
+├── Design Agent（UI/UX）
+│   └── 视觉设计 + 组件规范 + 动效设计
+│
+└── DevOps Agent（部署）
+    └── 打包 + 传服务器 + 验证
 ```
+
+**注意：** 并非所有任务都需要全部角色。根据任务类型选择合适的 Agent 组合。
+
+| 任务类型 | 所需 Agent |
+|---------|-----------|
+| 新功能（前后端） | Lead + Frontend + Backend + QA |
+| UI/组件开发 | Design + Frontend + E2E |
+| API 开发 | Backend + QA |
+| 内容制作 | Content |
+| 部署上线 | DevOps + QA |
+| 代码审查 | Code Review |
+| 完整 Phase | Lead + 全部角色 |
 
 **启动方式：**
 - 并行任务用 `Agent(..., run_in_background=True)`

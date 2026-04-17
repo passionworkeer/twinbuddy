@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 from .state import NegotiationState, NegotiationPhase, NegotiationRound
 from .nodes import TOPICS, TOPIC_LABELS, PROPOSALS, _trait
-from ..llm_client import llm_client
+from .llm_client import llm_client
 
 # ── System Prompts ─────────────────────────────────────────────────────────
 

@@ -50,12 +50,14 @@ export function useOnboarding() {
   }, [setData]);
 
   // Determine which step the user is currently on (1-4)
-  // Step 3: mbti + interests filled (voice/city optional)
-  // Step 4: mbti + interests filled, at city selection (city optional)
+  // Step 2: mbti selected (on interests step)
+  // Step 3: mbti + interests filled (on voice/text step — optional)
+  // Step 4: completed (on city step — optional)
   const currentStep = useCallback((): number => {
     if (data.mbti && data.interests.length > 0) {
-      // Step 3 onwards — city is optional, always reachable
-      return 4;
+      // Both required fields filled — still on step 3 (voice/text), city is optional
+      // Step 4 only reached when completed
+      return data.completed ? 4 : 3;
     }
     if (data.mbti) return 2;
     if (data.completed) return 4;

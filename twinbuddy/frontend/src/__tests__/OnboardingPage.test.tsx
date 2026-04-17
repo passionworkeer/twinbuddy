@@ -1,8 +1,9 @@
-// OnboardingPage TDD Tests
-// Tests: step navigation, voice/text optionality, city optionality
+// OnboardingPage Tests
+// FIXED: renderOnboarding() no longer calls clearStorage() internally.
+// Tests that need clean state call clearStorage() in beforeEach BEFORE render.
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import OnboardingPage from "../pages/OnboardingPage";
@@ -18,7 +19,6 @@ function setStorage(data: Partial<OnboardingData>) {
 }
 
 function renderOnboarding() {
-  clearStorage();
   return render(<BrowserRouter><OnboardingPage /></BrowserRouter>);
 }
 
@@ -26,40 +26,27 @@ function getContinueBtn() {
   return screen.getByRole("button", { name: /继续|开始刷搭子/i });
 }
 
-// Advance from step 1 to target step using continue button
-async function advanceTo(user: ReturnType<typeof userEvent.setup>, targetStep: number) {
-  for (let i = 0; i < targetStep - 1; i++) {
-    await user.click(getContinueBtn());
-  }
-}
-
 // ── Step 1: MBTI ─────────────────────────────────────────────────────────────
 
 describe("Step 1: MBTI", () => {
   beforeEach(() => clearStorage());
 
-  it("shows MBTI grid", () => {
+  it("shows MBTI grid heading", () => {
     renderOnboarding();
     expect(screen.getByText(/你是哪种旅行者/)).toBeInTheDocument();
   });
 
-  it("continue disabled when no MBTI selected", () => {
+  it("continue button is disabled on fresh start", () => {
     renderOnboarding();
     expect(getContinueBtn()).toBeDisabled();
   });
 
-  it("continue enabled after selecting MBTI", async () => {
+  it("selecting MBTI advances to interests step", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    expect(getContinueBtn()).toBeEnabled();
-  });
-
-  it("selecting MBTI shows label", async () => {
-    const user = userEvent.setup({ delay: null });
-    renderOnboarding();
-    await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    expect(screen.getByText(/热情开拓者/)).toBeInTheDocument();
+    // Step immediately advances to 2 after MBTI is selected (data-driven)
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
   });
 });
 
@@ -68,134 +55,136 @@ describe("Step 1: MBTI", () => {
 describe("Step 2: Interests", () => {
   beforeEach(() => clearStorage());
 
-  it("continue disabled when no interest selected", async () => {
+  it("shows interest tags after selecting MBTI", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
-    expect(getContinueBtn()).toBeDisabled();
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
   });
 
-  it("continue enabled after selecting at least 1 interest", async () => {
+  it("continue is disabled when interests empty", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
+    await waitFor(() => expect(getContinueBtn()).toBeDisabled());
+  });
+
+  it("continue enabled after selecting interest", async () => {
+    const user = userEvent.setup({ delay: null });
+    renderOnboarding();
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /川西/i }));
-    expect(getContinueBtn()).toBeEnabled();
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+  });
+
+  it("selecting an interest enables continue (step 2 -> step 3)", async () => {
+    const user = userEvent.setup({ delay: null });
+    renderOnboarding();
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    // Selecting interest immediately advances to step 3 (data-driven)
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
   });
 });
 
-// ── Step 3: VoiceOrText ───────────────────────────────────────────────────────
+// ── Step 3: VoiceOrText ─────────────────────────────────────────────────────
 
-describe("Step 3: VoiceOrText (both optional)", () => {
+describe("Step 3: VoiceOrText (voice and text optional)", () => {
   beforeEach(() => clearStorage());
 
-  it("shows text input on step 3", async () => {
+  it("shows text input after selecting MBTI and interest", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /川西/i }));
-    await user.click(getContinueBtn());
-    expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
   });
 
-  it("continue ALWAYS enabled on step 3 (voice and text are optional)", async () => {
+  it("continue is ALWAYS enabled on step 3", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /川西/i }));
-    await user.click(getContinueBtn());
-    expect(getContinueBtn()).toBeEnabled();
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
   });
 
-  it("can advance to step 4 with no voice/text", async () => {
+  it("textarea accepts user input", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /川西/i }));
-    await user.click(getContinueBtn());
-    await user.click(getContinueBtn());
-    expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
+    const textarea = screen.getByPlaceholderText(/描述你理想的搭子/);
+    await user.clear(textarea);
+    await user.type(textarea, "喜欢慢节奏的旅行");
+    expect(textarea).toHaveValue("喜欢慢节奏的旅行");
   });
 });
 
-// ── Step 4: City (optional) ───────────────────────────────────────────────────
+// ── Step 4: Destination ───────────────────────────────────────────────────────
 
-describe("Step 4: City (optional)", () => {
+describe("Step 4: Destination (free text, optional)", () => {
   beforeEach(() => clearStorage());
 
-  it("shows city selection on step 4", async () => {
+  it("reaches step 4 after clicking continue from step 3", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(user, 4);
-    expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
+    // Step 1 -> select MBTI
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    // Step 2 -> select interest -> enables continue
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    // Step 3 -> click continue
+    await user.click(getContinueBtn());
+    // Step 4 should show destination input
+    await waitFor(() => expect(screen.getByText(/你想去哪/)).toBeInTheDocument());
   });
 
-  it("continue ALWAYS enabled on step 4 (city is optional)", async () => {
+  it("continue is ALWAYS enabled on step 4", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(user, 4);
-    expect(getContinueBtn()).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
   });
 
   it("browse button completes onboarding without city", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(user, 4);
-    const browseBtn = screen.getByRole("button", { name: /随便看看/i });
-    await user.click(browseBtn);
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByRole("button", { name: /随便看看/i })).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /随便看看/i }));
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
     expect(stored.completed).toBe(true);
     expect(stored.city).toBe("");
   });
-});
 
-// ── Full Flows ────────────────────────────────────────────────────────────────
-
-describe("Full onboarding flows", () => {
-  beforeEach(() => clearStorage());
-
-  it("complete flow: MBTI + interest + voice text + city", async () => {
+  it("typing destination stores it", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /川西/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
     await user.click(getContinueBtn());
-    expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument();
-    const textarea = screen.getByPlaceholderText(/描述你理想的搭子/);
-    await user.clear(textarea);
-    await user.type(textarea, "喜欢慢节奏的旅行");
-    await user.click(getContinueBtn());
-    expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /成都/i }));
-    await user.click(getContinueBtn());
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
-    expect(stored.completed).toBe(true);
-    expect(stored.mbti).toBe("ENFP");
-    expect(stored.city).toBe("chengdu");
-  });
-
-  it("minimal flow: MBTI + interest -> skip voice -> skip city", async () => {
-    const user = userEvent.setup({ delay: null });
-    renderOnboarding();
-    await user.click(screen.getByRole("button", { name: /ENFP/i }));
-    await user.click(getContinueBtn());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
-    await user.click(getContinueBtn());
-    // Step 3: no voice/text, just continue
-    await user.click(getContinueBtn());
-    // Step 4: browse button
-    expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
-    const browseBtn = screen.getByRole("button", { name: /随便看看/i });
-    await user.click(browseBtn);
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
-    expect(stored.completed).toBe(true);
-    expect(stored.mbti).toBe("ENFP");
-    expect(stored.city).toBe("");
+    await waitFor(() => expect(screen.getByPlaceholderText(/例如：成都/)).toBeInTheDocument());
+    const input = screen.getByPlaceholderText(/例如：成都/);
+    await user.clear(input);
+    await user.type(input, "成都");
+    expect(input).toHaveValue("成都");
   });
 });

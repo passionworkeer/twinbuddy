@@ -6,6 +6,7 @@ export default function BottomNav() {
     <nav className="bottom-nav px-2">
       <NavLink
         to="/feed"
+        end
         className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
       >
         <Home className="w-5 h-5" />

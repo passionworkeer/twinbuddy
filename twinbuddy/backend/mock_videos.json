@@ -1,0 +1,34 @@
+{
+  "videos": [
+    {
+      "video_id": 1,
+      "title": "一个人的川西自驾，邂逅绝美日落",
+      "category": "travel",
+      "trigger_card": false
+    },
+    {
+      "video_id": 2,
+      "title": "成都美食地图｜必吃的10家苍蝇馆子",
+      "category": "food",
+      "trigger_card": false
+    },
+    {
+      "video_id": 3,
+      "title": "ENFP灵魂拷问：你是这样的自己吗？",
+      "category": "lifestyle",
+      "trigger_card": true
+    },
+    {
+      "video_id": 4,
+      "title": "INFP vs ENFP：理想主义者的共鸣与差异",
+      "category": "social",
+      "trigger_card": true
+    },
+    {
+      "video_id": 5,
+      "title": "ISTJ深度解析：你是不是传说中的靠谱搭子？",
+      "category": "adventure",
+      "trigger_card": true
+    }
+  ]
+}

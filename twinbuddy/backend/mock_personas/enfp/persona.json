@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-04-17T15:52:36.495146+00:00",
+  "persona_id": "mock-ENFP-fff46c4e",
+  "soul_fingerprint": "ENFP-78309fe5",
+  "confidence_score": 0.88,
+  "mbti": "ENFP",
+  "data_sources_used": [
+    "mbti",
+    "bio",
+    "chat_logs"
+  ],
+  "mbti_influence": "MBTI=ENFP。情感主导，外倾。",
+  "layer0_hard_rules": {
+    "dealbreakers": [
+      "欺骗"
+    ],
+    "must_haves": [
+      "真诚"
+    ]
+  },
+  "identity": {
+    "core_values": [
+      "travel",
+      "food",
+      "music",
+      "social",
+      "art"
+    ],
+    "life_goals": [
+      "自我成长"
+    ]
+  },
+  "speaking_style": {
+    "tone": "casual",
+    "emoji_freq": "high"
+  },
+  "emotion_decision": {
+    "decision_style": "feeling",
+    "risk_tolerance": "high"
+  },
+  "social_behavior": {
+    "social_energy": "extrovert",
+    "friend_circle": "large"
+  },
+  "travel_style": {
+    "preferred_pace": "flexible",
+    "budget": "mid-high"
+  },
+  "mbti_summary": "ENFP类型，社交充电。",
+  "_internal": {
+    "cognition": {
+      "mbti_dimension_evidence": {
+        "energy": "extrovert",
+        "information": "intuition",
+        "decision": "feeling",
+        "lifestyle": "perceiving"
+      }
+    },
+    "expression": {
+      "speaking_style_evidence": {
+        "formality": "casual",
+        "has_emoji": true
+      }
+    },
+    "behavior": {
+      "interest_tags": [
+        "travel",
+        "food",
+        "music",
+        "social",
+        "art"
+      ]
+    },
+    "emotion": {
+      "decision_style": "feeling"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-04-17T15:52:36.495146+00:00",
+  "persona_id": "mock-INFP-c67d0ba0",
+  "soul_fingerprint": "INFP-59b7738e",
+  "confidence_score": 0.88,
+  "mbti": "INFP",
+  "data_sources_used": [
+    "mbti",
+    "bio",
+    "chat_logs"
+  ],
+  "mbti_influence": "MBTI=INFP。情感主导，内倾。",
+  "layer0_hard_rules": {
+    "dealbreakers": [
+      "欺骗"
+    ],
+    "must_haves": [
+      "真诚"
+    ]
+  },
+  "identity": {
+    "core_values": [
+      "reading",
+      "writing",
+      "music",
+      "art",
+      "nature"
+    ],
+    "life_goals": [
+      "自我成长"
+    ]
+  },
+  "speaking_style": {
+    "tone": "refined",
+    "emoji_freq": "medium"
+  },
+  "emotion_decision": {
+    "decision_style": "feeling",
+    "risk_tolerance": "high"
+  },
+  "social_behavior": {
+    "social_energy": "introvert",
+    "friend_circle": "small"
+  },
+  "travel_style": {
+    "preferred_pace": "flexible",
+    "budget": "mid-high"
+  },
+  "mbti_summary": "INFP类型，独处充电。",
+  "_internal": {
+    "cognition": {
+      "mbti_dimension_evidence": {
+        "energy": "introvert",
+        "information": "intuition",
+        "decision": "feeling",
+        "lifestyle": "perceiving"
+      }
+    },
+    "expression": {
+      "speaking_style_evidence": {
+        "formality": "refined",
+        "has_emoji": false
+      }
+    },
+    "behavior": {
+      "interest_tags": [
+        "reading",
+        "writing",
+        "music",
+        "art",
+        "nature"
+      ]
+    },
+    "emotion": {
+      "decision_style": "feeling"
+    }
+  }
+}

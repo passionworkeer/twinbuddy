@@ -2,11 +2,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { VideoCard } from '../components/feed/VideoCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
-import type { VideoItem, NegotiationResult } from '../types';
+import type { VideoItem, NegotiationResult, OnboardingData } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_KEYS } from '../types';
+import { fetchFeed, negotiate } from '../api/client';
 
-// ── Mock Data ─────────────────────────────────────────
+// ── Mock Data (fallback when API unavailable) ──────────
 
 const MOCK_VIDEOS: VideoItem[] = [
   {
@@ -71,10 +72,12 @@ const MOCK_NEGOTIATION: NegotiationResult = {
 
 function TwinCardOverlay({
   result,
+  isLoading,
   onClose,
   onConfirm,
 }: {
   result: NegotiationResult;
+  isLoading: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -82,6 +85,23 @@ function TwinCardOverlay({
   const handleBackdrop = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
+        onClick={handleBackdrop}
+        role="dialog"
+        aria-modal="true"
+        aria-label="加载中"
+      >
+        <div className="w-full max-w-md pb-24 px-4 flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-4 border-neon-primary/30 border-t-neon-primary rounded-full animate-spin mb-4" />
+          <p className="text-neon-text-secondary text-sm">双数字人协商中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -107,6 +127,9 @@ function TwinCardOverlay({
 
 export default function FeedPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
+  const [isFeedLoading, setIsFeedLoading] = useState(true);
+  const [feedError, setFeedError] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useLocalStorage<Record<string, boolean>>(
     STORAGE_KEYS.video_likes,
     {},
@@ -120,12 +143,40 @@ export default function FeedPage() {
   const [shareCounts] = useState<Record<string, number>>({ v1: 89, v2: 67, twin1: 0 });
 
   const [showTwinCard, setShowTwinCard] = useState(false);
+  const [negotiationResult, setNegotiationResult] = useState<NegotiationResult | null>(null);
+  const [isNegotiating, setIsNegotiating] = useState(false);
   const [cardsSeen, setCardsSeen] = useLocalStorage<string[]>(
     STORAGE_KEYS.twin_cards_seen,
     [],
   );
 
   const feedRef = useRef<HTMLDivElement>(null);
+
+  // Load feed from API on mount
+  useEffect(() => {
+    const loadFeed = async () => {
+      setIsFeedLoading(true);
+      setFeedError(null);
+      try {
+        // 从 localStorage 读取 onboarding 数据
+        const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
+        const onboardingData: OnboardingData | null = stored ? JSON.parse(stored) : null;
+        const city = onboardingData?.city || undefined;
+        const userId = onboardingData?.user_id || undefined;
+
+        const videos = await fetchFeed(city, userId);
+        setFeedVideos(videos);
+      } catch (err) {
+        console.error('Feed API 加载失败，使用 Mock 数据:', err);
+        setFeedError('无法加载真实数据，显示演示内容');
+        setFeedVideos(MOCK_VIDEOS);
+      } finally {
+        setIsFeedLoading(false);
+      }
+    };
+
+    loadFeed();
+  }, []);
 
   // Show twin card after 2nd video
   const triggerTwinCard = useCallback(() => {
@@ -157,7 +208,7 @@ export default function FeedPage() {
   // Initial twin card trigger after mount
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!cardsSeen.includes('twin1')) {
+      if (!cardsSeen.includes('twin1') && !isFeedLoading) {
         setCardsSeen((prev) => [...prev, 'twin1']);
         setShowTwinCard(true);
       }
@@ -166,42 +217,75 @@ export default function FeedPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLike = useCallback(() => {
-    // Like handled by VideoCard internal state
+  // Load onboarding data for negotiation
+  const loadNegotiationResult = useCallback(async (destination: string, buddyMbti: string) => {
+    setIsNegotiating(true);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
+      const onboardingData: OnboardingData | null = stored ? JSON.parse(stored) : null;
+      const userPersonaId = onboardingData?.persona_id || undefined;
+
+      const result = await negotiate({
+        user_persona_id: userPersonaId,
+        buddy_mbti: buddyMbti,
+        destination,
+      });
+      setNegotiationResult(result);
+    } catch (err) {
+      console.error('协商 API 调用失败，使用 Mock 数据:', err);
+      setNegotiationResult(MOCK_NEGOTIATION);
+    } finally {
+      setIsNegotiating(false);
+    }
   }, []);
 
-  const handleComment = useCallback(() => {
-    // Future: open comment modal
-  }, []);
-
-  const handleShare = useCallback(() => {
-    // Future: native share API
-  }, []);
-
+  // When TwinCard overlay is opened, load real negotiation result
   const handleTwinCard = useCallback(() => {
     setShowTwinCard(true);
-  }, []);
+    // Find the twin_card item to get destination and buddy MBTI
+    const twinItem = feedVideos.find((v) => v.type === 'twin_card');
+    const destination = twinItem?.location || 'dali';
+    const buddyMbti = twinItem?.buddy?.mbti || 'ENFP';
+    loadNegotiationResult(destination, buddyMbti);
+  }, [feedVideos, loadNegotiationResult]);
 
   const handleTwinCardConfirm = useCallback(() => {
     setShowTwinCard(false);
+    setNegotiationResult(null);
     // Navigate to result after short delay
     setTimeout(() => {
       window.location.href = '/result';
     }, 800);
   }, []);
 
-  const items: VideoItem[] = [
-    ...MOCK_VIDEOS,
-    {
-      id: 'twin1',
-      type: 'twin_card',
-      cover_url: '',
-      video_url: '',
-      location: '大理',
-      title: '懂你卡片 · 大理之约',
-      buddy: MOCK_VIDEOS[0].buddy,
-    },
-  ];
+  // Use API feed data, fallback to mock
+  const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
+
+  // Build items list: videos + twin_card
+  const twinCardItem: VideoItem = {
+    id: 'twin1',
+    type: 'twin_card',
+    cover_url: '',
+    video_url: '',
+    location: '大理',
+    title: '懂你卡片 · 大理之约',
+    buddy: displayVideos[0]?.buddy,
+  };
+
+  const items: VideoItem[] = [...displayVideos, twinCardItem];
+
+  // Show loading skeleton on first load
+  if (isFeedLoading) {
+    return (
+      <div className="relative min-h-screen bg-black flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-neon-primary/30 border-t-neon-primary rounded-full animate-spin" />
+          <p className="text-neon-text-secondary text-sm">正在加载搭子...</p>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -210,13 +294,18 @@ export default function FeedPage() {
         ref={feedRef}
         className="feed-container"
       >
+        {feedError && (
+          <div className="fixed top-12 left-1/2 -translate-x-1/2 z-30 bg-neon-primary/20 text-neon-primary text-xs px-3 py-1.5 rounded-full">
+            {feedError}
+          </div>
+        )}
         {items.map((item) => (
           <VideoCard
             key={item.id}
             item={item}
-            onLike={handleLike}
-            onComment={handleComment}
-            onShare={handleShare}
+            onLike={() => {}}
+            onComment={() => {}}
+            onShare={() => {}}
             onTwinCard={handleTwinCard}
             liked={!!likedItems[item.id]}
             likeCount={likeCounts[item.id] ?? 0}
@@ -237,8 +326,12 @@ export default function FeedPage() {
       {/* TwinCard Overlay */}
       {showTwinCard && (
         <TwinCardOverlay
-          result={MOCK_NEGOTIATION}
-          onClose={() => setShowTwinCard(false)}
+          result={negotiationResult ?? MOCK_NEGOTIATION}
+          isLoading={isNegotiating}
+          onClose={() => {
+            setShowTwinCard(false);
+            setNegotiationResult(null);
+          }}
           onConfirm={handleTwinCardConfirm}
         />
       )}

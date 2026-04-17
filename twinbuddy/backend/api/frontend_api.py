@@ -432,20 +432,111 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     """
     POST /api/negotiate
 
-    双数字人协商：返回预生成的协商结果。
-    优先使用 Mock 协商数据，fallback 到动态生成。
+    双数字人协商：优先使用 LLM 真实生成，fallback 到 Mock 数据。
     """
-    city = req.destination or "dali"
-    user_mbti = "ENFP"
-    buddy_mbti = req.buddy_mbti or "INFP"
+    import logging
+    logger = logging.getLogger("twinbuddy.api")
 
-    result = _build_negotiation_result(city, user_mbti, buddy_mbti)
-    return {
-        "success": True,
-        "data": result,
-        "meta": {
-            "user_mbti": user_mbti,
-            "buddy_mbti": buddy_mbti,
-            "destination": city,
+    city = req.destination or "dali"
+    city_name = _CITY_NAMES.get(city, city or "大理")
+
+    # 尝试获取用户真实 persona
+    user_persona = None
+    user_mbti = "ENFP"
+    if req.user_persona_id:
+        for p in _persona_store.values():
+            if p.get("persona_id") == req.user_persona_id:
+                user_persona = p
+                user_mbti = p.get("mbti_influence", "ENFP")[:4].upper()
+                break
+
+    buddy_mbti = (req.buddy_mbti or "INFP").upper()
+    buddy_config = _BUDDY_CONFIGS.get(buddy_mbti.lower(), _BUDDY_CONFIGS["enfp"])
+
+    # 构建搭子 persona（从 Mock 目录加载，缺失则动态生成）
+    import uuid as _uuid
+    twin_persona = _load_mock_persona(buddy_mbti) or {
+        "persona_id": f"persona-{buddy_mbti.lower()}-{_uuid.uuid4().hex[:8]}",
+        "mbti_type": buddy_mbti,
+        "travel_style": buddy_config["travel_style"],
+        "speaking_style": {
+            "chat_tone": "温和细腻",
+            "typical_phrases": buddy_config["typical_phrases"],
         },
+        "mbti_dimension_evidence": {"energy": "introvert", "lifestyle": "perceiving"},
     }
+
+    # 尝试 LLM 真实协商
+    try:
+        from langgraph.graph import run_negotiation
+        langgraph_result = run_negotiation(
+            user_persona or _build_persona_from_onboarding(user_mbti, city),
+            twin_persona,
+        )
+        rounds = langgraph_result.get("rounds", [])
+        consensus_scores = langgraph_result.get("consensus_scores", {})
+        final_report = langgraph_result.get("final_report", {})
+
+        # 格式化为前端期望的结构
+        messages = []
+        for r in rounds:
+            ts_base = 1700000000 + r["round_num"] * 100
+            messages.append({"speaker": "user", "content": r.get("proposer_message", ""), "timestamp": ts_base})
+            messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
+
+        radar = []
+        DIM_LABELS = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
+        for i, (t, s) in enumerate(consensus_scores.items()):
+            radar.append({
+                "dimension": DIM_LABELS[i] if i < len(DIM_LABELS) else t,
+                "user_score": int(s * 100),
+                "buddy_score": int(s * 90),
+                "weight": 0.7,
+            })
+
+        plan = final_report.get("strengths", []) if final_report else []
+        if not plan:
+            plan = [
+                f"{city_name}古城民宿2晚",
+                f"{city_name}周边自然风光1天",
+                "特色美食探索之旅",
+            ]
+
+        overall = final_report.get("overall_score", 0.5) if final_report else 0.5
+        result_data = {
+            "destination": city_name,
+            "dates": "5月10日-5月15日",
+            "budget": "人均3500元",
+            "consensus": overall > 0.5,
+            "plan": plan,
+            "matched_buddies": [_persona_store.get(list(_persona_store.keys())[-1], {}).get("name", "你"), buddy_config["name"]],
+            "radar": radar,
+            "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
+            "messages": messages,
+        }
+        logger.info("LLM 协商成功 | overall=%.3f | rounds=%d", overall, len(rounds))
+        return {
+            "success": True,
+            "data": result_data,
+            "meta": {
+                "source": "llm",
+                "user_mbti": user_mbti,
+                "buddy_mbti": buddy_mbti,
+                "destination": city,
+                "overall_score": overall,
+            },
+        }
+    except Exception as exc:
+        logger.warning("LLM 协商失败，降级到 Mock: %s", exc)
+        # Fallback：使用 Mock 数据
+        result = _build_negotiation_result(city, user_mbti, buddy_mbti)
+        return {
+            "success": True,
+            "data": result,
+            "meta": {
+                "source": "mock",
+                "user_mbti": user_mbti,
+                "buddy_mbti": buddy_mbti,
+                "destination": city,
+            },
+        }

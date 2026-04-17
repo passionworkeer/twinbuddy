@@ -2,7 +2,8 @@
 // Tests: step navigation, voice/text optionality, city optionality
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import OnboardingPage from "../pages/OnboardingPage";
 import type { OnboardingData } from "../types";
@@ -26,11 +27,9 @@ function getContinueBtn() {
 }
 
 // Advance from step 1 to target step using continue button
-async function advanceTo(targetStep: number) {
+async function advanceTo(user: ReturnType<typeof userEvent.setup>, targetStep: number) {
   for (let i = 0; i < targetStep - 1; i++) {
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    // Small delay to let React update
-    await act(async () => { await new Promise(r => setTimeout(r, 10)); });
+    await user.click(getContinueBtn());
   }
 }
 
@@ -50,14 +49,16 @@ describe("Step 1: MBTI", () => {
   });
 
   it("continue enabled after selecting MBTI", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
     expect(getContinueBtn()).toBeEnabled();
   });
 
   it("selecting MBTI shows label", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
     expect(screen.getByText(/热情开拓者/)).toBeInTheDocument();
   });
 });
@@ -68,17 +69,19 @@ describe("Step 2: Interests", () => {
   beforeEach(() => clearStorage());
 
   it("continue disabled when no interest selected", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
     expect(getContinueBtn()).toBeDisabled();
   });
 
   it("continue enabled after selecting at least 1 interest", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
     expect(getContinueBtn()).toBeEnabled();
   });
 });
@@ -89,30 +92,33 @@ describe("Step 3: VoiceOrText (both optional)", () => {
   beforeEach(() => clearStorage());
 
   it("shows text input on step 3", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(getContinueBtn());
     expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument();
   });
 
   it("continue ALWAYS enabled on step 3 (voice and text are optional)", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(getContinueBtn());
     expect(getContinueBtn()).toBeEnabled();
   });
 
   it("can advance to step 4 with no voice/text", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(getContinueBtn());
+    await user.click(getContinueBtn());
     expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
   });
 });
@@ -123,22 +129,25 @@ describe("Step 4: City (optional)", () => {
   beforeEach(() => clearStorage());
 
   it("shows city selection on step 4", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(4);
+    await advanceTo(user, 4);
     expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
   });
 
   it("continue ALWAYS enabled on step 4 (city is optional)", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(4);
+    await advanceTo(user, 4);
     expect(getContinueBtn()).toBeEnabled();
   });
 
   it("browse button completes onboarding without city", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await advanceTo(4);
+    await advanceTo(user, 4);
     const browseBtn = screen.getByRole("button", { name: /随便看看/i });
-    await act(async () => { fireEvent.click(browseBtn); });
+    await user.click(browseBtn);
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
     expect(stored.completed).toBe(true);
     expect(stored.city).toBe("");
@@ -151,18 +160,20 @@ describe("Full onboarding flows", () => {
   beforeEach(() => clearStorage());
 
   it("complete flow: MBTI + interest + voice text + city", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(getContinueBtn());
     expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument();
     const textarea = screen.getByPlaceholderText(/描述你理想的搭子/);
-    await act(async () => { fireEvent.change(textarea, { target: { value: "喜欢慢节奏的旅行" } }); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.clear(textarea);
+    await user.type(textarea, "喜欢慢节奏的旅行");
+    await user.click(getContinueBtn());
     expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /成都/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /成都/i }));
+    await user.click(getContinueBtn());
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
     expect(stored.completed).toBe(true);
     expect(stored.mbti).toBe("ENFP");
@@ -170,17 +181,18 @@ describe("Full onboarding flows", () => {
   });
 
   it("minimal flow: MBTI + interest -> skip voice -> skip city", async () => {
+    const user = userEvent.setup({ delay: null });
     renderOnboarding();
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /ENFP/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: /川西/i })); });
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(screen.getByRole("button", { name: /ENFP/i }));
+    await user.click(getContinueBtn());
+    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(getContinueBtn());
     // Step 3: no voice/text, just continue
-    await act(async () => { fireEvent.click(getContinueBtn()); });
+    await user.click(getContinueBtn());
     // Step 4: browse button
     expect(screen.getByText(/你想去哪/)).toBeInTheDocument();
     const browseBtn = screen.getByRole("button", { name: /随便看看/i });
-    await act(async () => { fireEvent.click(browseBtn); });
+    await user.click(browseBtn);
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
     expect(stored.completed).toBe(true);
     expect(stored.mbti).toBe("ENFP");

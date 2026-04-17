@@ -15,6 +15,7 @@ import type {
   Persona,
   VideoItem,
   NegotiationResult,
+  NegotiateParams,
 } from '../types';
 
 // ── 环境配置 ─────────────────────────────────────────
@@ -106,13 +107,14 @@ export async function fetchPersona(userId: string): Promise<Persona> {
 }
 
 /**
- * GET /api/feed?city=xxx
+ * GET /api/feed?city=xxx&user_id=xxx
  * 获取视频 Feed 列表
  * 第3条开始触发懂你卡片（type: "twin_card"）
  */
-export async function fetchFeed(city?: string): Promise<VideoItem[]> {
+export async function fetchFeed(city?: string, userId?: string): Promise<VideoItem[]> {
   const params: Record<string, string> = {};
   if (city) params.city = city;
+  if (userId) params.user_id = userId;
   const res = await apiGet<ApiResponse<VideoItem[]>>('/feed', params);
   return unwrap(res);
 }
@@ -121,12 +123,8 @@ export async function fetchFeed(city?: string): Promise<VideoItem[]> {
  * POST /api/negotiate
  * 双数字人协商，返回预生成协商结果
  */
-export async function negotiate(options: {
-  user_persona_id?: string;
-  buddy_mbti?: string;
-  destination: string;
-}): Promise<NegotiationResult> {
-  const res = await apiPost<ApiResponse<NegotiationResult>, typeof options>(
+export async function negotiate(options: NegotiateParams): Promise<NegotiationResult> {
+  const res = await apiPost<ApiResponse<NegotiationResult>, NegotiateParams>(
     '/negotiate',
     options,
   );

@@ -1,30 +1,53 @@
 # -*- coding: utf-8 -*-
 """
 backend/api/frontend_api.py — TwinBuddy 前端对接 API
-FastAPI 路由，为前端提供 Onboarding / Persona / Feed / Negotiate 接口
+FastAPI 路由，为前端提供 Onboarding / Persona / Feed / Buddies / Negotiate 接口
 
 数据流：
-  前端 localStorage → POST /api/onboarding → 存储到内存 session
+  前端 localStorage → POST /api/onboarding → 存储到内存 session + 持久化文件
   前端 localStorage → GET /api/persona → 从 session 加载 persona
-  前端 GET /api/feed → 返回视频列表 + 搭子信息
+  前端 GET /api/feed → 返回视频列表 + 搭子信息（基于用户 MBTI 兼容性）
+  前端 GET /api/buddies → 返回用户推荐搭子列表
   前端 POST /api/negotiate → 返回预生成协商结果
 
 设计原则：
   - 不可变数据流：每个 handler 只读不解构输入
   - Mock 数据优先：所有核心路径使用预生成结果，避免 LLM 调用
-  - 内存 session：MVP 阶段不持久化，重启后数据清空
+  - 持久化 session：JSON 文件备份，防止服务器重启数据清空
+  - 搭子系统：优先从 agents/buddies/ JSON 文件加载，fallback 到 MOCK_BUDDIES
+
+Persona 生成逻辑：
+  - 优先从 mock_personas/ 加载完整数据
+  - 无 mock 时，基于用户 MBTI + interests + city + voiceText 动态生成
+  - 动态生成使用 MING 四维框架（认知/表达/行为/情感）映射到 L1-L4 层
+
+搭子推荐逻辑：
+  - 从 agents/buddies/ 目录加载预生成的搭子 JSON 文件
+  - 使用 MING 六维度评分算法（score_compatibility）计算兼容性
+  - 返回 top-N 搭子及雷达图维度评分（get_compatibility_breakdown）
 """
 
 from __future__ import annotations
 
 import json
+import re
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, field_validator
+
+# 搭子系统（从 JSON 文件加载，fallback 到 MOCK_BUDDIES）
+from agents.buddies import (
+    get_all_buddies,
+    get_buddy_by_id,
+    get_top_buddies,
+    get_compatibility_breakdown,
+    get_buddy_public,
+)
 
 # ---------------------------------------------------------------------------
 # 路由
@@ -33,14 +56,49 @@ from pydantic import BaseModel, Field, field_validator
 router = APIRouter(prefix="/api", tags=["前端对接"])
 
 # ---------------------------------------------------------------------------
-# 内存状态（MVP 阶段，重启清空）
+# 持久化配置（JSON 文件备份，防止服务器重启数据丢失）
+# ---------------------------------------------------------------------------
+
+_DATA_DIR = Path(__file__).parent.parent / "data"
+_DATA_DIR.mkdir(exist_ok=True)
+
+_ONBOARDING_STORE_FILE = _DATA_DIR / "onboarding_store.json"
+_PERSONA_STORE_FILE = _DATA_DIR / "persona_store.json"
+
+
+def _load_store(path: Path) -> Dict[str, Dict[str, Any]]:
+    """从 JSON 文件恢复内存状态（服务器重启后调用）。"""
+    if path.exists():
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_store_async(path: Path, store: Dict[str, Dict[str, Any]]) -> None:
+    """异步写入 JSON 文件备份（不阻塞请求处理线程）。"""
+
+    def _write():
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(store, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+
+    threading.Thread(target=_write, daemon=True).start()
+
+
+# ---------------------------------------------------------------------------
+# 内存状态（从文件恢复，启动时即加载）
 # ---------------------------------------------------------------------------
 
 # onboarding_data: { user_id: OnboardingData }
-_onboarding_store: Dict[str, Dict[str, Any]] = {}
+_onboarding_store: Dict[str, Dict[str, Any]] = _load_store(_ONBOARDING_STORE_FILE)
 
 # persona_store: { user_id: Persona }
-_persona_store: Dict[str, Dict[str, Any]] = {}
+_persona_store: Dict[str, Dict[str, Any]] = _load_store(_PERSONA_STORE_FILE)
 
 # ---------------------------------------------------------------------------
 # Mock 数据路径
@@ -78,7 +136,71 @@ _MBTI_EMOJI: Dict[str, str] = {
     "ISFP": "🎨", "ISFJ": "🛡️", "ISTP": "🔧", "ISTJ": "📐",
 }
 
-# 搭子配置（4个 Mock 人格）
+# ---------------------------------------------------------------------------
+# Mock 视频数据（Feed 用）
+# ---------------------------------------------------------------------------
+
+# 视频封面图（Unsplash）
+_VIDEO_COVERS = [
+    "https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80",
+    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+    "https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?w=800&q=80",
+]
+
+_VIDEO_TITLES = [
+    "成都火锅的正确打开方式",
+    "川西小环线自驾日记",
+    "洱海边的日落有多绝",
+    "一个人的丽江古城漫游",
+    "厦门鼓浪屿的慢生活",
+]
+
+# 默认 Feed 视频列表（无搭子信息）
+_DEFAULT_VIDEOS = [
+    {"id": "v1", "type": "video",  "cover_url": _VIDEO_COVERS[0], "location": "成都", "title": _VIDEO_TITLES[0],  "video_url": None, "buddy": None},
+    {"id": "v2", "type": "video",  "cover_url": _VIDEO_COVERS[1], "location": "川西", "title": _VIDEO_TITLES[1],  "video_url": None, "buddy": None},
+    {"id": "v3", "type": "twin_card", "cover_url": _VIDEO_COVERS[2], "location": "大理", "title": _VIDEO_TITLES[2],  "video_url": None, "buddy": None},
+    {"id": "v4", "type": "twin_card", "cover_url": _VIDEO_COVERS[3], "location": "丽江", "title": _VIDEO_TITLES[3],  "video_url": None, "buddy": None},
+    {"id": "v5", "type": "twin_card", "cover_url": _VIDEO_COVERS[4], "location": "厦门", "title": _VIDEO_TITLES[4],  "video_url": None, "buddy": None},
+]
+
+# 城市 emoji
+_CITY_EMOJI: Dict[str, str] = {
+    "chengdu": "🐼", "chongqing": "🌶️", "dali": "🌊",
+    "lijiang": "🏔️", "huangguoshu": "💧", "xian": "🏯",
+    "qingdao": "🍺", "guilin": "🎋", "harbin": "❄️", "xiamen": "🌴",
+}
+
+# 城市中文名
+_CITY_NAMES: Dict[str, str] = {
+    "chengdu": "成都", "chongqing": "重庆", "dali": "大理",
+    "lijiang": "丽江", "huangguoshu": "黄果树", "xian": "西安",
+    "qingdao": "青岛", "guilin": "桂林", "harbin": "哈尔滨", "xiamen": "厦门",
+}
+
+
+def _load_mock_videos() -> List[Dict[str, Any]]:
+    """
+    从 mock_videos.json 加载视频数据。
+    文件不存在或解析失败时返回默认视频列表。
+    """
+    videos_path = _DATA_DIR / "mock_videos.json"
+    if videos_path.exists():
+        try:
+            with open(videos_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return _DEFAULT_VIDEOS
+
+
+# ---------------------------------------------------------------------------
+# 用户偏好构建（将 onboarding 数据转换为兼容性评分格式）
+# ---------------------------------------------------------------------------
+
+# 搭子配置（4个 Mock 人格，用于视频中无用户数据时的 fallback）
 _BUDDY_CONFIGS = {
     "enfp": {
         "name": "小雅", "mbti": "ENFP",
@@ -106,22 +228,74 @@ _BUDDY_CONFIGS = {
     },
 }
 
-# 视频封面图（Unsplash）
-_VIDEO_COVERS = [
-    "https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80",
-    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-    "https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?w=800&q=80",
-]
 
-_VIDEO_TITLES = [
-    "成都火锅的正确打开方式",
-    "川西小环线自驾日记",
-    "洱海边的日落有多绝",
-    "一个人的丽江古城漫游",
-    "厦门鼓浪屿的慢生活",
-]
+def _build_user_prefs(onboarding: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    将 onboarding 数据（mbti / interests / city / voiceText）转换为
+    score_compatibility() 期望的 user_prefs 格式。
+
+    对于未提供的字段，根据 MBTI 类型推断合理的默认值，
+    确保在没有完整数据时仍能给出有意义的兼容性评分。
+    """
+    mbti = (onboarding.get("mbti") or "ENFP").strip().upper()
+    interests: List[str] = onboarding.get("interests") or []
+    city = onboarding.get("city") or ""
+
+    # MBTI 维度
+    if len(mbti) >= 4:
+        ei, ns, tf, jp = mbti[0], mbti[1], mbti[2], mbti[3]
+    else:
+        ei, ns, tf, jp = "E", "N", "F", "P"
+
+    # 从 MBTI 推断 pace / travel_style
+    if jp == "J":
+        pace = "有计划，每天有明确目标，不喜欢临时改变"
+        travel_style = "计划执行型"
+    else:
+        pace = "慢悠悠，睡到自然醒，不赶景点，享受过程"
+        travel_style = "随性探索型"
+
+    # 从 MBTI 推断 negotiation_style
+    if tf == "T":
+        negotiation_style = "用逻辑和数据说服，不擅长情绪施压，立场坚定"
+    else:
+        negotiation_style = "用感受和价值观说服，温和但坚定，容易被真诚打动"
+
+    # 从 MBTI 推断 budget（感性类型偏低，理性类型偏高）
+    budget_map = {
+        "ENFP": "3000-5000元", "ENFJ": "4000-6000元", "ENTP": "3000-6000元", "ENTJ": "6000-10000元",
+        "ESFP": "5000-8000元", "ESFJ": "3500-5500元", "ESTP": "4000-7000元", "ESTJ": "5000-8000元",
+        "INFP": "2500-4000元", "INFJ": "3500-6000元", "INTP": "3000-5000元", "INTJ": "5000-8000元",
+        "ISFP": "2000-3500元", "ISFJ": "3000-5000元", "ISTP": "3000-6000元", "ISTJ": "4000-6000元",
+    }
+    budget = budget_map.get(mbti, "3500-5500元")
+
+    return {
+        "mbti": mbti,
+        "likes": interests,
+        "dislikes": [],
+        "budget": budget,
+        "pace": pace,
+        "travel_style": travel_style,
+        "negotiation_style": negotiation_style,
+        "city": city,
+    }
+
+
+def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:
+    """根据 MBTI 构建搭子信息（用于视频中无用户数据时的 fallback）。"""
+    config = _BUDDY_CONFIGS.get(mbti.lower(), _BUDDY_CONFIGS["enfp"])
+    compat = _load_compatibility("ENFP", mbti)
+    score = int(compat["overall_score"] * 100) if compat else 75
+    return {
+        "name": config["name"],
+        "mbti": config["mbti"],
+        "avatar_emoji": config["avatar_emoji"],
+        "typical_phrases": config["typical_phrases"],
+        "travel_style": config["travel_style"],
+        "compatibility_score": score,
+    }
+
 
 # ---------------------------------------------------------------------------
 # Pydantic 模型
@@ -233,64 +407,527 @@ def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:
     }
 
 
-def _build_persona_from_onboarding(mbti: str, city: str) -> Dict[str, Any]:
-    """
-    根据 Onboarding 数据（MBTI 为主）生成前端期望的 Persona 结构。
-    只用 MBTI，数据不足时 confidence_score 降低。
-    """
-    mock = _load_mock_persona(mbti)
-    mbti_lower = mbti.lower()
-    emoji = _MBTI_EMOJI.get(mbti.upper(), "🤖")
-    label = _MBTI_LABELS.get(mbti.upper(), mbti)
-    city_name = _CITY_NAMES.get(city, city or "未选择")
-    fingerprint = f"twin-{mbti_lower}-{uuid.uuid4().hex[:8]}"
+# ---------------------------------------------------------------------------
+# MING 四维人格框架 — MBTI 维度映射
+# ---------------------------------------------------------------------------
 
-    if mock:
-        layer0 = mock.get("layer0_hard_rules", {})
-        if isinstance(layer0, dict):
-            hard_rules = layer0.get("dealbreakers", []) + layer0.get("must_haves", [])
-        else:
-            hard_rules = layer0 if isinstance(layer0, list) else []
+def _parse_mbti_dimensions(mbti: str) -> Dict[str, str]:
+    """将 4-letter MBTI 解析为四个维度的值"""
+    if len(mbti) < 4:
+        return {"energy": "N", "information": "N", "decision": "T", "lifestyle": "J"}
+    return {
+        "energy":     mbti[0],   # I/E
+        "information": mbti[1],   # N/S
+        "decision":    mbti[2],   # T/F
+        "lifestyle":   mbti[3],   # J/P
+    }
+
+
+# 认知维度（cognition/L1-identity）MBTI 映射
+_COGNITION_MAP: Dict[str, Dict[str, Any]] = {
+    "energy": {
+        "I": {
+            "recharge": "独处充电，从内部世界获取能量",
+            "decision_basis": "依赖内部框架和深度思考",
+            "social_style": "选择性深度交流后需要独处消化",
+            "keyword": "内向探索者",
+        },
+        "E": {
+            "recharge": "社交充电，从外部世界获取能量",
+            "decision_basis": "依赖外部反馈和讨论",
+            "social_style": "在对话中理清思路，边聊边想",
+            "keyword": "外向行动派",
+        },
+    },
+    "information": {
+        "N": {
+            "gather": "直觉思维，偏好抽象和可能性",
+            "focus": "关注模式和关联，不拘泥于细节",
+            "pattern_recognition": "善于发现隐藏的可能性",
+            "keyword": "直觉型",
+        },
+        "S": {
+            "gather": "感觉认知，注重具体细节和现实",
+            "focus": "关注实际可行的方案",
+            "pattern_recognition": "依赖五官感知和经验",
+            "keyword": "实感型",
+        },
+    },
+    "decision": {
+        "T": {
+            "approach": "逻辑决策，情感表达克制",
+            "justice": "重视公平和原则",
+            "conflict_style": "直面问题，讲究道理",
+            "keyword": "理性决策者",
+        },
+        "F": {
+            "approach": "情感决策，共情能力强",
+            "justice": "重视和谐和人情",
+            "conflict_style": "顾及他人感受，避免冲突",
+            "keyword": "情感共鸣者",
+        },
+    },
+    "lifestyle": {
+        "J": {
+            "style": "有计划，喜欢确定性和控制感",
+            "closure": "偏好清晰结论和既定安排",
+            "stress": "面对不确定性时会焦虑",
+            "keyword": "计划掌控型",
+        },
+        "P": {
+            "style": "灵活随性，享受开放性和可能性",
+            "closure": "保留余地，随情况调整",
+            "stress": "被强制约束时感到压抑",
+            "keyword": "弹性适应型",
+        },
+    },
+}
+
+# 表达维度（expression/L2-speaking_style）MBTI 映射
+_EXPRESSION_MAP: Dict[str, Dict[str, Any]] = {
+    "energy": {
+        "I": {
+            "verbosity": "话少沉稳，表达间接含蓄",
+            "rhythm": "深思后才回应，不急于表达",
+            "typical_phrases": ["让我想想", "这个嘛...", "嗯"],
+        },
+        "E": {
+            "verbosity": "话多热情，表达直接主动",
+            "rhythm": "边想边说，节奏快且有感染力",
+            "typical_phrases": ["我觉得吧！", "走走走！", "太棒了！"],
+        },
+    },
+    "information": {
+        "N": {
+            "metaphor": "善用隐喻和联想，跳跃性思维",
+            "abstract": "谈论方向和可能性多于具体细节",
+            "typical_phrases": ["感觉像是...", "说不清但...", "说不定"],
+        },
+        "S": {
+            "metaphor": "描述贴近现实，具体可感",
+            "abstract": "谈论眼前事实和可操作步骤",
+            "typical_phrases": ["这个具体是...", "上次就是...", "按计划"],
+        },
+    },
+    "decision": {
+        "T": {
+            "structure": "表达偏结构化，逻辑清晰",
+            "tone": "客观冷静，少用感叹词",
+            "typical_phrases": ["从逻辑上看", "理性分析", "这个结论"],
+        },
+        "F": {
+            "structure": "情感表达丰富，语气温暖",
+            "tone": "主观感受多，共情式表达",
+            "typical_phrases": ["我觉得...", "你一定很难受吧", "一起加油"],
+        },
+    },
+    "lifestyle": {
+        "J": {
+            "conclusion": "偏好清晰结论，干脆利落",
+            "hedging": "很少保留余地，说一不二",
+            "typical_phrases": ["就这样定了", "按计划执行", "没问题"],
+        },
+        "P": {
+            "conclusion": "保留余地，留有调整空间",
+            "hedging": "经常说「再说吧」「到时候看」",
+            "typical_phrases": ["先这样吧", "到时候再调整", "灵活处理"],
+        },
+    },
+}
+
+# 行为维度（behavior/L3-social_behavior）MBTI 映射
+_BEHAVIOR_MAP: Dict[str, Dict[str, Any]] = {
+    "energy": {
+        "I": {
+            "social_energy": "独处充电型，社交后需要恢复时间",
+            "initiation": "被动响应为主，很少主动发起",
+            "social_duration": "深度交流 > 泛泛社交",
+        },
+        "E": {
+            "social_energy": "社交充电型，人多更有活力",
+            "initiation": "主动发起对话，享受成为焦点",
+            "social_duration": "长时间社交也不会疲惫",
+        },
+    },
+    "information": {
+        "N": {
+            "exploration": "探索模式：偏好新奇和可能性",
+            "route": "随性探索，不喜欢精确规划",
+            "interest": "容易被新事物吸引，关注长远意义",
+        },
+        "S": {
+            "exploration": "务实模式：偏好熟悉和稳定",
+            "route": "按计划执行，注重效率和安全性",
+            "interest": "关注眼前可行，关注细节和传统",
+        },
+    },
+    "decision": {
+        "T": {
+            "stress_response": "用逻辑分析问题，寻求解决方案",
+            "emotion_display": "克制情绪表达，倾向冷处理",
+            "support_style": "提供实际帮助而非情感安慰",
+        },
+        "F": {
+            "stress_response": "先处理情绪，再处理事情",
+            "emotion_display": "情绪外露，需要倾诉和共情",
+            "support_style": "先陪伴后建议，情感支持优先",
+        },
+    },
+    "lifestyle": {
+        "J": {
+            "planning": "高度计划性，日程安排紧凑",
+            "spontaneity": "不喜欢临时变更，计划外会焦虑",
+            "time_orientation": "准时、守时、讨厌拖延",
+        },
+        "P": {
+            "planning": "灵活安排，不喜欢被时间表约束",
+            "spontaneity": "享受意外，享受即兴决定",
+            "time_orientation": "时间观念弹性，不拘泥准时",
+        },
+    },
+}
+
+# 情感维度（emotion/L4-emotion_decision）MBTI 映射
+_EMOTION_MAP: Dict[str, Dict[str, Any]] = {
+    "energy": {
+        "I": {
+            "attachment": "在亲密中保持独立空间的需求",
+            "intimacy": "需要深入连接而非广泛社交",
+            "recharge_needs": "独处时间 = 情绪修复时间",
+        },
+        "E": {
+            "attachment": "在关系中寻求更多连接和确认",
+            "intimacy": "通过外部社交确认自我价值",
+            "recharge_needs": "社交活动 = 情绪充电",
+        },
+    },
+    "information": {
+        "N": {
+            "triggers": "对未来的焦虑和不确定性",
+            "positive": "被理解和被看到潜在可能性",
+            "growth": "关注成长和人生意义类话题",
+        },
+        "S": {
+            "triggers": "对具体问题的失控感和压力",
+            "positive": "被关注当下的需求和感受",
+            "growth": "关注稳定和安全的生活",
+        },
+    },
+    "decision": {
+        "T": {
+            "emotion_display": "情绪不外显，常用理性化防御",
+            "vulnerability": "示弱=暴露弱点，需要保持掌控感",
+            "comfort": "解决问题比情感安慰更有效",
+        },
+        "F": {
+            "emotion_display": "情绪外显，需要被看见和被共情",
+            "vulnerability": "愿意展示脆弱，寻求情感支持",
+            "comfort": "被倾听和被理解比解决方案更重要",
+        },
+    },
+    "lifestyle": {
+        "J": {
+            "control": "通过控制感获得安全感",
+            "anxiety": "不确定性是主要焦虑源",
+            "comfort_mechanism": "做计划、列清单、整理",
+        },
+        "P": {
+            "control": "通过保持开放性减少压迫感",
+            "anxiety": "被约束和被迫做决定是主要压力",
+            "comfort_mechanism": "拖延、自我宽慰、转移注意力",
+        },
+    },
+}
+
+# MBTI 中文标签（已在顶部定义，这里补充更多映射）
+_MBTI_KEYWORDS: Dict[str, str] = {
+    "ENFP": "热情创意", "ENFJ": "理想共鸣", "ENTP": "智趣探索", "ENTJ": "果断领航",
+    "ESFP": "活力即兴", "ESFJ": "温暖关怀", "ESTP": "行动冒险", "ESTJ": "务实执行",
+    "INFP": "内在追寻", "INFJ": "深度理解", "INTP": "理性思辨", "INTJ": "战略布局",
+    "ISFP": "细腻感知", "ISFJ": "守护温暖", "ISTP": "独立解决", "ISTJ": "可靠秩序",
+}
+
+# 旅行风格映射
+_TRAVEL_STYLES: Dict[str, str] = {
+    "ENFP": "随性探索型", "ENFJ": "共鸣体验型", "ENTP": "智趣发现型", "ENTJ": "高效领航型",
+    "ESFP": "活力即兴型", "ESFJ": "社交分享型", "ESTP": "冒险挑战型", "ESTJ": "计划执行型",
+    "INFP": "心灵漫游型", "INFJ": "意义追寻型", "INTP": "深度研究型", "INTJ": "战略规划型",
+    "ISFP": "艺术感知型", "ISFJ": "守护体验型", "ISTP": "独立探索型", "ISTJ": "秩序巡旅型",
+}
+
+# MBTI dealbreaker/rule 生成
+_MBTI_DEALBREAKERS: Dict[str, List[str]] = {
+    "ENFP": ["计划太紧的行程", "没有自由探索空间", "被打断即兴想法"],
+    "ENFJ": ["冷漠疏离的旅伴", "破坏和谐的氛围", "无视他人感受"],
+    "ENTP": ["没有讨论和辩论空间", "被强制接受单一观点", "无聊重复的内容"],
+    "ENTJ": ["低效拖延的行为", "没有明确目标", "决策被反复推翻"],
+    "ESFP": ["过于严肃压抑的氛围", "没有即兴发挥的空间", "长时间独处"],
+    "ESFJ": ["被忽视和不被认可", "旅伴不参与社交", "破坏团队氛围"],
+    "ESTP": ["过于理论化不落地", "没有刺激和挑战", "被过度约束"],
+    "ESTJ": ["混乱无计划", "不遵守承诺", "做事没有条理"],
+    "INFP": ["价值观冲突", "被强制改变内心想法", "不真诚的关系"],
+    "INFJ": ["被误解和不被理解", "持续的负能量", "精神压力过大"],
+    "INTP": ["被强制输出结论", "没有思考独处空间", "逻辑漏洞被忽视"],
+    "INTJ": ["决策被无理推翻", "没有战略意义的忙碌", "被要求服从多数"],
+    "ISFP": ["被强制审美", "不自由的行程安排", "被忽视的感官体验"],
+    "ISFJ": ["被否定过去的付出", "不尊重隐私", "需要帮助时没人响应"],
+    "ISTP": ["被强制社交", "不尊重独立解决问题的空间", "被迫做不擅长的事"],
+    "ISTJ": ["违反已约定的计划", "做事不负责任", "不尊重传统和规则"],
+}
+
+
+def _get_mbti_dim(dims: Dict[str, str], framework: Dict[str, Any], dim_name: str) -> Dict[str, Any]:
+    """从 framework 中获取指定维度的映射数据"""
+    key = dims.get(dim_name, "")
+    return framework.get(dim_name, {}).get(key, {})
+
+
+def _merge_interests_into_prompt(interests: List[str], mbti: str, city: str, voice: str) -> str:
+    """将 interests/city/voice 合并为一个描述性提示"""
+    parts = []
+    city_name = _CITY_NAMES.get(city, city or "")
+    if city_name:
+        parts.append(f"向往{city_name}")
+    if interests:
+        interest_str = "、".join(interests[:3])
+        parts.append(f"热爱{interest_str}")
+    if voice and len(voice.strip()) > 5:
+        # 从 voiceText 提取关键词（去除无意义的语气词）
+        clean = voice.strip()
+        if len(clean) > 50:
+            clean = clean[:50] + "..."
+        parts.append(f"自我描述：{clean}")
+    return "，".join(parts) if parts else ""
+
+
+def _build_layer0_rules(mbti: str, interests: List[str]) -> List[str]:
+    """基于 MBTI 类型 + interests 生成 layer0 硬规则"""
+    base = _MBTI_DEALBREAKERS.get(mbti.upper(), ["真诚互动"])
+    # 加入 interests 中的城市作为 must-have
+    city_rules = [f"喜欢去{it}" for it in interests if it in _CITY_NAMES]
+    return base[:3] + city_rules[:2]
+
+
+def _build_identity(mbti: str, dims: Dict[str, str], city: str, interests: List[str], voice: str) -> Dict[str, Any]:
+    """L1-identity: 认知维度 → 身份层"""
+    cog = _get_mbti_dim(dims, _COGNITION_MAP, "energy")
+    inf = _get_mbti_dim(dims, _COGNITION_MAP, "information")
+    dec = _get_mbti_dim(dims, _COGNITION_MAP, "decision")
+    lif = _get_mbti_dim(dims, _COGNITION_MAP, "lifestyle")
+    city_name = _CITY_NAMES.get(city, "")
+    label = _MBTI_LABELS.get(mbti.upper(), mbti)
+    keyword = _MBTI_KEYWORDS.get(mbti.upper(), "")
+    extras = _merge_interests_into_prompt(interests, mbti, city, voice)
+    content = f"你是{label}。{cog.get('keyword', '')}，{inf.get('keyword', '')}，{dec.get('keyword', '')}，{lif.get('keyword', '')}。"
+    if extras:
+        content += f" {extras}"
+    if city_name:
+        content += f" 向往{city_name}，期待在那里找到属于自己的旅行体验。"
+    return {
+        "title": "身份层",
+        "content": content.strip(),
+        "emoji": _MBTI_EMOJI.get(mbti.upper(), "🤖"),
+    }
+
+
+def _build_speaking_style(mbti: str, dims: Dict[str, str], interests: List[str], voice: str) -> Dict[str, Any]:
+    """L2-speaking_style: 表达维度 → 说话风格"""
+    eng = _get_mbti_dim(dims, _EXPRESSION_MAP, "energy")
+    inf = _get_mbti_dim(dims, _EXPRESSION_MAP, "information")
+    dec = _get_mbti_dim(dims, _EXPRESSION_MAP, "decision")
+    lif = _get_mbti_dim(dims, _EXPRESSION_MAP, "lifestyle")
+
+    # 合并 typical_phrases（取各维度 + voiceText 中的）
+    base_phrases = eng.get("typical_phrases", [])[:2]
+    dec_phrases = dec.get("typical_phrases", [])[:1]
+    if voice and len(voice.strip()) > 2:
+        base_phrases.append(voice.strip()[:20])
+    if interests:
+        base_phrases.append(f"喜欢{interests[0]}")
+    typical = list(dict.fromkeys(base_phrases + dec_phrases))[:5]
+    # chat_tone
+    if dims["decision"] == "F":
+        tone = "温暖共情"
+    elif dims["energy"] == "E":
+        tone = "热情活泼"
     else:
-        hard_rules = ["真诚"]
+        tone = "沉稳内敛"
+    return {
+        "title": "说话风格",
+        "content": f"{eng.get('verbosity', '')}，{dec.get('structure', '')}。{lif.get('conclusion', '')}",
+        "emoji": "💬",
+        "typical_phrases": typical,
+        "chat_tone": tone,
+    }
+
+
+def _build_emotion_decision(mbti: str, dims: Dict[str, str], interests: List[str], voice: str) -> Dict[str, Any]:
+    """L3-emotion_decision: 行为维度 → 情绪与决策"""
+    beh_eng = _get_mbti_dim(dims, _BEHAVIOR_MAP, "energy")
+    beh_dec = _get_mbti_dim(dims, _BEHAVIOR_MAP, "decision")
+    beh_lif = _get_mbti_dim(dims, _BEHAVIOR_MAP, "lifestyle")
+    emo_eng = _get_mbti_dim(dims, _EMOTION_MAP, "energy")
+    emo_dec = _get_mbti_dim(dims, _EMOTION_MAP, "decision")
+    emo_lif = _get_mbti_dim(dims, _EMOTION_MAP, "lifestyle")
+
+    stress = beh_dec.get("stress_response", "冷静分析") + "，" + beh_lif.get("stress", "需要计划")
+    decision_style = dims["decision"].lower() + ("-cautious" if dims["lifestyle"] == "J" else "-adaptive")
 
     return {
-        "persona_id": f"persona-{mbti_lower}-{uuid.uuid4().hex[:8]}",
-        "name": label,
-        "avatar_prompt": f"{label}，喜欢旅行，{city_name}爱好者",
-        "avatar_emoji": emoji,
-        "layer0_hard_rules": hard_rules,
-        "identity": mock.get("identity", {
-            "title": "身份层",
-            "content": f"你是{label}，向往{city_name}的旅行体验",
-            "emoji": emoji,
-        }) if mock else {"title": "身份层", "content": f"你是{label}", "emoji": emoji},
-        "speaking_style": mock.get("speaking_style", {
-            "title": "说话风格",
-            "content": "随性自然，喜欢表达感受",
-            "emoji": "💬",
-            "typical_phrases": ["挺好的", "出发！", "这个不错"],
-            "chat_tone": "轻松友好",
-        }) if mock else {"title": "说话风格", "content": "随性自然", "emoji": "💬", "typical_phrases": [], "chat_tone": "轻松"},
-        "emotion_decision": mock.get("emotion_decision", {
-            "title": "情绪与决策",
-            "content": "情感驱动决策",
-            "emoji": "💭",
-            "stress_response": "需要时间独处消化",
-            "decision_style": "feeling",
-        }) if mock else {"title": "情绪与决策", "content": "情感驱动", "emoji": "💭", "stress_response": "需要时间", "decision_style": "feeling"},
-        "social_behavior": mock.get("social_behavior", {
-            "title": "社交行为",
-            "content": "适度社交后需要独处充电",
-            "emoji": "🤝",
-            "social_style": "选择性社交",
-        }) if mock else {"title": "社交行为", "content": "适度社交", "emoji": "🤝", "social_style": "选择性"},
-        "travel_style": mock.get("travel_style", "随性探索型") if mock else "随性探索型",
-        "mbti_influence": f"MBTI={mbti}。{label}，城市探索爱好者。",
-        "soul_fingerprint": fingerprint,
-        "confidence_score": 0.75 if mock else 0.5,
-        "data_sources_used": ["mbti"],
+        "title": "情绪与决策",
+        "content": f"{emo_dec.get('emotion_display', '')}，{emo_lif.get('comfort_mechanism', '')}。{emo_eng.get('recharge_needs', '')}",
+        "emoji": "💭",
+        "stress_response": stress,
+        "decision_style": decision_style,
     }
+
+
+def _build_social_behavior(mbti: str, dims: Dict[str, str], interests: List[str]) -> Dict[str, Any]:
+    """L4-social_behavior: 行为维度 → 社交行为"""
+    eng = _get_mbti_dim(dims, _BEHAVIOR_MAP, "energy")
+    inf = _get_mbti_dim(dims, _BEHAVIOR_MAP, "information")
+    dec = _get_mbti_dim(dims, _BEHAVIOR_MAP, "decision")
+
+    social_style = eng.get("social_energy", "平衡型社交")
+    if dims["energy"] == "E":
+        social_style += "，主动发起"
+    else:
+        social_style += "，被动响应"
+    return {
+        "title": "社交行为",
+        "content": f"{eng.get('initiation', '')}，{inf.get('exploration', '')}。{dec.get('support_style', '')}",
+        "emoji": "🤝",
+        "social_style": social_style,
+    }
+
+
+def _build_persona_from_onboarding(
+    mbti: str,
+    city: str,
+    interests: Optional[List[str]] = None,
+    voice_text: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    根据 Onboarding 数据（MBTI + interests + city + voiceText）动态生成 Persona。
+    使用 MING 四维框架（认知/表达/行为/情感）映射到 L1-L4 层。
+
+    优先使用 mock_personas/ 中的完整数据；无 mock 时走动态生成路径。
+
+    参数:
+        mbti: MBTI 类型（如 ENFP）
+        city: 城市 ID（如 dali）
+        interests: 兴趣标签列表
+        voice_text: 用户语音转文字内容
+    """
+    mbti = mbti.strip().upper()
+    if len(mbti) < 4:
+        mbti = "ENFP"
+    mbti_lower = mbti.lower()
+
+    # 尝试加载 Mock 数据
+    mock = _load_mock_persona(mbti)
+
+    interests = interests or []
+    voice_text = voice_text or ""
+
+    # 解析 MBTI 四个维度
+    dims = _parse_mbti_dimensions(mbti)
+
+    # 生成唯一指纹
+    fingerprint = f"twin-{mbti_lower}-{uuid.uuid4().hex[:8]}"
+    persona_id = f"persona-{mbti_lower}-{uuid.uuid4().hex[:8]}"
+    label = _MBTI_LABELS.get(mbti, mbti)
+    keyword = _MBTI_KEYWORDS.get(mbti, "")
+    travel_style = _TRAVEL_STYLES.get(mbti, "随性探索型")
+
+    # city emoji
+    city_emoji = _CITY_EMOJI.get(city.lower(), "")
+    city_name = _CITY_NAMES.get(city.lower(), city or "未选择")
+
+    # avatar_prompt：综合 MBTI + interests + city
+    prompt_parts = [keyword, label]
+    if interests:
+        prompt_parts.append("热爱" + "、".join(interests[:3]))
+    if city_name and city_name != "未选择":
+        prompt_parts.append(f"向往{city_name}")
+    if voice_text and len(voice_text.strip()) > 5:
+        prompt_parts.append("真实自我描述：" + voice_text.strip()[:30])
+    avatar_prompt = "，".join(prompt_parts)
+
+    # layer0 硬规则
+    layer0_hard_rules = _build_layer0_rules(mbti, interests)
+
+    # 动态生成 L1-L4 层
+    identity = _build_identity(mbti, dims, city, interests, voice_text)
+    speaking_style = _build_speaking_style(mbti, dims, interests, voice_text)
+    emotion_decision = _build_emotion_decision(mbti, dims, interests, voice_text)
+    social_behavior = _build_social_behavior(mbti, dims, interests)
+
+    # Mock 数据补充（如果有的话，merge 而非覆盖）
+    if mock:
+        # identity 使用 mock 中的（更完整），但更新 emoji
+        identity = {**mock.get("identity", {}), "emoji": _MBTI_EMOJI.get(mbti, "🤖")}
+        # speaking_style 使用 mock 中的 typical_phrases
+        mock_ss = mock.get("speaking_style", {})
+        speaking_style = {
+            **speaking_style,
+            **{k: v for k, v in mock_ss.items() if k not in speaking_style or not speaking_style[k]},
+        }
+        # 其他层优先用 mock
+        for key in ["emotion_decision", "social_behavior"]:
+            if key in mock:
+                if isinstance(mock[key], dict):
+                    emotion_decision = mock[key] if key == "emotion_decision" else emotion_decision
+                    social_behavior = mock[key] if key == "social_behavior" else social_behavior
+
+    # confidence_score：根据数据来源计算
+    data_sources = ["mbti"]
+    if interests:
+        data_sources.append("interests")
+    if voice_text and len(voice_text.strip()) > 5:
+        data_sources.append("voice_text")
+    if mock:
+        data_sources.append("mock_data")
+        confidence = 0.85
+    elif interests and voice_text:
+        confidence = 0.75
+    elif interests or voice_text:
+        confidence = 0.65
+    else:
+        confidence = 0.50
+
+    # mbti_influence 描述
+    mbti_influence = (
+        f"MBTI={mbti}，{keyword}，{label}。"
+        f"城市探索偏好：{city_name}。"
+        f"旅行风格：{travel_style}。"
+        f"沟通基调：{speaking_style.get('chat_tone', '')}。"
+    )
+
+    # 组装完整 Persona（前端 types/index.ts 中定义的完整字段）
+    persona = {
+        "persona_id": persona_id,
+        "name": label,
+        "avatar_prompt": avatar_prompt,
+        "avatar_emoji": _MBTI_EMOJI.get(mbti, "🤖"),
+        "layer0_hard_rules": layer0_hard_rules,
+        # L1
+        "identity": identity,
+        # L2
+        "speaking_style": speaking_style,
+        # L3
+        "emotion_decision": emotion_decision,
+        # L4
+        "social_behavior": social_behavior,
+        # meta
+        "travel_style": travel_style,
+        "mbti_influence": mbti_influence,
+        "soul_fingerprint": fingerprint,
+        "confidence_score": confidence,
+        "data_sources_used": data_sources,
+    }
+
+    return persona
 
 
 def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dict[str, Any]:
@@ -362,15 +999,25 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
     POST /api/onboarding
 
     保存用户引导数据（MBTI + 兴趣 + 语音 + 城市）。
+    基于用户完整输入动态生成 Persona（L1-L4层用 MING 四维框架）。
     MVP 阶段存内存，重启清空。
     """
     user_id = str(uuid.uuid4())
     data = req.model_dump()
     _onboarding_store[user_id] = data
 
-    persona = _build_persona_from_onboarding(req.mbti, req.city)
-    persona["persona_id"] = f"persona-{req.mbti.lower()}-{uuid.uuid4().hex[:8]}"
+    # 动态生成完整 Persona（使用 MING 四维框架）
+    persona = _build_persona_from_onboarding(
+        mbti=req.mbti,
+        city=req.city,
+        interests=req.interests,
+        voice_text=req.voiceText,
+    )
     _persona_store[user_id] = persona
+
+    # 异步持久化到文件（不阻塞响应）
+    _save_store_async(_ONBOARDING_STORE_FILE, _onboarding_store)
+    _save_store_async(_PERSONA_STORE_FILE, _persona_store)
 
     return {
         "success": True,
@@ -393,8 +1040,10 @@ async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
     if user_id in _onboarding_store:
         onboarding = _onboarding_store[user_id]
         persona = _build_persona_from_onboarding(
-            onboarding.get("mbti", "ENFP"),
-            onboarding.get("city", ""),
+            mbti=onboarding.get("mbti", "ENFP"),
+            city=onboarding.get("city", ""),
+            interests=onboarding.get("interests"),
+            voice_text=onboarding.get("voiceText"),
         )
         _persona_store[user_id] = persona
         return {"success": True, "data": persona}
@@ -403,41 +1052,159 @@ async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
 
 
 @router.get("/feed")
-async def get_feed(city: Optional[str] = Query(None)) -> Dict[str, Any]:
+async def get_feed(
+    city: Optional[str] = Query(None),
+    user_id: Optional[str] = Query(None),
+) -> Dict[str, Any]:
     """
-    GET /api/feed?city=xxx
+    GET /api/feed?city=xxx&user_id=xxx
 
     返回视频 Feed 列表：
-    - 视频 1-2：普通内容（无搭子信息）
-    - 视频 3-5：懂你卡片触发（有搭子信息 + 兼容度）
+      - 视频 1-2：普通内容（无搭子信息）
+      - 视频 3-5：懂你卡片触发（有真实兼容性评分 + 雷达图数据）
 
-    city 参数用于过滤目的地相关性。
+    当 user_id 存在时：
+      1. 从 onboarding_store 获取用户 MBTI/interests/city 数据
+      2. 调用 get_top_buddies(user_prefs, limit=10) 获取 top-10 搭子
+      3. 按兼容性分数在视频中插入懂你卡片（分数 >= 60 触发）
+      4. 返回 user_prefs 供前端使用
+
+    city 参数用于过滤目的地相关性（预留）。
     """
-    videos = []
-    buddy_mbtis = ["INFP", "ENFP", "ISTJ"]
+    # 1. 加载视频数据
+    videos = _load_mock_videos()
 
-    for i in range(5):
-        video_id = f"v{i + 1}"
-        is_card = i >= 2  # 第3条开始触发懂你卡片
+    # 2. 构建用户偏好（尝试从 onboarding store 获取）
+    user_prefs: Optional[Dict[str, Any]] = None
+    onboarding: Optional[Dict[str, Any]] = None
 
-        buddy = None
-        if is_card:
-            buddy_mbti = buddy_mbtis[i % len(buddy_mbtis)]
-            buddy = _build_buddy(buddy_mbti, city or "dali")
+    if user_id and user_id in _onboarding_store:
+        onboarding = _onboarding_store[user_id]
+        user_prefs = _build_user_prefs(onboarding)
 
-        videos.append({
-            "id": video_id,
-            "type": "twin_card" if is_card else "video",
-            "cover_url": _VIDEO_COVERS[i],
-            "location": _CITY_NAMES.get(city or "", _VIDEO_TITLES[i].split("·")[0]) if is_card else _VIDEO_TITLES[i][:6],
-            "title": _VIDEO_TITLES[i],
-            "buddy": buddy,
-        })
+    # 3. 获取 top-N 搭子（使用 MING 六维度评分）
+    top_buddies: List[Dict[str, Any]] = []
+    if user_prefs:
+        top_buddies = get_top_buddies(user_prefs, limit=10)
+    else:
+        # 无用户数据时：加载前3个搭子作为示例
+        all_b = get_all_buddies()
+        top_buddies = all_b[:3]
+
+    # 4. 在懂你卡片视频中插入搭子数据
+    #    兼容性分数 >= 60 时触发懂你卡片，否则显示为普通视频
+    CARD_TRIGGER_THRESHOLD = 60.0
+
+    enriched_videos = []
+    for i, video in enumerate(videos):
+        v = dict(video)
+
+        # 确定是否应该触发懂你卡片
+        is_twin_card = v.get("type") == "twin_card"
+
+        if is_twin_card and i < len(top_buddies):
+            buddy = top_buddies[i]
+            score = buddy.get("_score", 0.0)
+
+            # 低于触发阈值，降级为普通视频
+            if score < CARD_TRIGGER_THRESHOLD:
+                v["type"] = "video"
+                v["buddy"] = None
+            else:
+                v["buddy"] = get_buddy_public(buddy, user_prefs)
+                v["location"] = city or _CITY_NAMES.get(
+                    onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
+                )
+        elif is_twin_card:
+            # 没有更多搭子，降级
+            v["type"] = "video"
+            v["buddy"] = None
+        # 普通视频保持原样
+
+        enriched_videos.append(v)
 
     return {
         "success": True,
-        "data": videos,
-        "meta": {"total": len(videos), "city": city or "all"},
+        "videos": enriched_videos,
+        "buddies": [get_buddy_public(b, user_prefs) for b in top_buddies[:10]],
+        "user_prefs": user_prefs,
+        "meta": {
+            "total": len(enriched_videos),
+            "city": city or "all",
+            "user_id": user_id,
+            "buddy_count": len(top_buddies),
+        },
+    }
+
+
+@router.get("/buddies")
+async def get_buddies(
+    user_id: str = Query(...),
+    limit: int = Query(default=10, ge=1, le=50),
+) -> Dict[str, Any]:
+    """
+    GET /api/buddies?user_id=xxx&limit=10
+
+    返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
+
+    响应结构：
+      {
+        "success": true,
+        "buddies": [
+          {
+            "id": "buddy_01",
+            "name": "小满",
+            "mbti": "ENFP",
+            "avatar_emoji": "✨",
+            "travel_style": "...",
+            "typical_phrases": [...],
+            "compatibility_score": 87.5,
+            "compatibility_breakdown": {
+              "total": 87.5,
+              "dimensions": {
+                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
+                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
+                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
+                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
+                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
+              },
+              "personality_completion": {"score": 0.0, "reason": "..."},
+              "red_flags":  [...],
+              "strengths":  [...],
+            },
+          },
+          ...
+        ],
+        "user_prefs": {...},
+        "meta": {...}
+      }
+
+    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
+    """
+    # 1. 获取用户 onboarding 数据
+    if user_id not in _onboarding_store:
+        raise HTTPException(
+            status_code=404,
+            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
+        )
+
+    onboarding = _onboarding_store[user_id]
+    user_prefs = _build_user_prefs(onboarding)
+
+    # 2. 获取 top-N 搭子（使用 MING 六维度评分）
+    top_buddies = get_top_buddies(user_prefs, limit=limit)
+
+    return {
+        "success": True,
+        "buddies": [get_buddy_public(buddy, user_prefs) for buddy in top_buddies],
+        "user_prefs": user_prefs,
+        "meta": {
+            "user_id": user_id,
+            "limit": limit,
+            "total_buddies": len(top_buddies),
+            "mbti": user_prefs.get("mbti"),
+            "city": user_prefs.get("city"),
+        },
     }
 
 
@@ -490,7 +1257,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     try:
         from langgraph.graph import run_negotiation
         langgraph_result = run_negotiation(
-            user_persona or _build_persona_from_onboarding(user_mbti, city),
+            user_persona or _build_persona_from_onboarding(user_mbti, city, [], ""),
             twin_persona,
         )
         rounds = langgraph_result.get("rounds", [])

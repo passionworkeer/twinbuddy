@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
+import { saveOnboarding } from '../api/client';
 import { STORAGE_KEYS, type OnboardingData } from '../types';
 
 const INITIAL_DATA: OnboardingData = {
@@ -41,13 +42,23 @@ export function useOnboarding() {
     setData((prev) => ({ ...prev, city }));
   }, [setData]);
 
-  const completeOnboarding = useCallback(() => {
-    setData((prev) => ({
-      ...prev,
-      completed: true,
-      timestamp: Date.now(),
-    }));
-  }, [setData]);
+  const completeOnboarding = useCallback(async (): Promise<{ user_id: string; persona_id: string } | null> => {
+    try {
+      // 调用后端 API 保存数据，获取 user_id 和 persona_id
+      const { user_id, persona_id } = await saveOnboarding(data)
+      const fullData = { ...data, user_id, persona_id, completed: true, timestamp: Date.now() }
+      setData(fullData)
+      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(fullData))
+      return { user_id, persona_id }
+    } catch (error) {
+      console.error('Onboarding API 调用失败，使用本地数据:', error)
+      // 如果API调用失败，至少存localStorage保证流程继续
+      const fullData = { ...data, completed: true, timestamp: Date.now() }
+      setData(fullData)
+      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(fullData))
+      return null
+    }
+  }, [data, setData]);
 
   // Determine which step the user is currently on (1-4)
   // Step 2: mbti selected (on interests step)

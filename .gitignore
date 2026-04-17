@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Embedded git repos (not part of this project)
+digital-life/
+immortal-skill/
+
+# Build outputs
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+
+# Temporary files
+*.tmp
+*.log

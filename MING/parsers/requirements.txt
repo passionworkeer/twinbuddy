@@ -1,0 +1,14 @@
+# MING Parsers 依赖
+# pip install -r requirements.txt
+
+# 可选：用于大规模统计分析（如聊天词频矩阵）
+# pandas>=2.0.0
+
+# 用于照片 Avatar 解析（宽高、格式）
+pillow>=9.0.0
+
+# 如需 OCR（照片文字识别）
+# pytesseract>=0.3.10
+
+# 如需更完整的照片人脸分析
+# opencv-python>=4.8.0

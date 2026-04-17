@@ -1,0 +1,20 @@
+{
+  "name": "{name}",
+  "slug": "{slug}",
+  "age": "",
+  "occupation": "",
+  "city": "",
+  "mbti": "",
+  "zodiac": "",
+  "tags": {
+    "personality": [],
+    "lifestyle": []
+  },
+  "created_at": "{ISO8601}",
+  "updated_at": "{ISO8601}",
+  "version": "v1",
+  "corrections_count": 0,
+  "snapshot_count": 1,
+  "sources": [],
+  "proactive_enabled": false
+}

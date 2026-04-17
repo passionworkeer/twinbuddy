@@ -104,7 +104,7 @@ def generate_persona(
     mbti: str,
     bio: str,
     chat_logs: str,
-    douyin_data: Optional[Dict[str, Any]] = None,
+    douyin_data: Optional[Dict[str, Any] | str] = None,
     photo_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
@@ -114,19 +114,32 @@ def generate_persona(
         mbti        — MBTI 四字母，如 "INTJ"
         bio         — 用户自我介绍文本
         chat_logs   — 原始聊天记录文本
-        douyin_data — 抖音导出 JSON（可选）
+        douyin_data — 抖音导出 JSON（dict 或 JSON 字符串，可选）
         photo_path  — 用户图片路径（可选）
 
     返回：
         完整五层 Persona JSON（包含 identity / speaking_style /
         emotion_decision / social_behavior / layer0_hard_rules 等顶层字段）
     """
+    import json as _json
+
+    # ── Step 0: 规范化 douyin_data ─────────────────────────────────────
+    parsed_douyin: Dict[str, Any] = {}
+    if douyin_data:
+        if isinstance(douyin_data, dict):
+            parsed_douyin = douyin_data
+        elif isinstance(douyin_data, str) and douyin_data.strip():
+            try:
+                parsed_douyin = _json.loads(douyin_data)
+            except _json.JSONDecodeError:
+                pass  # 降级为空字典，保持静默
+
     # ── Step 1: 构造不可变输入 ──────────────────────────────────────────
     raw = RawSource.from_dict({
         "mbti": mbti,
         "bio": bio,
         "chat_logs": chat_logs,
-        "douyin_data": douyin_data or {},
+        "douyin_data": parsed_douyin,
         "photo_path": photo_path,
     })
 

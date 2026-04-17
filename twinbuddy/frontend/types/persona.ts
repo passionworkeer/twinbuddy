@@ -62,3 +62,30 @@ export interface Step {
   title: string;
   subtitle: string;
 }
+
+// ========== Match / Buddy Types ==========
+
+export interface NegotiationMessage {
+  speaker: 'user' | 'buddy';
+  buddy_name?: string;
+  content: string;
+  timestamp: number;
+}
+
+export interface MatchResult {
+  destination: string;
+  dates: string;
+  budget: string;
+  consensus: boolean;
+  plan: string[];
+  matched_buddies: string[];
+}
+
+export interface Buddy {
+  name: string;
+  mbti: string;
+  avatar_prompt: string;
+  typical_phrases: string[];
+  travel_style: string;
+  compatibility_score: number;
+}

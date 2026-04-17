@@ -284,3 +284,19 @@ def score_compatibility(user_prefs: dict, buddy: dict) -> float:
         score += 10
 
     return max(0, min(100, score))
+
+
+def get_top_buddies(user_prefs: dict, limit: int = 3) -> list[dict]:
+    """
+    Return top-N buddies sorted by compatibility score (descending).
+    Each result dict includes a `_score` field.
+    """
+    buddies = get_all_buddies()
+    scored = []
+    for b in buddies:
+        s = score_compatibility(user_prefs, b)
+        entry = dict(b)
+        entry["_score"] = s
+        scored.append(entry)
+    scored.sort(key=lambda x: x["_score"], reverse=True)
+    return scored[:limit]

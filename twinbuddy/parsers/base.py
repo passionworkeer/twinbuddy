@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 # ── Windows UTF-8 ──────────────────────────────────────────────────────────────
-from MING.parsers._encoding import *  # noqa: F401,F403
+from ._encoding import *  # noqa: F401,F403
 
 
 class BaseParser(ABC):

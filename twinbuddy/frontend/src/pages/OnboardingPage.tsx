@@ -267,6 +267,15 @@ export default function OnboardingPage() {
   const step = currentStep();
   const TOTAL_STEPS = 4;
 
+  // React 18 batching: completeOnboarding() updates state, then navigate() in
+  // the same synchronous tick may not trigger re-render. Use useEffect to
+  // ensure navigation fires after the state commit.
+  useEffect(() => {
+    if (data.completed) {
+      navigate('/feed');
+    }
+  }, [data.completed, navigate]);
+
   const handleNext = useCallback(() => {
     if (step === TOTAL_STEPS) {
       completeOnboarding();

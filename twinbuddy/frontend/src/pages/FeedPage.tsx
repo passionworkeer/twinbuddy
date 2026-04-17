@@ -108,7 +108,7 @@ function TwinCardOverlay({
 export default function FeedPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedItems, setLikedItems] = useLocalStorage<Record<string, boolean>>(
-    STORAGE_KEYS.twin_cards_seen,
+    STORAGE_KEYS.video_likes,
     {},
   );
   const [likeCounts] = useState<Record<string, number>>({

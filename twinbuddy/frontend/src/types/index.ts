@@ -123,6 +123,7 @@ export const STORAGE_KEYS = {
   onboarding: 'twinbuddy_onboarding_v3',
   feed_index: 'twinbuddy_feed_index_v3',
   twin_cards_seen: 'twinbuddy_cards_seen',
+  video_likes: 'twinbuddy_video_likes_v3',
   matched_personas: 'twinbuddy_matched',
 } as const;
 

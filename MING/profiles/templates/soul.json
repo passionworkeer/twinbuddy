@@ -1,0 +1,64 @@
+{
+  "slug": "{slug}",
+  "name": "{name}",
+  "version": "v1",
+  "built_at": "{ISO8601}",
+  "confidence": "high|medium|low",
+  "sources": [
+    "{source_type}:{description}"
+  ],
+  "coverage": {
+    "cognition":  {"v": 0, "a": 0, "i": 0},
+    "expression": {"v": 0, "a": 0, "i": 0},
+    "behavior":   {"v": 0, "a": 0, "i": 0},
+    "emotion":    {"v": 0, "a": 0, "i": 0},
+    "memory":     {"v": 0, "a": 0, "i": 0},
+    "boundary":   {"v": 0, "a": 0, "i": 0}
+  },
+  "cognition": {
+    "decision_logic": [],
+    "causal_reasoning": [],
+    "value_priority": [],
+    "risk_attitude": "",
+    "self_dialogue": [],
+    "core_contradiction": ""
+  },
+  "expression": {
+    "verbal_tics": [],
+    "sentence_rhythm": "",
+    "tone_variations": [],
+    "emoji_usage": "",
+    "language_mixing": "",
+    "never_says": []
+  },
+  "behavior": {
+    "daily_rhythm": [],
+    "stress_reactions": [],
+    "social_patterns": "",
+    "habit_loops": [],
+    "boundary_behaviors": [],
+    "social_energy": ""
+  },
+  "emotion": {
+    "triggers_positive": [],
+    "triggers_negative": [],
+    "attachment_style": "",
+    "comfort_patterns": [],
+    "love_expression": "",
+    "emotional_shell": {
+      "surface": "",
+      "inner": ""
+    },
+    "core_anchors": {
+      "highlights": [],
+      "wounds": []
+    },
+    "avoided_topics": []
+  },
+  "impressions": {
+    "cognition": [],
+    "expression": [],
+    "behavior": [],
+    "emotion": []
+  }
+}

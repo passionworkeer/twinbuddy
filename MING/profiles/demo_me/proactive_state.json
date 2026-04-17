@@ -1,0 +1,24 @@
+{
+  "slug": "demo_me",
+  "enabled_features": [
+    "anniversary",
+    "festival",
+    "recall",
+    "weather"
+  ],
+  "custom_dates": [
+    {
+      "date": "2024-03-15",
+      "label": "相识纪念日"
+    },
+    {
+      "date": "2026-04-16",
+      "label": "MING压测日"
+    }
+  ],
+  "last_message_at": null,
+  "messages_7d": 0,
+  "messages_7d_dates": [],
+  "random_recalls_this_month": 0,
+  "random_recalls_month": null
+}

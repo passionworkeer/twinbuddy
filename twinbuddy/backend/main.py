@@ -18,6 +18,7 @@ TwinBuddy Hackathon MVP 专用
 from __future__ import annotations
 
 import asyncio
+import os
 import json
 import logging
 from datetime import datetime, timezone
@@ -59,7 +60,7 @@ ALLOWED_MIME_TYPES = {
     "image/png",
     "image/webp",
 }
-FRONTEND_ORIGIN = "http://localhost:5173"
+FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
 # 日志配置
 logging.basicConfig(
@@ -83,10 +84,14 @@ app = FastAPI(
 # 前端对接路由
 app.include_router(frontend_router)
 
-# CORS — 允许前端 localhost:5173
+# CORS — 允许前端访问
+# 生产环境设置 FRONTEND_ORIGIN 环境变量，或留空允许所有（同源时）
+_allow_origins = [FRONTEND_ORIGIN, "http://127.0.0.1:5173", "http://localhost:5173", "http://localhost:5174"]
+if os.environ.get("ALLOW_ALL_ORIGINS", "") == "1":
+    _allow_origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN, "http://127.0.0.1:5173"],
+    allow_origins=_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

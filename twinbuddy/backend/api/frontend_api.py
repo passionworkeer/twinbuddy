@@ -183,6 +183,21 @@ class NegotiationRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+def _extract_mbti(text: str) -> Optional[str]:
+    """
+    从任意文本中提取 MBTI（4字母 + 可选 A/T 后缀）。
+    例如: "MBTI=ENFP。热情开拓者" -> "ENFP"
+    """
+    import re
+
+    if not text:
+        return None
+    m = re.search(r"\b([IE][NS][TF][JP])([AT])?\b", text.strip().upper())
+    if not m:
+        return None
+    return (m.group(1) + (m.group(2) or "")).upper()
+
+
 def _load_mock_persona(mbti: str) -> Optional[Dict[str, Any]]:
     """加载指定 MBTI 的 Mock persona JSON"""
     mbti_lower = mbti.lower()
@@ -359,9 +374,8 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
 
     return {
         "success": True,
-        "message": "已保存",
-        "user_id": user_id,
-        "persona_id": persona["persona_id"],
+        "data": {"user_id": user_id, "persona_id": persona["persona_id"]},
+        "meta": {"message": "已保存"},
     }
 
 
@@ -443,11 +457,17 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     # 尝试获取用户真实 persona
     user_persona = None
     user_mbti = "ENFP"
+    user_name = "你"
     if req.user_persona_id:
         for p in _persona_store.values():
             if p.get("persona_id") == req.user_persona_id:
                 user_persona = p
-                user_mbti = p.get("mbti_influence", "ENFP")[:4].upper()
+                user_name = str(p.get("name") or user_name)
+                user_mbti = (
+                    _extract_mbti(str(p.get("mbti_influence") or ""))
+                    or _extract_mbti(str(p.get("mbti_type") or ""))
+                    or user_mbti
+                )
                 break
 
     buddy_mbti = (req.buddy_mbti or "INFP").upper()
@@ -509,7 +529,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "budget": "人均3500元",
             "consensus": overall > 0.5,
             "plan": plan,
-            "matched_buddies": [_persona_store.get(list(_persona_store.keys())[-1], {}).get("name", "你"), buddy_config["name"]],
+            "matched_buddies": [user_name, buddy_config["name"]],
             "radar": radar,
             "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
             "messages": messages,

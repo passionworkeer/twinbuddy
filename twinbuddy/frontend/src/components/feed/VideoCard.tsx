@@ -1,13 +1,16 @@
+import React from 'react';
 import { Heart, MessageCircle, Share2, Sparkles } from 'lucide-react';
 import type { VideoItem, Buddy } from '../../types';
 import { MBTI_LABELS } from '../../types';
 
+type EventHandler = (e: React.MouseEvent) => void;
+
 interface Props {
   item: VideoItem;
-  onLike: (id: string) => void;
-  onComment: (id: string) => void;
-  onShare: (id: string) => void;
-  onTwinCard: (id: string) => void;
+  onLike: EventHandler;
+  onComment: EventHandler;
+  onShare: EventHandler;
+  onTwinCard: EventHandler;
   liked: boolean;
   likeCount: number;
   commentCount: number;
@@ -134,10 +137,10 @@ export function VideoCard({
           likeCount={likeCount}
           commentCount={commentCount}
           shareCount={shareCount}
-          onLike={() => onLike(item.id)}
-          onComment={() => onComment(item.id)}
-          onShare={() => onShare(item.id)}
-          onTwinCard={() => onTwinCard(item.id)}
+          onLike={onLike}
+          onComment={onComment}
+          onShare={onShare}
+          onTwinCard={onTwinCard}
         />
       </div>
     </div>

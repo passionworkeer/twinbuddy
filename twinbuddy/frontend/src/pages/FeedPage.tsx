@@ -1,59 +1,20 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { TikTokVideo } from '../components/feed/TikTokVideo';
+import { VideoCard } from '../components/feed/VideoCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
 import type { VideoItem, NegotiationResult } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_KEYS } from '../types';
 
-// ── API Client ────────────────────────────────────────
-
-const API_BASE = 'http://localhost:8000';
-
-async function fetchWithTimeout(url: string, ms = 3000): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
-  try {
-    const res = await fetch(url, { signal: controller.signal });
-    return res;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchFeed(city?: string): Promise<VideoItem[]> {
-  const url = city
-    ? `${API_BASE}/api/feed?city=${encodeURIComponent(city)}`
-    : `${API_BASE}/api/feed`;
-  const res = await fetchWithTimeout(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json: { success: boolean; data: VideoItem[] } = await res.json();
-  if (!json.success) throw new Error('API success=false');
-  return json.data;
-}
-
-async function fetchNegotiation(
-  destination: string,
-  buddy_mbti?: string,
-): Promise<NegotiationResult> {
-  const res = await fetchWithTimeout(`${API_BASE}/api/negotiate`, 8000);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json: { success: boolean; data: NegotiationResult } = await res.json();
-  if (!json.success) throw new Error('Negotiate API success=false');
-  return { ...json.data, destination, ...(buddy_mbti ? { buddy_mbti } : {}) };
-}
-
-// ── Mock Videos (real local files) ─────────────────
+// ── Mock Data ─────────────────────────────────────────
 
 const MOCK_VIDEOS: VideoItem[] = [
   {
     id: 'v1',
     type: 'video',
-    cover_url: '/images/chengdu.jpg',
-    video_url: '/videos/3a25a0d3ce7e5939c065f297e17b461d_裁剪版.mp4',
+    cover_url: 'https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80',
     location: '成都',
     title: '成都火锅的正确打开方式',
-    description: '以成都宽窄巷子经典历史街巷、红灯笼与传统川西庭院为主线，串联古建筑群落、绿树掩映的石板小径以及幽静的茶馆与地道小吃摊位，融合了清代川西民居风格与现代都市生活气息，多幽深庭院、青砖黛瓦、精美木雕和花鸟画廊，文化氛围浓厚、节奏悠闲流畅。这里是感受成都"慢生活"精髓的最佳去处，漫步其间可品尝正宗川菜火锅、听街头川剧、逛老字号店铺，还能体验老成都的市井烟火气与文艺气质完美融合。',
     buddy: {
       name: '小雅',
       mbti: 'ENFP',
@@ -66,11 +27,9 @@ const MOCK_VIDEOS: VideoItem[] = [
   {
     id: 'v2',
     type: 'video',
-    cover_url: '/images/chuanxi.jpg',
-    video_url: '/videos/40f98311ef12a26d5bb92ffb668a7029_裁剪版.mp4',
+    cover_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
     location: '川西',
     title: '川西小环线自驾日记',
-    description: '以川西雪山与广袤草原为主线，串联高山牧场、藏式村落与起伏草甸段落，多开阔山谷、碎石小径和野花遍野的高原景观，视野极致开阔、节奏壮阔磅礴。这里拥有四姑娘山、贡嘎雪峰等雄伟雪山，康定草原上飘荡的藏歌，以及独特的藏族唐卡、酥油茶文化和牦牛牧民生活，是中国最美的高原风光圣地之一。',
     buddy: {
       name: '小鱼',
       mbti: 'INFP',
@@ -80,125 +39,7 @@ const MOCK_VIDEOS: VideoItem[] = [
       compatibility_score: 88,
     },
   },
-  {
-    id: 'v3',
-    type: 'video',
-    cover_url: '/images/dali.jpg',
-    video_url: '/videos/7c2e35507979c9cedd5f558bfc33d674.mp4',
-    location: '大理',
-    title: '洱海边的日落',
-    description: '以大理洱海与古城墙、苍山为主线，串联湖岸古道、山麓林径与白族村落段落，多碧波荡漾的湖水，白墙黛瓦的民居和苍山十九峰的壮丽背景，湖光山色交辉、节奏诗意舒缓。这里是云南最浪漫的旅行胜地，拥有"高原明珠"洱海、千年白族古城、大理国历史遗迹和风花雪月四景。',
-    buddy: {
-      name: '阿泽',
-      mbti: 'INTJ',
-      avatar_emoji: '🏔️',
-      typical_phrases: ['计划好了', '按部就班'],
-      travel_style: '精密计划型',
-      compatibility_score: 76,
-    },
-  },
-  {
-    id: 'v4',
-    type: 'video',
-    cover_url: '/images/lijiang.jpg',
-    video_url: '/videos/842636456c2fe795f0e186a012984110.mp4',
-    location: '丽江',
-    title: '古城夜景',
-    description: '以丽江古城夜景与灯火水道、纳西古建筑为主线，串联石板街巷、山景夜径与古桥流水段落，多彩灯倒影、木楼飞檐和玉龙雪山远景，氛围梦幻浪漫、节奏轻快灵动。这里是联合国世界文化遗产，拥有千年纳西东巴文化、独特的水车与小桥流水景观、酒吧街的夜生活。',
-    buddy: {
-      name: '苗苗',
-      mbti: 'ESFP',
-      avatar_emoji: '🎭',
-      typical_phrases: ['太浪漫了！', '快拍快拍！'],
-      travel_style: '舞台明星型',
-      compatibility_score: 83,
-    },
-  },
-  {
-    id: 'v5',
-    type: 'video',
-    cover_url: '/images/qingdao.jpg',
-    video_url: '/videos/9b39ec3f9eef4dd5ce7856d95048de03.mp4',
-    location: '青岛',
-    title: '海边日落巡航',
-    description: '以青岛海滨沙滩与德式红顶建筑为主线，串联海岸线、山海交汇段落与啤酒文化街区，多金色沙滩、碧蓝海浪和欧式风情建筑，视野开阔、节奏轻松惬意。这里是"东方瑞士"，拥有德国殖民时期遗留的红瓦绿树建筑、栈桥与八大关别墅区、崂山道教文化和闻名世界的青岛啤酒。',
-    buddy: {
-      name: '阳哥',
-      mbti: 'ESTP',
-      avatar_emoji: '🌊',
-      typical_phrases: ['走！', '下一个目的地！'],
-      travel_style: '活力冒险型',
-      compatibility_score: 79,
-    },
-  },
-  {
-    id: 'v6',
-    type: 'video',
-    cover_url: '/images/chongqing.jpg',
-    video_url: '/videos/a54607e868cf9bb618ae181b773b6e32_裁剪版.mp4',
-    location: '重庆',
-    title: '山城的夜',
-    description: '以重庆洪崖洞与山城立体夜景、长江为主线，串联层层叠叠的灯光街道、江岸夜道与悬崖栈道段落，多霓虹高楼、火锅烟火气和立体城市景观，视觉冲击强烈、节奏震撼激昂。这里是"8D魔幻城市"，拥有洪崖洞的千层灯海、长江索道、解放碑商圈和火锅文化。',
-    buddy: {
-      name: '小雪',
-      mbti: 'ISFJ',
-      avatar_emoji: '❄️',
-      typical_phrases: ['注意安全', '我帮你拿'],
-      travel_style: '暖心守护型',
-      compatibility_score: 85,
-    },
-  },
-  {
-    id: 'v7',
-    type: 'video',
-    cover_url: '/images/xian.jpg',
-    video_url: '/videos/d8b9eaa06194ea9b49c46a3691aec26f_裁剪版.mp4',
-    location: '西安',
-    title: '大唐不夜城',
-    description: '以西安大唐不夜城与唐风宫殿、古城墙为主线，串联灯市古街、历史建筑与大雁塔广场段落，多金碧辉煌的宫灯、石板大道和盛唐文化再现，历史氛围浓郁、节奏庄重华丽。这里是西安最梦幻的夜游地标，复原了大唐盛世建筑群、丝绸之路文化元素和不夜城灯会。',
-    buddy: {
-      name: '阿文',
-      mbti: 'ENTP',
-      avatar_emoji: '🎭',
-      typical_phrases: ['你有没有想过', '这个角度不一样'],
-      travel_style: '智趣探索型',
-      compatibility_score: 90,
-    },
-  },
-  {
-    id: 'v8',
-    type: 'video',
-    cover_url: '/images/xiamen.jpg',
-    video_url: '/videos/抖音2026417-371186_裁剪版.mp4',
-    location: '厦门',
-    title: '鼓浪屿漫步',
-    description: '以厦门鼓浪屿殖民风建筑与海岛海岸为主线，串联热带绿植小径、海滨栈道与钢琴博物馆段落，多彩色洋房、碧海蓝天和异国风情小巷，浪漫清新、节奏悠然自在。这里是"音乐之岛"，拥有万国建筑博览群、钢琴博物馆、闽南文化与海鲜美食。',
-    buddy: {
-      name: '小岛',
-      mbti: 'INFP',
-      avatar_emoji: '🏝️',
-      typical_phrases: ['好惬意', '这种感觉真好'],
-      travel_style: '慢生活型',
-      compatibility_score: 91,
-    },
-  },
 ];
-
-// ── Mock Stats ──────────────────────────────────────
-
-const MOCK_LIKE_COUNTS: Record<string, number> = {
-  v1: 2847, v2: 1532, v3: 982, v4: 3421, v5: 1203, v6: 2156, v7: 876, v8: 445,
-};
-
-const MOCK_COMMENT_COUNTS: Record<string, number> = {
-  v1: 342, v2: 218, v3: 156, v4: 489, v5: 201, v6: 334, v7: 167, v8: 89,
-};
-
-const MOCK_SHARE_COUNTS: Record<string, number> = {
-  v1: 89, v2: 67, v3: 45, v4: 134, v5: 78, v6: 92, v7: 34, v8: 28,
-};
-
-// ── Negotiation Mock ────────────────────────────────
 
 const MOCK_NEGOTIATION: NegotiationResult = {
   destination: '大理',
@@ -224,7 +65,7 @@ const MOCK_NEGOTIATION: NegotiationResult = {
   ],
 };
 
-// ── TwinCard Overlay ─────────────────────────────────
+// ── TwinCard Overlay ───────────────────────────────────
 
 function TwinCardOverlay({
   result,
@@ -235,6 +76,7 @@ function TwinCardOverlay({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  // Close on backdrop click
   const handleBackdrop = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
@@ -259,17 +101,23 @@ function TwinCardOverlay({
   );
 }
 
-// ── Feed Page ────────────────────────────────────────
+// ── Feed Page ──────────────────────────────────────────
 
 export default function FeedPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [feedVideos, setFeedVideos] = useState<VideoItem[]>(MOCK_VIDEOS);
   const [likedItems, setLikedItems] = useLocalStorage<Record<string, boolean>>(
-    STORAGE_KEYS.onboarding,
+    STORAGE_KEYS.twin_cards_seen,
     {},
   );
+  const [likeCounts] = useState<Record<string, number>>({
+    v1: 2847,
+    v2: 1532,
+    twin1: 0,
+  });
+  const [commentCounts] = useState<Record<string, number>>({ v1: 342, v2: 218, twin1: 0 });
+  const [shareCounts] = useState<Record<string, number>>({ v1: 89, v2: 67, twin1: 0 });
+
   const [showTwinCard, setShowTwinCard] = useState(false);
-  const [negotiationResult, setNegotiationResult] = useState<NegotiationResult | null>(null);
   const [cardsSeen, setCardsSeen] = useLocalStorage<string[]>(
     STORAGE_KEYS.twin_cards_seen,
     [],
@@ -277,21 +125,7 @@ export default function FeedPage() {
 
   const feedRef = useRef<HTMLDivElement>(null);
 
-  // Fetch feed from API on mount, fallback to MOCK_VIDEOS on error
-  useEffect(() => {
-    let cancelled = false;
-    fetchFeed()
-      .then((data) => {
-        if (!cancelled) setFeedVideos(data);
-      })
-      .catch((err) => {
-        console.error('[FeedPage] fetchFeed failed, using mock data:', err);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  // Show twin card after 2nd video
   const triggerTwinCard = useCallback(() => {
     if (!cardsSeen.includes('twin1')) {
       setCardsSeen((prev) => [...prev, 'twin1']);
@@ -299,6 +133,7 @@ export default function FeedPage() {
     }
   }, [cardsSeen, setCardsSeen]);
 
+  // Handle snap scroll
   const handleScroll = useCallback(() => {
     const el = feedRef.current;
     if (!el) return;
@@ -309,6 +144,7 @@ export default function FeedPage() {
     }
   }, [cardsSeen, triggerTwinCard]);
 
+  // Attach scroll listener
   useEffect(() => {
     const el = feedRef.current;
     if (!el) return;
@@ -316,7 +152,7 @@ export default function FeedPage() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  // Initial twin card
+  // Initial twin card trigger after mount
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!cardsSeen.includes('twin1')) {
@@ -328,85 +164,83 @@ export default function FeedPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLike = useCallback((id: string) => {
-    setLikedItems((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, [setLikedItems]);
-
-  const handleComment = useCallback((_id: string) => {
-    // TODO: comment modal
+  const handleLike = useCallback(() => {
+    // Like handled by VideoCard internal state
   }, []);
 
-  const handleShare = useCallback((_id: string) => {
-    // TODO: native share
+  const handleComment = useCallback(() => {
+    // Future: open comment modal
   }, []);
 
-  const handleTwinCard = useCallback((id: string) => {
-    const video = feedVideos.find((v) => v.id === id);
-    const destination = video?.location ?? '大理';
-    const buddy_mbti = video?.buddy?.mbti;
+  const handleShare = useCallback(() => {
+    // Future: native share API
+  }, []);
 
-    // Fetch negotiation result from API, fallback to MOCK_NEGOTIATION
-    fetchNegotiation(destination, buddy_mbti)
-      .then((result) => {
-        setNegotiationResult(result);
-        setShowTwinCard(true);
-      })
-      .catch((err) => {
-        console.error('[FeedPage] fetchNegotiation failed, using mock:', err);
-        setNegotiationResult(MOCK_NEGOTIATION);
-        setShowTwinCard(true);
-      });
-  }, [feedVideos]);
+  const handleTwinCard = useCallback(() => {
+    setShowTwinCard(true);
+  }, []);
 
   const handleTwinCardConfirm = useCallback(() => {
     setShowTwinCard(false);
+    // Navigate to result after short delay
     setTimeout(() => {
       window.location.href = '/result';
     }, 800);
   }, []);
 
+  const items: VideoItem[] = [
+    ...MOCK_VIDEOS,
+    {
+      id: 'twin1',
+      type: 'twin_card',
+      cover_url: '',
+      location: '大理',
+      title: '懂你卡片 · 大理之约',
+      buddy: MOCK_VIDEOS[0].buddy,
+    },
+  ];
+
   return (
     <div className="relative">
-      {/* Feed */}
-      <div ref={feedRef} className="feed-container">
-        {feedVideos.map((item, index) => (
-          <TikTokVideo
+      {/* Feed container */}
+      <div
+        ref={feedRef}
+        className="feed-container"
+      >
+        {items.map((item) => (
+          <VideoCard
             key={item.id}
-            videoUrl={item.video_url}
-            buddy={item.buddy}
-            location={item.location}
-            title={item.title}
-            description={item.description}
-            likeCount={MOCK_LIKE_COUNTS[item.id] ?? 0}
-            commentCount={MOCK_COMMENT_COUNTS[item.id] ?? 0}
-            shareCount={MOCK_SHARE_COUNTS[item.id] ?? 0}
+            item={item}
+            onLike={handleLike}
+            onComment={handleComment}
+            onShare={handleShare}
+            onTwinCard={handleTwinCard}
             liked={!!likedItems[item.id]}
-            isActive={currentIndex === index}
-            onLike={() => handleLike(item.id)}
-            onComment={() => handleComment(item.id)}
-            onShare={() => handleShare(item.id)}
-            onTwinCard={() => handleTwinCard(item.id)}
+            likeCount={likeCounts[item.id] ?? 0}
+            commentCount={commentCounts[item.id] ?? 0}
+            shareCount={shareCounts[item.id] ?? 0}
           />
         ))}
       </div>
 
-      {/* Scroll progress */}
-      <div className="fixed top-0 left-0 right-0 z-40 h-0.5 bg-white/5 pointer-events-none">
+      {/* Scroll progress indicator */}
+      <div className="fixed top-0 left-0 right-0 z-40 h-0.5 bg-white/5">
         <div
-          className="h-full bg-gradient-to-r from-neon-primary to-neon-secondary/60 transition-all duration-300 shadow-[0_0_8px_rgba(255,179,182,0.6)]"
-          style={{ width: `${((currentIndex + 1) / feedVideos.length) * 100}%` }}
+          className="h-full bg-neon-primary/60 transition-all duration-300"
+          style={{ width: `${((currentIndex + 1) / items.length) * 100}%` }}
         />
       </div>
 
       {/* TwinCard Overlay */}
       {showTwinCard && (
         <TwinCardOverlay
-          result={negotiationResult ?? MOCK_NEGOTIATION}
+          result={MOCK_NEGOTIATION}
           onClose={() => setShowTwinCard(false)}
           onConfirm={handleTwinCardConfirm}
         />
       )}
 
+      {/* Bottom Navigation */}
       <BottomNav />
     </div>
   );

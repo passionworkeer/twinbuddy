@@ -26,13 +26,18 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import (
     BackgroundTasks,
+    Depends,
     FastAPI,
     File,
     Form,
+    Header,
     HTTPException,
+    Query,
     UploadFile,
     status,
 )
+
+from isolation import get_isolation, DataIsolation, UserSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
@@ -264,12 +269,14 @@ async def generate_avatar(
     mbti: str = Form(""),
     bio: str = Form(""),
     chat_logs: str = Form(""),
+    user_id: Optional[str] = Form(None),
     # 文件上传
     mbti_file: Optional[UploadFile] = File(None),
     bio_file: Optional[UploadFile] = File(None),
     chat_file: Optional[UploadFile] = File(None),
     douyin_file: Optional[UploadFile] = File(None),
     photo_file: Optional[UploadFile] = File(None),
+    di: DataIsolation = Depends(get_isolation),
 ) -> JSONResponse:
     """
     POST /generate_avatar
@@ -295,6 +302,9 @@ async def generate_avatar(
       - success: False 时 error 包含错误信息
     """
     try:
+        # Step 0: 创建或恢复会话
+        session = di.get_or_create_session(user_id)
+
         # Step 1: 收集数据（文件 + 表单）
         file_data = await _collect_form_files(
             mbti_file=mbti_file,
@@ -309,7 +319,17 @@ async def generate_avatar(
         final_bio = file_data["bio"] or bio.strip()
         final_chat = file_data["chat_logs"] or chat_logs.strip()
         final_douyin = file_data["douyin_data"]
-        final_photo = file_data["photo_path"]
+        final_photo = file_data["photo_path"] or ""
+
+        # Step 2b: 通过隔离层存储照片（如有）
+        if photo_file:
+            photo_bytes = await photo_file.read()
+            if len(photo_bytes) > MAX_FILE_SIZE_BYTES:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail=f"照片超过 {MAX_FILE_SIZE_BYTES // 1024 // 1024}MB 限制",
+                )
+            final_photo = di.store_upload(session, photo_file.filename or "photo.jpg", photo_bytes, "photos")
 
         # Step 3: 输入验证
         if not final_mbti:
@@ -357,7 +377,12 @@ async def generate_avatar(
             persona["confidence_score"],
         )
 
-        # Step 5: 返回成功响应
+        # Step 5: 通过隔离层持久化 Persona 并清理上传文件
+        di.store_persona(session, persona)
+        if final_photo:
+            di.purge_uploads(session)
+
+        # Step 6: 返回成功响应
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
@@ -365,6 +390,8 @@ async def generate_avatar(
                 "data": persona,
                 "error": None,
                 "meta": {
+                    "user_id": session.user_id,
+                    "session_key": session.session_key,
                     "request_mbti": final_mbti,
                     "data_sources_count": len(persona["data_sources_used"]),
                     "generated_at": persona["generated_at"],

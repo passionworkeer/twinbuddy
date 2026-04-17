@@ -22,14 +22,11 @@ if sys.platform == "win32":
         pass
 
 # ─── 导入被测模块 ────────────────────────────────────────────────────────────
-if "E:/desktop/hecker" not in sys.path:
-    sys.path.insert(0, "E:/desktop/hecker")
-
-from MING.parsers.base import BaseParser
-from MING.parsers.mbti_parser import MBTIParser, _extract_mbti_letters, _extract_dimension_scores
-from MING.parsers.chat_parser import ChatParser, _detect_format, _analyze_messages
-from MING.parsers.douyin_parser import DouyinParser, _parse_like_list
-from MING.parsers import fusion
+from .base import BaseParser
+from .mbti_parser import MBTIParser, _extract_mbti_letters, _extract_dimension_scores
+from .chat_parser import ChatParser, _detect_format, _analyze_messages
+from .douyin_parser import DouyinParser, _parse_like_list
+from . import fusion
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -298,7 +295,7 @@ class TestChatParse(unittest.TestCase):
 
     def test_analyze_messages_empty(self):
         """空消息列表应返回安全的默认值。"""
-        from MING.parsers.chat_parser import ChatMessage
+        from .chat_parser import ChatMessage
         result = _analyze_messages([])
         self.assertEqual(result["total_messages"], 0)
 

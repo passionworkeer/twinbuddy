@@ -52,10 +52,18 @@ export interface VideoItem {
   id: string;
   type: 'video' | 'twin_card';
   cover_url: string;
-  video_url?: string;
+  video_url: string;
   location: string;
   title: string;
+  description?: string;
   buddy?: Buddy;
+}
+
+export interface VideoStats {
+  likes: number;
+  comments: number;
+  shares: number;
+  liked: boolean;
 }
 
 // ── Buddy / Match ────────────────────────────────────

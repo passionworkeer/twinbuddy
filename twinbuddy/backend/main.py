@@ -89,12 +89,14 @@ app.include_router(langgraph_router)
 # CORS — 允许前端访问
 # 生产环境设置 FRONTEND_ORIGIN 环境变量，或留空允许所有（同源时）
 _allow_origins = [FRONTEND_ORIGIN, "http://127.0.0.1:5173", "http://localhost:5173", "http://localhost:5174"]
+_allow_credentials = True
 if os.environ.get("ALLOW_ALL_ORIGINS", "") == "1":
     _allow_origins = ["*"]
+    _allow_credentials = False  # credentials + wildcard origin is insecure; disable when allowing all
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allow_origins,
-    allow_credentials=True,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

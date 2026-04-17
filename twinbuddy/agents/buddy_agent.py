@@ -24,11 +24,22 @@ class BuddyAgent:
         """
         self.id: str = persona["id"]
         self.name: str = persona["name"]
-        self.avatar_desc: str = persona["avatar_desc"]
+        self.avatar_desc: str = persona.get("avatar_desc") or persona.get("avatar_prompt", "")
         self.mbti: str = persona["mbti"]
         self.travel_style: str = persona["travel_style"]
         self.preferences: dict = persona["preferences"]
-        self.personality: dict = persona["personality"]
+        self.personality: dict = persona.get("personality") or {}
+        # Normalize personality_layers field names to expected keys
+        pl = persona.get("personality_layers") or {}
+        for old_key, new_key in [
+            ("layer1_identity", "l1_identity"),
+            ("layer2_speaking", "l2_speaking"),
+            ("layer3_emotion", "l3_emotion"),
+            ("layer4_social", "l4_behavior"),
+            ("layer0_hard_rules", "negotiation_style"),
+        ]:
+            if old_key in pl and new_key not in self.personality:
+                self.personality[new_key] = pl[old_key]
         self.negotiation_log: list[dict] = []
 
         # Derive MBTI axes for quick access

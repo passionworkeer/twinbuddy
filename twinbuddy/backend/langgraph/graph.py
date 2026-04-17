@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Dict, Any, Literal
 from .state import NegotiationState, NegotiationPhase, initial_state
-from .nodes import proposer_node, evaluator_node, report_node, TOPICS
+from .llm_nodes import llm_proposer_node as proposer_node, llm_evaluator_node as evaluator_node, llm_report_node as report_node, TOPICS
 
 def build_negotiation_graph():
     from langgraph.graph import StateGraph, END
@@ -11,13 +11,19 @@ def build_negotiation_graph():
     builder.add_node("proposer", proposer_node)
     builder.add_node("evaluator", evaluator_node)
     builder.add_node("report", report_node)
-    def route(state: NegotiationState) -> Literal["evaluator", "report", END]:
+    def route(state: NegotiationState) -> Literal["proposer", "report", END]:
+        # CONFLICT_DETECTED → 回到 proposer 进行折中协商（evaluator 已处理折中逻辑）
+        if state["phase"] == NegotiationPhase.CONFLICT_DETECTED: return "proposer"
+        if state["phase"] == NegotiationPhase.REPORT_GENERATED: return END
+        if state["phase"] == NegotiationPhase.CONSENSUS_FOUND: return "report"
+        # CHAT_ROUND → 继续下一话题，回到 proposer
+        return "proposer"
         if state["phase"] == NegotiationPhase.REPORT_GENERATED: return END
         if state["phase"] == NegotiationPhase.CONSENSUS_FOUND: return "report"
         return "evaluator"
     builder.set_entry_point("proposer")
-    builder.add_edge("proposer", "evaluator")
-    builder.add_conditional_edges("evaluator", route)
+    builder.add_conditional_edges("proposer", route)
+    builder.add_edge("evaluator", "proposer")  # 评估后回到提议者
     builder.add_edge("report", END)
     return builder.compile(checkpointer=MemorySaver())
 

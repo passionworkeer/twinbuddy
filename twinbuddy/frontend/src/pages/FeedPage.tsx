@@ -13,6 +13,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v1',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80',
+    video_url: '',
     location: '成都',
     title: '成都火锅的正确打开方式',
     buddy: {
@@ -28,6 +29,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v2',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+    video_url: '',
     location: '川西',
     title: '川西小环线自驾日记',
     buddy: {
@@ -194,6 +196,7 @@ export default function FeedPage() {
       id: 'twin1',
       type: 'twin_card',
       cover_url: '',
+      video_url: '',
       location: '大理',
       title: '懂你卡片 · 大理之约',
       buddy: MOCK_VIDEOS[0].buddy,

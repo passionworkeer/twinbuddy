@@ -49,19 +49,30 @@ export function useOnboarding() {
     }));
   }, [setData]);
 
+  // Determine which step the user is currently on (1-4)
+  // Step 3: mbti + interests filled (voice/city optional)
+  // Step 4: mbti + interests filled, at city selection (city optional)
   const currentStep = useCallback((): number => {
-    if (data.mbti && data.interests.length > 0 && data.city) return 4;
-    if (data.mbti && data.interests.length > 0) return 3;
+    if (data.mbti && data.interests.length > 0) {
+      // Step 3 onwards — city is optional, always reachable
+      return 4;
+    }
     if (data.mbti) return 2;
     if (data.completed) return 4;
     return 1;
   }, [data]);
 
+  // Whether the user can advance from a given step
+  // Step 1: requires MBTI selection
+  // Step 2: requires at least 1 interest
+  // Step 3: ALWAYS allowed (voice and text are optional)
+  // Step 4: ALWAYS allowed (city is optional)
   const canAdvance = useCallback((step: number): boolean => {
     switch (step) {
       case 1: return !!data.mbti;
       case 2: return data.interests.length > 0;
-      case 3: return !!data.city;
+      case 3: return true; // voice/text optional — always allowed
+      case 4: return true; // city optional — always allowed to finish
       default: return true;
     }
   }, [data]);

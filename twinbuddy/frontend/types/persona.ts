@@ -49,7 +49,7 @@ export interface FileSlotConfig {
   label: string;
   description: string;
   accepted: string;
-  icon: string;
+  icon?: React.ReactNode;
   optional: boolean;
 }
 

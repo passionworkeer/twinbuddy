@@ -41,17 +41,20 @@ function MBTIGrid({ value, onChange }: { value: string; onChange: (m: string) =>
               onClick={() => onChange(mbti)}
               className={`
                 flex flex-col items-center gap-0.5 rounded-2xl p-3
-                transition-all duration-200 border
+                transition-all duration-200 border relative overflow-hidden
                 ${selected
-                  ? 'border-neon-primary bg-neon-primary/10 shadow-glow-primary'
-                  : 'border-white/5 bg-white/4 hover:border-neon-primary/30 hover:bg-white/6'
+                  ? 'border-neon-primary bg-neon-primary/15 shadow-glow-primary neon-card-active'
+                  : 'border-white/5 bg-white/4 hover:border-neon-primary/30 hover:bg-white/6 hover:shadow-[0_0_12px_rgba(255,179,182,0.1)]'
                 }
               `}
             >
-              <span className={`text-xs font-bold tracking-widest ${selected ? 'text-neon-primary' : 'text-neon-text'}`}>
+              {selected && (
+                <div className="absolute inset-0 bg-gradient-to-br from-neon-primary/10 to-transparent pointer-events-none rounded-2xl" />
+              )}
+              <span className={`text-xs font-bold tracking-widest relative z-[1] ${selected ? 'text-neon-primary' : 'text-neon-text'}`}>
                 {mbti}
               </span>
-              <span className={`text-[10px] leading-tight text-center ${selected ? 'text-neon-primary/80' : 'text-neon-text-secondary'}`}>
+              <span className={`text-[10px] leading-tight text-center relative z-[1] ${selected ? 'text-neon-primary/80' : 'text-neon-text-secondary'}`}>
                 {MBTI_LABELS[mbti]}
               </span>
             </button>
@@ -107,49 +110,62 @@ function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: st
   );
 }
 
-// ── Step 3: Voice Recorder ───────────────────────────
-
 type VoiceState = 'idle' | 'recording' | 'transcribed';
 
-function VoiceRecorder({ text, onTranscribe }: { text: string; onTranscribe: (t: string) => void }) {
-  const [state, setState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
+function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
+  const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
 
   const handleStart = () => {
-    setState('recording');
-    // Simulated transcription after 2.5s
+    setVoiceState('recording');
     setTimeout(() => {
       const simulated = '我想去一个节奏慢的地方，最好能拍照发朋友圈，吃当地美食，不用太累，轻松玩就好';
-      onTranscribe(simulated);
-      setState('transcribed');
+      onChange(simulated);
+      setVoiceState('transcribed');
     }, 2500);
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 stagger-children">
+    <div className="flex flex-col items-center gap-5 stagger-children">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-neon-text">用一句话描述<br />你理想的搭子</h2>
-        <p className="mt-1 text-sm text-neon-text-secondary">按住说话，AI 会读懂你的旅行风格</p>
+        <p className="mt-1 text-sm text-neon-text-secondary">说点什么，或者直接跳过</p>
       </div>
 
+      {/* Primary: text input */}
+      <textarea
+        className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/6 px-4 py-3
+                   text-neon-text text-sm resize-none placeholder:text-neon-text-disabled
+                   focus:border-neon-primary focus:outline-none focus:shadow-glow-primary transition-all"
+        rows={3}
+        placeholder="描述你理想的搭子，比如：喜欢慢节奏、会拍照、能吃辣..."
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+      />
+
+      {!text && voiceState === 'idle' && (
+        <p className="text-xs text-neon-text-disabled text-center -mt-2">说点什么，或者直接跳过</p>
+      )}
+
+      {/* Voice recording button */}
       <button
         onClick={handleStart}
-        disabled={state === 'transcribed'}
-        className={`
+        disabled={voiceState === 'transcribed'}
+        className={`}
           relative flex items-center justify-center rounded-full
           transition-all duration-200
-          ${state === 'recording'
+          ${voiceState === 'recording'
             ? 'w-28 h-28 bg-red-500/20 border-2 border-red-400 shadow-[0_0_30px_rgba(248,113,113,0.5)] animate-neon-pulse'
             : 'w-24 h-24 bg-neon-primary/10 border-2 border-neon-primary/40 hover:border-neon-primary hover:shadow-glow-primary'
           }
         `}
       >
-        <Mic className={`w-10 h-10 ${state === 'recording' ? 'text-red-400' : 'text-neon-primary'}`} />
-        {state === 'recording' && (
+        <Mic className={`w-10 h-10 ${voiceState === 'recording' ? 'text-red-400' : 'text-neon-primary'}`} />
+        {voiceState === 'recording' && (
           <span className="absolute -bottom-6 text-xs text-red-400 animate-pulse">录音中...</span>
         )}
       </button>
 
-      {state === 'recording' && (
+      {voiceState === 'recording' && (
         <div className="flex items-end gap-1 h-8">
           {Array.from({ length: 8 }, (_, i) => (
             <div
@@ -164,7 +180,7 @@ function VoiceRecorder({ text, onTranscribe }: { text: string; onTranscribe: (t:
         </div>
       )}
 
-      {state === 'transcribed' && (
+      {voiceState === 'transcribed' && text && (
         <div className="w-full max-w-sm animate-fade-in">
           <div className="glass-panel p-4">
             <p className="text-sm text-neon-text leading-relaxed">"{text}"</p>
@@ -186,7 +202,7 @@ function CityCards({ value, onChange }: { value: string; onChange: (c: string) =
     <div className="space-y-4 stagger-children">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-neon-text">你想去哪？</h2>
-        <p className="mt-1 text-sm text-neon-text-secondary">选择一个目的地</p>
+        <p className="mt-1 text-sm text-neon-text-secondary">选择一个目的地（可选）</p>
       </div>
       <div className="tags-scroll gap-3 pb-1">
         {CITIES.map((city) => {
@@ -251,7 +267,7 @@ export default function OnboardingPage() {
       case 1: return !!data.mbti;
       case 2: return data.interests.length > 0;
       case 3: return true; // voice is optional
-      case 4: return !!data.city;
+      case 4: return true; // city optional
       default: return false;
     }
   };
@@ -280,7 +296,7 @@ export default function OnboardingPage() {
           <InterestTags values={data.interests} onToggle={toggleInterest} />
         )}
         {step === 3 && (
-          <VoiceRecorder text={data.voiceText} onTranscribe={setVoiceText} />
+          <VoiceOrText text={data.voiceText} onChange={setVoiceText} />
         )}
         {step === 4 && (
           <CityCards value={data.city} onChange={setCity} />
@@ -307,6 +323,9 @@ export default function OnboardingPage() {
             )}
           </button>
         </div>
+                {step === 4 && (
+          <button onClick={completeOnboarding} className="mt-3 w-full py-3 text-center text-sm text-neon-text-secondary hover:text-neon-text transition-colors">随便看看</button>
+        )}
         <p className="mt-3 text-center text-xs text-neon-text-disabled">
           数据仅本地存储，不会上传至服务器
         </p>

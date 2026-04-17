@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Sparkles, Mic } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
-import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS, CITIES } from '../types';
+import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS } from '../types';
 
 // ── Progress Dots ─────────────────────────────────────
 
@@ -73,25 +73,22 @@ function MBTIGrid({ value, onChange }: { value: string; onChange: (m: string) =>
 
 // ── Step 2: Interest Tags ─────────────────────────────
 
-const MAX_INTERESTS = 8;
-
 function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: string) => void }) {
   return (
     <div className="space-y-4 stagger-children">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-neon-text">你向往哪种旅行？</h2>
         <p className="mt-1 text-sm text-neon-text-secondary">
-          选择 {values.length}/{MAX_INTERESTS} 个标签
+          选择你感兴趣的标签（可多选）
         </p>
       </div>
-      <div className="tags-scroll gap-2 pb-1">
+      <div className="flex flex-wrap gap-2">
         {INTEREST_TAGS.map((tag) => {
           const selected = values.includes(tag);
           return (
             <button
               key={tag}
-              onClick={() => selected || values.length < MAX_INTERESTS ? onToggle(tag) : undefined}
-              disabled={!selected && values.length >= MAX_INTERESTS}
+              onClick={() => onToggle(tag)}
               className={`tag flex-shrink-0 ${selected ? 'selected' : ''}`}
             >
               {tag}
@@ -99,13 +96,6 @@ function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: st
           );
         })}
       </div>
-      {values.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 justify-center">
-          {values.map((v) => (
-            <span key={v} className="tag selected text-xs">{v}</span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -114,14 +104,52 @@ type VoiceState = 'idle' | 'recording' | 'transcribed';
 
 function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+
+  useEffect(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) {
+      const rec = new SR();
+      rec.lang = 'zh-CN';
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      rec.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript;
+        onChange(transcript);
+        setVoiceState('transcribed');
+      };
+
+      rec.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.warn('Speech recognition error:', event.error);
+        setVoiceState('idle');
+      };
+
+      rec.onend = () => {
+        if (voiceState === 'recording') setVoiceState('idle');
+      };
+
+      setRecognition(rec);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStart = () => {
+    if (!recognition) {
+      // Fallback for browsers without Speech API
+      setVoiceState('recording');
+      setTimeout(() => {
+        onChange('');
+        setVoiceState('idle');
+      }, 100);
+      return;
+    }
     setVoiceState('recording');
-    setTimeout(() => {
-      const simulated = '我想去一个节奏慢的地方，最好能拍照发朋友圈，吃当地美食，不用太累，轻松玩就好';
-      onChange(simulated);
-      setVoiceState('transcribed');
-    }, 2500);
+    try {
+      recognition.start();
+    } catch {
+      setVoiceState('idle');
+    }
   };
 
   return (
@@ -195,41 +223,29 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   );
 }
 
-// ── Step 4: City Selection ────────────────────────────
+// ── Step 4: Destination Input ─────────────────────────
 
-function CityCards({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+function DestinationInput({ value, onChange }: { value: string; onChange: (c: string) => void }) {
   return (
     <div className="space-y-4 stagger-children">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-neon-text">你想去哪？</h2>
-        <p className="mt-1 text-sm text-neon-text-secondary">选择一个目的地（可选）</p>
+        <p className="mt-1 text-sm text-neon-text-secondary">输入你的目的地（可选）</p>
       </div>
-      <div className="tags-scroll gap-3 pb-1">
-        {CITIES.map((city) => {
-          const selected = value === city.id;
-          return (
-            <button
-              key={city.id}
-              onClick={() => onChange(city.id)}
-              className={`
-                city-card group
-                bg-gradient-to-br ${city.gradient}
-                ${selected ? 'selected' : ''}
-              `}
-            >
-              <div className="city-card-overlay" />
-              <span className="city-card-name">{city.name}</span>
-              <span className="absolute right-2 top-1.5 text-base">{city.emoji}</span>
-            </button>
-          );
-        })}
-      </div>
-      {value && (
-        <p className="text-center text-sm text-neon-text-secondary animate-fade-in">
-          目标：{CITIES.find((c) => c.id === value)?.emoji}{' '}
-          {CITIES.find((c) => c.id === value)?.name}
+      <div>
+        <input
+          type="text"
+          className="w-full max-w-sm mx-auto block rounded-2xl border border-white/10 bg-white/6 px-4 py-3
+                     text-neon-text text-base placeholder:text-neon-text-disabled
+                     focus:border-neon-primary focus:outline-none focus:shadow-glow-primary transition-all"
+          placeholder="例如：成都、重庆、大理..."
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <p className="mt-2 text-xs text-neon-text-disabled text-center">
+          直接输入目的地名称，不限于预设列表
         </p>
-      )}
+      </div>
     </div>
   );
 }
@@ -255,6 +271,9 @@ export default function OnboardingPage() {
     if (step === TOTAL_STEPS) {
       completeOnboarding();
       navigate('/feed');
+    } else if (step === TOTAL_STEPS - 1) {
+      // On step 3, complete onboarding to advance to step 4
+      completeOnboarding();
     }
   }, [step, completeOnboarding, navigate]);
 
@@ -262,11 +281,13 @@ export default function OnboardingPage() {
     if (step === 1) navigate('/');
   }, [step, navigate]);
 
+  // canProceed checks the requirements for the step we are CURRENTLY on.
+  // step comes from currentStep() which reflects the visible step.
   const canProceed = () => {
     switch (step) {
       case 1: return !!data.mbti;
       case 2: return data.interests.length > 0;
-      case 3: return true; // voice is optional
+      case 3: return true; // voice/text optional
       case 4: return true; // city optional
       default: return false;
     }
@@ -299,7 +320,7 @@ export default function OnboardingPage() {
           <VoiceOrText text={data.voiceText} onChange={setVoiceText} />
         )}
         {step === 4 && (
-          <CityCards value={data.city} onChange={setCity} />
+          <DestinationInput value={data.city} onChange={setCity} />
         )}
       </div>
 

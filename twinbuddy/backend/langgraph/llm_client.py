@@ -18,10 +18,27 @@ logger = logging.getLogger("twinbuddy.llm")
 
 # ── Key 配置 ────────────────────────────────────────────────────────────────
 
-_KEYS = [
-    os.environ.get("MINIMAX_API_KEY_1", "MINIMAX_API_KEY_REDACTED"),
-    os.environ.get("MINIMAX_API_KEY_2", "MINIMAX_API_KEY_REDACTED"),
-]
+def _load_keys():
+    """从环境变量加载 MiniMax Key，忽略源码中的任何占位值。"""
+    raw_keys = [
+        os.environ.get("MINIMAX_API_KEY", ""),
+        os.environ.get("MINIMAX_API_KEY_1", ""),
+        os.environ.get("MINIMAX_API_KEY_2", ""),
+    ]
+    # 过滤掉空字符串和以 "sk-" 开头的占位符（常见测试格式）
+    valid = [k for k in raw_keys if k and not k.startswith("sk-")]
+    if not valid:
+        import warnings
+        warnings.warn(
+            "MINIMAX_API_KEY / MINIMAX_API_KEY_1 / MINIMAX_API_KEY_2 "
+            "均未设置或使用了占位符。LLM 调用将会失败，请设置真实 Key。",
+            UserWarning,
+        )
+        return []
+    return valid
+
+
+_KEYS = _load_keys()
 _BASE_URL = "https://api.minimaxi.chat"
 _MODEL = "MiniMax-Text-01"
 

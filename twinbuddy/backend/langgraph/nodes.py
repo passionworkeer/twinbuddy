@@ -39,14 +39,64 @@ PROPOSALS = {
 }
 
 def _trait(p, dim):
-    ev = p.get("mbti_dimension_evidence", {})
-    st = p.get("speaking_style_evidence", {})
-    if dim == "travel_rhythm": return ev.get("energy", "introvert")
-    if dim == "food": return st.get("formality", "casual")
-    if dim == "budget": return "medium"
-    if dim == "social": return "high" if ev.get("energy") == "extrovert" else "medium"
-    if dim == "boundaries": return "strict" if ev.get("lifestyle") == "judging" else "flexible"
-    if dim == "schedule": return "early" if ev.get("lifestyle") == "judging" else "night"
+    """
+    从 persona 对象提取指定维度的特征值。
+
+    persona 结构（frontend_api.py 生成）：
+      - identity.content 包含 "内向/外向" 等关键词
+      - speaking_style.chat_tone / typical_phrases
+      - emotion_decision.decision_style
+      - social_behavior.social_style
+      - mbti_influence 包含完整 MBTI 字符串
+    """
+    # 1. 优先从 identity 层解析 MBTI 维度（最可靠）
+    identity_content = str(p.get("identity", {}).get("content", ""))
+
+    # 2. 从 mbti_influence 提取 MBTI 类型（如 "ENFP"）
+    import re
+    mbti_match = re.search(r"\b([IE][NS][TF][JP])([AT])?\b", identity_content)
+    if not mbti_match:
+        mbti_influence = str(p.get("mbti_influence", ""))
+        mbti_match = re.search(r"\b([IE][NS][TF][JP])([AT])?\b", mbti_influence)
+    mbti = mbti_match.group(0) if mbti_match else ""
+
+    # 3. 解析四个维度
+    energy = mbti[0] if len(mbti) >= 1 else "N"   # I/E
+    lifestyle = mbti[3] if len(mbti) >= 4 else "J"  # J/P
+
+    # 4. speaking_style 层
+    speaking_style = p.get("speaking_style", {})
+    st_chat_tone = str(speaking_style.get("chat_tone", "")).lower()
+
+    # 5. social_behavior 层
+    social_behavior = p.get("social_behavior", {})
+    social_style = str(social_behavior.get("social_style", "")).lower()
+
+    # 维度映射
+    if dim == "travel_rhythm":
+        if energy == "E":
+            return "extrovert"
+        elif energy == "I":
+            return "introvert"
+        return "introvert"
+    if dim == "food":
+        if "温暖" in st_chat_tone or "热情" in st_chat_tone:
+            return "casual"
+        if "沉稳" in st_chat_tone or "结构" in st_chat_tone:
+            return "refined"
+        return "casual"
+    if dim == "budget":
+        return "medium"
+    if dim == "social":
+        if energy == "E":
+            return "high"
+        if "主动" in social_style:
+            return "medium"
+        return "low"
+    if dim == "boundaries":
+        return "strict" if lifestyle == "J" else "flexible"
+    if dim == "schedule":
+        return "early" if lifestyle == "J" else "night"
     return "medium"
 
 def proposer_node(state: NegotiationState) -> NegotiationState:

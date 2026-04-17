@@ -46,6 +46,18 @@ export interface Persona {
   data_sources_used: string[];
 }
 
+// ── Feed Response ────────────────────────────────────
+
+export interface FeedResponse {
+  videos: VideoItem[];
+  buddies: Buddy[];
+  user_prefs: {
+    city: string;
+    mbti: string;
+    interests: string[];
+  };
+}
+
 // ── Feed / Video ─────────────────────────────────────
 
 export interface VideoItem {
@@ -75,6 +87,20 @@ export interface Buddy {
   typical_phrases: string[];
   travel_style: string;
   compatibility_score: number;
+}
+
+// ── Compatibility Breakdown ───────────────────────────
+
+export interface CompatibilityBreakdown {
+  total: number;
+  pace: { score: number; reason: string };
+  social_energy: { score: number; reason: string };
+  decision_style: { score: number; reason: string };
+  interest: { score: number; reason: string };
+  budget: { score: number; reason: string };
+  personality: { score: number; reason: string };
+  red_flags: string[];
+  strengths: string[];
 }
 
 // ── Negotiation ──────────────────────────────────────
@@ -172,3 +198,11 @@ export const CITIES = [
 ] as const;
 
 export type City = typeof CITIES[number];
+
+// ── API Params ────────────────────────────────────────
+
+export interface NegotiateParams {
+  user_persona_id?: string;
+  buddy_mbti?: string;
+  destination: string;
+}

@@ -4,6 +4,28 @@ from typing import Dict, Any, Literal
 from .state import NegotiationState, NegotiationPhase, initial_state
 from .llm_nodes import llm_proposer_node as proposer_node, llm_evaluator_node as evaluator_node, llm_report_node as report_node, TOPICS
 
+def route(state: NegotiationState) -> Literal["proposer", "evaluator", "report", END]:
+    """
+    路由逻辑：
+    - phase == PROPOSE / CHAT_ROUND / default → evaluator（进入评估阶段）
+    - phase == EVALUATE → evaluator（同上，保持兼容）
+    - phase == CONSENSUS_FOUND → report（达成共识，生成报告）
+    - phase == CONFLICT_DETECTED → evaluator（继续协商）
+    - phase == REPORT_GENERATED → __end__（结束）
+    """
+    phase = state.get("phase", NegotiationPhase.PROPOSE)
+
+    if phase == NegotiationPhase.CONSENSUS_FOUND:
+        return "report"
+    elif phase == NegotiationPhase.REPORT_GENERATED:
+        return END
+    elif phase == NegotiationPhase.CONFLICT_DETECTED:
+        return "evaluator"
+    else:
+        # PROPOSE / CHAT_ROUND / EVALUATE → 进入 evaluator
+        return "evaluator"
+
+
 def build_negotiation_graph():
     from langgraph.graph import StateGraph, END
     from langgraph.checkpoint.memory import MemorySaver
@@ -11,16 +33,6 @@ def build_negotiation_graph():
     builder.add_node("proposer", proposer_node)
     builder.add_node("evaluator", evaluator_node)
     builder.add_node("report", report_node)
-    def route(state: NegotiationState) -> Literal["proposer", "report", END]:
-        # CONFLICT_DETECTED → 回到 proposer 进行折中协商（evaluator 已处理折中逻辑）
-        if state["phase"] == NegotiationPhase.CONFLICT_DETECTED: return "proposer"
-        if state["phase"] == NegotiationPhase.REPORT_GENERATED: return END
-        if state["phase"] == NegotiationPhase.CONSENSUS_FOUND: return "report"
-        # CHAT_ROUND → 继续下一话题，回到 proposer
-        return "proposer"
-        if state["phase"] == NegotiationPhase.REPORT_GENERATED: return END
-        if state["phase"] == NegotiationPhase.CONSENSUS_FOUND: return "report"
-        return "evaluator"
     builder.set_entry_point("proposer")
     builder.add_conditional_edges("proposer", route)
     builder.add_edge("evaluator", "proposer")  # 评估后回到提议者

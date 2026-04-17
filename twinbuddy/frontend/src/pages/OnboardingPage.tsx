@@ -276,15 +276,15 @@ export default function OnboardingPage() {
     }
   }, [data.completed, navigate]);
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (step === TOTAL_STEPS) {
-      completeOnboarding();
-      navigate('/feed');
+      // 调用 API 保存 onboarding 数据，然后由 useEffect 导航到 /feed
+      await completeOnboarding();
     } else if (step === TOTAL_STEPS - 1) {
       // On step 3, complete onboarding to advance to step 4
-      completeOnboarding();
+      await completeOnboarding();
     }
-  }, [step, completeOnboarding, navigate]);
+  }, [step, completeOnboarding]);
 
   const handleBack = useCallback(() => {
     if (step === 1) navigate('/');

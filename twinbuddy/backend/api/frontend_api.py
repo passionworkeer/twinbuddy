@@ -1581,7 +1581,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
 
     # 尝试 LLM 真实协商
     try:
-        from langgraph.graph import run_negotiation
+        from negotiation.graph import run_negotiation
 
         # 使用的人格数据（优先用户 persona，fallback 到动态生成）
         active_user_persona = (
@@ -1647,12 +1647,20 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
             "messages": messages,
         }
-        logger.info("LLM 协商成功 | overall=%.3f | rounds=%d", overall, len(rounds))
+        llm_source = "llm"
+        try:
+            from negotiation.llm_client import _KEYS as _LLM_KEYS
+            if not _LLM_KEYS:
+                llm_source = "llm_fallback"
+        except Exception:
+            pass
+
+        logger.info("LLM 协商成功 | source=%s | overall=%.3f | rounds=%d", llm_source, overall, len(rounds))
         return {
             "success": True,
             "data": result_data,
             "meta": {
-                "source": "llm",
+                "source": llm_source,
                 "user_mbti": user_mbti,
                 "buddy_mbti": buddy_mbti,
                 "destination": city,

@@ -19,10 +19,16 @@ from __future__ import annotations
 
 import asyncio
 import os
-import json
+import sys
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
+
+# 确保 twinbuddy 根目录在 Python path 中，使 backend/agents 可被找到
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 from typing import Any, Dict, List, Optional
 
 from fastapi import (

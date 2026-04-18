@@ -4,81 +4,133 @@ import { TikTokVideo } from '../components/feed/TikTokVideo';
 import { VideoCard } from '../components/feed/VideoCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
-import type { VideoItem, NegotiationResult, OnboardingData } from '../types';
+import type { VideoItem, NegotiationResult, OnboardingData, Buddy } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { STORAGE_KEYS } from '../types';
-import { fetchFeed, negotiate } from '../api/client';
+import { negotiate } from '../api/client';
 import { RotateCcw } from 'lucide-react';
 
 // ── Mock Data (fallback when API unavailable) ──────────
+
+const BUDDY_POOL: Buddy[] = [
+  {
+    name: '小雅',
+    mbti: 'ENFP',
+    avatar_emoji: '🌈',
+    typical_phrases: ['说走就走！', '这也太美了吧！'],
+    travel_style: '随性探索型',
+    compatibility_score: 92,
+  },
+  {
+    name: '小鱼',
+    mbti: 'INFP',
+    avatar_emoji: '🌙',
+    typical_phrases: ['这里好安静', '我们慢慢走'],
+    travel_style: '诗意漫游者',
+    compatibility_score: 88,
+  },
+  {
+    name: '阿泽',
+    mbti: 'ESTP',
+    avatar_emoji: '☀️',
+    typical_phrases: ['冲冲冲！', '这家必去！'],
+    travel_style: '行动派',
+    compatibility_score: 85,
+  },
+  {
+    name: '小林',
+    mbti: 'INFJ',
+    avatar_emoji: '🍃',
+    typical_phrases: ['慢慢来', '感受当下'],
+    travel_style: '深度慢游',
+    compatibility_score: 90,
+  },
+];
 
 const MOCK_VIDEOS: VideoItem[] = [
   {
     id: 'v1',
     type: 'video',
-    cover_url: 'https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80',
+    cover_url: '/images/chengdu.jpg',
     video_url: '/videos/video1.mp4',
     location: '成都',
-    title: '川西自驾之旅',
-    buddy: {
-      name: '小雅',
-      mbti: 'ENFP',
-      avatar_emoji: '🌈',
-      typical_phrases: ['说走就走！', '这也太美了吧！'],
-      travel_style: '随性探索型',
-      compatibility_score: 92,
-    },
+    title: '成都宽窄巷子慢生活',
+    buddy: BUDDY_POOL[0],
   },
   {
     id: 'v2',
     type: 'video',
-    cover_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+    cover_url: '/images/chongqing.jpg',
     video_url: '/videos/video2.mp4',
-    location: '川西',
-    title: '成都美食探店',
-    buddy: {
-      name: '小鱼',
-      mbti: 'INFP',
-      avatar_emoji: '🌙',
-      typical_phrases: ['这里好安静', '我们慢慢走'],
-      travel_style: '诗意漫游者',
-      compatibility_score: 88,
-    },
+    location: '重庆',
+    title: '重庆夜景洪崖洞',
+    buddy: BUDDY_POOL[1],
   },
   {
     id: 'v3',
     type: 'video',
-    cover_url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+    cover_url: '/images/chuanxi.jpg',
     video_url: '/videos/video3.mp4',
-    location: '成都',
-    title: '成都citywalk',
-    buddy: {
-      name: '阿泽',
-      mbti: 'ESTP',
-      avatar_emoji: '☀️',
-      typical_phrases: ['冲冲冲！', '这家必去！'],
-      travel_style: '行动派',
-      compatibility_score: 85,
-    },
+    location: '川西',
+    title: '川西雪山草原公路片段',
+    buddy: BUDDY_POOL[2],
   },
   {
     id: 'v4',
     type: 'video',
-    cover_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+    cover_url: '/images/dali.jpg',
     video_url: '/videos/video4.mp4',
-    location: '川西',
-    title: '慢节奏生活',
-    buddy: {
-      name: '小林',
-      mbti: 'INFJ',
-      avatar_emoji: '🍃',
-      typical_phrases: ['慢慢来', '感受当下'],
-      travel_style: '深度慢游',
-      compatibility_score: 90,
-    },
+    location: '大理',
+    title: '洱海古城日落',
+    buddy: BUDDY_POOL[3],
+  },
+  {
+    id: 'v5',
+    type: 'video',
+    cover_url: '/images/lijiang.jpg',
+    video_url: '/videos/video5.mp4',
+    location: '丽江',
+    title: '丽江古城夜游记录',
+    buddy: BUDDY_POOL[0],
+  },
+  {
+    id: 'v6',
+    type: 'video',
+    cover_url: '/images/qingdao.jpg',
+    video_url: '/videos/video6.mp4',
+    location: '青岛',
+    title: '青岛海边和啤酒小店',
+    buddy: BUDDY_POOL[1],
+  },
+  {
+    id: 'v7',
+    type: 'video',
+    cover_url: '/images/xiamen.jpg',
+    video_url: '/videos/video7.mp4',
+    location: '厦门',
+    title: '鼓浪屿街角慢拍',
+    buddy: BUDDY_POOL[2],
+  },
+  {
+    id: 'v8',
+    type: 'video',
+    cover_url: '/images/xian.jpg',
+    video_url: '/videos/video8.mp4',
+    location: '西安',
+    title: '大唐不夜城夜色',
+    buddy: BUDDY_POOL[3],
   },
 ];
+
+function shuffleVideos(videos: VideoItem[]): VideoItem[] {
+  const next = [...videos];
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
 
 const MOCK_NEGOTIATION: NegotiationResult = {
   destination: '大理',
@@ -209,7 +261,7 @@ export default function FeedPage() {
 
   // 直接使用本地 mock 视频（不调 API）
   useEffect(() => {
-    setFeedVideos(MOCK_VIDEOS);
+    setFeedVideos(shuffleVideos(MOCK_VIDEOS));
     // 延迟一点设置 isFeedLoading 为 false，确保在 re-render 之后
     setTimeout(() => setIsFeedLoading(false), 0);
   }, []);
@@ -249,9 +301,7 @@ export default function FeedPage() {
 
   // Initial twin card trigger after mount (fallback if no scroll)
   useEffect(() => {
-    console.log('[Feed] Timer setup, showTwinCard:', showTwinCard, 'isFeedLoading:', isFeedLoading);
     const timer = setTimeout(() => {
-      console.log('[Feed] Timer fired, showTwinCardRef:', showTwinCardRef.current, 'isFeedLoadingRef:', isFeedLoadingRef.current);
       if (!showTwinCardRef.current && !isFeedLoadingRef.current) {
         triggerTwinCard();
       }
@@ -310,14 +360,13 @@ export default function FeedPage() {
 
   // Use API feed data, fallback to mock
   const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
-  console.log('[Feed] displayVideos count:', displayVideos.length, 'types:', displayVideos.map(v => v.type));
 
   // Build items list: videos + twin_card
   const twinCardItem: VideoItem = {
     id: 'twin1',
     type: 'twin_card',
-    cover_url: '',
-    video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    cover_url: '/images/dali.jpg',
+    video_url: '/videos/video1.mp4',
     location: '大理',
     title: '懂你卡片 · 大理之约',
     buddy: displayVideos[0]?.buddy,

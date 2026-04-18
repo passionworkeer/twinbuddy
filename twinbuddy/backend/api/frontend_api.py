@@ -94,12 +94,6 @@ _onboarding_store: Dict[str, Dict[str, Any]] = _load_store(_ONBOARDING_STORE_FIL
 # persona_store: { user_id: Persona }
 _persona_store: Dict[str, Dict[str, Any]] = _load_store(_PERSONA_STORE_FILE)
 
-# ---------------------------------------------------------------------------
-# Mock 数据路径
-# ---------------------------------------------------------------------------
-
-_MOCK_DIR = Path(__file__).parent.parent / "mock_personas"
-
 # 城市 emoji 映射
 _CITY_EMOJI: Dict[str, str] = {
     "chengdu": "🐼", "chongqing": "🌶️", "dali": "🌊",
@@ -533,24 +527,133 @@ def _extract_mbti(text: str) -> Optional[str]:
     return (m.group(1) + (m.group(2) or "")).upper()
 
 
+def _find_buddy_by_mbti(mbti: str) -> Optional[Dict[str, Any]]:
+    """从 agents/buddies 数据集中按 MBTI 找一个可用搭子。"""
+    target = (mbti or "").strip().upper()
+    if not target:
+        return None
+    for buddy in get_all_buddies():
+        if str(buddy.get("mbti", "")).strip().upper() == target:
+            return buddy
+    return None
+
+
+def _buddy_json_to_persona(buddy: Dict[str, Any]) -> Dict[str, Any]:
+    """将 buddies JSON 格式转换为协商链路可消费的 persona 字典。"""
+    identity_raw = buddy.get("identity", {}) if isinstance(buddy.get("identity", {}), dict) else {}
+    speaking_raw = buddy.get("speaking_style", {}) if isinstance(buddy.get("speaking_style", {}), dict) else {}
+    emotion_raw = buddy.get("emotion_decision", {}) if isinstance(buddy.get("emotion_decision", {}), dict) else {}
+    social_raw = buddy.get("social_behavior", {}) if isinstance(buddy.get("social_behavior", {}), dict) else {}
+
+    travel_raw = buddy.get("travel_style", "")
+    if isinstance(travel_raw, dict):
+        travel_style = (
+            str(travel_raw.get("overall") or "").strip()
+            or str(travel_raw.get("pace_preference") or "").strip()
+            or "随性探索型"
+        )
+    else:
+        travel_style = str(travel_raw or "").strip() or "随性探索型"
+
+    raw_layer0 = (
+        buddy.get("personality_layers", {}).get("layer0_hard_rules", {})
+        if isinstance(buddy.get("personality_layers", {}), dict)
+        else {}
+    )
+    hard_rules: List[str] = []
+    if isinstance(raw_layer0, dict):
+        for key in ("dealbreakers", "must_haves"):
+            vals = raw_layer0.get(key, [])
+            if isinstance(vals, list):
+                hard_rules.extend([str(v).strip() for v in vals if str(v).strip()])
+    elif isinstance(raw_layer0, list):
+        hard_rules = [str(v).strip() for v in raw_layer0 if str(v).strip()]
+    hard_rules = list(dict.fromkeys(hard_rules))
+
+    typical_phrases = speaking_raw.get("typical_phrases", [])
+    if not isinstance(typical_phrases, list):
+        typical_phrases = []
+
+    return {
+        "persona_id": str(buddy.get("id") or f"buddy-{str(buddy.get('mbti', '')).lower()}"),
+        "name": str(buddy.get("name") or "搭子"),
+        "mbti_type": str(buddy.get("mbti") or ""),
+        "mbti": str(buddy.get("mbti") or ""),
+        "avatar_emoji": str(buddy.get("avatar_emoji") or "🤖"),
+        "avatar_prompt": str(buddy.get("avatar_prompt") or ""),
+        "identity": {
+            "emoji": "🧭",
+            "title": "Identity",
+            "content": str(identity_raw.get("background") or identity_raw.get("life_stage") or ""),
+        },
+        "speaking_style": {
+            "emoji": "💬",
+            "title": "Style",
+            "content": str(speaking_raw.get("tone") or speaking_raw.get("sentence_patterns") or ""),
+            "typical_phrases": typical_phrases,
+            "chat_tone": str(speaking_raw.get("tone") or ""),
+        },
+        "emotion_decision": {
+            "emoji": "🧠",
+            "title": "Decision",
+            "content": str(emotion_raw.get("decision_style") or ""),
+            "stress_response": str(emotion_raw.get("stress_response") or ""),
+            "decision_style": str(emotion_raw.get("decision_style") or ""),
+        },
+        "social_behavior": {
+            "emoji": "🤝",
+            "title": "Social",
+            "content": str(social_raw.get("conflict_style") or social_raw.get("boundaries") or ""),
+            "social_style": str(social_raw.get("conflict_style") or social_raw.get("social_energy") or ""),
+        },
+        "travel_style": travel_style,
+        "layer0_hard_rules": hard_rules,
+        "preferences": buddy.get("preferences", {}),
+        "negotiation_style": buddy.get("negotiation_style", {}),
+        "compatibility_notes": buddy.get("compatibility_notes", {}),
+    }
+
+
 def _load_mock_persona(mbti: str) -> Optional[Dict[str, Any]]:
-    """加载指定 MBTI 的 Mock persona JSON"""
-    mbti_lower = mbti.lower()
-    path = _MOCK_DIR / mbti_lower / "persona.json"
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+    """
+    加载指定 MBTI 的 persona。
+
+    唯一来源：agents/buddies（主数据源）
+    """
+    buddy = _find_buddy_by_mbti(mbti)
+    if buddy:
+        return _buddy_json_to_persona(buddy)
     return None
 
 
 def _load_compatibility(a_mbti: str, b_mbti: str) -> Optional[Dict[str, Any]]:
-    """加载两个 MBTI 之间的预生成协商结果"""
-    combo = sorted([a_mbti.upper(), b_mbti.upper()])
-    path = _MOCK_DIR / combo[0].lower() / f"compatibility_{combo[0].lower()}_{combo[1].lower()}.json"
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+    """
+    加载两个 MBTI 之间的协商兼容性。
+
+    来源：使用 agents/buddies + MING 评分实时估算
+    """
+    buddy = _find_buddy_by_mbti(b_mbti)
+    if not buddy:
+        return None
+
+    user_prefs = _build_user_prefs({"mbti": a_mbti.upper(), "interests": [], "city": ""})
+    breakdown = _mock_compat_breakdown(user_prefs, buddy)
+    total = float(breakdown.get("total", 75.0))
+
+    if total >= 85:
+        recommendation = "匹配度很高，建议直接围绕共同兴趣制定主线行程。"
+    elif total >= 70:
+        recommendation = "匹配度良好，先约定节奏与预算，再细化景点优先级。"
+    else:
+        recommendation = "匹配度一般，建议先做1天轻量试跑，再决定长线同行。"
+
+    return {
+        "overall_score": round(total / 100.0, 3),
+        "rounds": [],
+        "strengths": breakdown.get("strengths", []),
+        "challenges": breakdown.get("red_flags", []),
+        "recommendation": recommendation,
+    }
 
 
 def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:

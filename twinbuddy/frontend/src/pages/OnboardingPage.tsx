@@ -106,6 +106,18 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
   const [noSupport, setNoSupport] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isRecordingRef = useRef(false);
+  const seedTranscriptRef = useRef('');
+  const finalTranscriptRef = useRef('');
+  const liveTranscriptRef = useRef(text);
+
+  useEffect(() => {
+    if (!isRecordingRef.current) {
+      finalTranscriptRef.current = text ? `${text.trim()} ` : '';
+      liveTranscriptRef.current = text;
+      setVoiceState(text ? 'transcribed' : 'idle');
+    }
+  }, [text]);
 
   // ── Init Speech Recognition ──────────────────────────
   useEffect(() => {
@@ -113,25 +125,66 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     if (SR) {
       const rec = new SR();
       rec.lang = 'zh-CN';
-      rec.continuous = false;
-      rec.interimResults = false;
+      rec.continuous = true;
+      rec.interimResults = true;
 
       rec.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript.trim();
-        onChange(transcript);
-        setVoiceState('transcribed');
+        let finalText = '';
+        let interim = '';
+
+        for (let i = 0; i < event.results.length; i += 1) {
+          const chunk = event.results[i][0]?.transcript ?? '';
+          if (!chunk) continue;
+          if (event.results[i].isFinal) {
+            finalText += chunk;
+          } else {
+            interim += chunk;
+          }
+        }
+
+        const prefix = seedTranscriptRef.current ? `${seedTranscriptRef.current} ` : '';
+        finalTranscriptRef.current = `${prefix}${finalText}`;
+
+        const merged = `${finalTranscriptRef.current}${interim}`.trim();
+        liveTranscriptRef.current = merged;
+        onChange(merged);
       };
 
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
+        if (event.error === 'aborted') {
+          return;
+        }
         console.warn('Speech recognition error:', event.error);
-        setVoiceState('idle');
+        isRecordingRef.current = false;
+        setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
       };
 
       rec.onend = () => {
-        setVoiceState((prev) => (prev === 'recording' ? 'idle' : prev));
+        if (isRecordingRef.current) {
+          window.setTimeout(() => {
+            if (!isRecordingRef.current || !recognitionRef.current) return;
+            try {
+              recognitionRef.current.start();
+            } catch {
+              isRecordingRef.current = false;
+              setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
+            }
+          }, 120);
+          return;
+        }
+        setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
       };
 
       recognitionRef.current = rec;
+
+      return () => {
+        isRecordingRef.current = false;
+        try {
+          rec.stop();
+        } catch {
+          // ignore
+        }
+      };
     } else {
       setNoSupport(true);
     }
@@ -140,19 +193,30 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
   // ── Start/Stop handler ──────────────────────────────
   const handleMicClick = () => {
-    if (!recognitionRef.current) return;
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
 
-    if (voiceState === 'recording') {
-      recognitionRef.current.stop();
-      setVoiceState('idle');
+    if (isRecordingRef.current) {
+      isRecordingRef.current = false;
+      try {
+        recognition.stop();
+      } catch {
+        // ignore
+      }
       return;
     }
 
+    seedTranscriptRef.current = text.trim();
+    finalTranscriptRef.current = seedTranscriptRef.current ? `${seedTranscriptRef.current} ` : '';
+    liveTranscriptRef.current = text.trim();
+    isRecordingRef.current = true;
     setVoiceState('recording');
+
     try {
-      recognitionRef.current.start();
+      recognition.start();
     } catch {
-      setVoiceState('idle');
+      isRecordingRef.current = false;
+      setVoiceState(text ? 'transcribed' : 'idle');
     }
   };
 
@@ -173,8 +237,9 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         value={text}
         onChange={(e) => {
           onChange(e.target.value);
-          // If user manually edits after transcription, stay in transcribed state
-          if (voiceState !== 'transcribed') {
+          if (!isRecordingRef.current) {
+            finalTranscriptRef.current = e.target.value ? `${e.target.value.trim()} ` : '';
+            liveTranscriptRef.current = e.target.value;
             setVoiceState(e.target.value ? 'transcribed' : 'idle');
           }
         }}

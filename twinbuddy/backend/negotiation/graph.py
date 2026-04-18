@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from typing import Dict, Any, Literal, Optional
-import uuid
 
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
 
 from .state import NegotiationState, NegotiationPhase, initial_state
 from .llm_nodes import (
@@ -49,7 +47,7 @@ def build_negotiation_graph():
     # 每次 invoke 仅处理一个 topic，topic 切换由 run_negotiation 外层循环控制
     builder.add_edge("evaluator", END)
     builder.add_edge("report", END)
-    return builder.compile(checkpointer=MemorySaver())
+    return builder.compile()
 
 
 def run_negotiation(
@@ -73,13 +71,11 @@ def run_negotiation(
     state["phase"] = NegotiationPhase.PERSONA_INIT
     # 深度注入：传递兼容性分解数据，供 LLM proposer 节点使用
     state["user_compatibility_breakdown"] = user_compatibility_breakdown
-    # 每次协商使用独立 thread_id，避免跨请求状态污染
-    config = {"configurable": {"thread_id": f"neg-{uuid.uuid4().hex}"}}
     for topic in TOPICS:
         if state["phase"] == NegotiationPhase.REPORT_GENERATED:
             break
         state["current_topic"] = topic
-        result = graph.invoke(state, config)
+        result = graph.invoke(state)
         state = NegotiationState(
             phase=result["phase"],
             user_persona=result["user_persona"],

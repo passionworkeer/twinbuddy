@@ -35,6 +35,16 @@ from typing import Any, Dict, List, Optional
 BUDDIES_DIR = Path(__file__).parent
 _logger = logging.getLogger("twinbuddy.buddies")
 
+
+def _mock_db_module():
+    """兼容两种运行方式：workspace 直跑与 package 安装。"""
+    try:
+        from agents import mock_database as md  # type: ignore
+        return md
+    except Exception:
+        from twinbuddy.agents import mock_database as md  # type: ignore
+        return md
+
 # ---------------------------------------------------------------------------
 # 数据加载（缓存）
 # ---------------------------------------------------------------------------
@@ -301,7 +311,8 @@ def get_all_buddies() -> List[dict]:
     if raw:
         return raw
     # 回退到 MOCK_BUDDIES
-    from twinbuddy.agents.mock_database import MOCK_BUDDIES
+    md = _mock_db_module()
+    MOCK_BUDDIES = md.MOCK_BUDDIES
     _logger.info("使用 MOCK_BUDDIES 回退（共 %d 个搭子）", len(MOCK_BUDDIES))
     return MOCK_BUDDIES
 
@@ -317,7 +328,8 @@ def get_buddy_by_id(buddy_id: str) -> Optional[dict]:
         if b.get("id") == buddy_id:
             return b
     # 2. 回退到 MOCK_BUDDIES（处理 JSON 解析失败的搭子）
-    from twinbuddy.agents.mock_database import MOCK_BUDDIES
+    md = _mock_db_module()
+    MOCK_BUDDIES = md.MOCK_BUDDIES
     for b in MOCK_BUDDIES:
         if b.get("id") == buddy_id:
             return b
@@ -337,7 +349,9 @@ def get_top_buddies(user_prefs: dict, limit: int = 3) -> List[dict]:
           _score      — 整体兼容度 (0-100)
           _breakdown  — 六维度详细评分（雷达图用）
     """
-    from twinbuddy.agents.mock_database import score_compatibility, get_compatibility_breakdown
+    md = _mock_db_module()
+    score_compatibility = md.score_compatibility
+    get_compatibility_breakdown = md.get_compatibility_breakdown
 
     buddies = get_all_buddies()
     scored: List[dict] = []
@@ -358,7 +372,8 @@ def get_compatibility_breakdown(user_prefs: dict, buddy_id: str) -> Optional[dic
     返回指定搭子的六维度兼容性雷达图数据。
     未找到 buddy_id 时返回 None。
     """
-    from twinbuddy.agents.mock_database import get_compatibility_breakdown as _score_breakdown
+    md = _mock_db_module()
+    _score_breakdown = md.get_compatibility_breakdown
 
     buddy = get_buddy_by_id(buddy_id)
     if not buddy:
@@ -435,7 +450,9 @@ def get_buddy_public(buddy, user_prefs: Optional[dict] = None) -> dict:
 
     # 如果传入了 user_prefs 但没有预计算，重新算一次
     if user_prefs and "compatibility_score" not in result:
-        from twinbuddy.agents.mock_database import score_compatibility, get_compatibility_breakdown
+        md = _mock_db_module()
+        score_compatibility = md.score_compatibility
+        get_compatibility_breakdown = md.get_compatibility_breakdown
         result["compatibility_score"] = round(score_compatibility(user_prefs, buddy), 1)
         result["compatibility_breakdown"] = get_compatibility_breakdown(user_prefs, buddy)
 

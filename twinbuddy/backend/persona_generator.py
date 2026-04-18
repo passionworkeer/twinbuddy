@@ -1009,11 +1009,15 @@ _MBTI_DESTINATION_PREFERENCES: Dict[str, List[str]] = {
 # ---------------------------------------------------------------------------
 
 try:
-    from twinbuddy.backend.negotiation.llm_client import llm_client
+    from backend.negotiation.llm_client import llm_client
     _LLM_AVAILABLE = True
 except Exception:
-    _LLM_AVAILABLE = False
-    llm_client = None
+    try:
+        from twinbuddy.backend.negotiation.llm_client import llm_client
+        _LLM_AVAILABLE = True
+    except Exception:
+        _LLM_AVAILABLE = False
+        llm_client = None
 
 
 def _call_llm_for_persona(

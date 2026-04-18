@@ -4,43 +4,6 @@ import { ArrowLeft, ArrowRight, Sparkles, Mic } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS } from '../types';
 
-// ── Decorative keyword watermark ─────────────────────
-const ONBOARDING_KEYWORDS = [
-  '谷雨', '工位', '镜子', '未寄出',
-  '山海', '红豆', '同桌', '跑步',
-  '公路旅行', '猫', '深夜食堂', '树洞',
-  '召唤师', '逆风如解意', '马', '王',
-  '七里香', '三分糖', '第二杯半价', 'Hackathon',
-];
-
-function KeywordBackground() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none select-none absolute inset-0 overflow-hidden rounded-none"
-      style={{ zIndex: 0 }}
-    >
-      {ONBOARDING_KEYWORDS.map((kw, i) => (
-        <span
-          key={kw}
-          className="absolute"
-          style={{
-            top: `${(i * 131) % 92}%`,
-            left: `${(i * 73) % 88}%`,
-            opacity: 0.04 + (i % 3) * 0.015,
-            fontSize: `${0.6 + (i % 5) * 0.12}rem`,
-            letterSpacing: '0.2em',
-            color: i % 3 === 0 ? '#ffb3b6' : i % 3 === 1 ? '#affffb' : '#eec224',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {kw}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 // ── Progress Dots ─────────────────────────────────────
 
 function ProgressDots({ total, current }: { total: number; current: number }) {
@@ -447,8 +410,6 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col relative" style={{ backgroundColor: '#11131e' }}>
-      {/* Keyword watermark layer */}
-      <KeywordBackground />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-6 pt-6 pb-2">

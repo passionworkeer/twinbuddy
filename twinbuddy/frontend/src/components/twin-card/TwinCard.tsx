@@ -3,57 +3,6 @@ import { ChevronDown, ChevronUp, MapPin, Calendar, Wallet, AlertTriangle, CheckC
 import type { NegotiationResult, TwinCardLayer } from '../../types';
 import { RadarChart } from './RadarChart';
 
-// ── Keywords ─────────────────────────────────────────────
-const KEYWORDS = [
-  '谷雨', '工位', '镜子', '未寄出', '山海', '红豆', '同桌', '跑步',
-  '公路旅行', '猫', '深夜食堂', '树洞', '召唤师', '逆风如解意', '马', '王',
-  '七里香', '三分糖', '第二杯半价', 'Hackathon'
-];
-
-const POETIC_CLOSINGS = [
-  '也许在某个深夜食堂，我们找到了那个愿意一起三分糖的人',
-  '有些信不需要寄出，在路上就能遇见收信人',
-  '七里香的不是奶茶，是我们终于找到彼此的暗号',
-  '逆风不解意，是我们的数字人替我们解了',
-  '三分糖，刚刚好。就像遇见你'
-];
-
-function getPoeticClosing(mbti = ''): string {
-  const idx = Math.abs(mbti.length * 7 + 42) % POETIC_CLOSINGS.length;
-  return POETIC_CLOSINGS[idx];
-}
-
-// ── Keyword Background Watermark ──────────────────────────
-function KeywordWatermark() {
-  const items = KEYWORDS.slice(0, 12).map((kw, i) => ({
-    text: kw,
-    x: 5 + (i % 4) * 25,
-    y: 10 + Math.floor(i / 4) * 35,
-    opacity: 0.04 + (i % 3) * 0.015,
-    color: ['#ffb3b6', '#affffb', '#eec224'][i % 3]
-  }));
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {items.map((item, i) => (
-        <span
-          key={i}
-          className="absolute text-sm font-medium whitespace-nowrap"
-          style={{
-            left: `${item.x}%`,
-            top: `${item.y}%`,
-            opacity: item.opacity,
-            color: item.color,
-            letterSpacing: '0.15em',
-          }}
-        >
-          {item.text}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 interface Props {
   result: NegotiationResult;
   userName?: string;
@@ -339,15 +288,6 @@ function Layer3Success({ destination, dates }: { destination: string; dates: str
       <p className="text-xs text-neon-text-disabled max-w-xs">
         对方也收到了你们的搭子卡片，接下来等你们的真实故事
       </p>
-      {/* Poetic closing with keywords */}
-      <div className="mt-4 pt-4 border-t border-white/10">
-        <p className="text-xs text-neon-text-secondary/60 italic text-center">
-          {getPoeticClosing()}
-        </p>
-        <p className="text-center text-[10px] text-neon-tertiary/40 mt-1 tracking-widest">
-          TwinBuddy · Hackathon Edition
-        </p>
-      </div>
     </div>
   );
 }
@@ -365,10 +305,7 @@ export function TwinCard({ result, userName, buddyName, onConfirm }: Props) {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto relative">
-      {/* Keyword watermark background */}
-      <KeywordWatermark />
-
+    <div className="w-full max-w-sm mx-auto">
       {layer === 1 && (
         <Layer1Preview
           result={result}

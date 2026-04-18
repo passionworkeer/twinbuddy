@@ -228,12 +228,13 @@ export function TikTokVideo({
     setIsLoading(false);
   }, []);
 
-  // Auto-play / pause based on visibility
+  // Auto-play / pause + audio sync based on visibility
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !videoUrl) return;
 
     if (isActive) {
+      video.muted = false;
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch((err) => {
@@ -244,6 +245,7 @@ export function TikTokVideo({
       }
       setPaused(false);
     } else {
+      video.muted = true;
       video.pause();
       video.currentTime = 0;
     }
@@ -312,7 +314,6 @@ export function TikTokVideo({
             }
           `}
           style={videoAspect === 'landscape' ? { maxHeight: '100%' } : {}}
-          muted
           loop
           playsInline
           preload="metadata"

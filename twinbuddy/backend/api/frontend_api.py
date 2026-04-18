@@ -1792,7 +1792,6 @@ async def negotiate_stream(req: NegotiationRequest):
     """
     import asyncio
     import logging
-    import concurrent.futures
     from fastapi.responses import StreamingResponse
     from fastapi import Query
 
@@ -1851,161 +1850,255 @@ async def negotiate_stream(req: NegotiationRequest):
 
     compat_breakdown = _get_negotiation_compatibility_breakdown(user_prefs, twin_persona)
 
-    # ── SSE 生成器 ────────────────────────────────────────────────────
-    TOPICS_LIST = ["travel_rhythm", "food", "budget"]
+    # ── 两段 LLM 调用：生成具体计划 + 生成故事 ───────────────────────────
+    #
+    # 第一步：生成具体旅行计划（酒店/餐厅/景点/时间线）
+    # 第二步：把计划注入故事 prompt，生成 20-30 条长对话
+    # 前端体验：消息每 0.2s 动画出现，用户可滚动
 
     async def _stream_negotiation():
-        """在 executor 中运行同步 LLM 调用，yield 每个生成的消息。"""
-        loop = asyncio.get_event_loop()
-        round_num = [0]
+        from backend.negotiation.nodes import TOPIC_LABELS
+        import random, asyncio
 
-        def _generate():
-            """同步 LLM 生成（运行在线程池中）。"""
-            try:
-                from backend.negotiation.llm_client import llm_client
-                from backend.negotiation.nodes import TOPIC_LABELS, PROPOSALS
-                from backend.negotiation.state import NegotiationPhase
-                import random
+        # ── 提取用户 onboarding 信息（用于注入对话）────────────────────────
+        user_onboarding_mbti = (req.mbti or "ENFP").strip().upper()
+        user_onboarding_interests = req.interests or []
+        user_onboarding_voice = req.voiceText or ""
+        user_onboarding_city = city
+        interests_str = "、".join(user_onboarding_interests) if user_onboarding_interests else "探索美食和风景"
 
-                def _trait(p, dim):
-                    """从 persona 中提取某维度的 trait。"""
-                    travel = p.get("travel_style", {})
-                    if isinstance(travel, dict):
-                        pace = travel.get("preferred_pace", "")
-                    elif isinstance(travel, str):
-                        pace = travel
-                    else:
-                        pace = "flexible"
-
-                    trait_map = {
-                        "travel_rhythm": {"early": "早睡早起", "night": "夜猫子", "flexible": "灵活"},
-                        "food": {"local": "本地美食", "varied": "多样尝试", "safe": "熟悉安全"},
-                        "budget": {"high": "300-500/天", "medium": "200-300/天", "low": "100-200/天"},
-                    }
-                    return trait_map.get(dim, {}).get(
-                        list(trait_map.get(dim, {}).keys())[round(random.random() * 10) % len(trait_map.get(dim, {}))],
-                        "flexible"
-                    )
-
-                def _fmt_pref(topic, persona):
-                    trait = _trait(persona, topic)
-                    proposals = {
-                        "travel_rhythm": {"early": "希望早睡早起，享受清晨时光", "night": "夜猫子模式，夜晚才有灵感", "flexible": "节奏灵活，随遇而安"},
-                        "food": {"local": "必吃本地特色美食", "varied": "什么都想尝试", "safe": "找熟悉的连锁餐厅"},
-                        "budget": {"high": "预算充足，想体验最好的", "medium": "性价比优先", "low": "穷游，能省则省"},
-                    }
-                    return proposals.get(topic, {}).get(trait, "希望旅途愉快")
-
-                # 构建人格注入块
-                def _build_block(persona, role):
-                    sp = persona.get("speaking_style", {}) or {}
-                    sp = sp if isinstance(sp, dict) else {}
-                    emo = persona.get("emotion_decision", {}) or {}
-                    emo = emo if isinstance(emo, dict) else {}
-                    neg = persona.get("negotiation_style", {}) or {}
-                    neg = neg if isinstance(neg, dict) else {}
-                    phrases = sp.get("typical_phrases", []) or []
-                    typical = "、".join(phrases[:2]) if phrases else "无特殊口头禅"
+        def _get_conv_examples(persona: Dict[str, Any]) -> Dict[str, str]:
+            conv: Dict[str, Any] = persona.get("conversation_examples", {})
+            if isinstance(conv, dict) and conv:
+                return conv
+            sp = persona.get("speaking_style", {}) or {}
+            if isinstance(sp, dict):
+                tone = sp.get("chat_tone", "") or sp.get("tone", "")
+                phrases = sp.get("typical_phrases", [])
+                if tone or phrases:
                     return {
-                        "mbti": persona.get("mbti_type") or persona.get("mbti", "ENFP"),
-                        "tone": sp.get("chat_tone", "自然随性"),
-                        "typical_phrases": typical,
-                        "hard_to_compromise": "、".join(neg.get("hard_to_compromise", [])[:1]) or "无特殊底线",
-                        "easy_to_compromise": "、".join(neg.get("easy_to_compromise", [])[:1]) or "多数可协商",
-                        "decision_style": emo.get("decision_style", "凭直觉"),
-                        "stress_response": emo.get("stress_response", "情绪来得快去得快"),
+                        "excited": f"（说话风格：{tone}。口头禅：{'、'.join(phrases[:3])}）",
                     }
+            return {}
 
-                user_block = _build_block(active_user_persona, "user")
-                buddy_block = _build_block(twin_persona, "buddy")
+        def _get_speaking_style(persona: Dict[str, Any]) -> str:
+            sp = persona.get("speaking_style", {}) or {}
+            if isinstance(sp, dict):
+                return f"{sp.get('chat_tone', '')} {sp.get('sentence_patterns', '')}".strip()
+            return str(sp) if sp else "自然随性"
 
-                compat_block = ""
-                if compat_breakdown:
-                    total = compat_breakdown.get("total", 0.5)
-                    strengths = compat_breakdown.get("strengths", [])
-                    compat_block = f"【匹配分析】你们整体匹配度 {int(total*100)}%。{compat_block}"
+        user_examples = _get_conv_examples(active_user_persona)
+        buddy_examples = _get_conv_examples(twin_persona)
+        user_style = _get_speaking_style(active_user_persona)
+        buddy_style = _get_speaking_style(twin_persona)
 
-                # 遍历话题，逐个 LLM 调用
-                for topic in TOPICS_LIST:
-                    round_num[0] += 1
-                    topic_label = TOPIC_LABELS.get(topic, topic)
-                    user_pref = _fmt_pref(topic, active_user_persona)
-                    buddy_pref = _fmt_pref(topic, twin_persona)
+        # ── 第一步：生成具体旅行计划 ──────────────────────────────────────
+        plan_prompt = f"""根据以下信息，为两个旅行搭子生成大理3天2晚的具体旅行计划。
 
-                    # 构造 proposer prompt
-                    proposer_msg = (
-                        f"你是user的数字分身，正在和buddy协商旅行计划。\n\n"
-                        f"【你的人格】MBTI={user_block['mbti']}，说话语气={user_block['tone']}，"
-                        f"口头禅={user_block['typical_phrases']}，决策风格={user_block['decision_style']}，"
-                        f"绝不让步={user_block['hard_to_compromise']}，可以妥协={user_block['easy_to_compromise']}。"
-                        f"{compat_block}\n\n"
-                        f"【话题：{topic_label}】你的偏好：{user_pref}。"
-                        f"对方偏好：{buddy_pref}。\n"
-                        f"请用符合你性格的方式说一段话（30-50字），表达你的偏好和要求。"
-                    )
+用户信息：
+- 性格：{user_onboarding_mbti}型
+- 兴趣：{interests_str}
+- 备注：{user_onboarding_voice or '无'}
 
-                    system_prompt = "你是一个旅行搭子协商AI，生成符合性格的对话。"
-                    result_user = llm_client.chat(proposer_msg, system_prompt=system_prompt)
-                    if not result_user:
-                        result_user = f"{user_block['typical_phrases']}！关于{topic_label}，我想这样安排……"
+搭子性格：{twin_persona.get('mbti_type', twin_persona.get('mbti', 'INFP'))}
 
-                    yield {
-                        "event": "message",
-                        "data": {
-                            "speaker": "user",
-                            "content": result_user,
-                            "topic": topic_label,
-                            "round": round_num[0],
-                        }
-                    }
+请生成一个具体的旅行计划，严格JSON格式：
+{{
+  "hotel": {{"name": "酒店名", "location": "位置", "price": "价格/晚", "reason": "为什么选这个"}},
+  "restaurants": [
+    {{"name": "店名", "type": "类型", "price": "人均", "must_try": "必点"}}
+  ],
+  "attractions": [
+    {{"name": "景点名", "time": "建议游览时间", "reason": "为什么去"}}
+  ],
+  "itinerary": [
+    {{"day": "Day1", "theme": "主题", "highlights": ["亮点1", "亮点2"]}}
+  ]
+}}
 
-                    # Buddy 评估
-                    evaluator_msg = (
-                        f"你是buddy的数字分身，正在回应user的提议。\n\n"
-                        f"【你的人格】MBTI={buddy_block['mbti']}，说话语气={buddy_block['tone']}，"
-                        f"口头禅={buddy_block['typical_phrases']}，决策风格={buddy_block['decision_style']}，"
-                        f"绝不让步={buddy_block['hard_to_compromise']}，可以妥协={buddy_block['easy_to_compromise']}。\n\n"
-                        f"【话题：{topic_label}】对方的提议：{result_user}。"
-                        f"你的偏好：{buddy_pref}。\n"
-                        f"请用符合你性格的方式回应（20-40字），表示认同、部分认同或提出不同意见。"
-                    )
-                    result_buddy = llm_client.chat(evaluator_msg, system_prompt=system_prompt)
-                    if not result_buddy:
-                        result_buddy = f"嗯，我理解你的想法。关于{topic_label}，我们可以再商量一下。"
+只输出JSON，不要任何其他文字。"""
 
-                    yield {
-                        "event": "message",
-                        "data": {
-                            "speaker": "buddy",
-                            "content": result_buddy,
-                            "topic": topic_label,
-                            "round": round_num[0],
-                        }
-                    }
+        def _gen_plan():
+            from backend.negotiation.llm_client import llm_client
+            return llm_client.chat(plan_prompt, system_prompt="你是一个旅行规划助手，只输出JSON。")
 
-                # 最终总结
-                summary_prompt = (
-                    f"两个旅行搭子完成了关于{city_name}的协商。"
-                    f"用户是{user_block['mbti']}类型，搭子是{buddy_block['mbti']}类型。"
-                    f"请生成一段30字的推荐总结，说明他们的匹配度和旅行建议。"
-                )
-                summary = llm_client.chat(summary_prompt)
-                yield {"event": "done", "data": {"summary": summary or "推荐深入交流"}}
+        plan_json = "{}"
+        try:
+            raw_plan = await asyncio.to_thread(_gen_plan)
+            if raw_plan:
+                raw_plan = raw_plan.strip()
+                if raw_plan.startswith("```"):
+                    parts = raw_plan.split("```")
+                    for p in parts:
+                        if p.strip() and not p.strip().startswith("json"):
+                            raw_plan = p.strip()
+                            break
+                plan_json = raw_plan
+        except Exception:
+            pass
 
-            except Exception as exc:
-                logger.error("SSE生成失败: %s", exc)
-                yield {"event": "error", "data": {"message": str(exc)}}
+        # 提取计划中的关键信息用于对话注入
+        plan_info = ""
+        try:
+            plan_data = json.loads(plan_json)
+            hotel_name = plan_data.get("hotel", {}).get("name", "")
+            hotel_loc = plan_data.get("hotel", {}).get("location", "")
+            hotel_price = plan_data.get("hotel", {}).get("price", "")
+            restaurants = plan_data.get("restaurants", [])
+            attractions = plan_data.get("attractions", [])
+            restaurant_names = "、".join([r.get("name","") for r in restaurants[:3] if r.get("name")])
+            attraction_names = "、".join([a.get("name","") for a in attractions[:3] if a.get("name")])
+            plan_info = f"【已规划内容】住宿：{hotel_name}（{hotel_loc}，{hotel_price}）；餐厅：{restaurant_names}；景点：{attraction_names}"
+        except Exception:
+            plan_info = ""
 
-        # 将同步生成器放到线程池执行
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            gen = await loop.run_in_executor(pool, _generate)
-            for item in gen:
-                if item["event"] == "message":
-                    yield f"event: message\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
-                elif item["event"] == "done":
-                    yield f"event: done\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
-                elif item["event"] == "error":
-                    yield f"event: error\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
+        compat_total = 0.5
+        if compat_breakdown:
+            compat_total = compat_breakdown.get("total", 0.5)
+
+        # 随机选择故事风格
+        plot_styles = [
+            ("soulmate", "知己难得", "两人越聊越合拍，快速达成共识，温馨有火花"),
+            ("banter", "相爱相杀", "你来我往小嘴斗嘴，表面拌嘴实际很在乎，最后和好"),
+            ("conflict", "立场交锋", "各有坚持不肯退让，激烈讨论后各退一步达成折中"),
+            ("warmup", "渐入佳境", "一开始有点拘谨陌生，聊开了以后发现意外合拍"),
+        ]
+        plot_key, plot_name, plot_desc = random.choice(plot_styles)
+
+        topics_str = "、".join([TOPIC_LABELS.get(t, t) for t in ["travel_rhythm", "food", "budget"]])
+
+        # 从人格数据中提取 MBTI
+        def _extract_mbti(p):
+            mbti_raw = p.get("mbti_type") or p.get("mbti", "")
+            return mbti_raw or "ENFP"
+
+        user_mbti = _extract_mbti(active_user_persona)
+        buddy_mbti = _extract_mbti(twin_persona)
+
+        # 构建对话示例块
+        user_excited = user_examples.get("excited_about_trip", user_examples.get("excited", ""))[:200]
+        buddy_excited = buddy_examples.get("excited_about_trip", buddy_examples.get("excited", ""))[:200]
+        user_disagree = user_examples.get("when_disagreeing", user_examples.get("disagree", ""))[:200]
+        buddy_disagree = buddy_examples.get("when_disagreeing", buddy_examples.get("disagree", ""))[:200]
+
+        # 提取人格约束（避免在 f-string 中直接访问嵌套 dict）
+        user_neg = active_user_persona.get("negotiation_style") or {}
+        user_emo = active_user_persona.get("emotion_decision") or {}
+        user_hard = user_neg.get("hard_to_compromise", []) if isinstance(user_neg, dict) else []
+        user_pressure = user_emo.get("pressure_response", "") if isinstance(user_emo, dict) else ""
+
+        buddy_neg = twin_persona.get("negotiation_style") or {}
+        buddy_emo = twin_persona.get("emotion_decision") or {}
+        buddy_hard = buddy_neg.get("hard_to_compromise", []) if isinstance(buddy_neg, dict) else []
+        buddy_pressure = buddy_emo.get("pressure_response", "") if isinstance(buddy_emo, dict) else ""
+
+        story_prompt = f"""你是两个旅行搭子的微信聊天记录生成器。
+
+【背景】User（{user_mbti}型，兴趣：{interests_str}）和Buddy（{buddy_mbti}型）正在协商去{city_name}旅行。
+{plan_info}
+
+【User 真实对话风格】
+兴奋时：「{user_excited}」
+坚持己见时：「{user_disagree}」
+
+【Buddy 真实对话风格】
+兴奋时：「{buddy_excited}」
+坚持己见时：「{buddy_disagree}」
+
+【User 约束】
+- 绝不让步：{user_hard[:2] or ['无']}
+- 不能接受：{user_pressure or '无'}
+
+【Buddy 约束】
+- 绝不让步：{buddy_hard[:2] or ['无']}
+- 不能接受：{buddy_pressure or '无'}
+
+【场景】{plot_name}型：{plot_desc}
+
+【输出格式】严格JSON数组，共22-28条消息，每条10-35字：
+[
+  {{"speaker": "user", "content": "..."}},
+  {{"speaker": "buddy", "content": "..."}},
+  ...
+  {{"speaker": "summary", "content": "25字推荐语"}}
+]
+
+【要求】
+- 严格参考上面两个"真实对话风格"，不要凭空生成语气
+- 消息要像微信聊天：短句、有时没说完、有时打错字又撤回、语气词自然
+- 必须讨论具体计划：酒店名字、景点名字、餐厅名字、时间安排
+- User 要提到自己的兴趣：{interests_str}
+- 不要每条都加emoji，最多1/4
+- 对话要有来有回，至少10个回合以上才能达成共识
+- 不要用"我们必须/你应该"这种命令式，多用"要不去""我觉得""你觉得呢"
+- {plot_name}型的节奏：{plot_desc}
+- 只输出JSON"""
+
+        def _generate_story():
+            from backend.negotiation.llm_client import llm_client
+            return llm_client.chat(story_prompt, system_prompt="你是一个旅行搭子协商故事生成器，只输出JSON。")
+
+        try:
+            raw = await asyncio.to_thread(_generate_story)
+            if not raw:
+                raise ValueError("LLM返回空")
+
+            # 尝试解析 JSON
+            # LLM 可能输出带 markdown 代码块
+            raw = raw.strip()
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+                raw = raw.strip()
+
+            messages = json.loads(raw)
+            if not isinstance(messages, list):
+                messages = [messages]
+
+            # 逐条 SSE 推送，间隔 0.25s 让前端有动画效果
+            topic_map = {0: "旅行节奏", 1: "旅行节奏", 2: "美食探索", 3: "美食探索", 4: "预算安排", 5: "预算安排"}
+            for i, msg in enumerate(messages):
+                if msg.get("speaker") == "summary":
+                    payload = json.dumps({"summary": msg.get("content", "")}, ensure_ascii=False)
+                    yield f"event: done\ndata: {payload}\n\n"
+                else:
+                    topic = topic_map.get(i, "")
+                    payload = json.dumps({
+                        "speaker": msg.get("speaker", "user"),
+                        "content": msg.get("content", ""),
+                        "topic": topic,
+                        "round": (i // 2) + 1,
+                    }, ensure_ascii=False)
+                    yield f"event: message\ndata: {payload}\n\n"
+                    await asyncio.sleep(0.25)
+
+        except Exception as exc:
+            logger.error("故事生成失败: %s", exc)
+            # Fallback：生成简单对话
+            fallback = [
+                {"speaker": "user", "content": f"说走就走！去{city_name}旅行真的太期待啦~"},
+                {"speaker": "buddy", "content": "对呀！我也一直想去~这次一定要好好计划一下！"},
+                {"speaker": "user", "content": "那必须得去吃本地特色美食！"},
+                {"speaker": "buddy", "content": "同意！还有拍照，风景超美的~"},
+                {"speaker": "user", "content": "预算方面我觉得差不多就行，开心最重要！"},
+                {"speaker": "buddy", "content": "嗯嗯，性价比优先~"},
+                {"speaker": "user", "content": "那就这么定了！冲冲冲！"},
+                {"speaker": "buddy", "content": "好！期待这次旅行！🌟"},
+            ]
+            for i, msg in enumerate(fallback):
+                if msg.get("speaker") == "summary":
+                    payload = json.dumps({"summary": msg.get("content", "")}, ensure_ascii=False)
+                    yield f"event: done\ndata: {payload}\n\n"
+                else:
+                    payload = json.dumps({
+                        "speaker": msg.get("speaker", "user"),
+                        "content": msg.get("content", ""),
+                        "topic": "",
+                        "round": (i // 2) + 1,
+                    }, ensure_ascii=False)
+                    yield f"event: message\ndata: {payload}\n\n"
+                    await asyncio.sleep(0.25)
 
     return StreamingResponse(
         _stream_negotiation(),

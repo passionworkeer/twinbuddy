@@ -10,11 +10,11 @@
 ```
 GitHub push
     │
-    ├── Railway 自动拉取 → twinbuddy/backend
+    ├── Railway 自动拉取 → 仓库根目录（railway.toml 在此）
     │       ↓
     │   https://xxx.railway.app  (后端 API)
     │
-    └── Vercel 自动拉取 → twinbuddy/frontend
+    └── Vercel 自动拉取 → twinbuddy/frontend/
             ↓
         https://xxx.vercel.app  (前端页面)
             ↓
@@ -28,20 +28,18 @@ GitHub push
 ### Step 1：Railway 部署后端
 
 1. 打开 https://railway.app → **Login** → 用 GitHub 账号登录
-2. 点击 **New Project** → **Deploy from GitHub repo**
-3. 搜索并选择 `passionworkeer/twinbuddy`
-4. ⚠️ **重要：设置 Root Directory**
-   - Railway 会部署整个仓库，需要指定到后端目录
-   - 在项目设置中找到 **Root Directory**，填入：`twinbuddy/backend`
-   - （或者 Railway 创建后，在 Settings → Source → Root Directory 修改）
-5. 添加环境变量（Environment Variables）：
+2. ⚠️ **先删掉旧 Railway 项目**（如果有的话，之前配置错误）
+3. 点击 **New Project** → **Deploy from GitHub repo**
+4. 搜索并选择 `passionworkeer/twinbuddy`
+5. ✅ **Root Directory 留空**（railway.toml 在仓库根目录，Railway 会自动找到）
+6. 添加环境变量（Environment Variables）：
    ```
    MINIMAX_API_KEY   = 你的 MiniMax API Key（找我要或者去 MiniMax 平台拿）
    ALLOW_ALL_ORIGINS = 1
    ```
-6. 点击 **Deploy Now**
-7. 等待 ~2-3 分钟，状态变成 ✅ **Deployed**
-8. 复制 Railway 给你的 URL，格式类似：
+7. 点击 **Deploy Now**
+8. 等待 ~2-3 分钟，状态变成 ✅ **Deployed**
+9. 复制 Railway 给你的 URL，格式类似：
    ```
    https://twinbuddy-backend.railway.app
    ```
@@ -56,14 +54,14 @@ GitHub push
 3. 找到 `passionworkeer/twinbuddy`，点击 **Import**
 4. ⚠️ **设置目录和变量**：
    - **Framework Preset**：选择 **Vite**（如果没有自动识别的话）
-   - **Root Directory**：填 `./` 或者保持默认（因为 vercel.json 在 `twinbuddy/frontend/` 里）
+   - **Root Directory**：填 `twinbuddy/frontend`（告诉 Vercel 前端在这个子目录）
    - **Environment Variables**：点击 **Add** 添加：
      ```
      VITE_API_BASE = https://twinbuddy-backend.railway.app
      ```
      ⚠️ 把这里的 URL 换成 **Step 1 拿到的 Railway URL**
-   - 如果 Vercel 有 **Build Command** 字段，确保是 `npm run build`
-   - 如果有 **Output Directory** 字段，确保是 `dist`
+   - **Build Command**：`npm run build`
+   - **Output Directory**：`dist`
 5. 点击 **Deploy**
 6. 等待 ~1-2 分钟，状态变成 ✅
 7. 复制 Vercel 给你的 URL，格式类似：

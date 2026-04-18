@@ -40,7 +40,7 @@ from agents.buddies import (
     get_buddy_public,
 )
 from agents import persona_doc
-from agents.scoring import get_compatibility_breakdown as _mock_compat_breakdown
+from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
 
 # ---------------------------------------------------------------------------
@@ -1292,41 +1292,13 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
 
 
 @router.get("/persona")
-async def get_persona(
-    user_id: Optional[str] = Query(default=None),
-    mbti: Optional[str] = Query(default=None),
-    interests: Optional[str] = Query(default=None),  # comma-separated
-    city: Optional[str] = Query(default=None),
-    voice_text: Optional[str] = Query(default=None),
-) -> Dict[str, Any]:
+async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
     """
     GET /api/persona?user_id=xxx
-    或者
-    GET /api/persona?mbti=ENFP&interests=美食,摄影&city=北京&voice_text=...
-
-    支持两种模式：
-    1. user_id 模式：从后端存储读取人格
-    2. 直接参数模式：直接传 mbti/interests/city 参数（本地存储场景）
 
     获取当前用户的数字孪生人格。
-    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成或直接生成
+    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成
     """
-
-    # 直接参数模式（本地存储场景）
-    if mbti:
-        parsed_interests = interests.split(",") if interests else []
-        persona = _build_persona_from_onboarding(
-            mbti=mbti,
-            city=city or "",
-            interests=parsed_interests,
-            voice_text=voice_text or "",
-        )
-        return {"success": True, "data": persona}
-
-    # user_id 模式
-    if not user_id:
-        raise HTTPException(status_code=400, detail="需要 user_id 或 mbti 参数")
-
     # 1. 尝试从 .md 文件读取
     md_doc = persona_doc.load_persona_doc(user_id)
     if md_doc:
@@ -1465,40 +1437,57 @@ async def get_feed(
 
 @router.get("/buddies")
 async def get_buddies(
-    user_id: Optional[str] = Query(default=None),
-    mbti: Optional[str] = Query(default=None),
-    interests: Optional[str] = Query(default=None),  # comma-separated
-    city: Optional[str] = Query(default=None),
+    user_id: str = Query(...),
     limit: int = Query(default=10, ge=1, le=50),
 ) -> Dict[str, Any]:
     """
-    GET /api/buddies?mbti=ENFP&interests=说走就走,美食&city=大理&limit=10
-
-    支持两种模式：
-    1. user_id 模式：需要先调用 POST /api/onboarding 保存用户数据
-    2. 直接参数模式：直接传 mbti/interests/city 参数（本地存储场景）
+    GET /api/buddies?user_id=xxx&limit=10
 
     返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
-    """
-    # 构建用户偏好（支持两种模式）
-    if user_id and user_id in _onboarding_store:
-        # 模式1：从后端存储读取
-        onboarding = _onboarding_store[user_id]
-        user_prefs = _build_user_prefs(onboarding, user_id)
-    else:
-        # 模式2：直接从参数构建
-        parsed_interests = interests.split(",") if interests else []
-        user_prefs = {
-            "mbti": (mbti or "ENFP").upper(),
-            "city": city or "",
-            "interests": parsed_interests,
-            "travel_style": "随性探索型",
-            "preferences": {
-                "likes": parsed_interests[:5] if parsed_interests else ["美食", "自然风光"],
-                "dislikes": ["暴走"],
-                "pace": "适中",
+
+    响应结构：
+      {
+        "success": true,
+        "buddies": [
+          {
+            "id": "buddy_01",
+            "name": "小满",
+            "mbti": "ENFP",
+            "avatar_emoji": "✨",
+            "travel_style": "...",
+            "typical_phrases": [...],
+            "compatibility_score": 87.5,
+            "compatibility_breakdown": {
+              "total": 87.5,
+              "dimensions": {
+                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
+                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
+                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
+                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
+                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
+              },
+              "personality_completion": {"score": 0.0, "reason": "..."},
+              "red_flags":  [...],
+              "strengths":  [...],
             },
-        }
+          },
+          ...
+        ],
+        "user_prefs": {...},
+        "meta": {...}
+      }
+
+    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
+    """
+    # 1. 获取用户 onboarding 数据
+    if user_id not in _onboarding_store:
+        raise HTTPException(
+            status_code=404,
+            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
+        )
+
+    onboarding = _onboarding_store[user_id]
+    user_prefs = _build_user_prefs(onboarding, user_id)
 
     # 2. 获取 top-N 搭子（使用 MING 六维度评分）
     top_buddies = get_top_buddies(user_prefs, limit=limit)

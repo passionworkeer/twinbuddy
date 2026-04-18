@@ -42,3 +42,4 @@ docs/
 twinbuddy/data/
 twinbuddy/test_negotiation_result.json
 twinbuddy/backend/
+data/

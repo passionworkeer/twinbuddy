@@ -121,9 +121,18 @@ export default function FeedPage() {
   const handleScroll = useCallback(() => {
     const el = feedRef.current;
     if (!el) return;
-    const index = Math.round(el.scrollTop / el.clientHeight);
+
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 50;
+
+    // 滚动到底部附近：追加新一轮随机视频（无限循环）
+    if (isNearBottom && !isFeedLoading) {
+      setFeedVideos(prev => [...prev, ...shuffleVideos([...(MOCK_VIDEOS as VideoItem[])])]);
+    }
+
+    const index = Math.round(scrollTop / clientHeight);
     setCurrentIndex(index);
-  }, []);
+  }, [isFeedLoading]);
 
   useEffect(() => {
     if (isFeedLoading) return;

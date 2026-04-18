@@ -20,7 +20,7 @@ export const ChatHistoryOverlay: React.FC<ChatHistoryOverlayProps> = ({ messages
             return (
               <div key={index} className="flex gap-3 justify-start items-start">
                 <div className="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1 overflow-hidden">
-                  <img src="https://api.dicebear.com/7.x/notionists/svg?seed=user" alt="avatar" className="w-full h-full object-cover" />
+                  <img src="/images/girl.png" alt="avatar" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
                   <p className="text-sm text-white/90 leading-snug truncate">{msg.text}</p>
@@ -34,7 +34,7 @@ export const ChatHistoryOverlay: React.FC<ChatHistoryOverlayProps> = ({ messages
                   <p className="text-sm text-white leading-snug truncate">{msg.text}</p>
                 </div>
                 <div className="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1 overflow-hidden">
-                   <img src="https://api.dicebear.com/7.x/notionists/svg?seed=self" alt="avatar" className="w-full h-full object-cover" />
+                   <img src="/images/man.png" alt="avatar" className="w-full h-full object-cover" />
                 </div>
               </div>
             );

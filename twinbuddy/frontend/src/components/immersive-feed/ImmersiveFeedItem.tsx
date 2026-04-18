@@ -28,12 +28,14 @@ export const ImmersiveFeedItem: React.FC<ImmersiveFeedItemProps> = ({
 
   useEffect(() => {
     if (isActive) {
-      if (item.type === 'video') {
-        videoRef.current?.play().catch(e => console.log('Auto-play blocked:', e));
+      if (item.type === 'video' && videoRef.current) {
+        videoRef.current.muted = false;
+        videoRef.current.play().catch(e => console.log('Auto-play blocked:', e));
       }
     } else {
-      videoRef.current?.pause();
       if (videoRef.current) {
+        videoRef.current.muted = true;
+        videoRef.current.pause();
         videoRef.current.currentTime = 0;
       }
     }
@@ -50,7 +52,6 @@ export const ImmersiveFeedItem: React.FC<ImmersiveFeedItemProps> = ({
             poster={item.cover_url}
             className="w-full h-full object-cover" 
             loop
-            muted
             playsInline
           />
         ) : (

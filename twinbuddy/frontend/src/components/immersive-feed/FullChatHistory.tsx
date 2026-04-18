@@ -37,7 +37,7 @@ export const FullChatHistory: React.FC<{
               return (
                 <div key={index} className="flex gap-3 justify-start items-start">
                   <div className="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=user&backgroundColor=1E2A23" alt="avatar" className="w-full h-full object-cover" />
+                    <img src="/images/girl.png" alt="avatar" className="w-full h-full object-cover" />
                   </div>
                   <div className="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
                     <p className="text-sm text-white/90 leading-snug">{msg.text}</p>
@@ -51,7 +51,7 @@ export const FullChatHistory: React.FC<{
                     <p className="text-sm text-white leading-snug">{msg.text}</p>
                   </div>
                   <div className="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=self&backgroundColor=2D4537" alt="avatar" className="w-full h-full object-cover" />
+                    <img src="/images/man.png" alt="avatar" className="w-full h-full object-cover" />
                   </div>
                 </div>
               );
@@ -115,7 +115,7 @@ export const FullChatHistory: React.FC<{
       {/* Companion Profile Card */}
       <div className="w-full bg-[#0B1C15]/50 backdrop-blur-[10px] rounded-[16px] border border-white/10 p-5 mt-10 relative mb-12">
         <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-          <img alt="Avatar" className="w-16 h-16 rounded-full border-2 border-[#4ade80] object-cover" src="https://api.dicebear.com/7.x/notionists/svg?seed=user&backgroundColor=1E2A23" />
+          <img alt="Avatar" className="w-16 h-16 rounded-full border-2 border-[#4ade80] object-cover" src="/images/girl.png" />
         </div>
         <div className="pt-8 text-center">
           <h2 className="text-white font-bold text-lg mb-1">{buddyName}</h2>

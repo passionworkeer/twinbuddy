@@ -1292,13 +1292,41 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
 
 
 @router.get("/persona")
-async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
+async def get_persona(
+    user_id: Optional[str] = Query(default=None),
+    mbti: Optional[str] = Query(default=None),
+    interests: Optional[str] = Query(default=None),  # comma-separated
+    city: Optional[str] = Query(default=None),
+    voice_text: Optional[str] = Query(default=None),
+) -> Dict[str, Any]:
     """
     GET /api/persona?user_id=xxx
+    或者
+    GET /api/persona?mbti=ENFP&interests=美食,摄影&city=北京&voice_text=...
+
+    支持两种模式：
+    1. user_id 模式：从后端存储读取人格
+    2. 直接参数模式：直接传 mbti/interests/city 参数（本地存储场景）
 
     获取当前用户的数字孪生人格。
-    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成
+    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成或直接生成
     """
+
+    # 直接参数模式（本地存储场景）
+    if mbti:
+        parsed_interests = interests.split(",") if interests else []
+        persona = _build_persona_from_onboarding(
+            mbti=mbti,
+            city=city or "",
+            interests=parsed_interests,
+            voice_text=voice_text or "",
+        )
+        return {"success": True, "data": persona}
+
+    # user_id 模式
+    if not user_id:
+        raise HTTPException(status_code=400, detail="需要 user_id 或 mbti 参数")
+
     # 1. 尝试从 .md 文件读取
     md_doc = persona_doc.load_persona_doc(user_id)
     if md_doc:

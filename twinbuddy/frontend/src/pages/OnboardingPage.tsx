@@ -101,20 +101,18 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
   const [noSupport, setNoSupport] = useState(false);
-  // 独立 badge 状态：录音结束后（不管 voiceState 是什么）只要有文字就显示"已识别"
+  const [interimText, setInterimText] = useState('');
   const [showBadge, setShowBadge] = useState(false);
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isRecordingRef = useRef(false);
-  const seedTranscriptRef = useRef('');
-  const finalTranscriptRef = useRef('');
-  const liveTranscriptRef = useRef(text);
+  const lastResultIndexRef = useRef(0);
+  const finalTextRef = useRef('');
 
+  // 同步外部 text → local ref（用户可能在录音期间编辑 textarea）
   useEffect(() => {
     if (!isRecordingRef.current) {
-      finalTranscriptRef.current = text ? `${text.trim()} ` : '';
-      liveTranscriptRef.current = text;
-      setVoiceState(text ? 'transcribed' : 'idle');
-      if (text.trim()) setShowBadge(true);
+      finalTextRef.current = text ? `${text.trim()} ` : '';
     }
   }, [text]);
 
@@ -128,59 +126,55 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       rec.interimResults = true;
 
       rec.onresult = (event: SpeechRecognitionEvent) => {
-        let finalText = '';
-        let interim = '';
+        let newFinal = '';
+        let newInterim = '';
 
-        for (let i = 0; i < event.results.length; i += 1) {
+        for (let i = lastResultIndexRef.current; i < event.results.length; i++) {
           const chunk = event.results[i][0]?.transcript ?? '';
           if (!chunk) continue;
           if (event.results[i].isFinal) {
-            finalText += chunk;
+            newFinal += chunk;
           } else {
-            interim += chunk;
+            newInterim += chunk;
           }
         }
 
-        const prefix = seedTranscriptRef.current ? `${seedTranscriptRef.current} ` : '';
-        finalTranscriptRef.current = `${prefix}${finalText}`;
+        lastResultIndexRef.current = event.results.length;
 
-        const merged = `${finalTranscriptRef.current}${interim}`.trim();
-        liveTranscriptRef.current = merged;
-        onChange(merged);
-        if (merged.trim()) setShowBadge(true);
+        if (newFinal) {
+          finalTextRef.current += newFinal;
+        }
+
+        const allFinal = finalTextRef.current.trim();
+        const preview = allFinal ? `${allFinal}${newInterim}` : newInterim;
+
+        setInterimText(newInterim);
+        onChange(allFinal || preview);
+        if (allFinal) setShowBadge(true);
       };
 
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
-        if (event.error === 'aborted') {
-          return;
-        }
+        if (event.error === 'aborted' || event.error === 'no-speech') return;
         console.warn('Speech recognition error:', event.error);
         isRecordingRef.current = false;
-        setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
-        if (liveTranscriptRef.current.trim()) setShowBadge(true);
+        setVoiceState(finalTextRef.current ? 'transcribed' : 'idle');
+        if (finalTextRef.current.trim()) setShowBadge(true);
+        setInterimText('');
       };
 
       rec.onend = () => {
         if (isRecordingRef.current) {
-          // 自然结束（用户暂停说话），继续识别以维持连续听写
-          try {
-            rec.start();
-          } catch {
-            isRecordingRef.current = false;
-          }
+          try { rec.start(); } catch { isRecordingRef.current = false; }
+        } else {
+          setInterimText('');
         }
-        // 用户主动停止：isRecordingRef 已经是 false，不做任何事
       };
 
       recognitionRef.current = rec;
 
       return () => {
         isRecordingRef.current = false;
-        try {
-          rec.stop();
-        } catch {
-          // ignore
-        }
+        try { rec.stop(); } catch { /* ignore */ }
       };
     } else {
       setNoSupport(true);
@@ -194,22 +188,18 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     if (!rec) return;
 
     if (isRecordingRef.current) {
-      // 正在录音 → 先改 ref（同步），再 stop()（onend 立即同步触发，但此时 ref 已是 false）
       isRecordingRef.current = false;
-      setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
-      if (liveTranscriptRef.current.trim()) setShowBadge(true);
-      try {
-        rec.stop();
-      } catch {
-        // ignore
-      }
+      setVoiceState(finalTextRef.current ? 'transcribed' : 'idle');
+      setInterimText('');
+      if (finalTextRef.current.trim()) setShowBadge(true);
+      try { rec.stop(); } catch { /* ignore */ }
       return;
     }
 
-    // 开始录音
-    seedTranscriptRef.current = text.trim();
-    finalTranscriptRef.current = seedTranscriptRef.current ? `${seedTranscriptRef.current} ` : '';
-    liveTranscriptRef.current = text.trim();
+    // 保留已有文字，追加新录音
+    lastResultIndexRef.current = 0;
+    finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
+    setInterimText('');
     isRecordingRef.current = true;
     setVoiceState('recording');
 
@@ -228,25 +218,34 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         <p className="font-body text-sm text-gray-700">说点什么，或者直接跳过</p>
       </div>
 
-      {/* Primary: text input — text rendered in dark color so user can edit it */}
+      {/* Textarea: shows live interim preview during recording */}
       <div className="w-full flex flex-col items-center gap-6">
-        <textarea
-          className="w-full max-w-sm rounded-2xl border border-gray-300 bg-white/50 backdrop-blur-[12px] px-4 py-3
-                     text-gray-800 text-sm resize-none placeholder:text-gray-500
-                     focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all hover:bg-white/80"
-          rows={3}
-          placeholder="描述你理想的搭子，比如：喜欢慢节奏、会拍照、能吃辣..."
-          value={text}
-          onChange={(e) => {
-            onChange(e.target.value);
-            if (!isRecordingRef.current) {
-              finalTranscriptRef.current = e.target.value ? `${e.target.value.trim()} ` : '';
-              liveTranscriptRef.current = e.target.value;
-              setVoiceState(e.target.value ? 'transcribed' : 'idle');
-              if (e.target.value.trim()) setShowBadge(true);
-            }
-          }}
-        />
+        <div className="relative w-full max-w-sm">
+          {/* Interim preview layer — gray text rendered behind textarea */}
+          <div
+            className="absolute inset-0 rounded-2xl border border-transparent px-4 py-3 text-sm text-gray-400 pointer-events-none whitespace-pre-wrap break-all overflow-hidden"
+            aria-hidden="true"
+          >
+            {interimText}
+          </div>
+          {/* Actual editable textarea — transparent bg so interim shows through */}
+          <textarea
+            className="relative w-full rounded-2xl border border-gray-300 bg-white/50 backdrop-blur-[12px] px-4 py-3
+                       text-gray-800 text-sm resize-none placeholder:text-gray-500
+                       focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all hover:bg-white/80"
+            rows={3}
+            placeholder="描述你理想的搭子，比如：喜欢慢节奏、会拍照、能吃辣..."
+            value={text}
+            onChange={(e) => {
+              if (!isRecordingRef.current) {
+                finalTextRef.current = e.target.value ? `${e.target.value.trim()} ` : '';
+                setVoiceState(e.target.value ? 'transcribed' : 'idle');
+                if (e.target.value.trim()) setShowBadge(true);
+              }
+              onChange(e.target.value);
+            }}
+          />
+        </div>
 
         {/* Voice recording button */}
         <button

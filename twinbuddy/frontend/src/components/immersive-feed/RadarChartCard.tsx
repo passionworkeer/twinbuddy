@@ -46,7 +46,7 @@ export const RadarChartCard: React.FC<RadarChartCardProps> = ({ data }) => {
   return (
     <>
       <div className="mb-4 flex justify-center items-center py-2">
-        <svg height="280" viewBox="20 20 160 160" width="280" xmlns="http://www.w3.org/2000/svg">
+        <svg height="320" viewBox="0 0 200 200" width="320" xmlns="http://www.w3.org/2000/svg">
           {/* Grid Polygons */}
           <polygon fill="none" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70" stroke="rgba(255,255,255,0.3)" strokeWidth="1"></polygon>
           <polygon fill="none" points="100,60 134.64,80 134.64,120 100,140 65.36,120 65.36,80" stroke="rgba(255,255,255,0.2)" strokeWidth="1"></polygon>
@@ -73,12 +73,12 @@ export const RadarChartCard: React.FC<RadarChartCardProps> = ({ data }) => {
           })}
           
           {/* Labels - Static mapped for 6 dimensions */}
-          <text fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="middle" x="100" y="32">{defaultData.dimensions[0]?.dimension || '维度1'}</text>
-          <text alignmentBaseline="middle" fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="start" x="156" y="70">{defaultData.dimensions[1]?.dimension || '维度2'}</text>
-          <text alignmentBaseline="middle" fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="start" x="156" y="130">{defaultData.dimensions[2]?.dimension || '维度3'}</text>
-          <text fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="middle" x="100" y="172">{defaultData.dimensions[3]?.dimension || '维度4'}</text>
-          <text alignmentBaseline="middle" fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="end" x="44" y="130">{defaultData.dimensions[4]?.dimension || '维度5'}</text>
-          <text alignmentBaseline="middle" fill="#ffffff" fontSize="10" fontWeight="600" textAnchor="end" x="44" y="70">{defaultData.dimensions[5]?.dimension || '维度6'}</text>
+          <text fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle" x="100" y="25">{defaultData.dimensions[0]?.dimension || '维度1'}</text>
+          <text alignmentBaseline="middle" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="start" x="160" y="70">{defaultData.dimensions[1]?.dimension || '维度2'}</text>
+          <text alignmentBaseline="middle" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="start" x="160" y="130">{defaultData.dimensions[2]?.dimension || '维度3'}</text>
+          <text fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle" x="100" y="180">{defaultData.dimensions[3]?.dimension || '维度4'}</text>
+          <text alignmentBaseline="middle" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="end" x="40" y="130">{defaultData.dimensions[4]?.dimension || '维度5'}</text>
+          <text alignmentBaseline="middle" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="end" x="40" y="70">{defaultData.dimensions[5]?.dimension || '维度6'}</text>
         </svg>
       </div>
 

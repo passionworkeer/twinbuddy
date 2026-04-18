@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Personal Journey - MBTI Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800&amp;family=Manrope:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#161a1c",
+                        "on-primary-container": "#ffdcd2",
+                        "on-surface": "#e0e6e9",
+                        "outline-variant": "#43494b",
+                        "inverse-on-surface": "#535556",
+                        "tertiary-fixed-dim": "#c0d4e5",
+                        "on-tertiary": "#475b69",
+                        "surface-dim": "#0c0f10",
+                        "on-surface-variant": "#a6acae",
+                        "on-tertiary-container": "#3f5260",
+                        "primary": "#ffb59f",
+                        "on-primary-fixed": "#461a0d",
+                        "tertiary": "#dff0ff",
+                        "on-secondary-fixed-variant": "#555f49",
+                        "primary-fixed-dim": "#eaa28d",
+                        "tertiary-dim": "#c0d4e5",
+                        "on-primary": "#653223",
+                        "on-secondary-container": "#b9c3a8",
+                        "surface-container-low": "#101415",
+                        "primary-fixed": "#faaf99",
+                        "surface-bright": "#272d2f",
+                        "on-secondary-fixed": "#39422e",
+                        "on-secondary": "#3a432f",
+                        "error-container": "#871f21",
+                        "on-primary-fixed-variant": "#6b3727",
+                        "surface-tint": "#ffb59f",
+                        "outline": "#707679",
+                        "error": "#fa746f",
+                        "on-tertiary-fixed": "#2d404d",
+                        "surface": "#0c0f10",
+                        "secondary-container": "#353e2a",
+                        "primary-container": "#7b4433",
+                        "tertiary-fixed": "#cee2f4",
+                        "on-error-container": "#ff9993",
+                        "surface-container-high": "#1b2022",
+                        "error-dim": "#c54d4a",
+                        "surface-container-highest": "#202729",
+                        "surface-container-lowest": "#000000",
+                        "tertiary-container": "#cee2f4",
+                        "on-error": "#490006",
+                        "secondary": "#c0caaf",
+                        "secondary-dim": "#b2bda2",
+                        "on-tertiary-fixed-variant": "#495c6a",
+                        "inverse-primary": "#8a503f",
+                        "inverse-surface": "#f8f9fa",
+                        "primary-dim": "#f0a792",
+                        "surface-variant": "#202729",
+                        "secondary-fixed": "#dce6ca",
+                        "on-background": "#e0e6e9",
+                        "secondary-fixed-dim": "#ced8bd",
+                        "background": "#0c0f10"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Epilogue", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen relative overflow-x-hidden">
+<!-- Background Image with Gradient Overlay -->
+<div class="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat" style='background-image: url("https://lh3.googleusercontent.com/aida/ADBb0ujv-tWs-FHTJrIydQVokm-OrcHDssIwRkfVX8OU0azmn6NX-p9D5eOpFQTqmpwe343NE20BB0TaM1C7ypvIo_bFGI1eG1MfzqnqyPzAv2PkJbVn968VRekQc45nFqO1FQA0WEPdkpG5zXBR6ECFhRjdrXcl0DpGWKHXO6NeUYEnZvdL1TpqqGs-svYHWgUGR1J-HVBJVm4qItl_hTy_W26SzQxhYjVDzM29rtPovkzbOSSqkyOeHW_YOjKogDmpMORF7x136UfweZc");'></div>
+<div class="fixed inset-0 z-0 bg-gradient-to-b from-surface-container-lowest/20 via-background/60 to-background/95"></div>
+<!-- TopAppBar -->
+<header class="relative z-20 docked full-width top-0 bg-transparent no-line transition-bg flex justify-between items-center w-full px-6 py-4">
+<button class="text-white/80 hover:opacity-80 transition-opacity scale-95 duration-200" style="">
+<span class="material-symbols-outlined" data-icon="arrow_back" style="">arrow_back</span>
+</button>
+<div class="text-center">
+<h1 class="text-white font-headline text-xl font-bold tracking-tight" style="">Twin buddy</h1>
+</div>
+<div class="w-6"></div> <!-- Spacer -->
+</header>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex flex-col min-h-[calc(100vh-80px)] px-6 pt-6 pb-12 max-w-lg mx-auto items-center">
+<!-- Header Section -->
+<div class="text-center mb-10 space-y-2">
+<h2 class="font-headline text-3xl font-extrabold text-white tracking-tight drop-shadow-lg" style="">选择你喜欢的旅行方式</h2>
+<p class="font-body text-sm text-on-surface-variant opacity-80" style="">（可多选）</p>
+</div>
+<!-- Tags Area -->
+<div class="w-full flex flex-wrap justify-center gap-3 mb-10">
+<button class="px-5 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">特种兵式</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">City walk</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">早起党</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">深度慢游</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">徒步登山</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">露营野趣</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">古镇人文</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">自然山川</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">拍照打卡</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">跟团</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">自由行</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">城市夜游</button>
+<button class="px-7 py-2.5 rounded-full bg-surface-variant/30 backdrop-blur-md border border-white/10 text-white/90 font-body text-sm hover:bg-surface-variant/50 transition-colors" style="">美食</button>
+</div>
+<!-- Continue Button -->
+<!-- Footer Actions -->
+<div class="mt-auto flex flex-col items-center w-full max-w-sm space-y-4 pt-6"><button class="w-full max-w-[200px] py-3 px-6 rounded-full bg-surface-variant/20 backdrop-blur-xl border border-white/10 text-white/80 hover:text-white font-body text-sm hover:bg-surface-variant/40 transition-all duration-300" style="">继续</button>
+<p class="font-body text-[10px] text-white/40 tracking-wider" style="">数据仅本地存储，不会上传至服务器</p>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on this transactional screen) -->
+</body></html>

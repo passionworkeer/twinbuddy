@@ -39,7 +39,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   matchedBuddy,
   liveMessages = []
 }) => {
-  const [modalStep, setModalStep] = useState<'guide' | 'match'>('match'); // 默认直接进 match 步骤
+  const [modalStep, setModalStep] = useState<'guide' | 'match'>('guide'); // 默认先显示 guide 步骤
   const [chatExpanded, setChatExpanded] = useState(false);
   const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -48,9 +48,9 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   const [showGreeting, setShowGreeting] = useState(false);
   const greetingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Trigger greeting when result data arrives
+  // Trigger greeting when modal first opens with result (one-time pop)
   useEffect(() => {
-    if (result) {
+    if (result && !showGreeting) {
       setShowGreeting(true);
       if (greetingTimerRef.current) clearTimeout(greetingTimerRef.current);
       greetingTimerRef.current = setTimeout(() => {
@@ -204,38 +204,33 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
-      {/* ── Greeting webm overlay (only during match step, transparent bg) ── */}
-      {showGreeting && modalStep === 'match' && (
+      {/* ── Greeting overlay (one-time pop on modal open) ── */}
+      {showGreeting && (
         <div
           className="greeting-pop-anim fixed left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
-          style={{ bottom: '30%', width: 220 }}
+          style={{ bottom: '28%', width: 200 }}
         >
-          <video
-            src="/mod/greeting.webm"
-            autoPlay
-            muted
-            loop
-            playsInline
+          <img
+            src="/mod/greeting-transparent.gif"
+            alt=""
             className="w-full h-full object-contain"
-            style={{ background: 'transparent', mixBlendMode: 'screen' }}
           />
         </div>
       )}
 
-      {/* ── Highfive webm fullscreen overlay ── */}
+      {/* ── Highfive overlay (transparent GIF, fullscreen) ── */}
       {showHighfive && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/85 flex items-center justify-center"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70"
           onClick={handleHighfiveEnded}
         >
-          <video
-            src="/mod/highfive.webm"
-            autoPlay
-            muted
-            playsInline
-            onEnded={handleHighfiveEnded}
+          <img
+            src="/mod/highfive-transparent.gif"
+            alt=""
             className="max-w-full max-h-full object-contain"
-            style={{ maxWidth: '90vw', maxHeight: '80vh', background: 'transparent', mixBlendMode: 'screen' }}
+            onLoad={(e) => {
+              setTimeout(() => handleHighfiveEnded(), 3400);
+            }}
           />
         </div>
       )}

@@ -476,7 +476,7 @@ def _llm_evaluator(
 
     # Fallback
     trait = _trait(buddy_persona, topic)
-    return PROPOSALS.get(topic, {}).get(trait, "好的，我理解你的想法")[0]
+    return PROPOSALS.get(topic, {}).get(trait, "好的，我理解你的想法")
 
 
 def _llm_compromise(topic: str, user_persona: Dict[str, Any]) -> str:
@@ -611,14 +611,14 @@ def llm_evaluator_node(state: NegotiationState) -> NegotiationState:
         "topic_label": TOPIC_LABELS.get(topic, topic),
         "proposer_message": compromise_msg,
         "evaluator_message": resolution_msg,
-        "evaluator_score": round(score + 0.25, 3),
+        "evaluator_score": min(round(score + 0.25, 3), 1.0),
         "resolution": "通过折中达成共识",
         "consensus_reached": True,
     }
 
     new_rounds = state["rounds"] + [entry]
     new_scores = dict(state["consensus_scores"])
-    new_scores[topic] = round(score + 0.25, 3)
+    new_scores[topic] = min(round(score + 0.25, 3), 1.0)
 
     return NegotiationState(
         phase=NegotiationPhase.CONSENSUS_FOUND,

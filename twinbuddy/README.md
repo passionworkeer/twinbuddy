@@ -75,7 +75,7 @@ TwinBuddy — 你的另一个你，已经替你搞定了。
 ┌──────────────────────────────────────────────────────┐
 │                    前端（React + Vite）               │
 │   Onboarding / 模拟抖音Feed / 懂你卡片 / 雷达图       │
-│   localStorage 持久化 / Rive 2D 头像 / Web Speech API │
+│   localStorage 持久化 / Web Speech API               │
 └──────────────────────────┬───────────────────────────┘
                            │ HTTP API
 ┌──────────────────────────▼───────────────────────────┐
@@ -95,9 +95,9 @@ TwinBuddy — 你的另一个你，已经替你搞定了。
 │  └─────────────────┘   └────────────────────────┘  │
 │                                                     │
 │  ┌─────────────────┐   ┌────────────────────────┐  │
-│  │  Mock 人格池管理  │   │     卡片触发引擎         │  │
-│  │  - 20 个预设人格 │   │  - Feed 位置匹配         │  │
-│  │  - 预生成协商结果│   │  - 协商结果注入卡片      │  │
+│  │  搭子数据层       │   │     卡片触发引擎         │  │
+│  │  - 100个预设人格 │   │  - Feed 位置匹配         │  │
+│  │  - 评分引擎      │   │  - 协商结果注入卡片      │  │
 │  └─────────────────┘   └────────────────────────┘  │
 └──────────────────────────────────────────────────────┘
 ```
@@ -125,7 +125,7 @@ NEGOTIATION → CONSENSUS_FOUND → REPORT_GENERATED → CARD_TRIGGERED
 ```
 
 协商过程：
-- 3 个 Agent 角色（提案 / 评估 / 让步 / 拒绝）
+- 提案 / 评估 / 让步 / 拒绝 多种 Agent 角色
 - 最多 3 轮协商
 - 预生成结果兜底
 
@@ -138,7 +138,7 @@ NEGOTIATION → CONSENSUS_FOUND → REPORT_GENERATED → CARD_TRIGGERED
 
 **第二层（点击展开）：**
 - 完整协商对话记录
-- 4-6 维度雷达图可视化
+- 六维度雷达图可视化（MING 评分）
 - red_flags 精简预警
 
 **第三层（点击同意）：**
@@ -150,56 +150,51 @@ NEGOTIATION → CONSENSUS_FOUND → REPORT_GENERATED → CARD_TRIGGERED
 | 层级 | 技术选型 |
 |------|---------|
 | 前端 | React + Vite + Tailwind CSS + TypeScript |
-| 数字人形象 | Rive 2D 卡通头像（带眨眼/点头/说话气泡动画）|
 | 后端 | FastAPI + Python |
 | Agent 框架 | LangGraph |
 | LLM | 通义千问 / Kimi（JSON Mode）|
-| 数据存储 | 前端 localStorage（刷新可见，关闭清空）|
+| 数据存储 | 前端 localStorage |
 | 测试 | pytest + Playwright E2E |
 
 ---
 
-## 四、数据说明（重要）
+## 四、数据说明
 
 ### 当前 Demo 阶段
 
-> **本产品目前为黑客松 Demo 阶段，接入的是模拟数据，而非抖音真实数据。**
+> **本产品目前为黑客松 Demo 阶段，使用的是模拟数据，而非抖音真实数据。**
 
-#### 当前 Demo 使用的数据
+#### 数据来源
 
 | 数据源 | 说明 |
 |--------|------|
 | MBTI | 用户手动选择（16型）|
-| 兴趣标签 | 用户手动选择（旅游专用15标签）|
+| 兴趣标签 | 用户手动选择（旅游专用标签）|
 | 说话风格 | 用户手动输入或语音输入 |
-| 对方人格 | 20个预设 Mock 人格池 |
-| 旅游地点 | 10个预设地点 |
+| 对方人格 | **100个预设搭子人格**（`agents/buddies/`） |
+| 旅游地点 | 视频 Feed 中的地点标签 |
 
-#### 未来接入抖音真实数据后（核心差异化）
+#### 评分引擎
+
+`agents/scoring.py` 实现 MING 六维度兼容性评分：
+
+| 维度 | 最高分 | 说明 |
+|------|--------|------|
+| pace（行程节奏）| 25 | J/P 轴 + pace 文字匹配 |
+| social_energy（社交能量）| 20 | E/I 轴 + travel_style 匹配 |
+| decision_style（决策风格）| 20 | T/F 轴 + negotiation_style 匹配 |
+| interest_alignment（兴趣对齐）| 25 | N/S 轴 + likes/dislikes 语义归一 |
+| budget（预算兼容）| 15 | 预算区间重叠度 |
+| personality_completion（人格互补）| -5~+10 | MING 四象限 + 互补对 |
+
+#### 未来接入抖音真实数据后
 
 | 数据维度 | Demo 阶段 | 抖音真实数据接入后 |
 |---------|-----------|-------------------|
 | 用户画像 | 手动选择 | **抖音已有**的完整用户画像 |
-| 兴趣偏好 | 3-6个标签 | **点赞/收藏/评论/观看时长**多维分析 |
+| 兴趣偏好 | 手动标签 | **点赞/收藏/评论/观看时长**多维分析 |
 | 说话风格 | 用户自述 | **评论/弹幕/私信**真实语料 |
 | 决策风格 | MBTI 推断 | **浏览行为/购买决策**真实反映 |
-| 人际偏好 | 标签推断 | **社交互动数据**真实建模 |
-
-#### 为什么抖音数据能做出更真实的数字人？
-
-```
-抖音拥有的数据：
-├── 观看行为 — 你喜欢什么内容
-├── 点赞数据 — 什么打动过你
-├── 评论文字 — 你怎么表达自己
-├── 收藏记录 — 你认为有价值的东西
-├── 搜索历史 — 你主动寻找的
-└── 互动模式 — 你和内容的关系
-
-这些数据 → 训练 → 更像你的数字人
-```
-
-**关键洞察：** 抖音本身就是一个巨大的用户人格数据矿。用户在抖音上的每一次互动，都是在告诉平台"我是谁"。这些数据比任何问卷都更真实、更丰富。
 
 ---
 
@@ -207,53 +202,51 @@ NEGOTIATION → CONSENSUS_FOUND → REPORT_GENERATED → CARD_TRIGGERED
 
 ```
 twinbuddy/
-├── README.md                    ← 你在这里
+├── README.md                    ← 本文件
 ├── CLAUDE.md                    ← 开发规范
-├── CLAUDE_BACKUP.md             ← 备份
+│
+├── agents/                      ← 核心算法 + 搭子数据
+│   ├── scoring.py               ← MING 六维度评分引擎
+│   ├── matching_graph.py       ← LangGraph 协商图
+│   ├── buddy_agent.py           ← 搭子 Agent
+│   ├── buddies/                ← 100个搭子人格 JSON
+│   │   ├── buddy_01.json
+│   │   ├── buddy_01_prompt.md
+│   │   └── ...
+│   └── _archived/              ← 废弃文件（已归档）
+│       └── mock_database.py
 │
 ├── frontend/                    ← React + Vite + Tailwind
 │   ├── src/
-│   │   ├── pages/            ← 页面组件
+│   │   ├── pages/              ← 页面组件
 │   │   │   ├── OnboardingPage.tsx
 │   │   │   ├── FeedPage.tsx
-│   │   │   └── ...
+│   │   │   └── ResultPage.tsx
 │   │   ├── components/         ← 可复用组件
 │   │   │   ├── TwinCard/
 │   │   │   ├── RadarChart/
-│   │   │   ├── RiveAvatar/
-│   │   │   └── ...
+│   │   │   ├── immersive-feed/
+│   │   │   └── feed/
 │   │   ├── hooks/              ← 自定义 Hooks
 │   │   ├── api/                ← API 客户端
-│   │   ├── mocks/              ← Mock 数据
-│   │   └── types/              ← TypeScript 类型
-│   ├── public/                 ← 静态资源
-│   ├── dist/                   ← 构建输出
+│   │   ├── types/              ← TypeScript 类型
+│   │   └── mocks/_archived/    ← 废弃 Mock 数据（已归档）
+│   ├── e2e/                    ← Playwright E2E
 │   └── package.json
 │
 ├── backend/                     ← FastAPI
 │   ├── main.py                 ← 入口
+│   ├── api/
+│   │   └── frontend_api.py     ← 前端对接 API
 │   ├── fusion_engine.py        ← 融合蒸馏引擎
-│   ├── persona_engine.py       ← Persona 生成
-│   ├── persona_distiller.py    ← 人格蒸馏
-│   ├── persona_layers.py       ← 九层人格框架
+│   ├── persona_engine.py      ← Persona 生成
 │   ├── card_engine.py          ← 卡片触发引擎
-│   ├── isolation.py            ← 数据隔离
-│   ├── mock_videos.json       ← Mock 视频数据
-│   ├── langgraph/             ← 协商状态机
-│   │   └── negotiation_graph.py
-│   ├── agents/                 ← Agent 核心
-│   │   ├── buddy_agent.py     ← 数字人 Agent
-│   │   ├── matching_graph.py  ← 匹配图
-│   │   └── mock_database.py   ← Mock 数据库
-│   └── tests/                 ← pytest 测试
-│       ├── test_fusion_engine.py
-│       ├── test_langgraph_negotiation.py
-│       ├── test_card_engine.py
-│       └── test_frontend_api.py
+│   └── langgraph/             ← 协商状态机
 │
-└── docs/                       ← 产品文档
-    ├── PRD.md                  ← 产品需求文档
-    └── 海报设计.md
+├── docs/                       ← 文档
+│   └── QNA.md                  ← 评委 Q&A 手册
+│
+└── MING/                       ← 人格蒸馏框架
 ```
 
 ---
@@ -269,16 +262,8 @@ twinbuddy/
 ### 1. 启动后端
 
 ```bash
-cd backend
-
-# 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 安装依赖
+cd twinbuddy/backend
 pip install -r requirements.txt
-
-# 启动服务
 python -m uvicorn main:app --reload --port 8000
 ```
 
@@ -287,12 +272,8 @@ python -m uvicorn main:app --reload --port 8000
 ### 2. 启动前端
 
 ```bash
-cd frontend
-
-# 安装依赖
+cd twinbuddy/frontend
 pnpm install
-
-# 启动开发服务器
 pnpm dev
 ```
 
@@ -309,11 +290,11 @@ pnpm dev
 
 ```bash
 # 后端测试
-cd backend
+cd twinbuddy/backend
 python -m pytest
 
 # 前端 E2E 测试
-cd frontend
+cd twinbuddy/frontend
 npx playwright test
 ```
 
@@ -321,97 +302,29 @@ npx playwright test
 
 ## 七、API 接口
 
-### POST /onboarding
+### POST /api/onboarding
 
-保存用户开局数据，生成数字孪生体
+保存用户开局数据，生成数字孪生体。
 
-```json
-请求：
-{
-  "mbti": "ENFP",
-  "interest_tags": ["说走就走", "爱拍照", "重度火锅党"],
-  "speech_sample": "我其实不太在意去哪，你能帮我选吗",
-  "target_city": "成都"
-}
+### GET /api/persona
 
-响应：
-{
-  "success": true,
-  "confidence": "medium",
-  "persona_summary": "..."
-}
-```
+获取当前用户的数字孪生体。
 
-### GET /feed/{video_id}
+### GET /api/buddies
 
-获取 Feed 内容，可能触发懂你卡片
+获取搭子列表（`user_id` 可选，无则为公开列表）。
 
-```json
-响应：
-{
-  "video": { /* Mock视频数据 */ },
-  "card_triggered": true,
-  "card_content": {
-    "location": "川西 · 3天2夜草原线",
-    "persona_a_summary": "弹性随性型",
-    "persona_b_summary": "计划周密型",
-    "negotiation_result": { /* 协商结果 */ },
-    "compatibility_report": { /* 兼容度报告 */ }
-  }
-}
-```
+### POST /api/negotiate
 
-### POST /negotiate
+双数字人协商，返回预生成协商结果。
 
-双数字人协商一轮
+### GET /health
 
-```json
-请求：
-{
-  "persona_a": { /* 用户人格画像 */ },
-  "persona_b": { /* 对方人格画像 */ },
-  "scenario": "川西3天2夜草原线"
-}
-
-响应：
-{
-  "round": 1,
-  "message_a": "我其实对行程没那么执念...",
-  "message_b": "太好了，那大框架就按你说的来？",
-  "conflict_detected": false,
-  "compatibility_score": 76
-}
-```
-
-### POST /agree
-
-用户同意搭子邀请
-
-```json
-请求：
-{ "card_id": "xxx" }
-
-响应：
-{ "success": true, "message": "已发送搭子邀请" }
-```
+健康检查。
 
 ---
 
-## 八、获奖亮点
-
-| 评委关注点 | 我们的优势 |
-|-----------|-----------|
-| 赛道匹配度 | 直接对应赛道三——"刷到懂你的瞬间" |
-| Agent 技术深度 | MING 人格蒸馏 + LangGraph 双 Agent 协商 |
-| 现场 Demo 冲击力 | 评委亲手刷 Feed，卡片当场弹出，数字人当场互怼 |
-| 差异化定位 | "不是找搭子的工具，是刷到就懂你的瞬间" |
-| 抖音护城河 | 未来接入抖音真实数据后，数字人更真实 |
-| 情感共鸣 | "另一个我在帮我做事"的体验感 |
-| 商业想象空间 | 数字孪生体长期运营，场景无限扩展 |
-
----
-
-## 九、演示流程（5分钟）
+## 八、演示流程（5分钟）
 
 ```
 0:00-0:30  对比冷开场
@@ -421,28 +334,37 @@ npx playwright test
 0:30-1:00  模拟刷 Feed
 [前两条是常规视频，营造正常体验]
 [刷到第三条——懂你卡片弹出]
-"等等，这是……？"
 
 1:00-1:45  懂你卡片第一层
 [地点 + 两个数字人对话截取]
-[Rive 2D 头像动画]
 
 1:45-2:30  点击展开第二层
-[雷达图：兼容度分数]
+[雷达图：六维度兼容度]
 [协商对话记录]
 [red_flags 预警]
 
 2:30-3:00  点击同意第三层
-[成功提示]
 "点个头，搭子就找到了。"
 
 3:00-4:30  技术架构讲解
 "MING人格蒸馏引擎 + LangGraph双Agent协商"
 
 4:30-5:00  未来愿景 + 收尾
-"这只是 Demo。未来接入抖音数据，会更像你。"
-"不只旅行搭子——所有需要找个伴的场景"
+"未来接入抖音数据后，数字人会更像你。"
 ```
+
+---
+
+## 九、获奖亮点
+
+| 评委关注点 | 我们的优势 |
+|-----------|-----------|
+| 赛道匹配度 | 直接对应赛道三——"刷到懂你的瞬间" |
+| Agent 技术深度 | MING 人格蒸馏 + LangGraph 双 Agent 协商 |
+| 现场 Demo 冲击力 | 评委亲手刷 Feed，卡片当场弹出，数字人当场互怼 |
+| 差异化定位 | "不是找搭子的工具，是刷到就懂你的瞬间" |
+| 抖音护城河 | 未来接入抖音真实数据后，数字人更真实 |
+| 情感共鸣 | "另一个我在帮我做事"的体验感 |
 
 ---
 
@@ -453,16 +375,7 @@ npx playwright test
 | 产品设计 | 产品定位、用户体验、演示流程 |
 | 前端开发 | React、Feed组件、懂你卡片、雷达图 |
 | 后端开发 | FastAPI、LangGraph协商、Fusion引擎 |
-| 内容制作 | Mock人格池、视频素材、预生成对话 |
-
----
-
-## 附录：关键词故事
-
-> 谷雨那天，我坐在工位前，对着镜子发呆，像一封始终未寄出的信，心里装着山海和一颗红豆。
-> 同桌叫我去跑步，我却更想来一场公路旅行，带上一只猫，去找只在深夜食堂出现的那个树洞。
-> 有人像召唤师一样对我说，逆风如解意，连马也能跑出王的节奏——可我更记得那年七里香，你点的三分糖，还有那句轻轻说出口的"第二杯半价"。
-> 后来我们各自去了不同的 Hackathon，写着各自的人生脚本，却始终没有把那封信真正寄出去。
+| 内容制作 | 搭子人格池、视频素材、预生成对话 |
 
 ---
 

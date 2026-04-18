@@ -288,36 +288,40 @@ export function TikTokVideo({
       <PlayIndicator visible={showPlayIndicator} />
 
       {/* Video */}
-      <video
-        ref={videoRef}
-        src={videoUrl}
-        className={`
-          absolute
-          ${videoAspect === 'landscape'
-            ? 'w-full h-full object-contain bg-black'  // 横屏：保持比例，黑色背景
-            : 'inset-0 w-full h-full object-cover'    // 竖屏：填充裁剪
-          }
-        `}
-        style={videoAspect === 'landscape' ? { maxHeight: '100%' } : {}}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        onLoadedMetadata={handleMetadata}
-        onCanPlayThrough={() => setIsLoading(false)}
-        onError={() => {
-          setIsLoading(false);
-          setLoadError('视频加载失败');
-        }}
-        onStalled={() => setLoadError('视频加载缓慢，请检查网络')}
-        onWaiting={() => {
-          if (!loadError) setIsLoading(true);
-        }}
-        onPlaying={() => {
-          setIsLoading(false);
-          setLoadError(null);
-        }}
-      />
+      {videoUrl ? (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          className={`
+            absolute
+            ${videoAspect === 'landscape'
+              ? 'w-full h-full object-contain bg-black'  // 横屏：保持比例，黑色背景
+              : 'inset-0 w-full h-full object-cover'    // 竖屏：填充裁剪
+            }
+          `}
+          style={videoAspect === 'landscape' ? { maxHeight: '100%' } : {}}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          onLoadedMetadata={handleMetadata}
+          onCanPlayThrough={() => setIsLoading(false)}
+          onError={() => {
+            setIsLoading(false);
+            setLoadError('视频加载失败');
+          }}
+          onStalled={() => setLoadError('视频加载缓慢，请检查网络')}
+          onWaiting={() => {
+            if (!loadError) setIsLoading(true);
+          }}
+          onPlaying={() => {
+            setIsLoading(false);
+            setLoadError(null);
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-black" />
+      )}
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 via-40% to-black/10 to-transparent pointer-events-none" />

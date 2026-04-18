@@ -62,7 +62,7 @@ export interface FeedResponse {
 
 // ── Feed / Video ─────────────────────────────────────
 
-export type GuidePreference = 'indoor' | 'outdoor';
+export type GuidePreference = 'indoorRelaxed' | 'indoorCultural' | 'outdoorNormal' | 'outdoorAdventure';
 
 export interface LocationGuideVersion {
   heading: string;

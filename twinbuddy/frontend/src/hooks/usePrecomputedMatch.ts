@@ -76,10 +76,16 @@ export function usePrecomputedMatch() {
     savePrecomputed(initialMatch);
 
     try {
-      // 1. 获取 top1 搭子
+      // 1. 获取 top1 搭子（直接传参数，不需要后端存储用户数据）
       let topBuddy: Buddy | null = null;
       try {
-        const buddies = await fetchBuddies(obData.user_id, 1);
+        const buddies = await fetchBuddies(
+          undefined, // user_id (不需要)
+          1,
+          obData.mbti,
+          obData.interests,
+          obData.city
+        );
         topBuddy = (buddies[0] || null) as unknown as Buddy | null;
       } catch (buddyErr) {
         console.error('预计算：获取搭子失败', buddyErr);

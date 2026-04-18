@@ -230,10 +230,7 @@ async def stt_stream(
     url = _build_auth_url()
     app_id = os.environ.get("XFYUN_APP_ID", "")
 
-    # 代理支持（国内环境需要）
-    proxy = os.environ.get("http_proxy") or os.environ.get("HTTP_PROXY") or None
-
-    async with websockets.connect(url, ping_interval=None, proxy=proxy) as ws:
+    async with websockets.connect(url, ping_interval=None) as ws:
         logger.debug("iFlytek WebSocket 连接已建立")
 
         # ── 第一帧：包含 common + business 参数 ─────────────────────────

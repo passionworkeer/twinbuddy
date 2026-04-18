@@ -11,6 +11,8 @@ export interface OnboardingData {
   city: string;
   completed: boolean;
   timestamp: number;
+  user_id?: string;
+  persona_id?: string;
 }
 
 // ── Persona ──────────────────────────────────────────

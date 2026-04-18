@@ -276,26 +276,29 @@ export default function FeedPage() {
         ref={feedRef}
         className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar scroll-smooth"
       >
-        {displayVideos.map((item, i) => (
-          <div key={item.id + i} className="h-full w-full snap-start shrink-0">
-            <TikTokVideo
-              videoUrl={item.video_url || ''}
-              buddy={item.buddy}
-              location={item.location}
-              title={item.title || ''}
-              description={item.description}
-              likeCount={Math.floor(Math.random() * 50000) + 1000}
-              commentCount={Math.floor(Math.random() * 5000) + 100}
-              shareCount={Math.floor(Math.random() * 2000) + 50}
-              liked={false}
-              isActive={currentIndex === i && !showMatchModal}
-              onLike={() => {}}
-              onComment={() => {}}
-              onShare={() => {}}
-              onTwinCard={triggerMatch}
-            />
-          </div>
-        ))}
+        {displayVideos.map((item, i) => {
+          const isNearActive = Math.abs(currentIndex - i) <= 1;
+          return (
+            <div key={item.id + i} className="h-full w-full snap-start shrink-0">
+              <TikTokVideo
+                videoUrl={isNearActive ? (item.video_url || '') : ''}
+                buddy={item.buddy}
+                location={item.location}
+                title={item.title || ''}
+                description={item.description}
+                likeCount={Math.floor(Math.random() * 50000) + 1000}
+                commentCount={Math.floor(Math.random() * 5000) + 100}
+                shareCount={Math.floor(Math.random() * 2000) + 50}
+                liked={false}
+                isActive={currentIndex === i && !showMatchModal}
+                onLike={() => {}}
+                onComment={() => {}}
+                onShare={() => {}}
+                onTwinCard={triggerMatch}
+              />
+            </div>
+          );
+        })}
       </div>
 
       <BottomNav />

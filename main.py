@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 main.py — TwinBuddy FastAPI 后端入口
+
+Windows 控制台 UTF-8 兼容：强制使用 UTF-8 输出，防止中文日志乱码。
+必须在任何其他 import 之前执行。
+
 TwinBuddy Hackathon MVP 专用
 
 端口：8000
@@ -17,7 +21,17 @@ TwinBuddy Hackathon MVP 专用
 
 from __future__ import annotations
 
+import sys as _sys
+
+if _sys.platform == "win32":
+    try:
+        _sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        _sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import asyncio
+import json
 import os
 import sys
 import logging

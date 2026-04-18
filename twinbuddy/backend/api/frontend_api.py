@@ -492,6 +492,10 @@ class NegotiationRequest(BaseModel):
     user_persona_id: Optional[str] = None
     buddy_mbti: Optional[str] = None
     destination: str = Field(..., description="目的地城市ID")
+    # 直接传入用户 onboarding 数据（无需先调用 /onboarding 接口）
+    mbti: Optional[str] = Field(default=None, description="用户 MBTI 类型")
+    interests: Optional[List[str]] = Field(default_factory=list, description="兴趣标签")
+    voiceText: Optional[str] = Field(default="", description="语音转文字内容")
 
 
 # ---------------------------------------------------------------------------
@@ -1584,9 +1588,15 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
         from negotiation.graph import run_negotiation
 
         # 使用的人格数据（优先用户 persona，fallback 到动态生成）
+        # 优先使用请求体直接传入的 onboarding 数据
         active_user_persona = (
             user_persona
-            or _build_persona_from_onboarding(user_mbti, city, [], "")
+            or _build_persona_from_onboarding(
+                req.mbti or user_mbti,
+                city,
+                req.interests or [],
+                req.voiceText or "",
+            )
         )
 
         # 构建 user_prefs 以计算兼容性分解（供 LLM 深度注入）

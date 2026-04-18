@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/feed/BottomNav';
 import { TikTokVideo } from '../components/feed/TikTokVideo';
@@ -200,13 +200,15 @@ export default function FeedPage() {
     }
   }, [currentIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
-  // Auto trigger match on the 2nd video (index 1)
+  // Auto trigger match on the 3rd or 4th video (index 2 or 3) randomly
+  const targetTriggerIndex = useMemo(() => Math.floor(Math.random() * 2) + 2, []);
+
   useEffect(() => {
-    if (currentIndex >= 1 && !hasAutoTriggered && feedVideos.length > 0) {
+    if (currentIndex >= targetTriggerIndex && !hasAutoTriggered && feedVideos.length > 0) {
       setHasAutoTriggered(true);
       triggerMatch();
     }
-  }, [currentIndex, hasAutoTriggered, feedVideos.length, triggerMatch]);
+  }, [currentIndex, hasAutoTriggered, feedVideos.length, triggerMatch, targetTriggerIndex]);
 
   const persistNegotiationResult = useCallback((result: NegotiationResult): string => {
     const reportId = createReportId();

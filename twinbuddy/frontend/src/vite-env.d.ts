@@ -55,6 +55,7 @@ interface Window {
 // Vite client types
 interface ImportMetaEnv {
   readonly VITE_API_BASE?: string;
+  readonly VITE_WS_BASE?: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

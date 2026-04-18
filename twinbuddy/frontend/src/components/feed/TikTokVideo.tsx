@@ -61,6 +61,7 @@ function PlayIndicator({ visible }: { visible: boolean }) {
 // ── Right Action Bar ────────────────────────────────
 
 function ActionBar({
+  buddy,
   liked,
   likeCount,
   commentCount,
@@ -69,14 +70,14 @@ function ActionBar({
   onComment,
   onShare,
   onTwinCard,
-}: Omit<Props, 'videoUrl' | 'buddy' | 'location' | 'title' | 'isActive' | 'isNearActive' | 'description'>) {
+}: Omit<Props, 'videoUrl' | 'location' | 'title' | 'isActive' | 'isNearActive' | 'description'>) {
   const fmt = (n: number) => (n >= 10000 ? `${(n / 10000).toFixed(1)}w` : String(n));
 
   return (
     <div className="flex flex-col items-center gap-5">
-      {/* Avatar */}
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-primary/30 to-neon-secondary/20 border-2 border-neon-primary/40 flex items-center justify-center text-2xl shadow-glow-primary">
-        🌈
+      {/* Avatar - Clean Douyin Style */}
+      <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-white flex items-center justify-center text-2xl shadow-lg overflow-hidden">
+        {buddy?.avatar_emoji || '🎵'}
       </div>
 
       {/* Like */}
@@ -114,16 +115,16 @@ function ActionBar({
         <span className="text-xs text-white font-medium drop-shadow-md">{fmt(shareCount)}</span>
       </button>
 
-      {/* TwinCard */}
+      {/* TwinCard - Douyin Style */}
       <button
         onClick={onTwinCard}
         className="flex flex-col items-center gap-0.5 mt-1 group action-btn"
         aria-label="懂你卡片"
       >
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-tertiary/40 to-neon-primary/20 border-2 border-neon-tertiary/50 flex items-center justify-center shadow-lg group-hover:shadow-glow-tertiary transition-all duration-200">
-          <Sparkles className="w-6 h-6 text-neon-tertiary group-hover:animate-spin-slow transition-transform duration-300" />
+        <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
+          <Sparkles className="w-6 h-6 text-white group-hover:animate-pulse transition-transform duration-300" />
         </div>
-        <span className="text-[10px] text-neon-tertiary font-bold drop-shadow-md">懂你</span>
+        <span className="text-[10px] text-white font-bold drop-shadow-md">懂你</span>
       </button>
     </div>
   );
@@ -133,7 +134,7 @@ function ActionBar({
 
 function BottomInfo({ buddy, location, title, description }: { buddy?: Buddy; location: string; title: string; description?: string }) {
   return (
-    <div className="absolute bottom-20 left-4 right-16 z-10">
+    <div className="absolute bottom-24 left-4 right-20 z-10">
       {buddy ? (
         <div className="mb-1">
           <div className="flex items-center gap-2 mb-1">
@@ -343,8 +344,9 @@ export function TikTokVideo({
       <BottomInfo buddy={buddy} location={location} title={title} description={description} />
 
       {/* Right action bar */}
-      <div className="absolute right-3 bottom-24 z-10" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-3 bottom-28 z-10" onClick={(e) => e.stopPropagation()}>
         <ActionBar
+          buddy={buddy}
           liked={liked}
           likeCount={likeCount}
           commentCount={commentCount}

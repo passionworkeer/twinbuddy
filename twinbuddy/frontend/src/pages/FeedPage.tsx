@@ -1,24 +1,20 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/feed/BottomNav';
 import { TikTokVideo } from '../components/feed/TikTokVideo';
 import { TwinMatchModal } from '../components/immersive-feed/TwinMatchModal';
-import type { ChatMessage } from '../components/immersive-feed/ChatHistoryOverlay';
-import type {
-  VideoItem,
-  NegotiationResult,
-  OnboardingData,
-  NegotiationReportSnapshots,
-  PrecomputedMatch,
-} from '../types';
+import type { VideoItem, NegotiationResult, NegotiationReportSnapshots } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { usePrecomputedMatch } from '../hooks/usePrecomputedMatch';
+import { useCardBuddyPool } from '../hooks/useCardBuddyPool';
 import { STORAGE_KEYS } from '../types';
-import { negotiate, fetchBuddies } from '../api/client';
+import { negotiate } from '../api/client';
 import { createReportId } from '../utils/reportId';
 import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
+
+const CARD_TRIGGER_INTERVAL = 5;
 
 const MOCK_SCENE_CARDS = [
   { id: 'chengdu', location: '成都', title: '成都宽窄巷子茶馆', image: '/images/chengdu.jpg' },
@@ -74,7 +70,7 @@ export default function FeedPage() {
   const [matchResult, setMatchResult] = useState<NegotiationResult | null>(null);
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [matchBackground, setMatchBackground] = useState<VideoItem | null>(null);
-  const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
+  const [lastTriggerVideoIndex, setLastTriggerVideoIndex] = useState(0);
   const [matchedBuddy, setMatchedBuddy] = useState<{
     name: string;
     mbti: string;
@@ -99,6 +95,7 @@ export default function FeedPage() {
 
   const { clearData, data: onboardingData } = useOnboarding();
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
+  const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
 
   const handleRestart = useCallback(() => {
@@ -132,7 +129,19 @@ export default function FeedPage() {
 
     const index = Math.round(scrollTop / clientHeight);
     setCurrentIndex(index);
-  }, [isFeedLoading]);
+
+    // ── 自动触发判断 ─────────────────────────────────────
+    if (
+      !isNegotiating &&
+      !showMatchModal &&
+      feedVideos.length > 0 &&
+      cardBuddyPool.length > 0 &&
+      index - lastTriggerVideoIndex >= CARD_TRIGGER_INTERVAL
+    ) {
+      setLastTriggerVideoIndex(index);
+      triggerMatch({ isAuto: true });
+    }
+  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length, cardBuddyPool.length, lastTriggerVideoIndex]);
 
   useEffect(() => {
     if (isFeedLoading) return;
@@ -142,12 +151,13 @@ export default function FeedPage() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [handleScroll, isFeedLoading]);
 
-  const triggerMatch = useCallback(async () => {
+  const triggerMatch = useCallback(async (options?: { isAuto?: boolean }) => {
     if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
-    const currentVideo = feedVideos[currentIndex];
-    if (!currentVideo) return;
 
-    // 1. 优先使用预计算数据
+    // 从搭子池取搭子
+    let buddy = cardBuddyPool[cardBuddyIndex];
+
+    // 1. 优先使用预计算数据中的搭子（onboarding期间预计算好的）
     const precomputed = getPrecomputed();
 
     // Determine the background/location based on precomputed or user's choice or fallback
@@ -167,17 +177,30 @@ export default function FeedPage() {
       cover_url: (bgLocation as any).image,
     } as any);
 
+    // 自动触发时推进池子 index（手动触发不推进）
+    if (options?.isAuto) {
+      advanceIndex();
+    }
+
     setShowMatchModal(true);
 
     // 立即显示搭子预览（即使协商还在进行）
-    if (precomputed?.topBuddy) {
-      const buddy = precomputed.topBuddy as any;
+    if (buddy) {
       setMatchedBuddy({
         name: buddy.name || '神秘搭子',
         mbti: buddy.mbti || 'ENFP',
         avatar_emoji: buddy.avatar_emoji || '👋',
         travel_style: buddy.travel_style || '',
         compatibility_score: buddy.compatibility_score || 80,
+      });
+    } else if (precomputed?.topBuddy) {
+      const precomputedBuddy = precomputed.topBuddy as any;
+      setMatchedBuddy({
+        name: precomputedBuddy.name || '神秘搭子',
+        mbti: precomputedBuddy.mbti || 'ENFP',
+        avatar_emoji: precomputedBuddy.avatar_emoji || '👋',
+        travel_style: precomputedBuddy.travel_style || '',
+        compatibility_score: precomputedBuddy.compatibility_score || 80,
       });
     } else {
       setMatchedBuddy(null);
@@ -190,64 +213,43 @@ export default function FeedPage() {
       return;
     }
 
-    // 3. 预计算未完成或失败，实时计算
+    // 3. 预计算未完成或失败，实时协商
     setIsNegotiating(true);
 
     try {
       // 从 localStorage 获取用户 onboarding 数据
-      let obData: OnboardingData | null = null;
+      let obData = null;
       try {
         const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-        if (stored) obData = JSON.parse(stored) as OnboardingData;
+        if (stored) obData = JSON.parse(stored);
       } catch {
-        // localStorage 数据损坏，静默降级
         obData = null;
-      }
-
-      // 获取 top1 搭子（直接传参数，不需要后端存储用户数据）
-      let topBuddy = null;
-      try {
-        const buddies = await fetchBuddies(
-          undefined, // user_id (不需要)
-          1,
-          obData?.mbti,
-          obData?.interests,
-          obData?.city
-        );
-        topBuddy = (buddies[0] || null) as any;
-      } catch (buddyErr) {
-        console.error('获取搭子失败:', buddyErr);
       }
 
       // 真实协商（两个 agent 对话）
       const result = await negotiate({
         user_id: obData?.user_id || undefined,
         user_persona_id: obData?.persona_id || undefined,
-        buddy_mbti: topBuddy?.mbti || 'ENFP',
+        buddy_mbti: buddy?.mbti || precomputed?.topBuddy?.mbti || 'ENFP',
         mbti: obData?.mbti || undefined,
         interests: obData?.interests ?? [],
         voiceText: obData?.voiceText || undefined,
         destination: bgLocation.location,
       });
 
-      // 消息逐条显示效果：先将消息传入 liveMessages，保持 isNegotiating=true
-      // TwinMatchModal 会自动逐条渲染这些消息
       setMatchResult(result);
       if (result.messages && result.messages.length > 0) {
         setLiveMessages(result.messages);
-        // 等消息全部显示完成后，才关闭 loading 状态
-        // 每条消息 800ms 动画，总共 result.messages.length * 800ms
         const totalDelay = result.messages.length * 800 + 1500;
         setTimeout(() => {
           setIsNegotiating(false);
-          setLiveMessages([]); // 清空，让 Modal 使用完整 result
+          setLiveMessages([]);
         }, totalDelay);
       } else {
         setIsNegotiating(false);
       }
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
-      // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       const mockResult = {
         ...MOCK_NEGOTIATION,
@@ -265,18 +267,14 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     }
-  }, [currentIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+  }, [cardBuddyPool, cardBuddyIndex, advanceIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
-  // Auto trigger match on the 2nd or 3rd video (index 1 or 2) for faster experience
-  // With pre-computation starting during onboarding, results should be ready by now
-  const targetTriggerIndex = useMemo(() => Math.floor(Math.random() * 2) + 1, []);
-
+  // ── mount 时初始化搭子池 ────────────────────────────────
   useEffect(() => {
-    if (currentIndex >= targetTriggerIndex && !hasAutoTriggered && feedVideos.length > 0) {
-      setHasAutoTriggered(true);
-      triggerMatch();
+    if (!isFeedLoading) {
+      initPool(onboardingData ?? null);
     }
-  }, [currentIndex, hasAutoTriggered, feedVideos.length, triggerMatch, targetTriggerIndex]);
+  }, [isFeedLoading, onboardingData, initPool]);
 
   const persistNegotiationResult = useCallback((result: NegotiationResult): string => {
     const reportId = createReportId();

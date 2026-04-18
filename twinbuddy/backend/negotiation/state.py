@@ -6,6 +6,7 @@ from enum import Enum
 
 class NegotiationPhase(str, Enum):
     IDLE = "IDLE"
+    PROPOSE = "PROPOSE"
     PERSONA_INIT = "PERSONA_INIT"
     CHAT_ROUND = "CHAT_ROUND"
     CONFLICT_DETECTED = "CONFLICT_DETECTED"

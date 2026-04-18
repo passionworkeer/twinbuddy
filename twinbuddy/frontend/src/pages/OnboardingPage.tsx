@@ -101,6 +101,8 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
   const [noSupport, setNoSupport] = useState(false);
+  // 独立 badge 状态：录音结束后（不管 voiceState 是什么）只要有文字就显示"已识别"
+  const [showBadge, setShowBadge] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isRecordingRef = useRef(false);
   const seedTranscriptRef = useRef('');
@@ -112,6 +114,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       finalTranscriptRef.current = text ? `${text.trim()} ` : '';
       liveTranscriptRef.current = text;
       setVoiceState(text ? 'transcribed' : 'idle');
+      if (text.trim()) setShowBadge(true);
     }
   }, [text]);
 
@@ -144,6 +147,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         const merged = `${finalTranscriptRef.current}${interim}`.trim();
         liveTranscriptRef.current = merged;
         onChange(merged);
+        if (merged.trim()) setShowBadge(true);
       };
 
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -153,22 +157,19 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         console.warn('Speech recognition error:', event.error);
         isRecordingRef.current = false;
         setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
+        if (liveTranscriptRef.current.trim()) setShowBadge(true);
       };
 
       rec.onend = () => {
         if (isRecordingRef.current) {
-          window.setTimeout(() => {
-            if (!isRecordingRef.current || !recognitionRef.current) return;
-            try {
-              recognitionRef.current.start();
-            } catch {
-              isRecordingRef.current = false;
-              setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
-            }
-          }, 120);
-          return;
+          // 自然结束（用户暂停说话），继续识别以维持连续听写
+          try {
+            rec.start();
+          } catch {
+            isRecordingRef.current = false;
+          }
         }
-        setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
+        // 用户主动停止：isRecordingRef 已经是 false，不做任何事
       };
 
       recognitionRef.current = rec;
@@ -189,19 +190,23 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
   // ── Start/Stop handler ──────────────────────────────
   const handleMicClick = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) return;
+    const rec = recognitionRef.current;
+    if (!rec) return;
 
     if (isRecordingRef.current) {
+      // 正在录音 → 先改 ref（同步），再 stop()（onend 立即同步触发，但此时 ref 已是 false）
       isRecordingRef.current = false;
+      setVoiceState(liveTranscriptRef.current ? 'transcribed' : 'idle');
+      if (liveTranscriptRef.current.trim()) setShowBadge(true);
       try {
-        recognition.stop();
+        rec.stop();
       } catch {
         // ignore
       }
       return;
     }
 
+    // 开始录音
     seedTranscriptRef.current = text.trim();
     finalTranscriptRef.current = seedTranscriptRef.current ? `${seedTranscriptRef.current} ` : '';
     liveTranscriptRef.current = text.trim();
@@ -209,7 +214,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     setVoiceState('recording');
 
     try {
-      recognition.start();
+      rec.start();
     } catch {
       isRecordingRef.current = false;
       setVoiceState(text ? 'transcribed' : 'idle');
@@ -238,6 +243,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
               finalTranscriptRef.current = e.target.value ? `${e.target.value.trim()} ` : '';
               liveTranscriptRef.current = e.target.value;
               setVoiceState(e.target.value ? 'transcribed' : 'idle');
+              if (e.target.value.trim()) setShowBadge(true);
             }
           }}
         />
@@ -257,10 +263,12 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         >
           <Mic className={`w-8 h-8 ${voiceState === 'recording' ? 'text-red-500' : 'text-primary'}`} />
           {voiceState === 'recording' && (
-            <span className="absolute -bottom-8 text-xs text-red-500 animate-pulse font-body">录音中，点击停止</span>
+            <span className="absolute -bottom-8 text-xs text-red-500 animate-pulse font-body whitespace-nowrap">录音中，点击停止</span>
           )}
-          {voiceState === 'idle' && !noSupport && (
-            <span className="absolute -bottom-8 text-xs text-gray-600 font-body">点击说话</span>
+          {voiceState !== 'recording' && !noSupport && (
+            <span className="absolute -bottom-8 text-xs text-gray-600 font-body whitespace-nowrap">
+              {text ? '继续录音' : '点击说话'}
+            </span>
           )}
           {noSupport && (
             <span className="absolute -bottom-8 text-xs text-gray-400 font-body">浏览器不支持</span>
@@ -284,7 +292,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         )}
 
         {/* Transcribed result — user can still edit in textarea above */}
-        {voiceState === 'transcribed' && text && (
+        {showBadge && text && (
           <div className="w-full max-w-sm animate-fade-in mt-2">
             <div className="bg-white/80 backdrop-blur-[12px] rounded-xl p-4 border border-primary/30 shadow-[0_0_15px_rgba(255,181,159,0.15)]">
               <p className="mt-1 text-xs text-gray-700 flex items-center justify-center gap-1 font-body">
@@ -480,9 +488,16 @@ export default function OnboardingPage() {
   // 显式步骤状态：由用户操作驱动，第 1/2 步会基于数据自动前进。
   const [step, setStep] = useState(1);
 
-  // 预加载 Feed 数据 + 启动预计算
-  useEffect(() => {
-    if (!data.completed) return;
+  // ── 预计算触发器 ─────────────────────────────────────────────
+  // 当用户选择城市后立即开始预计算（不等完成 onboarding）
+  // 这样用户在滑动视频时，后台已经在计算搭子匹配和协商
+  const precomputeTriggeredRef = useRef(false);
+
+  const triggerPrecomputation = useCallback(() => {
+    if (precomputeTriggeredRef.current) return;
+    if (!data.mbti || data.interests.length === 0) return;
+
+    precomputeTriggeredRef.current = true;
 
     // 随机打乱视频列表
     const shuffled = [...(MOCK_VIDEOS as VideoItem[])];
@@ -494,11 +509,27 @@ export default function OnboardingPage() {
 
     // 清除旧的预计算数据，然后启动新的预计算
     clearPrecomputed();
-    // 使用 setTimeout 确保在导航之前启动，避免阻塞
-    setTimeout(() => {
-      startPrecomputation(data);
-    }, 100);
-  }, [data.completed, data, startPrecomputation, clearPrecomputed]);
+    // 立即启动预计算（不等待 onboarding 完成）
+    startPrecomputation(data);
+  }, [data, startPrecomputation, clearPrecomputed]);
+
+  // 用户选择城市后立即触发预计算
+  useEffect(() => {
+    if (step === 4 && data.city && !precomputeTriggeredRef.current) {
+      // 延迟一点确保数据已更新
+      const timer = setTimeout(triggerPrecomputation, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [step, data.city, triggerPrecomputation]);
+
+  // 完成 onboarding 时检查是否已触发预计算
+  useEffect(() => {
+    if (!data.completed) return;
+    // 确保预计算已触发
+    if (!precomputeTriggeredRef.current) {
+      triggerPrecomputation();
+    }
+  }, [data.completed, triggerPrecomputation]);
 
   // 标记是否正在回退，用于防止回退时触发自动前进
   const isNavigatingBack = useRef(false);

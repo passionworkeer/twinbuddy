@@ -1014,7 +1014,6 @@ try:
 except Exception:
     _LLM_AVAILABLE = False
     llm_client = None
-        llm_client = None
 
 
 def _call_llm_for_persona(

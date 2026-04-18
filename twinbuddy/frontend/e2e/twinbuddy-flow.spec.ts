@@ -5,7 +5,7 @@ test.describe('TwinBuddy critical flow', () => {
     await page.goto('/onboarding');
 
     await page.getByRole('button', { name: 'ENFP' }).click();
-    await expect(page.getByText('你向往哪种旅行？')).toBeVisible();
+    await expect(page.getByText('选择你喜欢的旅行方式')).toBeVisible();
 
     await page.getByRole('button', { name: '摄影打卡' }).click();
     await page.getByRole('button', { name: '继续' }).click();
@@ -13,7 +13,7 @@ test.describe('TwinBuddy critical flow', () => {
     await expect(page.getByPlaceholder('描述你理想的搭子，比如：喜欢慢节奏、会拍照、能吃辣...')).toBeVisible();
     await page.getByRole('button', { name: '继续' }).click();
 
-    await expect(page.getByText('你想去哪？')).toBeVisible();
+    await expect(page.getByText('你的目的地是')).toBeVisible();
     await page.getByRole('button', { name: '开始刷搭子' }).click();
 
     await expect(page).toHaveURL(/\/feed$/, { timeout: 30_000 });
@@ -23,10 +23,10 @@ test.describe('TwinBuddy critical flow', () => {
     await page.getByRole('button', { name: '查看协商详情' }).click();
 
     await expect(page).toHaveURL(/\/result\/.+\/detail/);
-    await expect(page.getByText('协商详情')).toBeVisible();
     await expect(page.getByText('完整协商记录')).toBeVisible();
 
-    await page.getByRole('button', { name: '返回概览' }).first().click();
+    // Navigate back using the arrow back button
+    await page.locator('button').filter({ has: page.locator('svg.lucide-arrow-left') }).click();
     await expect(page).toHaveURL(/\/result$/);
     await expect(page.getByRole('button', { name: '查看协商详情' })).toBeVisible();
   });

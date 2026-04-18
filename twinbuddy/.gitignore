@@ -11,5 +11,11 @@ agents/persona_doc.py
 
 # Docs
 docs/期末大作业展示方案.md
+!docs/
 期末大作业展示方案.docx
+
+# Playwright artifacts
+frontend/playwright-report/
+frontend/test-results/
+frontend/.playwright/
 

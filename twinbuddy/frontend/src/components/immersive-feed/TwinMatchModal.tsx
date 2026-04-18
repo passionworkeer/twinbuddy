@@ -226,7 +226,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
             >
               <div className="bg-white/90 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-2.5 shadow-lg relative">
                 <p className="text-sm font-medium text-gray-800 leading-snug">
-                  嗨，你要和我一起去<span className="text-[#4ade80] font-bold">{result.destination}</span>嘛
+                  Hi，你要和我一起去<span className="text-[#4ade80] font-bold">{result.destination}</span>吗？
                 </p>
                 <div
                   className="absolute w-3 h-3 bg-white/90 -bottom-1.5 left-1/2 -translate-x-1/2 rotate-45"
@@ -449,7 +449,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                   onClick={handleAddFriend}
                   className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
                 >
-                  加他好友
+                  看TA是谁
                 </button>
               </>
             ) : (
@@ -464,7 +464,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                   onClick={handleAddFriend}
                   className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
                 >
-                  加他好友
+                  看TA是谁
                 </button>
               </>
             )}

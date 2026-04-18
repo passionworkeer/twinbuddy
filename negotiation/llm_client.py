@@ -56,6 +56,9 @@ _MODEL = "MiniMax-M2.7"
 
 _current_key_idx = 0  # 当前使用的 key 索引
 
+# 标记 LLM 是否可用（所有 key 均无效时为 False）
+_LLM_AVAILABLE = len(_KEYS) > 0
+
 
 def _get_headers(api_key: str) -> Dict[str, str]:
     return {
@@ -106,6 +109,8 @@ class MiniMaxClient:
 
     @property
     def _current_key(self) -> str:
+        if not _KEYS:
+            raise RuntimeError("MiniMax API Key 未配置，请设置 MINIMAX_API_KEY 环境变量")
         return _KEYS[self._key_idx % len(_KEYS)]
 
     def _try_call(self, messages: List[Dict[str, str]], try_key_idx: int) -> Dict[str, Any]:
@@ -128,8 +133,17 @@ class MiniMaxClient:
         发送对话请求，Key 失效时自动切换到备用 Key。
 
         Returns:
-            模型回复文本（字符串），调用失败返回空字符串。
+            模型回复文本（字符串）。
+
+        Raises:
+            RuntimeError: 当 MiniMax API Key 未配置，或所有 Key 均失败时抛出。
         """
+        if not _KEYS:
+            raise RuntimeError(
+                "MiniMax API Key 未配置！请设置环境变量 MINIMAX_API_KEY（或 MINIMAX_API_KEY_1）。"
+                "当前所有 Key 均为空或占位符，LLM 调用无法进行。"
+            )
+
         messages: List[Dict[str, str]] = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
@@ -178,7 +192,10 @@ class MiniMaxClient:
                 raise
 
         logger.error("所有 MiniMax Key 均失败")
-        return ""
+        raise RuntimeError(
+            "所有 MiniMax API Key 均失败（网络不可达、认证失败或全部超时）。"
+            "请检查网络代理设置和 API Key 是否有效。"
+        )
 
     def chat_structured(
         self,
@@ -205,6 +222,10 @@ class MiniMaxClient:
 
     def chat_raw(self, messages: List[Dict[str, str]]) -> str:
         """直接发送消息列表，返回原始文本（复用 Key 切换逻辑）"""
+        if not _KEYS:
+            raise RuntimeError(
+                "MiniMax API Key 未配置！请设置环境变量 MINIMAX_API_KEY（或 MINIMAX_API_KEY_1）。"
+            )
         start = time.time()
         tried = set()
 
@@ -238,7 +259,10 @@ class MiniMaxClient:
             except Exception:
                 raise
 
-        return ""
+        raise RuntimeError(
+            "所有 MiniMax API Key 均失败（chat_raw）。"
+            "请检查网络代理设置和 API Key 是否有效。"
+        )
 
 
 # ── 全局单例 ────────────────────────────────────────────────────────────────

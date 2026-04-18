@@ -64,24 +64,24 @@ export const ImmersiveFeedItem: React.FC<ImmersiveFeedItemProps> = ({
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/30 to-[#0B1C15] z-10"></div>
       </div>
 
-      {/* Top Navigation */}
-      <nav className="flex items-center justify-between px-4 pt-6 pb-2 w-full absolute top-0 z-40 text-white/70 text-[17px] font-medium drop-shadow-md">
+      {/* Top Navigation - Immersive Douyin Style */}
+      <nav className="flex items-center justify-between px-4 pt-4 pb-1.5 w-full absolute top-0 z-40 text-white/90 text-[15px] font-medium drop-shadow-md bg-gradient-to-b from-black/70 via-black/30 to-transparent">
         <button className="p-2 flex items-center justify-center text-white">
-          <span className="material-symbols-outlined text-2xl font-light">menu</span>
+          <span className="material-symbols-outlined text-[26px] font-light">menu</span>
         </button>
-        <div className="flex-1 flex gap-5 overflow-x-auto no-scrollbar items-center px-4">
+        <div className="flex-1 flex gap-5 overflow-x-auto no-scrollbar items-center px-2">
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">团购</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">经验</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">北京</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">关注</span>
-          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">商城</span>
-          <div className="flex flex-col items-center cursor-pointer text-white font-semibold relative">
-            <span>推荐</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">南城</span>
+          <div className="flex flex-col items-center cursor-pointer text-white font-bold relative">
+            <span className="whitespace-nowrap text-[16px]">推荐</span>
             <div className="h-[2px] w-5 bg-white rounded-full mt-1"></div>
           </div>
         </div>
         <button className="p-2 flex items-center justify-center text-white">
-          <span className="material-symbols-outlined text-2xl font-light">search</span>
+          <span className="material-symbols-outlined text-[26px] font-light">search</span>
         </button>
       </nav>
 

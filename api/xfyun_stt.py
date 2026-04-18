@@ -230,7 +230,10 @@ async def stt_stream(
     url = _build_auth_url()
     app_id = os.environ.get("XFYUN_APP_ID", "")
 
-    async with websockets.connect(url, ping_interval=None) as ws:
+    # 代理支持（国内环境需要）
+    proxy = os.environ.get("http_proxy") or os.environ.get("HTTP_PROXY") or None
+
+    async with websockets.connect(url, ping_interval=None, proxy=proxy) as ws:
         logger.debug("iFlytek WebSocket 连接已建立")
 
         # ── 第一帧：包含 common + business 参数 ─────────────────────────
@@ -290,10 +293,20 @@ async def stt_stream(
                 # 5s 内无响应（正常，中间帧可能没有结果），继续发送
                 logger.debug("等待识别结果超时，继续发送音频帧")
                 continue
+            except websockets.exceptions.ConnectionClosedOK:
+                # 讯飞提前关闭（音频无语音时会超时关闭），正常退出
+                logger.debug("iFlytek WebSocket 提前关闭（无语音内容）")
+                break
+            except websockets.exceptions.ConnectionClosed:
+                logger.warning("iFlytek WebSocket 非正常关闭")
+                break
 
         # ── 发送结束帧 ────────────────────────────────────────────────────
         end_frame = {"data": {"status": 2}}
-        await ws.send(json.dumps(end_frame))
+        try:
+            await ws.send(json.dumps(end_frame))
+        except websockets.exceptions.ConnectionClosed:
+            pass  # 连接已关闭，无所谓
         logger.debug("结束帧已发送")
 
         # ── 接收残余结果 ──────────────────────────────────────────────────
@@ -308,7 +321,10 @@ async def stt_stream(
                     break
         except asyncio.TimeoutError:
             logger.debug("残余结果接收完成（超时）")
-            pass
+        except websockets.exceptions.ConnectionClosedOK:
+            logger.debug("iFlytek WebSocket 关闭")
+        except websockets.exceptions.ConnectionClosed:
+            logger.debug("iFlytek WebSocket 非正常关闭")
 
     logger.debug("iFlytek WebSocket 连接已关闭")
 

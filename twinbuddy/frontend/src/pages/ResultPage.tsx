@@ -140,7 +140,7 @@ export default function ResultPage() {
   const avgScore = Math.round(
     totalWeight > 0
       ? resultData.radar.reduce(
-          (sum: number, d: RadarData) => sum + (d.user_score + d.buddy_score) / 2 * d.weight,
+          (sum: number, d: RadarData) => sum + ((d.user_score + d.buddy_score) / 2) * d.weight,
           0,
         ) / totalWeight
       : 0,

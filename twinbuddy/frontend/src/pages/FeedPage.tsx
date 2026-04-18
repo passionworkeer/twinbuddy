@@ -98,6 +98,16 @@ export default function FeedPage() {
   const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
 
+  // Refs to avoid stale closures in the scroll listener
+  const cardBuddyPoolRef = useRef(cardBuddyPool);
+  useEffect(() => { cardBuddyPoolRef.current = cardBuddyPool; }, [cardBuddyPool]);
+  const cardBuddyIndexRef = useRef(cardBuddyIndex);
+  useEffect(() => { cardBuddyIndexRef.current = cardBuddyIndex; }, [cardBuddyIndex]);
+  const lastTriggerVideoIndexRef = useRef(lastTriggerVideoIndex);
+  useEffect(() => { lastTriggerVideoIndexRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
+  const advanceIndexRef = useRef(advanceIndex);
+  useEffect(() => { advanceIndexRef.current = advanceIndex; }, [advanceIndex]);
+
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
       clearPrecomputed();
@@ -135,13 +145,13 @@ export default function FeedPage() {
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      cardBuddyPool.length > 0 &&
-      index - lastTriggerVideoIndex >= CARD_TRIGGER_INTERVAL
+      cardBuddyPoolRef.current.length > 0 &&
+      index - lastTriggerVideoIndexRef.current >= CARD_TRIGGER_INTERVAL
     ) {
       setLastTriggerVideoIndex(index);
-      triggerMatch({ isAuto: true });
+      triggerMatchRef.current({ isAuto: true });
     }
-  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length, cardBuddyPool.length, lastTriggerVideoIndex]);
+  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
 
   useEffect(() => {
     if (isFeedLoading) return;
@@ -154,8 +164,8 @@ export default function FeedPage() {
   const triggerMatch = useCallback(async (options?: { isAuto?: boolean }) => {
     if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
 
-    // 从搭子池取搭子
-    let buddy = cardBuddyPool[cardBuddyIndex];
+    // 从搭子池取搭子（通过 ref 读取，避免 stale closure）
+    let buddy = cardBuddyPoolRef.current[cardBuddyIndexRef.current];
 
     // 1. 优先使用预计算数据中的搭子（onboarding期间预计算好的）
     const precomputed = getPrecomputed();
@@ -179,7 +189,7 @@ export default function FeedPage() {
 
     // 自动触发时推进池子 index（手动触发不推进）
     if (options?.isAuto) {
-      advanceIndex();
+      advanceIndexRef.current();
     }
 
     setShowMatchModal(true);
@@ -267,7 +277,11 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     }
-  }, [cardBuddyPool, cardBuddyIndex, advanceIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+  }, [feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+
+  // Keep triggerMatchRef in sync — must be after triggerMatch definition
+  const triggerMatchRef = useRef<(options?: { isAuto?: boolean }) => void>();
+  useEffect(() => { triggerMatchRef.current = triggerMatch; }, [triggerMatch]);
 
   // ── mount 时初始化搭子池 ────────────────────────────────
   useEffect(() => {
@@ -308,7 +322,7 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative relative">
+    <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative">
       <button
         onClick={handleRestart}
         className="fixed top-[120px] right-4 z-50 p-2 rounded-full bg-black/40 backdrop-blur-xl hover:bg-black/60 transition-colors pointer-events-auto"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronUp, MapPin, Calendar, Wallet, AlertTriangle, CheckCircle, MessageCircle } from 'lucide-react';
 import type { NegotiationResult, TwinCardLayer } from '../../types';
 import { RadarChart } from './RadarChart';
@@ -211,7 +211,8 @@ function Sparkles() {
 
   if (!mounted) return null;
 
-  const sparkles = Array.from({ length: SPARKLE_COUNT }, (_, i) => {
+  // Generate sparkles once per component instance — stable across re-renders
+  const sparkles = useMemo(() => Array.from({ length: SPARKLE_COUNT }, (_, i) => {
     const angle = (360 / SPARKLE_COUNT) * i;
     const rad = (angle * Math.PI) / 180;
     const tx = Math.cos(rad) * (30 + Math.random() * 20);
@@ -221,7 +222,7 @@ function Sparkles() {
     const dur = 1.0 + Math.random() * 0.8;
     const delay = i * 80;
     return { tx, ty, size, color, dur, delay };
-  });
+  }), []);
 
   return (
     <>

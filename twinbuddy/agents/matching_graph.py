@@ -27,7 +27,8 @@ from typing import Annotated
 
 
 from buddy_agent import BuddyAgent
-from mock_database import MOCK_BUDDIES, score_compatibility
+from agents.buddies import get_all_buddies
+from agents.scoring import score_compatibility
 
 # ── Schema ───────────────────────────────────────────────────────────────────
 
@@ -121,12 +122,13 @@ def parse_preferences(state: GraphState) -> GraphState:
 
 def match_candidates(state: GraphState) -> GraphState:
     """
-    Score all mock buddies against the parsed preferences
+    Score all buddies against the parsed preferences
     and pick the top 3 candidates.
     """
     prefs = state.parsed_preferences
+    buddies = get_all_buddies()
     scored = []
-    for buddy in MOCK_BUDDIES:
+    for buddy in buddies:
         score = score_compatibility(prefs, buddy)
         scored.append((score, buddy))
 

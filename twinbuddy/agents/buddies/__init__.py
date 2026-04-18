@@ -36,14 +36,14 @@ BUDDIES_DIR = Path(__file__).parent
 _logger = logging.getLogger("twinbuddy.buddies")
 
 
-def _mock_db_module():
+def _scoring_module():
     """兼容两种运行方式：workspace 直跑与 package 安装。"""
     try:
-        from agents import mock_database as md  # type: ignore
-        return md
+        from agents import scoring as sc  # type: ignore
+        return sc
     except Exception:
-        from twinbuddy.agents import mock_database as md  # type: ignore
-        return md
+        from twinbuddy.agents import scoring as sc  # type: ignore
+        return sc
 
 # ---------------------------------------------------------------------------
 # 数据加载（缓存）
@@ -161,7 +161,7 @@ def _load_all_buddy_raw() -> List[dict]:
     """
     if not BUDDIES_DIR.exists():
         _logger.warning(
-            "搭子目录不存在: %s，将回退到 MOCK_BUDDIES（agents/mock_database.py）",
+            "搭子目录不存在: %s，将回退到 MOCK_BUDDIES（agents/scoring.py）",
             BUDDIES_DIR,
         )
         return []
@@ -305,32 +305,21 @@ def _is_cjk(c: str) -> bool:
 def get_all_buddies() -> List[dict]:
     """
     返回所有搭子列表（已规范化）。
-    如果 buddies/ 目录不存在或为空，自动回退到 agents.mock_database.MOCK_BUDDIES。
+    如果 buddies/ 目录不存在或为空，打印警告并返回空列表。
     """
     raw = _load_all_buddy_raw()
     if raw:
         return raw
-    # 回退到 MOCK_BUDDIES
-    md = _mock_db_module()
-    MOCK_BUDDIES = md.MOCK_BUDDIES
-    _logger.info("使用 MOCK_BUDDIES 回退（共 %d 个搭子）", len(MOCK_BUDDIES))
-    return MOCK_BUDDIES
+    _logger.warning("搭子目录无可用数据，返回空列表")
+    return []
 
 
 def get_buddy_by_id(buddy_id: str) -> Optional[dict]:
     """
     根据 buddy_id 查找单个搭子。
-    优先从 JSON 文件加载器查询；未找到时回退到 MOCK_BUDDIES 内存列表。
     未找到时返回 None。
     """
-    # 1. 先查 JSON 文件（已缓存）
     for b in get_all_buddies():
-        if b.get("id") == buddy_id:
-            return b
-    # 2. 回退到 MOCK_BUDDIES（处理 JSON 解析失败的搭子）
-    md = _mock_db_module()
-    MOCK_BUDDIES = md.MOCK_BUDDIES
-    for b in MOCK_BUDDIES:
         if b.get("id") == buddy_id:
             return b
     return None
@@ -345,13 +334,13 @@ def get_top_buddies(user_prefs: dict, limit: int = 3) -> List[dict]:
         limit: 返回数量，默认 3
 
     返回:
-        列表元素在 mock_database.score_compatibility 的格式基础上额外附加：
+        列表元素附加：
           _score      — 整体兼容度 (0-100)
           _breakdown  — 六维度详细评分（雷达图用）
     """
-    md = _mock_db_module()
-    score_compatibility = md.score_compatibility
-    get_compatibility_breakdown = md.get_compatibility_breakdown
+    from agents import scoring as sc
+    score_compatibility = sc.score_compatibility
+    get_compatibility_breakdown = sc.get_compatibility_breakdown
 
     buddies = get_all_buddies()
     scored: List[dict] = []
@@ -372,8 +361,8 @@ def get_compatibility_breakdown(user_prefs: dict, buddy_id: str) -> Optional[dic
     返回指定搭子的六维度兼容性雷达图数据。
     未找到 buddy_id 时返回 None。
     """
-    md = _mock_db_module()
-    _score_breakdown = md.get_compatibility_breakdown
+    from agents import scoring as sc
+    _score_breakdown = sc.get_compatibility_breakdown
 
     buddy = get_buddy_by_id(buddy_id)
     if not buddy:
@@ -450,9 +439,9 @@ def get_buddy_public(buddy, user_prefs: Optional[dict] = None) -> dict:
 
     # 如果传入了 user_prefs 但没有预计算，重新算一次
     if user_prefs and "compatibility_score" not in result:
-        md = _mock_db_module()
-        score_compatibility = md.score_compatibility
-        get_compatibility_breakdown = md.get_compatibility_breakdown
+        from agents import scoring as sc
+        score_compatibility = sc.score_compatibility
+        get_compatibility_breakdown = sc.get_compatibility_breakdown
         result["compatibility_score"] = round(score_compatibility(user_prefs, buddy), 1)
         result["compatibility_breakdown"] = get_compatibility_breakdown(user_prefs, buddy)
 

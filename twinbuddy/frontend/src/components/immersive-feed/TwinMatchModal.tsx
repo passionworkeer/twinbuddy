@@ -5,7 +5,6 @@ import { ChatHistoryOverlay, ChatMessage } from './ChatHistoryOverlay';
 import { FullChatHistory } from './FullChatHistory';
 
 // ── Webm animation constants ─────────────────────────────────
-const GREETING_DURATION_MS = 4400;
 const HIGHFIVE_LINKS = [
   'https://v.douyin.com/ANQxLmeC7Q0/',
   'https://v.douyin.com/2LD36YFoTbE/',
@@ -46,20 +45,12 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   // ── Greeting animation ────────────────────────────────────
   const [showGreeting, setShowGreeting] = useState(false);
-  const greetingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Trigger greeting when modal first opens with result (one-time pop)
+  // Show greeting on modal open, stays visible until modal closes
   useEffect(() => {
-    if (result && !showGreeting) {
+    if (result) {
       setShowGreeting(true);
-      if (greetingTimerRef.current) clearTimeout(greetingTimerRef.current);
-      greetingTimerRef.current = setTimeout(() => {
-        setShowGreeting(false);
-      }, GREETING_DURATION_MS);
     }
-    return () => {
-      if (greetingTimerRef.current) clearTimeout(greetingTimerRef.current);
-    };
   }, [result]);
 
   // ── Highfive animation ────────────────────────────────────
@@ -204,11 +195,11 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
-      {/* ── Greeting overlay (one-time pop on modal open) ── */}
+      {/* ── Greeting overlay (loops, stays until modal closes) ── */}
       {showGreeting && (
         <div
           className="greeting-pop-anim fixed left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
-          style={{ bottom: '28%', width: 200 }}
+          style={{ bottom: '130px', width: 160 }}
         >
           <img
             src="/mod/greeting-transparent.gif"
@@ -261,9 +252,9 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
         <div className="px-4 max-w-md mx-auto w-full mt-20">
           
           {modalStep === 'guide' && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in flex flex-col items-center w-full">
               {/* Main Title matching travel_guide_full_width_glass_cards */}
-              <h1 className="font-headline font-extrabold text-4xl leading-tight text-white mb-8 tracking-tight px-2 drop-shadow-lg">
+              <h1 className="font-headline font-extrabold text-4xl leading-tight text-white mb-8 tracking-tight px-2 drop-shadow-lg text-center w-full">
                 {backgroundItem?.title || `${result.destination}旅行攻略`}
               </h1>
 
@@ -351,9 +342,9 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
           )}
 
           {modalStep === 'match' && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in flex flex-col items-center w-full">
               {/* Main Title matching travel_guide_annotations_applied_final */}
-              <h1 className="font-headline font-extrabold text-4xl leading-tight text-white mb-8 tracking-tight px-2 drop-shadow-lg">
+              <h1 className="font-headline font-extrabold text-4xl leading-tight text-white mb-8 tracking-tight px-2 drop-shadow-lg text-center w-full">
                 {backgroundItem?.title || `${result.destination}之旅`}
               </h1>
 

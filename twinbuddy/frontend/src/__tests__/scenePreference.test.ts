@@ -13,23 +13,42 @@ const baseVideo: VideoItem = {
 };
 
 describe('scene preference and guide mapping', () => {
-  it('infers indoor preference from indoor-leaning interests', () => {
+  it('infers indoorRelaxed preference from indoor-leaning interests', () => {
     const preference = inferGuidePreference(['古镇人文', '街边小吃探店', '慢节奏旅行']);
-    expect(preference).toBe('indoor');
+    expect(preference).toBe('indoorRelaxed');
   });
 
-  it('infers outdoor preference from outdoor-leaning interests', () => {
+  it('infers outdoorAdventure preference from outdoor-leaning interests', () => {
     const preference = inferGuidePreference(['爱看山川湖海', '徒步登山', '摄影打卡']);
-    expect(preference).toBe('outdoor');
+    expect(preference).toBe('outdoorAdventure');
   });
 
-  it('creates location card with indoor variant content', () => {
-    const locationCard = createLocationCardItem(baseVideo, 'indoor');
+  it('infers indoorCultural from culture-heavy interests', () => {
+    const preference = inferGuidePreference(['古镇人文', '摄影打卡', '详细打卡']);
+    expect(preference).toBe('indoorCultural');
+  });
+
+  it('infers outdoorNormal from mild outdoor interests', () => {
+    const preference = inferGuidePreference(['爱看山川湖海', '自驾自由', '说走就走']);
+    expect(preference).toBe('outdoorNormal');
+  });
+
+  it('creates location card with indoorRelaxed variant content', () => {
+    const locationCard = createLocationCardItem(baseVideo, 'indoorRelaxed');
 
     expect(locationCard.type).toBe('location_card');
     expect(locationCard.location).toBe('大理');
-    expect(locationCard.locationGuide?.preference).toBe('indoor');
+    expect(locationCard.locationGuide?.preference).toBe('indoorRelaxed');
     expect(locationCard.locationGuide?.version.heading).toContain('室内');
+    expect(locationCard.locationGuide?.version.strategies.length).toBeGreaterThan(0);
+  });
+
+  it('creates location card with outdoorNormal variant content', () => {
+    const locationCard = createLocationCardItem(baseVideo, 'outdoorNormal');
+
+    expect(locationCard.type).toBe('location_card');
+    expect(locationCard.locationGuide?.preference).toBe('outdoorNormal');
+    expect(locationCard.locationGuide?.version.heading).toContain('户外');
     expect(locationCard.locationGuide?.version.strategies.length).toBeGreaterThan(0);
   });
 });

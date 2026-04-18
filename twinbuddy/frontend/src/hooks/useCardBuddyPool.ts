@@ -2,10 +2,40 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchBuddies } from '../api/client';
 import type { Buddy, OnboardingData } from '../types';
 
-const BUDDY_POOL_LOCAL_KEY = 'twinbuddy_card_buddy_pool';
-const BUDDY_POOL_SIZE = 10;
+export const BUDDY_POOL_LOCAL_KEY = 'twinbuddy_card_buddy_pool';
+export const BUDDY_POOL_SIZE = 10;
 
-interface CardBuddyPoolState {
+// ── Pure logic (testable without React) ─────────────────────────────────────
+
+export function loadPoolFromStorage(): { pool: Buddy[]; index: number } | null {
+  try {
+    const raw = localStorage.getItem(BUDDY_POOL_LOCAL_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { pool: Buddy[]; index: number };
+    if (!Array.isArray(parsed.pool) || parsed.pool.length === 0) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function persistPool(pool: Buddy[], index: number): void {
+  try {
+    localStorage.setItem(BUDDY_POOL_LOCAL_KEY, JSON.stringify({ pool, index }));
+  } catch { /* ignore */ }
+}
+
+export function advanceBuddyIndex(pool: Buddy[], current: number): number {
+  return (current + 1) % Math.max(pool.length, 1);
+}
+
+export function buildInitialPool(buddies: Buddy[]): Buddy[] {
+  return buddies.filter(Boolean);
+}
+
+// ── Hook ───────────────────────────────────────────────────────────────────
+
+export interface CardBuddyPoolState {
   pool: Buddy[];
   index: number;
   isLoading: boolean;
@@ -14,66 +44,46 @@ interface CardBuddyPoolState {
   initPool: (onboardingData?: OnboardingData | null) => Promise<void>;
 }
 
-export function useCardBuddyPool(INTERVAL = 5): CardBuddyPoolState {
-  const [pool, setPool] = useState<Buddy[]>([]);
-  const [index, setIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 从 localStorage 恢复（刷新页面后继续轮播）
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(BUDDY_POOL_LOCAL_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as { pool: Buddy[]; index: number };
-        if (Array.isArray(parsed.pool) && parsed.pool.length > 0) {
-          setPool(parsed.pool);
-          setIndex(parsed.index % parsed.pool.length);
-        }
-      }
-    } catch { /* ignore */ }
-    setIsLoading(false);
-  }, []);
-
-  // 持久化
-  const persist = useCallback((updatedPool: Buddy[], updatedIndex: number) => {
-    try {
-      localStorage.setItem(BUDDY_POOL_LOCAL_KEY, JSON.stringify({ pool: updatedPool, index: updatedIndex }));
-    } catch { /* ignore */ }
-  }, []);
+export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
+  const [pool, setPool] = useState<Buddy[]>(() => {
+    const restored = loadPoolFromStorage();
+    return restored?.pool ?? [];
+  });
+  const [index, setIndex] = useState<number>(() => {
+    const restored = loadPoolFromStorage();
+    return restored?.index ?? 0;
+  });
+  const [isLoading, setIsLoading] = useState(() => loadPoolFromStorage() === null);
 
   // 初始化：从 API 加载搭子池
   const initPool = useCallback(async (onboardingData?: OnboardingData | null) => {
     setIsLoading(true);
     try {
-      // 优先用预计算搭子（onboarding期间算好的）
-      let initialPool: Buddy[] = [];
-
       const buddies = await fetchBuddies(
         undefined, BUDDY_POOL_SIZE,
         onboardingData?.mbti,
         onboardingData?.interests,
         onboardingData?.city,
       );
-      initialPool = (buddies as unknown as Buddy[]).filter(Boolean);
-
+      const initialPool = buildInitialPool(buddies as unknown as Buddy[]);
       setPool(initialPool);
       setIndex(0);
-      persist(initialPool, 0);
+      persistPool(initialPool, 0);
     } catch (err) {
       console.error('加载搭子池失败:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [persist]);
+  }, []);
 
   // 推进到下一个（环形）
   const advanceIndex = useCallback(() => {
     setIndex(prev => {
-      const next = (prev + 1) % Math.max(pool.length, 1);
-      persist(pool, next);
+      const next = advanceBuddyIndex(pool, prev);
+      persistPool(pool, next);
       return next;
     });
-  }, [pool, persist]);
+  }, [pool]);
 
   return {
     pool,

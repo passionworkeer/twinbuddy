@@ -204,8 +204,8 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
-      {/* ── Greeting webm overlay ── */}
-      {showGreeting && (
+      {/* ── Greeting webm overlay (only during match step, transparent bg) ── */}
+      {showGreeting && modalStep === 'match' && (
         <div
           className="greeting-pop-anim fixed left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
           style={{ bottom: '30%', width: 220 }}
@@ -217,6 +217,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
             loop
             playsInline
             className="w-full h-full object-contain"
+            style={{ background: 'transparent', mixBlendMode: 'screen' }}
           />
         </div>
       )}
@@ -234,7 +235,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
             playsInline
             onEnded={handleHighfiveEnded}
             className="max-w-full max-h-full object-contain"
-            style={{ maxWidth: '90vw', maxHeight: '80vh' }}
+            style={{ maxWidth: '90vw', maxHeight: '80vh', background: 'transparent', mixBlendMode: 'screen' }}
           />
         </div>
       )}

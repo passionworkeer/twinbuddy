@@ -1391,35 +1391,32 @@ async def get_feed(
         # 确定是否应该触发懂你卡片
         is_twin_card = v.get("type") == "twin_card"
 
-        if is_twin_card and i < len(top_buddies):
-            buddy = top_buddies[i]
-            score = buddy.get("_score", 0.0)
-            # Guest 用户：实时计算相对于默认 ENFP 的兼容性分数
-            if user_prefs is None:
-                score = round(_mock_compat_breakdown(_GUEST_PREFS, buddy)["total"], 1)
+        if is_twin_card:
+            buddy_idx = i - 2  # 0-based index within twin_card slots (v3=0, v4=1, v5=2)
+            if buddy_idx < len(top_buddies):
+                buddy = top_buddies[buddy_idx]
+                score = buddy.get("_score", 0.0)
+                # Guest 用户：实时计算相对于默认 ENFP 的兼容性分数
+                if user_prefs is None:
+                    score = round(_mock_compat_breakdown(_GUEST_PREFS, buddy)["total"], 1)
+                    buddy_with_score = dict(buddy, _score=score)
+                else:
+                    buddy_with_score = dict(buddy, _score=score)
 
-            # 低于触发阈值，降级为普通视频（仅对登录用户应用；guest 展示所有卡片）
-            if user_prefs is not None and score < CARD_TRIGGER_THRESHOLD:
-                v["type"] = "video"
-                v["buddy"] = None
-            elif user_prefs is None:
-                # Guest 用户：实时计算分数但不做阈值过滤；buddy 始终附加
-                v["buddy"] = get_buddy_public(buddy_with_score, user_prefs)
-                v["location"] = city or _CITY_NAMES.get(
-                    onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
-                )
+                # 低于触发阈值，降级为普通视频（仅对登录用户应用；guest 展示所有卡片）
+                if user_prefs is not None and score < CARD_TRIGGER_THRESHOLD:
+                    v["type"] = "video"
+                    v["buddy"] = None
+                else:
+                    v["buddy"] = get_buddy_public(buddy_with_score, user_prefs)
+                    v["location"] = city or _CITY_NAMES.get(
+                        onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
+                    )
             else:
-                # 临时注入 score 供 get_buddy_public 使用
-                buddy_with_score = dict(buddy, _score=score)
-                v["buddy"] = get_buddy_public(buddy_with_score, user_prefs)
-                v["location"] = city or _CITY_NAMES.get(
-                    onboarding.get("city", "") if onboarding else "", v.get("location", "大理")
-                )
-        elif is_twin_card:
-            # 没有更多搭子（logged-in user 降级；guest 保持类型）
-            if user_prefs is not None:
-                v["type"] = "video"
-            v["buddy"] = None
+                # 没有更多搭子（logged-in user 降级；guest 保持类型）
+                if user_prefs is not None:
+                    v["type"] = "video"
+                v["buddy"] = None
         # 普通视频保持原样
 
         enriched_videos.append(v)

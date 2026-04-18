@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Mock Companion Database — TwinBuddy MVP
 30 personas covering all 16 MBTI types and diverse travel styles.

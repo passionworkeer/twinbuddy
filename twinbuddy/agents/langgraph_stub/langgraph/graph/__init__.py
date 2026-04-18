@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Minimal langgraph.graph stub — sufficient for matching_graph.py to run demo
 in environments without network.  Replace with real langgraph via pip install.

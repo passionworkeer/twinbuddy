@@ -43,7 +43,7 @@
     "decision_style": "收集数据、建立假设、设计验证方案，决定基于证据而非感觉。压力下极度冷静理性，用科学框架分析问题，不让情绪影响判断。",
     "risk_tolerance": "中",
     "fear_factors": [
-      "极度冷静理性，用科学框架分析问题，压力下反而更专注。发现数据异常时会变得更严肃和专注。不让情绪影响判"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -88,8 +88,8 @@
   },
   "preferences": {
     "likes": [
-      "旅行",
-      "探索新地方"
+      "数据显示",
+      "样本表明"
     ],
     "dislikes": [
       "人山人海",

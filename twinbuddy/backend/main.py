@@ -46,7 +46,7 @@ from pydantic import BaseModel, Field, field_validator
 # 项目内部模块
 from persona_engine import generate_persona
 from api.frontend_api import router as frontend_router
-from langgraph.api import router as langgraph_router
+from backend.negotiation.api import router as langgraph_router
 
 # ---------------------------------------------------------------------------
 # 配置

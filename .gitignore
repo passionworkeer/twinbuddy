@@ -32,3 +32,9 @@ __pycache__/
 # Temporary files
 *.tmp
 *.log
+
+# Server credentials and local docs
+fuwuqi.md
+docs/
+深圳大学城站终极指南.docx
+.playwright-mcp/

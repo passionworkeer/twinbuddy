@@ -42,7 +42,7 @@
     "decision_style": "极度理性，做决定前会收集大量信息，画利弊分析表，但有时会过度分析而拖延。决策基于数据和逻辑，但最终也承认直觉的价值。",
     "risk_tolerance": "高",
     "fear_factors": [
-      "用理性分析来管理情绪，压力下反而更冷静，决策速度加快。但可能过于依赖逻辑而忽略情感需求。越催越不想动"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -86,7 +86,10 @@
   "preferences": {
     "likes": [
       "刷新大脑",
-      "底层逻辑"
+      "底层逻辑",
+      "N/S: 直觉型，擅长看到模式和联系，喜欢解构系统",
+      "底层逻辑",
+      "hack"
     ],
     "dislikes": [
       "人山人海",

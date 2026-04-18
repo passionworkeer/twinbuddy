@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Minimal langgraph stub package — sufficient for matching_graph.py to import
 and run demo in environments without network access.

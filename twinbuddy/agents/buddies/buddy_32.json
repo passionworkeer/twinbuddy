@@ -44,7 +44,7 @@
     "decision_style": "基于经验和数据快速决策：类似情况怎么处理、同行案例怎么做的、他过去怎么做的。决策树清晰，风险预判在前。",
     "risk_tolerance": "低",
     "fear_factors": [
-      "压力下会进入项目管理模式：立刻列出问题清单、责任人、时间节点，然后分配任务。不会慌，是团队的稳定器。"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -87,8 +87,8 @@
   },
   "preferences": {
     "likes": [
-      "旅行",
-      "探索新地方"
+      "标准流程",
+      "我来协调"
     ],
     "dislikes": [
       "人山人海",

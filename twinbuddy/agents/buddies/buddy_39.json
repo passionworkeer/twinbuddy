@@ -44,7 +44,7 @@
     "decision_style": "极快，基于经验和判断，不需要太多讨论。如果有一个决定是正确的，就做。犹豫是最大的敌人。",
     "risk_tolerance": "高",
     "fear_factors": [
-      "压力下反而更兴奋：肾上腺素上升，进入解决问题模式，迅速列出Options和Timeline，立刻分配"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -75,9 +75,8 @@
       "自主决策权"
     ],
     "easy_to_compromise": [
-      "我的方案是这样",
-      "我们按这个节奏执行",
-      "没有问题就这么定了"
+      "时间安排",
+      "餐厅选择"
     ],
     "pressure_response": "需要时间",
     "conflict_keywords": [

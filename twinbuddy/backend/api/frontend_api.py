@@ -1655,7 +1655,7 @@ async def get_feed(
 @router.get("/buddies")
 async def get_buddies(
     user_id: Optional[str] = Query(default=None),
-    limit: int = Query(default=10, ge=1, le=50),
+    limit: int = Query(default=10, ge=1, le=100),
 ) -> Dict[str, Any]:
     """
     GET /api/buddies?limit=10

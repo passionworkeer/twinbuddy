@@ -146,7 +146,19 @@ class TestNegotiateEndpoint:
         assert "consensus" in result
         assert "radar" in result
         assert "messages" in result
+        assert "red_flags" in result
+        assert "analysis_basis" in result
         assert "matched_buddies" in result
+        assert isinstance(result["radar"], list)
+        assert len(result["radar"]) == 6
+        assert isinstance(result["messages"], list)
+        assert isinstance(result["red_flags"], list)
+
+        basis = result["analysis_basis"]
+        assert isinstance(basis, dict)
+        assert "input_tags" in basis
+        assert "strengths" in basis
+        assert "conflicts" in basis
 
     def test_negotiate_enfp_infp_compat(self):
         resp = client.post("/api/negotiate", json={
@@ -178,8 +190,11 @@ class TestNegotiateEndpoint:
             "destination": "unknown_city",
         })
         assert resp.status_code == 200
+        data = resp.json()["data"]
         # Falls back to raw city name
-        assert "unknown_city" in resp.json()["data"]["destination"]
+        assert "unknown_city" in data["destination"]
+        assert len(data["radar"]) == 6
+        assert isinstance(data["analysis_basis"], dict)
 
     def test_negotiate_buddy_emojis(self):
         for mbti, expected_emoji in [("ENFP", "🌈"), ("ISTJ", "📐"), ("INFP", "🌙"), ("ENTJ", "🎯")]:

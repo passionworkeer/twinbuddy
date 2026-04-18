@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import OnboardingPage from './pages/OnboardingPage';
 import FeedPage from './pages/FeedPage';
 import ResultPage from './pages/ResultPage';
+import MatchReportDetailPage from './pages/MatchReportDetailPage';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { STORAGE_KEYS, type OnboardingData } from './types';
 
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/result" element={<ResultPage />} />
+        <Route path="/result/:reportId/detail" element={<MatchReportDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

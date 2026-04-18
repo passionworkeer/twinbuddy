@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Sparkles, Mic } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
-import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS } from '../types';
+import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS, VideoItem } from '../types';
+import { fetchBuddies } from '../api/client';
+import MOCK_VIDEOS from '../mocks/videos.json';
 
 // ── Progress Dots ─────────────────────────────────────
 
@@ -351,6 +353,43 @@ export default function OnboardingPage() {
   // 显式步骤状态：由用户操作驱动，第 1/2 步会基于数据自动前进。
   const [step, setStep] = useState(1);
 
+  // Preload feed data to make the Feed page load instantly
+  useEffect(() => {
+    // Only start preloading when the user reaches the second step to save some bandwidth if they bounce early
+    if (step >= 2 && !sessionStorage.getItem('twinbuddy_preloaded_feed')) {
+      async function preloadFeedData() {
+        try {
+          const buddies = await fetchBuddies(undefined, 8);
+          const videosWithBuddies: VideoItem[] = (MOCK_VIDEOS as VideoItem[]).map((tpl, i) => ({
+            ...tpl,
+            buddy: buddies[i]
+              ? {
+                  name: String(buddies[i].name ?? ''),
+                  mbti: String(buddies[i].mbti ?? 'ENFP'),
+                  avatar_emoji: String(buddies[i].avatar_emoji ?? ''),
+                  typical_phrases: (buddies[i].typical_phrases as string[]) ?? [],
+                  travel_style: String(buddies[i].travel_style ?? ''),
+                  compatibility_score: Number((buddies[i] as Record<string, unknown>).compatibility_score ?? 80),
+                }
+              : undefined,
+          }));
+          
+          // Shuffle videos exactly like FeedPage does
+          const next = [...videosWithBuddies];
+          for (let i = next.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [next[i], next[j]] = [next[j], next[i]];
+          }
+          
+          sessionStorage.setItem('twinbuddy_preloaded_feed', JSON.stringify(next));
+        } catch (err) {
+          console.error("Failed to preload feed data:", err);
+        }
+      }
+      preloadFeedData();
+    }
+  }, [step]);
+
   // 标记是否正在回退，用于防止回退时触发自动前进
   const isNavigatingBack = useRef(false);
 
@@ -378,6 +417,8 @@ export default function OnboardingPage() {
     } else {
       try {
         await completeOnboarding();
+        // `completeOnboarding` will trigger a state change `data.completed = true` 
+        // which triggers the useEffect below to navigate to `/feed`
       } catch (err) {
         console.error('[OnboardingPage] completeOnboarding error:', err);
         // Fallback: force navigation directly so user isn't stuck

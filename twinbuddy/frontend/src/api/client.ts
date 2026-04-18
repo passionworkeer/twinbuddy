@@ -21,8 +21,8 @@ import type {
 // ── 环境配置 ─────────────────────────────────────────
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
-const ONBOARDING_TIMEOUT_MS = 10_000;
-const NEGOTIATION_TIMEOUT_MS = 15_000;
+const ONBOARDING_TIMEOUT_MS = 60_000;
+const NEGOTIATION_TIMEOUT_MS = 60_000;
 
 function apiUrl(path: string): string {
   return `${API_BASE}${path}`;
@@ -74,7 +74,11 @@ async function apiPost<T, B = unknown>(
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error(`Request timeout after ${timeoutMs}ms`);
     }
-    throw error;
+    // Type guard for Error object to handle TypeError from failed fetch (like connection refused)
+    if (error instanceof Error) {
+        throw error;
+    }
+    throw new Error(String(error));
   } finally {
     if (timeoutId) {
       window.clearTimeout(timeoutId);

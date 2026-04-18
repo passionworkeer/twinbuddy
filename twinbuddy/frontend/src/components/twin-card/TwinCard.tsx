@@ -8,6 +8,7 @@ interface Props {
   userName?: string;
   buddyName?: string;
   onConfirm?: () => void;
+  onViewDetails?: () => void;
 }
 
 // ── Red Flags Panel ───────────────────────────────────
@@ -62,12 +63,12 @@ function Layer1Preview({
   result,
   userName = '你的数字人',
   buddyName = '搭子的数字人',
-  onExpand,
+  onViewDetails,
 }: {
   result: NegotiationResult;
   userName?: string;
   buddyName?: string;
-  onExpand: () => void;
+  onViewDetails: () => void;
 }) {
   const [messages] = useState(() => result.messages.slice(0, 3));
 
@@ -128,7 +129,7 @@ function Layer1Preview({
       </div>
 
       <button
-        onClick={onExpand}
+        onClick={onViewDetails}
         className="w-full btn-secondary text-sm py-3 flex items-center justify-center gap-2"
       >
         <MessageCircle className="w-4 h-4" />
@@ -294,10 +295,16 @@ function Layer3Success({ destination, dates }: { destination: string; dates: str
 
 // ── TwinCard ──────────────────────────────────────────
 
-export function TwinCard({ result, userName, buddyName, onConfirm }: Props) {
+export function TwinCard({ result, userName, buddyName, onConfirm, onViewDetails }: Props) {
   const [layer, setLayer] = useState<TwinCardLayer>(1);
 
-  const handleExpand = () => setLayer(2);
+  const handleViewDetails = () => {
+    if (onViewDetails) {
+      onViewDetails();
+      return;
+    }
+    setLayer(2);
+  };
   const handleCollapse = () => setLayer(1);
   const handleConfirm = () => {
     setLayer(3);
@@ -311,7 +318,7 @@ export function TwinCard({ result, userName, buddyName, onConfirm }: Props) {
           result={result}
           userName={userName}
           buddyName={buddyName}
-          onExpand={handleExpand}
+          onViewDetails={handleViewDetails}
         />
       )}
       {layer === 2 && (

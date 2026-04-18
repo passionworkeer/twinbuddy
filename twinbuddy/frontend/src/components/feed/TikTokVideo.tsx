@@ -222,25 +222,18 @@ export function TikTokVideo({
     if (!video || !videoUrl) return;
 
     if (isActive) {
-      // 确保视频元数据加载完成后再播放
-      const playVideo = () => {
-        video.play().catch((err) => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
           if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
             console.warn('[TikTokVideo] playback error:', err.name, err.message);
           }
         });
-        setPaused(false);
-      };
-
-      // 如果视频已经加载了元数据，立即播放
-      if (video.readyState >= 1) {
-        playVideo();
-      } else {
-        // 否则等待元数据加载
-        video.addEventListener('loadedmetadata', playVideo, { once: true });
       }
+      setPaused(false);
     } else {
       video.pause();
+      video.currentTime = 0;
     }
   }, [isActive, videoUrl]);
 

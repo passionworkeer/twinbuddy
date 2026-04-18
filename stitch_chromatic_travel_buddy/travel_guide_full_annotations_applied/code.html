@@ -1,0 +1,338 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Travel Guide Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "on-surface-variant": "#5c5b5b",
+                      "on-background": "#2f2f2e",
+                      "on-tertiary": "#f7f0ff",
+                      "error": "#b02500",
+                      "tertiary-fixed-dim": "#ab93ff",
+                      "inverse-on-surface": "#9e9c9c",
+                      "secondary-dim": "#504f4f",
+                      "on-surface": "#2f2f2e",
+                      "tertiary-fixed": "#b8a3ff",
+                      "tertiary": "#652fe7",
+                      "surface-container-high": "#e4e2e1",
+                      "primary-fixed": "#ff7856",
+                      "on-primary-fixed-variant": "#5a0f00",
+                      "surface-tint": "#af2700",
+                      "tertiary-container": "#b8a3ff",
+                      "surface-variant": "#dfdcdc",
+                      "on-secondary": "#f5f2f1",
+                      "on-primary-container": "#490b00",
+                      "on-primary": "#ffefec",
+                      "secondary-container": "#e5e2e1",
+                      "outline": "#787676",
+                      "on-error": "#ffefec",
+                      "surface-dim": "#d6d4d3",
+                      "error-container": "#f95630",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#ff5c34",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "surface": "#f9f6f5",
+                      "error-dim": "#b92902",
+                      "background": "#f9f6f5",
+                      "inverse-primary": "#ff562c",
+                      "on-tertiary-container": "#370096",
+                      "on-primary-fixed": "#000000",
+                      "surface-container-highest": "#dfdcdc",
+                      "on-tertiary-fixed-variant": "#4000ad",
+                      "outline-variant": "#afadac",
+                      "surface-container": "#eae7e7",
+                      "on-secondary-fixed": "#403f3f",
+                      "primary-dim": "#9a2100",
+                      "on-tertiary-fixed": "#1c0055",
+                      "surface-bright": "#f9f6f5",
+                      "on-error-container": "#520c00",
+                      "surface-container-low": "#f3f0ef",
+                      "tertiary-dim": "#5819db",
+                      "secondary-fixed": "#e5e2e1",
+                      "on-secondary-container": "#525151",
+                      "primary-container": "#ff7856",
+                      "primary": "#af2700",
+                      "secondary": "#5c5b5b",
+                      "inverse-surface": "#0e0e0e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Plus Jakarta Sans", "Noto Sans SC", "sans-serif"
+                      ],
+                      "body": [
+                              "Plus Jakarta Sans", "Noto Sans SC", "sans-serif"
+                      ],
+                      "label": [
+                              "Plus Jakarta Sans", "Noto Sans SC", "sans-serif"
+                      ]
+              },
+              "animation": {
+                "float-subtle": "float-subtle 2s ease-in-out infinite"
+              },
+              "keyframes": {
+                "float-subtle": {
+                  "0%, 100%": { transform: "translateY(0)" },
+                  "50%": { transform: "translateY(-4px)" }
+                }
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Dark theme override for this specific screen to match the "dark outdoor" requirement while keeping the system */
+        .dark-screen {
+            background-color: #0B1C15; /* Deep green wilderness base */
+            color: #ffffff;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Hide scrollbar for tab navigation */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased relative h-screen w-screen overflow-hidden dark-screen">
+<!-- Background Image with Gradient Overlay -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="misty deep green mountain wilderness forest aerial view moody cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB20vTePp2HNIVpd70BOnMY6ALUb7Wiq7Qs2h9KaZXAt3OxewBoHYSI5DUJ83qCo4h59B4c97yh01aUKtqMruMcIUadpRmly8TFzMYypJ-wskio3tTsMsz_msBZVX2BO5cZ41HM2sqzLZIfGjbldOnTurcYfe9qVeKqKtdscvULsBGzocsbU5ZgwyHjYm5il847NVd0VLCTfnA1fMTSowHeIA5ojHeEWBcSPvDQyiGYO0h_NFiZg4kx78-HWPDjGWmiWrAdjZEuzAU" style="">
+<div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/30 to-[#0B1C15] z-10"></div>
+</div>
+<!-- Top Navigation (Redesigned Tab Style) -->
+<nav class="flex items-center justify-between px-4 pt-6 pb-2 w-full fixed top-0 z-40 text-white/70 text-[17px] font-medium drop-shadow-md">
+<button class="p-2 flex items-center justify-center text-white" style="">
+<span class="material-symbols-outlined text-2xl font-light" style="">menu</span>
+</button>
+<div class="flex-1 flex gap-5 overflow-x-auto no-scrollbar items-center px-4">
+<span class="whitespace-nowrap cursor-pointer hover:text-white transition-colors" style="">团购</span>
+<span class="whitespace-nowrap cursor-pointer hover:text-white transition-colors" style="">经验</span>
+<span class="whitespace-nowrap cursor-pointer hover:text-white transition-colors" style="">北京</span>
+<span class="whitespace-nowrap cursor-pointer hover:text-white transition-colors" style="">关注</span>
+<span class="whitespace-nowrap cursor-pointer hover:text-white transition-colors" style="">商城</span>
+</div>
+<button class="p-2 flex items-center justify-center text-white" style="">
+<span class="material-symbols-outlined text-2xl font-light" style="">search</span>
+</button>
+</nav>
+<!-- Main Content Container (Scrollable) -->
+<main class="relative z-20 h-full w-full overflow-y-auto pb-48 no-scrollbar">
+<div class="px-4 max-w-md mx-auto w-full mt-8">
+<!-- Main Title -->
+<!-- Guide List Section -->
+<!-- Chat Log Section -->
+<div class="w-full bg-[#0B1C15]/50 backdrop-blur-[10px] rounded-[16px] border border-white/10 p-4 mb-6 relative mt-24">
+<div class="flex flex-col gap-4">
+<!-- Left aligned message -->
+<div class="flex gap-3 justify-start items-start">
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+<div class="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
+<p class="text-sm text-white/90 leading-snug" style="">这次周末去莫干山走个20km的线，风景不错，补给也够，要不要一起？</p>
+</div>
+</div>
+<!-- Right aligned message -->
+<div class="flex gap-3 justify-end items-start">
+<div class="bg-[#2D4537]/80 backdrop-blur-md rounded-2xl rounded-tr-sm px-4 py-2.5 w-full max-w-[90%] border border-white/10 overflow-hidden">
+<p class="text-sm text-white leading-snug" style="">听起来不错！难度大吗？我最近体力还可以，想挑战一下。</p>
+</div>
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+</div>
+<!-- Left aligned message -->
+<div class="flex gap-3 justify-start items-start">
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+<div class="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
+<p class="text-sm text-white/90 leading-snug" style="">爬升有点，但竹海那段很舒服的，准备好越野鞋就行。</p>
+</div>
+</div>
+<!-- Right aligned message -->
+<div class="flex gap-3 justify-end items-start">
+<div class="bg-[#2D4537]/80 backdrop-blur-md rounded-2xl rounded-tr-sm px-4 py-2.5 w-full max-w-[90%] border border-white/10 overflow-hidden">
+<p class="text-sm text-white leading-snug" style="">没问题！我带个轻量化包，需要多带点水吗？</p>
+</div>
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+</div>
+<!-- Left aligned message -->
+<div class="flex gap-3 justify-start items-start">
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+<div class="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
+<p class="text-sm text-white/90 leading-snug" style="">最好带上1.5L，沿途补给点不多，中午路餐也自己备一点。</p>
+</div>
+</div>
+<!-- Right aligned message -->
+<div class="flex gap-3 justify-end items-start">
+<div class="bg-[#2D4537]/80 backdrop-blur-md rounded-2xl rounded-tr-sm px-4 py-2.5 w-full max-w-[90%] border border-white/10 overflow-hidden">
+<p class="text-sm text-white leading-snug" style="">好的，那周六早上几点在哪集合？</p>
+</div>
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+</div>
+<!-- Left aligned message -->
+<div class="flex gap-3 justify-start items-start">
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+<div class="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
+<p class="text-sm text-white/90 leading-snug" style="">早上8点在德清站碰头，我开车过去接你。</p>
+</div>
+</div>
+<!-- Right aligned message -->
+<div class="flex gap-3 justify-end items-start">
+<div class="bg-[#2D4537]/80 backdrop-blur-md rounded-2xl rounded-tr-sm px-4 py-2.5 w-full max-w-[90%] border border-white/10 overflow-hidden">
+<p class="text-sm text-white leading-snug" style="">好的，那我周五晚上提前收拾好包，需要带登山杖吗？</p>
+</div>
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+</div>
+<!-- Left aligned message -->
+<div class="flex gap-3 justify-start items-start">
+<div class="w-8 h-8 rounded-xl bg-white/20 shrink-0 mt-1"></div>
+<div class="bg-[#1E2A23]/80 backdrop-blur-md rounded-2xl rounded-tl-sm px-4 py-2.5 w-full max-w-[90%] border border-white/5 overflow-hidden">
+<p class="text-sm text-white/90 leading-snug" style="">最好带上一对，下山的时候能省不少力气，保护膝盖。</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Dimensional Analysis Card -->
+<div class="w-full bg-[#0B1C15]/50 backdrop-blur-[10px] rounded-[16px] border border-white/10 p-5 mb-6">
+<h2 class="text-white font-semibold text-lg mb-4" style="">各维度匹配详情</h2>
+<div class="flex flex-col gap-5">
+<div>
+<div class="flex justify-between text-white/90 text-sm mb-1">
+<span class="" style="">🏃 体能储备</span>
+<span class="text-[#4ade80] font-bold" style="">92分</span>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 mb-2">
+<div class="bg-[#4ade80] h-1.5 rounded-full" style="width: 92%"></div>
+</div>
+<p class="text-white/60 text-xs" style="">体力充沛，轻松应对20km级别徒步。</p>
+</div>
+<div>
+<div class="flex justify-between text-white/90 text-sm mb-1">
+<span class="" style="">🗺️ 路线偏好</span>
+<span class="text-[#4ade80] font-bold" style="">88分</span>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 mb-2">
+<div class="bg-[#4ade80] h-1.5 rounded-full" style="width: 88%"></div>
+</div>
+<p class="text-white/60 text-xs" style="">偏爱野山与自然风光，不走寻常路。</p>
+</div>
+<div>
+<div class="flex justify-between text-white/90 text-sm mb-1">
+<span class="" style="">💰 消费观念</span>
+<span class="text-[#4ade80] font-bold" style="">95分</span>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 mb-2">
+<div class="bg-[#4ade80] h-1.5 rounded-full" style="width: 95%"></div>
+</div>
+<p class="text-white/60 text-xs" style="">AA制，该省省该花花，注重性价比。</p>
+</div>
+</div>
+</div>
+<!-- Proposed Itinerary Card -->
+<div class="w-full bg-[#0B1C15]/50 backdrop-blur-[10px] rounded-[16px] border border-white/10 p-5 mb-6">
+<h2 class="text-white font-semibold text-lg mb-4" style="">行程路线时间轴</h2>
+<div class="mb-4">
+<div class="inline-block bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black text-xs font-bold px-3 py-1 rounded-full mb-3" style="">
+      Day 1 莫干山主峰
+    </div>
+<div class="relative pl-6 border-l border-dashed border-white/30 ml-3 space-y-6">
+<div class="relative">
+<div class="absolute -left-[29px] top-1 w-3 h-3 bg-[#4ade80] rounded-full ring-4 ring-[#0B1C15]"></div>
+<h3 class="text-white/90 text-sm font-semibold mb-1" style="">上午 08:00 出发</h3>
+<p class="text-white/60 text-xs" style="">德清站集合，包车前往徒步起点。</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[29px] top-1 w-3 h-3 bg-[#4ade80] rounded-full ring-4 ring-[#0B1C15]"></div>
+<h3 class="text-white/90 text-sm font-semibold mb-1" style="">下午 13:00 挑战绝望坡</h3>
+<p class="text-white/60 text-xs" style="">连续爬升500米，需注意节奏，登顶后休息。</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[29px] top-1 w-3 h-3 bg-[#4ade80] rounded-full ring-4 ring-[#0B1C15]"></div>
+<h3 class="text-white/90 text-sm font-semibold mb-1" style="">傍晚 17:00 抵达营地</h3>
+<p class="text-white/60 text-xs" style="">扎营，准备晚餐，看日落星空。</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Companion Profile Card -->
+<div class="w-full bg-[#0B1C15]/50 backdrop-blur-[10px] rounded-[16px] border border-white/10 p-5 mt-10 relative mb-12">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2">
+<img alt="Avatar" class="w-16 h-16 rounded-full border-2 border-[#4ade80] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtKf99ZgNEdK7Emop0OOcDKhoxxcSslWtiDYsHSTkuIm_Nmk5tTiLRveCltPG9PWgf-HjIkdIjsfUDVo_6Wx-GUHU5BK-eG_M-Ll5RiwfvFs-g7j_THe31s5qkhegHn7UE-996OnMD8Ey0S8BwtbTxc3QUIYsry1O7sl2lO9Kr5dR1wtYGwftPf4hAWocqXn4jJ5m8V164_lSfa8F-iAtjbR-Lnx_JIgJHAXJotd9jeKBUNmUCDymttnwu9T7OKqxgzPGjQ9dgA3c" style="">
+</div>
+<div class="pt-8 text-center">
+<h2 class="text-white font-bold text-lg mb-1" style="">山野行者</h2>
+<p class="text-white/70 text-xs mb-4" style="">"在山野中寻找内心的宁静，无惧风雨。"</p>
+<div class="flex flex-wrap justify-center gap-2">
+<span class="bg-white/10 text-white/80 text-[10px] px-2 py-1 rounded-md border border-white/5" style="">#硬核越野</span>
+<span class="bg-white/10 text-white/80 text-[10px] px-2 py-1 rounded-md border border-white/5" style="">#装备控</span>
+<span class="bg-white/10 text-white/80 text-[10px] px-2 py-1 rounded-md border border-white/5" style="">#INTJ</span>
+<span class="bg-white/10 text-white/80 text-[10px] px-2 py-1 rounded-md border border-white/5" style="">#摄影爱好者</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Interaction Area (Fixed above nav) -->
+<div class="fixed bottom-[110px] left-0 w-full px-6 flex gap-4 z-40">
+<button class="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors" style="">不感兴趣</button>
+<button class="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors" style="">跳转主页</button>
+</div>
+<!-- Redesigned Bottom Navigation Bar -->
+<div class="md:hidden">
+<nav class="fixed bottom-0 w-full z-50 bg-black pt-3 pb-safe">
+<div class="flex justify-between items-center px-6 pb-2 text-[15px] font-medium text-white/70">
+<button class="flex flex-col items-center justify-center text-white font-bold w-12" style="">
+                首页
+            </button>
+<button class="flex flex-col items-center justify-center hover:text-white transition-colors w-12" style="">
+                朋友
+            </button>
+<!-- Prominent Center Add Button -->
+<button class="flex items-center justify-center px-4 py-1.5 border-[2px] border-white rounded-[14px] bg-black text-white hover:bg-white/10 transition-colors mx-2" style="">
+<span class="material-symbols-outlined text-[20px] font-bold" style="">add</span>
+</button>
+<button class="flex flex-col items-center justify-center hover:text-white transition-colors w-12" style="">
+                消息
+            </button>
+<button class="flex flex-col items-center justify-center hover:text-white transition-colors w-12" style="">
+                我
+            </button>
+</div>
+<!-- Safe area padding for newer iPhones -->
+<div class="h-6 w-full bg-black"></div>
+</nav>
+</div>
+</body></html>

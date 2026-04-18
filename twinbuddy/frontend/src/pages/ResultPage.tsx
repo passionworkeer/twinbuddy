@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, MapPin, Calendar, Wallet, Heart, ArrowRight, RotateCcw } from 'lucide-react';
 import { RadarChart } from '../components/twin-card/RadarChart';
-import type { RadarData, NegotiationResult } from '../types';
+import type { RadarData, NegotiationResult, NegotiationReportSnapshots } from '../types';
 import { STORAGE_KEYS } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { createReportId } from '../utils/reportId';
 
 // ── Mock Result ───────────────────────────────────────
 
@@ -109,13 +110,30 @@ export default function ResultPage() {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [cardsSeen] = useLocalStorage<string[]>(STORAGE_KEYS.twin_cards_seen, []);
+  const [reportSnapshots, setReportSnapshots] = useLocalStorage<NegotiationReportSnapshots>(
+    STORAGE_KEYS.negotiation_reports,
+    {},
+  );
+  const [latestReportId, setLatestReportId] = useLocalStorage<string | null>(
+    STORAGE_KEYS.latest_report_id,
+    null,
+  );
   const [storedResult] = useLocalStorage<NegotiationResult | null>(
     STORAGE_KEYS.negotiation_result,
     null,
   );
 
-  const locationState = location.state as { result?: NegotiationResult } | null;
-  const resultData = locationState?.result ?? storedResult ?? MOCK_RESULT;
+  const locationState = location.state as { result?: NegotiationResult; reportId?: string } | null;
+  const incomingResult = locationState?.result;
+  const incomingReportId = locationState?.reportId ?? null;
+
+  const resultData = incomingResult
+    ?? (incomingReportId ? reportSnapshots[incomingReportId] : undefined)
+    ?? (latestReportId ? reportSnapshots[latestReportId] : undefined)
+    ?? storedResult
+    ?? MOCK_RESULT;
+
+  const [activeReportId, setActiveReportId] = useState<string | null>(incomingReportId);
 
   // Calculate overall score from radar
   const totalWeight = resultData.radar.reduce((sum: number, d: RadarData) => sum + d.weight, 0);
@@ -133,8 +151,53 @@ export default function ResultPage() {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    if (!incomingResult) {
+      return;
+    }
+    const reportId = incomingReportId ?? createReportId();
+    setReportSnapshots((prev) => ({
+      ...prev,
+      [reportId]: incomingResult,
+    }));
+    setLatestReportId(reportId);
+    setActiveReportId(reportId);
+  }, [incomingReportId, incomingResult, setLatestReportId, setReportSnapshots]);
+
+  useEffect(() => {
+    if (activeReportId) {
+      return;
+    }
+    if (latestReportId) {
+      setActiveReportId(latestReportId);
+      return;
+    }
+    const reportId = createReportId();
+    setReportSnapshots((prev) => ({
+      ...prev,
+      [reportId]: resultData,
+    }));
+    setLatestReportId(reportId);
+    setActiveReportId(reportId);
+  }, [activeReportId, latestReportId, resultData, setLatestReportId, setReportSnapshots]);
+
   const handleRetry = () => {
     navigate('/onboarding');
+  };
+
+  const handleViewDetails = () => {
+    const reportId = activeReportId ?? createReportId();
+    if (!activeReportId) {
+      setReportSnapshots((prev) => ({
+        ...prev,
+        [reportId]: resultData,
+      }));
+      setLatestReportId(reportId);
+      setActiveReportId(reportId);
+    }
+    navigate(`/result/${reportId}/detail`, {
+      state: { result: resultData, reportId, source: 'result' },
+    });
   };
 
   return (
@@ -223,6 +286,12 @@ export default function ResultPage() {
             兼容性分析
           </h3>
           <RadarChart data={resultData.radar} size={200} />
+          <button
+            onClick={handleViewDetails}
+            className="mt-5 w-full rounded-2xl border border-neon-primary/35 bg-neon-primary/10 py-3 text-sm font-semibold text-neon-text hover:bg-neon-primary/15 transition-all"
+          >
+            查看协商详情
+          </button>
         </div>
 
         {/* AI analysis report */}

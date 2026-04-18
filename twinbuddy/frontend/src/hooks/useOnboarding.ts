@@ -66,6 +66,7 @@ export function useOnboarding() {
     } catch (error) {
       console.error('Onboarding API 调用失败，使用本地回退 ID:', error);
 
+      // Save fallback data to ensure the flow continues properly
       setData((prev) => ({
         ...prev,
         user_id: fallbackUserId,
@@ -74,6 +75,8 @@ export function useOnboarding() {
         timestamp,
       }));
 
+      // Throw error to trigger the fallback logic in OnboardingPage if needed,
+      // but state is already updated!
       return { user_id: fallbackUserId, persona_id: fallbackPersonaId };
     }
   }, [data, setData]);

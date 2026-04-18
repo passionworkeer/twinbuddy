@@ -166,6 +166,8 @@ export default function FeedPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
+  const isFeedLoadingRef = useRef(true);
+  isFeedLoadingRef.current = isFeedLoading;
   const [feedError, setFeedError] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useLocalStorage<Record<string, boolean>>(
     STORAGE_KEYS.video_likes,
@@ -208,6 +210,8 @@ export default function FeedPage() {
   // 直接使用本地 mock 视频（不调 API）
   useEffect(() => {
     setFeedVideos(MOCK_VIDEOS);
+    // 延迟一点设置 isFeedLoading 为 false，确保在 re-render 之后
+    setTimeout(() => setIsFeedLoading(false), 0);
   }, []);
 
   // Show twin card after 2nd video (index >= 2)
@@ -229,7 +233,6 @@ export default function FeedPage() {
     if (!el) return;
     const index = Math.round(el.scrollTop / window.innerHeight);
     setCurrentIndex(index);
-    console.log('[Feed] scroll index:', index, 'showTwinCard:', showTwinCardRef.current);
     // 滚动到第3个视频时强制显示卡片
     if (index >= 2) {
       triggerTwinCard();
@@ -246,8 +249,10 @@ export default function FeedPage() {
 
   // Initial twin card trigger after mount (fallback if no scroll)
   useEffect(() => {
+    console.log('[Feed] Timer setup, showTwinCard:', showTwinCard, 'isFeedLoading:', isFeedLoading);
     const timer = setTimeout(() => {
-      if (!showTwinCard && !isFeedLoading) {
+      console.log('[Feed] Timer fired, showTwinCardRef:', showTwinCardRef.current, 'isFeedLoadingRef:', isFeedLoadingRef.current);
+      if (!showTwinCardRef.current && !isFeedLoadingRef.current) {
         triggerTwinCard();
       }
     }, 2000);
@@ -305,6 +310,7 @@ export default function FeedPage() {
 
   // Use API feed data, fallback to mock
   const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
+  console.log('[Feed] displayVideos count:', displayVideos.length, 'types:', displayVideos.map(v => v.type));
 
   // Build items list: videos + twin_card
   const twinCardItem: VideoItem = {

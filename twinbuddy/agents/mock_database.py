@@ -783,8 +783,7 @@ def get_buddy_by_id(buddy_id: str) -> dict | None:
 # =============================================================================
 
 import re
-from typing import Optional
-from typing import Optional
+from typing import Optional, Set
 
 # ---------------------------------------------------------------------------
 # MBTI quadrant map (MING framework)
@@ -1010,6 +1009,39 @@ def _score_decision_style(user_mbti: str, buddy_mbti: str,
 #   N/S harmony      → +5 pts bonus
 # ---------------------------------------------------------------------------
 
+_INTEREST_CANONICAL_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "摄影": ("摄影", "拍照", "出片", "打卡"),
+    "美食": ("美食", "火锅", "小吃", "探店", "吃"),
+    "自然风光": ("山", "川", "湖", "海", "自然", "风光", "徒步", "露营", "骑行", "日落", "日出"),
+    "历史文化": ("古镇", "人文", "历史", "文化", "古城", "博物馆", "遗迹"),
+    "城市探索": ("citywalk", "城市", "夜游", "夜生活", "街区", "巷子"),
+    "慢节奏": ("慢", "深度", "休闲", "发呆", "自然醒"),
+    "效率打卡": ("详细", "计划", "高效", "清单", "打卡"),
+    "预算控制": ("预算", "省钱", "性价比", "控制"),
+    "自由冒险": ("说走就走", "即兴", "自由", "冒险", "自驾"),
+    "夜间作息": ("夜猫", "晚睡", "夜生活"),
+    "晨间作息": ("早起",),
+    "社交边界": ("各自行动", "独处", "边界", "社交"),
+}
+
+
+def _normalize_interest_terms(items: list) -> Set[str]:
+    """Normalize raw tags into semantic interest categories."""
+    normalized: Set[str] = set()
+    for item in items or []:
+        raw = str(item).strip()
+        if not raw:
+            continue
+        lowered = raw.lower()
+        matched = False
+        for canonical, keywords in _INTEREST_CANONICAL_KEYWORDS.items():
+            if any(kw.lower() in lowered for kw in keywords):
+                normalized.add(canonical)
+                matched = True
+        if not matched:
+            normalized.add(raw)
+    return normalized
+
 def _score_interest_alignment(
     user_mbti: str,
     user_likes: list, user_dislikes: list,
@@ -1020,10 +1052,10 @@ def _score_interest_alignment(
     user_ns = user_mbti[1] if len(user_mbti) >= 4 else None
     buddy_ns = buddy_mbti[1] if len(buddy_mbti) >= 4 else None
 
-    u_likes = set(user_likes)
-    b_likes = set(buddy_likes)
-    u_dislikes = set(user_dislikes)
-    b_dislikes = set(buddy_dislikes)
+    u_likes = _normalize_interest_terms(user_likes)
+    b_likes = _normalize_interest_terms(buddy_likes)
+    u_dislikes = _normalize_interest_terms(user_dislikes)
+    b_dislikes = _normalize_interest_terms(buddy_dislikes)
 
     shared_likes = len(u_likes & b_likes)
     shared_dislikes = len(u_dislikes & b_dislikes)
@@ -1049,7 +1081,7 @@ def _score_interest_alignment(
 
     parts = []
     if shared_likes > 0:
-        parts.append(f"共同喜好{shared_likes}项")
+        parts.append(f"语义归一后共同喜好{shared_likes}项")
     if shared_dislikes > 0:
         parts.append(f"共同厌恶{shared_dislikes}项（最重要）")
     if conflicts > 0:

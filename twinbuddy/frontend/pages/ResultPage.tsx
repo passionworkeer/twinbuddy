@@ -4,6 +4,28 @@ import { Heart, ArrowRight, Shield, BarChart2, RotateCcw } from 'lucide-react';
 import { PersonaCard } from '../components/PersonaCard';
 import type { Persona } from '../types/persona';
 
+// ── Keyword watermark for atmospheric decoration ────────────────────────────
+const KEYWORD_SHADOW_LINES = [
+  '深夜食堂 · 树洞 · 未寄出',
+  '山海 · 红豆 · 同桌',
+  '七里香 · 三分糖 · 第二杯半价',
+  '公路旅行 · 猫 · 跑步',
+  '逆风如解意 · 召唤师',
+];
+
+// ── Keyword-powered poetic footer ───────────────────────────────────────────
+const POETIC_CLOSINGS = [
+  '也许在某个深夜食堂，我们找到了那个愿意一起三分糖的人',
+  '山海有相逢，红豆寄相思，愿你找到那个愿意一起公路旅行的同桌',
+  '七里香飘，未寄出的信，愿树洞懂你，召唤师寻见懂你的马',
+  '谷雨时节，工位之外，愿有人陪你跑步，猫在膝上',
+];
+
+function getClosingLine(persona?: Persona): string {
+  const idx = persona ? Math.abs(persona.mbti_influence?.length ?? 0) % POETIC_CLOSINGS.length : 0;
+  return POETIC_CLOSINGS[idx];
+}
+
 // Hard-rules layer rendered as special cards
 function HardRulesCard({ rules }: { rules: string[] }) {
   if (!rules?.length) return null;
@@ -128,7 +150,35 @@ export default function ResultPage() {
         </div>
       </div>
 
-      <div className={`mx-auto max-w-2xl space-y-6 px-4 pt-6 transition-all duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Decorative keyword watermark (background layer) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 overflow-hidden"
+        style={{ zIndex: 0 }}
+      >
+        {KEYWORD_SHADOW_LINES.map((line, i) => (
+          <div
+            key={i}
+            className="absolute left-0 right-0 text-center"
+            style={{
+              top: `${15 + i * 14}%`,
+              opacity: 0.025,
+              fontSize: `${0.75 + (i % 3) * 0.15}rem`,
+              letterSpacing: '0.3em',
+              color: '#ffb3b6',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+            }}
+          >
+            {line}
+          </div>
+        ))}
+      </div>
+
+      <div className={`mx-auto max-w-2xl space-y-6 px-4 pt-6 transition-all duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`} style={{ position: 'relative', zIndex: 1 }}>
 
         {/* Soul fingerprint */}
         <div className="rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 p-6 text-center text-white shadow-xl">
@@ -171,6 +221,36 @@ export default function ResultPage() {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">数据来源</p>
           <DataSourceBadge sources={persona.data_sources_used} />
+        </div>
+
+        {/* Keyword-powered poetic closing */}
+        <div className="relative overflow-hidden rounded-2xl border border-purple-200/20 bg-gradient-to-br from-purple-50/5 to-pink-50/5 px-6 py-5 text-center dark:from-purple-950/20 dark:to-pink-950/20">
+          {/* Keyword tags floating */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {['深夜食堂', '树洞', '七里香', '三分糖', '公路旅行', '红豆', '未寄出', '召唤师', '逆风如解意'].map((kw, i) => (
+              <span
+                key={kw}
+                aria-hidden="true"
+                className="absolute text-xs font-medium"
+                style={{
+                  top: `${10 + (i * 37) % 75}%`,
+                  left: `${5 + (i * 53) % 85}%`,
+                  opacity: 0.12,
+                  color: i % 3 === 0 ? '#ffb3b6' : i % 3 === 1 ? '#affffb' : '#eec224',
+                  fontSize: `${0.6 + (i % 4) * 0.08}rem`,
+                  letterSpacing: '0.1em',
+                }}
+              >
+                {kw}
+              </span>
+            ))}
+          </div>
+          <p className="relative text-sm italic leading-relaxed text-purple-200/80 dark:text-purple-300/70">
+            {getClosingLine(persona)}
+          </p>
+          <p className="relative mt-2 text-xs text-purple-300/40 dark:text-purple-400/30">
+            TwinBuddy · Hackathon Edition
+          </p>
         </div>
       </div>
 

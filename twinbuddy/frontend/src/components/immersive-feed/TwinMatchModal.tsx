@@ -377,7 +377,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                       <p className="text-xs text-white/80 line-clamp-2">寻遍当地最地道的美食，从街头小吃到隐藏餐厅，吃出旅行的灵魂。</p>
                     </div>
                     <div className="w-24 h-24 shrink-0 rounded-[12px] overflow-hidden">
-                      <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=200&fit=crop" alt="food" />
+                      <img className="w-full h-full object-cover" src="/images/food.jpg" alt="food" />
                     </div>
                   </div>
                 </div>

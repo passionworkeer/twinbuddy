@@ -251,7 +251,28 @@ function Sparkles() {
 
 function Layer3Success({ destination, dates }: { destination: string; dates: string }) {
   return (
-    <div className="twin-card-layer3 p-8 flex flex-col items-center gap-5 text-center">
+    <>
+      {/* ── Happy webm overlay ── */}
+      <div
+        className="fixed left-1/2 z-[9999] pointer-events-none happy-pop-anim"
+        style={{
+          bottom: '120px',
+          transform: 'translateX(-50%)',
+          width: 240,
+          height: 240,
+        }}
+      >
+        <video
+          src="/mod/happy.webm"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      <div className="twin-card-layer3 p-8 flex flex-col items-center gap-5 text-center">
       <div className="relative flex items-center justify-center">
         {/* Outer ring pulse */}
         <div
@@ -290,6 +311,7 @@ function Layer3Success({ destination, dates }: { destination: string; dates: str
         对方也收到了你们的搭子卡片，接下来等你们的真实故事
       </p>
     </div>
+    </>
   );
 }
 

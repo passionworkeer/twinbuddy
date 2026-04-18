@@ -407,20 +407,13 @@ def _llm_proposer(
         result = llm_client.chat(msg, system_prompt=TRAVEL_SYSTEM)
         if result:
             return result
-    except Exception:
-        pass
-
-    # Fallback：从对话示例中取相关片段
-    fallback_map = {
-        "travel_rhythm": _get_conversation_example(user_persona, "travel_rhythm"),
-        "food": _get_conversation_example(user_persona, "food"),
-        "budget": _get_conversation_example(user_persona, "budget"),
-        "social": _get_conversation_example(user_persona, "social"),
-        "boundaries": _get_conversation_example(user_persona, "boundaries"),
-        "schedule": _get_conversation_example(user_persona, "schedule"),
-    }
-    fallback = fallback_map.get(topic, fallback_map["travel_rhythm"])
-    return (fallback or ub["typical_phrases"] or "嗯，我想这样……")[:100]
+        # LLM 返回空内容，也算失败
+        raise RuntimeError(f"LLM proposer 返回空内容，topic={topic}")
+    except RuntimeError:
+        raise  # 重新抛出 RuntimeError（无 API Key 等）
+    except Exception as exc:
+        # 其他异常（网络、超时等）也抛出，让上层决定如何处理
+        raise RuntimeError(f"LLM proposer 调用失败: {exc}") from exc
 
 
 def _llm_evaluator(
@@ -471,12 +464,11 @@ def _llm_evaluator(
         result = llm_client.chat(msg, system_prompt=TRAVEL_SYSTEM)
         if result:
             return result
-    except Exception:
-        pass
-
-    # Fallback
-    trait = _trait(buddy_persona, topic)
-    return PROPOSALS.get(topic, {}).get(trait, "好的，我理解你的想法")[0]
+        raise RuntimeError(f"LLM evaluator 返回空内容，topic={topic}")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError(f"LLM evaluator 调用失败: {exc}") from exc
 
 
 def _llm_compromise(topic: str, user_persona: Dict[str, Any]) -> str:
@@ -505,9 +497,11 @@ def _llm_compromise(topic: str, user_persona: Dict[str, Any]) -> str:
         result = llm_client.chat(msg)
         if result:
             return result
-    except Exception:
-        pass
-    return "那我们各退一步，找个中间方案怎么样？"
+        raise RuntimeError(f"LLM compromise 返回空内容，topic={topic}")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError(f"LLM compromise 调用失败: {exc}") from exc
 
 
 def _llm_resolution(topic: str, buddy_persona: Dict[str, Any]) -> str:
@@ -518,9 +512,11 @@ def _llm_resolution(topic: str, buddy_persona: Dict[str, Any]) -> str:
         result = llm_client.chat(msg)
         if result:
             return result
-    except Exception:
-        pass
-    return "好！就这么定了！"
+        raise RuntimeError(f"LLM resolution 返回空内容，topic={topic}")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError(f"LLM resolution 调用失败: {exc}") from exc
 
 
 # ── LLM 驱动的协商节点 ────────────────────────────────────────────────────────
@@ -695,6 +691,8 @@ def _generate_recommendation(overall: float, dim_scores: Dict[str, Any], conflic
         result = llm_client.chat(prompt)
         if result:
             return result
-    except Exception:
-        pass
-    return "推荐深入交流" if overall >= 0.6 else "建议谨慎了解"
+        raise RuntimeError("LLM recommendation 返回空内容")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError(f"LLM recommendation 调用失败: {exc}") from exc

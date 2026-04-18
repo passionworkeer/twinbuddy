@@ -1437,57 +1437,42 @@ async def get_feed(
 
 @router.get("/buddies")
 async def get_buddies(
-    user_id: str = Query(...),
+    user_id: Optional[str] = Query(default=None, description="用户ID（可选，不传则用 mbti/interests/city）"),
     limit: int = Query(default=10, ge=1, le=50),
+    mbti: Optional[str] = Query(default=None, description="MBTI 类型（如 ENFP）"),
+    interests: Optional[str] = Query(default=None, description="兴趣列表，逗号分隔（如 美食,摄影）"),
+    city: Optional[str] = Query(default=None, description="城市（如 chongqing）"),
 ) -> Dict[str, Any]:
     """
-    GET /api/buddies?user_id=xxx&limit=10
+    GET /api/buddies?limit=10&mbti=ENFP&interests=美食,摄影&city=chongqing
+    或 GET /api/buddies?user_id=xxx&limit=10
 
     返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
+
+    支持两种模式：
+    1. user_id 模式：需要先 POST /api/onboarding 保存数据
+    2. 直接参数模式：传 mbti/interests/city，无需 onboarding
 
     响应结构：
       {
         "success": true,
-        "buddies": [
-          {
-            "id": "buddy_01",
-            "name": "小满",
-            "mbti": "ENFP",
-            "avatar_emoji": "✨",
-            "travel_style": "...",
-            "typical_phrases": [...],
-            "compatibility_score": 87.5,
-            "compatibility_breakdown": {
-              "total": 87.5,
-              "dimensions": {
-                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
-                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
-                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
-                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
-                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
-              },
-              "personality_completion": {"score": 0.0, "reason": "..."},
-              "red_flags":  [...],
-              "strengths":  [...],
-            },
-          },
-          ...
-        ],
+        "buddies": [...],
         "user_prefs": {...},
         "meta": {...}
       }
-
-    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
     """
-    # 1. 获取用户 onboarding 数据
-    if user_id not in _onboarding_store:
-        raise HTTPException(
-            status_code=404,
-            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
-        )
-
-    onboarding = _onboarding_store[user_id]
-    user_prefs = _build_user_prefs(onboarding, user_id)
+    # 1. 获取用户偏好数据
+    if user_id and user_id in _onboarding_store:
+        onboarding = _onboarding_store[user_id]
+        user_prefs = _build_user_prefs(onboarding, user_id)
+    else:
+        # 直接参数模式：从查询参数构建
+        onboarding = {
+            "mbti": mbti or "ENFP",
+            "interests": interests.split(",") if interests else [],
+            "city": city or "chongqing",
+        }
+        user_prefs = _build_user_prefs(onboarding, user_id or "")
 
     # 2. 获取 top-N 搭子（使用 MING 六维度评分）
     top_buddies = get_top_buddies(user_prefs, limit=limit)
@@ -1497,7 +1482,7 @@ async def get_buddies(
         "buddies": [get_buddy_public(buddy, user_prefs) for buddy in top_buddies],
         "user_prefs": user_prefs,
         "meta": {
-            "user_id": user_id,
+            "user_id": user_id or "",
             "limit": limit,
             "total_buddies": len(top_buddies),
             "mbti": user_prefs.get("mbti"),
@@ -1668,7 +1653,18 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             },
         }
     except Exception as exc:
-        logger.warning("LLM 协商失败，降级到 Mock: %s", exc)
+        error_msg = str(exc)
+        is_key_error = "API Key 未配置" in error_msg or "未设置" in error_msg
+
+        if is_key_error:
+            logger.error(
+                "【LLM 未配置】%s\n请设置环境变量 MINIMAX_API_KEY 后重试。"
+                "当前返回 Mock 数据（前端应显示'LLM 未启用'提示）。",
+                error_msg,
+            )
+        else:
+            logger.warning("LLM 协商失败，降级到 Mock: %s", exc)
+
         # Fallback：使用 Mock 数据
         result = _build_negotiation_result(city, user_mbti, buddy_mbti)
         return {
@@ -1676,6 +1672,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "data": result,
             "meta": {
                 "source": "mock",
+                "llm_error": error_msg if is_key_error else None,
                 "user_mbti": user_mbti,
                 "buddy_mbti": buddy_mbti,
                 "destination": city,

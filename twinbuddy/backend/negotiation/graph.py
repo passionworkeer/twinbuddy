@@ -5,8 +5,15 @@ from __future__ import annotations
 from typing import Dict, Any, Literal, Optional
 import uuid
 
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
+try:
+    from langgraph.graph import StateGraph, END
+    from langgraph.types import Interrupt
+    from langgraph.checkpoint.memory import MemorySaver
+except ImportError:
+    from agents.langgraph_stub.langgraph.graph import StateGraph, END
+    from agents.langgraph_stub.langgraph.graph import add_messages
+    Interrupt = object()  # type: ignore
+    MemorySaver = None  # type: ignore
 
 from .state import NegotiationState, NegotiationPhase, initial_state
 from .llm_nodes import (

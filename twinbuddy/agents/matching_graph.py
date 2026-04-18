@@ -413,7 +413,7 @@ def _build_no_consensus_plan(
         手动协调或再次发起讨论。
 
         各搭子最终立场摘要：
-        {chr(10).join(f'  • {b["name"]}（{b["mbti"]}）: {b["personality"]["negotiation_style"]}' for b in candidates)}
+        {chr(10).join(f'  • {b["name"]}（{b["mbti"]}）: {b.get("negotiation_style", "")}' for b in candidates)}
         ===============================================
         """).strip()
 

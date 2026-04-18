@@ -21,6 +21,8 @@ import type {
 // ── 环境配置 ─────────────────────────────────────────
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const ONBOARDING_TIMEOUT_MS = 10_000;
+const NEGOTIATION_TIMEOUT_MS = 15_000;
 
 function apiUrl(path: string): string {
   return `${API_BASE}${path}`;
@@ -44,18 +46,40 @@ async function apiGet<T>(path: string, params?: Record<string, string>): Promise
   return res.json() as Promise<T>;
 }
 
-async function apiPost<T, B = unknown>(path: string, body: B): Promise<T> {
-  const res = await fetch(apiUrl(path), {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+async function apiPost<T, B = unknown>(
+  path: string,
+  body: B,
+  options?: { timeoutMs?: number },
+): Promise<T> {
+  const timeoutMs = options?.timeoutMs;
+  const controller = new AbortController();
+  const timeoutId = timeoutMs
+    ? window.setTimeout(() => controller.abort(), timeoutMs)
+    : null;
+
+  try {
+    const res = await fetch(apiUrl(path), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    return res.json() as Promise<T>;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(`Request timeout after ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+    }
   }
-  return res.json() as Promise<T>;
 }
 
 // ── API 响应结构 ────────────────────────────────────
@@ -92,6 +116,7 @@ export async function saveOnboarding(
   const res = await apiPost<ApiResponse<{ user_id: string; persona_id: string }>, OnboardingData>(
     '/onboarding',
     data,
+    { timeoutMs: ONBOARDING_TIMEOUT_MS },
   );
   const d = unwrap(res);
   return { user_id: d.user_id, persona_id: d.persona_id };
@@ -120,6 +145,19 @@ export async function fetchFeed(city?: string, userId?: string): Promise<VideoIt
 }
 
 /**
+ * GET /api/buddies?limit=10
+ * 获取搭子列表（无 user_id 时返回全部搭子，无评分）
+ * GET /api/buddies?user_id=xxx&limit=10
+ * 获取按兼容性评分排序的推荐搭子
+ */
+export async function fetchBuddies(userId?: string, limit = 10) {
+  const params: Record<string, string> = { limit: String(limit) };
+  if (userId) params.user_id = userId;
+  const res = await apiGet<ApiResponse<unknown[]>>('/buddies', params);
+  return unwrap(res) as Record<string, unknown>[];
+}
+
+/**
  * POST /api/negotiate
  * 双数字人协商，返回预生成协商结果
  */
@@ -127,6 +165,7 @@ export async function negotiate(options: NegotiateParams): Promise<NegotiationRe
   const res = await apiPost<ApiResponse<NegotiationResult>, NegotiateParams>(
     '/negotiate',
     options,
+    { timeoutMs: NEGOTIATION_TIMEOUT_MS },
   );
   return unwrap(res);
 }

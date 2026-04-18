@@ -8,7 +8,7 @@ import pytest
 class TestBuddyAgentPropose:
     def test_buddy_agent_propose(self):
         from buddy_agent import BuddyAgent
-        from mock_database import get_buddy_by_id
+        from agents.buddies import get_buddy_by_id
         enfp = get_buddy_by_id("buddy_01")
         assert enfp is not None
         agent = BuddyAgent(enfp)
@@ -21,7 +21,7 @@ class TestBuddyAgentPropose:
 class TestBuddyAgentRefuse:
     def test_buddy_agent_refuse(self):
         from buddy_agent import BuddyAgent
-        from mock_database import get_buddy_by_id
+        from agents.buddies import get_buddy_by_id
         istj = get_buddy_by_id("buddy_02")
         assert istj is not None
         agent = BuddyAgent(istj)
@@ -31,7 +31,7 @@ class TestBuddyAgentRefuse:
 
 class TestCompatibilityScore:
     def test_compatibility_score(self):
-        from mock_database import score_compatibility
+        from agents.scoring import score_compatibility
         buddy1 = {"mbti": "ENFP", "travel_style": "慢悠悠", "preferences": {"pace": "慢"}}
         buddy2 = {"mbti": "ENFP", "travel_style": "慢悠悠", "preferences": {"pace": "慢"}}
         buddy3 = {"mbti": "ISTJ", "travel_style": "暴走", "preferences": {"pace": "快"}}
@@ -42,7 +42,7 @@ class TestCompatibilityScore:
 
 class TestMockDatabaseTop3:
     def test_mock_database_top3(self):
-        from mock_database import get_top_buddies
+        from agents.buddies import get_top_buddies
         prefs = {"mbti": "ENFP", "travel_style": "慢悠悠", "preferences": {"likes": ["美食"]}, "dislikes": []}
         top3 = get_top_buddies(prefs, limit=3)
         assert len(top3) == 3

@@ -1,69 +1,25 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TikTokVideo } from '../components/feed/TikTokVideo';
-import { VideoCard } from '../components/feed/VideoCard';
-import { LocationGuideCard } from '../components/feed/LocationGuideCard';
 import BottomNav from '../components/feed/BottomNav';
-import { TwinCard } from '../components/twin-card/TwinCard';
+import { ImmersiveFeedItem } from '../components/immersive-feed/ImmersiveFeedItem';
+import type { LocalRadarData } from '../components/immersive-feed/RadarChartCard';
+import type { ChatMessage } from '../components/immersive-feed/ChatHistoryOverlay';
 import type {
   VideoItem,
   NegotiationResult,
   OnboardingData,
-  Buddy,
   NegotiationReportSnapshots,
 } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { STORAGE_KEYS } from '../types';
-import { negotiate } from '../api/client';
+import { negotiate, fetchBuddies } from '../api/client';
 import { createReportId } from '../utils/reportId';
-import { createLocationCardItem } from '../mocks/locationGuides';
-import { inferGuidePreference } from '../utils/scenePreference';
-import {
-  buildFeedSequence,
-  chooseLocationCardTriggerCount,
-  shouldTriggerTwinCard,
-} from '../utils/feedFlow';
 import { RotateCcw } from 'lucide-react';
 
-// ── Mock Data (fallback when API unavailable) ──────────
+// ── Video templates (static, buddy data comes from API) ──
 
-const BUDDY_POOL: Buddy[] = [
-  {
-    name: '小雅',
-    mbti: 'ENFP',
-    avatar_emoji: '🌈',
-    typical_phrases: ['说走就走！', '这也太美了吧！'],
-    travel_style: '随性探索型',
-    compatibility_score: 92,
-  },
-  {
-    name: '小鱼',
-    mbti: 'INFP',
-    avatar_emoji: '🌙',
-    typical_phrases: ['这里好安静', '我们慢慢走'],
-    travel_style: '诗意漫游者',
-    compatibility_score: 88,
-  },
-  {
-    name: '阿泽',
-    mbti: 'ESTP',
-    avatar_emoji: '☀️',
-    typical_phrases: ['冲冲冲！', '这家必去！'],
-    travel_style: '行动派',
-    compatibility_score: 85,
-  },
-  {
-    name: '小林',
-    mbti: 'INFJ',
-    avatar_emoji: '🍃',
-    typical_phrases: ['慢慢来', '感受当下'],
-    travel_style: '深度慢游',
-    compatibility_score: 90,
-  },
-];
-
-const MOCK_VIDEOS: VideoItem[] = [
+const VIDEO_TEMPLATES = [
   {
     id: 'v1',
     type: 'video',
@@ -71,7 +27,6 @@ const MOCK_VIDEOS: VideoItem[] = [
     video_url: '/videos/video1.mp4',
     location: '成都',
     title: '成都宽窄巷子慢生活',
-    buddy: BUDDY_POOL[0],
   },
   {
     id: 'v2',
@@ -80,7 +35,6 @@ const MOCK_VIDEOS: VideoItem[] = [
     video_url: '/videos/video2.mp4',
     location: '重庆',
     title: '重庆夜景洪崖洞',
-    buddy: BUDDY_POOL[1],
   },
   {
     id: 'v3',
@@ -89,7 +43,6 @@ const MOCK_VIDEOS: VideoItem[] = [
     video_url: '/videos/video3.mp4',
     location: '川西',
     title: '川西雪山草原公路片段',
-    buddy: BUDDY_POOL[2],
   },
   {
     id: 'v4',
@@ -98,43 +51,6 @@ const MOCK_VIDEOS: VideoItem[] = [
     video_url: '/videos/video4.mp4',
     location: '大理',
     title: '洱海古城日落',
-    buddy: BUDDY_POOL[3],
-  },
-  {
-    id: 'v5',
-    type: 'video',
-    cover_url: '/images/lijiang.jpg',
-    video_url: '/videos/video5.mp4',
-    location: '丽江',
-    title: '丽江古城夜游记录',
-    buddy: BUDDY_POOL[0],
-  },
-  {
-    id: 'v6',
-    type: 'video',
-    cover_url: '/images/qingdao.jpg',
-    video_url: '/videos/video6.mp4',
-    location: '青岛',
-    title: '青岛海边和啤酒小店',
-    buddy: BUDDY_POOL[1],
-  },
-  {
-    id: 'v7',
-    type: 'video',
-    cover_url: '/images/xiamen.jpg',
-    video_url: '/videos/video7.mp4',
-    location: '厦门',
-    title: '鼓浪屿街角慢拍',
-    buddy: BUDDY_POOL[2],
-  },
-  {
-    id: 'v8',
-    type: 'video',
-    cover_url: '/images/xian.jpg',
-    video_url: '/videos/video8.mp4',
-    location: '西安',
-    title: '大唐不夜城夜色',
-    buddy: BUDDY_POOL[3],
   },
 ];
 
@@ -171,97 +87,18 @@ const MOCK_NEGOTIATION: NegotiationResult = {
   ],
 };
 
-// ── TwinCard Overlay ───────────────────────────────────
-
-function TwinCardOverlay({
-  result,
-  isLoading,
-  onClose,
-  onConfirm,
-  onViewDetails,
-}: {
-  result: NegotiationResult;
-  isLoading: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  onViewDetails: () => void;
-}) {
-  // Close on backdrop click
-  const handleBackdrop = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
-  if (isLoading) {
-    return (
-      <div
-        className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
-        onClick={handleBackdrop}
-        role="dialog"
-        aria-modal="true"
-        aria-label="加载中"
-      >
-        <div className="w-full max-w-md pb-24 px-4 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 border-4 border-neon-primary/30 border-t-neon-primary rounded-full animate-spin mb-4" />
-          <p className="text-neon-text-secondary text-sm">双数字人协商中...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
-      onClick={handleBackdrop}
-      role="dialog"
-      aria-modal="true"
-      aria-label="懂你卡片"
-    >
-      <div className="w-full max-w-md pb-8 px-4 animate-slide-up">
-        <TwinCard
-          result={result}
-          userName="你的数字人"
-          buddyName="搭子的数字人"
-          onConfirm={onConfirm}
-          onViewDetails={onViewDetails}
-        />
-      </div>
-    </div>
-  );
-}
-
 // ── Feed Page ──────────────────────────────────────────
 
 export default function FeedPage() {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [locationCardTriggerCount] = useState<number>(() => chooseLocationCardTriggerCount());
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
-  const isFeedLoadingRef = useRef(true);
-  isFeedLoadingRef.current = isFeedLoading;
-  const [feedError, setFeedError] = useState<string | null>(null);
-  const [likedItems, setLikedItems] = useLocalStorage<Record<string, boolean>>(
-    STORAGE_KEYS.video_likes,
-    {},
-  );
-  const [likeCounts] = useState<Record<string, number>>({
-    v1: 2847,
-    v2: 1532,
-    twin1: 0,
-  });
-  const [commentCounts] = useState<Record<string, number>>({ v1: 342, v2: 218, twin1: 0 });
-  const [shareCounts] = useState<Record<string, number>>({ v1: 89, v2: 67, twin1: 0 });
+  
+  // Negotiation state keyed by index
+  const [negotiations, setNegotiations] = useState<Record<number, NegotiationResult>>({});
+  const [loadingNegotiations, setLoadingNegotiations] = useState<Record<number, boolean>>({});
 
-  const [showTwinCard, setShowTwinCard] = useState(false);
-  // Ref to always read current showTwinCard value (avoids stale closure in scroll handler)
-  const showTwinCardRef = useRef(showTwinCard);
-  showTwinCardRef.current = showTwinCard;
-  const [negotiationResult, setNegotiationResult] = useState<NegotiationResult | null>(null);
-  const [isNegotiating, setIsNegotiating] = useState(false);
-  const [cardsSeen, setCardsSeen] = useLocalStorage<string[]>(
-    STORAGE_KEYS.twin_cards_seen,
-    [],
-  );
   const [, setNegotiationReports] = useLocalStorage<NegotiationReportSnapshots>(
     STORAGE_KEYS.negotiation_reports,
     {},
@@ -274,10 +111,10 @@ export default function FeedPage() {
     STORAGE_KEYS.negotiation_result,
     null,
   );
-  const [currentReportId, setCurrentReportId] = useState<string | null>(null);
 
-  // 重新测试功能
   const { clearData, data: onboardingData } = useOnboarding();
+  const feedRef = useRef<HTMLDivElement>(null);
+
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
       clearData();
@@ -285,47 +122,48 @@ export default function FeedPage() {
     }
   }, [clearData, navigate]);
 
-  const feedRef = useRef<HTMLDivElement>(null);
-
-  // 直接使用本地 mock 视频（不调 API）
+  // Load buddies from API, then combine with video templates
   useEffect(() => {
-    setFeedVideos(shuffleVideos(MOCK_VIDEOS));
-    // 延迟一点设置 isFeedLoading 为 false，确保在 re-render 之后
-    setTimeout(() => setIsFeedLoading(false), 0);
+    async function loadFeed() {
+      try {
+        const buddies = await fetchBuddies(undefined, 4);
+        const videosWithBuddies: VideoItem[] = VIDEO_TEMPLATES.map((tpl, i) => ({
+          ...tpl,
+          buddy: buddies[i]
+            ? {
+                name: String(buddies[i].name ?? ''),
+                mbti: String(buddies[i].mbti ?? 'ENFP'),
+                avatar_emoji: String(buddies[i].avatar_emoji ?? ''),
+                typical_phrases: (buddies[i].typical_phrases as string[]) ?? [],
+                travel_style: String(buddies[i].travel_style ?? ''),
+                compatibility_score: Number((buddies[i] as Record<string, unknown>).compatibility_score ?? 80),
+              }
+            : undefined,
+        }));
+        setFeedVideos(shuffleVideos(videosWithBuddies));
+      } catch {
+        // Fallback: use templates without buddies
+        setFeedVideos(shuffleVideos(VIDEO_TEMPLATES.map(tpl => ({ ...tpl, buddy: undefined }))));
+      } finally {
+        setIsFeedLoading(false);
+      }
+    }
+    loadFeed();
   }, []);
 
-  // Show twin card after 2nd video (index >= 2)
-  const triggerTwinCard = useCallback(() => {
-    if (!showTwinCardRef.current) {
-      setCardsSeen((prev) => {
-        if (!prev.includes('twin1')) {
-          return [...prev, 'twin1'];
-        }
-        return prev;
-      });
-      setShowTwinCard(true);
-    }
-  }, []); // intentionally no deps — reads from ref to avoid stale closure
-
-  // Handle snap scroll
   const handleScroll = useCallback(() => {
     const el = feedRef.current;
     if (!el) return;
     const index = Math.round(el.scrollTop / window.innerHeight);
     setCurrentIndex(index);
-    // 先看 2 或 3 条视频，再经过地点攻略卡片后触发懂你弹窗
-    if (shouldTriggerTwinCard(index, locationCardTriggerCount)) {
-      triggerTwinCard();
-    }
-  }, [locationCardTriggerCount, triggerTwinCard]);
+  }, []);
 
-  // Attach scroll listener
   useEffect(() => {
     const el = feedRef.current;
     if (!el) return;
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, showTwinCard]);
+  }, [handleScroll]);
 
   const persistNegotiationResult = useCallback((result: NegotiationResult): string => {
     const reportId = createReportId();
@@ -335,191 +173,135 @@ export default function FeedPage() {
     }));
     setLatestReportId(reportId);
     setStoredNegotiationResult(result);
-    setCurrentReportId(reportId);
     return reportId;
   }, [setLatestReportId, setNegotiationReports, setStoredNegotiationResult]);
 
-  // Load onboarding data for negotiation
-  const loadNegotiationResult = useCallback(async (destination: string, buddyMbti: string) => {
-    setIsNegotiating(true);
+  // Load negotiation result for a specific index/video
+  const loadNegotiationResultForIndex = useCallback(async (index: number) => {
+    if (loadingNegotiations[index] || negotiations[index]) return; // Already loaded or loading
+    
+    setLoadingNegotiations(prev => ({ ...prev, [index]: true }));
+    const activeVideo = feedVideos[index];
+    const destination = activeVideo?.location || '大理';
+    const buddyMbti = activeVideo?.buddy?.mbti || 'ENFP';
+
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-      const onboardingData: OnboardingData | null = stored ? JSON.parse(stored) : null;
-      const userPersonaId = onboardingData?.persona_id || undefined;
+      const obData: OnboardingData | null = stored ? JSON.parse(stored) : null;
+      const userPersonaId = obData?.persona_id || undefined;
 
       const result = await negotiate({
-        user_id: onboardingData?.user_id || undefined,
+        user_id: obData?.user_id || undefined,
         user_persona_id: userPersonaId,
         buddy_mbti: buddyMbti,
-        mbti: onboardingData?.mbti || undefined,
-        interests: onboardingData?.interests ?? [],
-        voiceText: onboardingData?.voiceText || undefined,
+        mbti: obData?.mbti || undefined,
+        interests: obData?.interests ?? [],
+        voiceText: obData?.voiceText || undefined,
         destination,
       });
-      setNegotiationResult(result);
-      persistNegotiationResult(result);
+      setNegotiations(prev => ({ ...prev, [index]: result }));
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
-      setNegotiationResult(MOCK_NEGOTIATION);
-      persistNegotiationResult(MOCK_NEGOTIATION);
+      setNegotiations(prev => ({ ...prev, [index]: MOCK_NEGOTIATION }));
     } finally {
-      setIsNegotiating(false);
+      setLoadingNegotiations(prev => ({ ...prev, [index]: false }));
     }
-  }, [persistNegotiationResult]);
+  }, [feedVideos, loadingNegotiations, negotiations]);
 
-  // When TwinCard overlay is opened, load real negotiation result
-  const handleTwinCard = useCallback(() => {
-    setShowTwinCard(true);
-    const sourceVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
-    const anchorIndex = Math.min(locationCardTriggerCount, sourceVideos.length - 1);
-    const anchorVideo = sourceVideos[anchorIndex] ?? sourceVideos[0];
-    const destination = anchorVideo?.location || '大理';
-    const buddyMbti = anchorVideo?.buddy?.mbti || 'ENFP';
-    loadNegotiationResult(destination, buddyMbti);
-  }, [feedVideos, loadNegotiationResult, locationCardTriggerCount]);
+  // Trigger loading when index changes (with a slight debounce so fast swiping doesn't spam)
+  useEffect(() => {
+    if (feedVideos.length === 0) return;
+    const timer = setTimeout(() => {
+      loadNegotiationResultForIndex(currentIndex);
+    }, 500); // 500ms debounce
+    return () => clearTimeout(timer);
+  }, [currentIndex, feedVideos, loadNegotiationResultForIndex]);
 
-  const handleTwinCardConfirm = useCallback(() => {
-    const finalResult = negotiationResult ?? MOCK_NEGOTIATION;
-    const reportId = currentReportId ?? persistNegotiationResult(finalResult);
-    setShowTwinCard(false);
-    setNegotiationResult(finalResult);
+  const handleTwinCardConfirm = useCallback((index: number) => {
+    const finalResult = negotiations[index] || MOCK_NEGOTIATION;
+    const reportId = persistNegotiationResult(finalResult);
     setTimeout(() => {
       navigate('/result', { state: { result: finalResult, reportId } });
     }, 200);
-  }, [currentReportId, navigate, negotiationResult, persistNegotiationResult]);
+  }, [navigate, negotiations, persistNegotiationResult]);
 
-  const handleViewNegotiationDetail = useCallback(() => {
-    const finalResult = negotiationResult ?? MOCK_NEGOTIATION;
-    const reportId = currentReportId ?? persistNegotiationResult(finalResult);
-    setShowTwinCard(false);
+  const handleReject = useCallback(() => {
+    if (feedRef.current) {
+        feedRef.current.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  }, []);
+
+  const handleChatExpand = useCallback((index: number) => {
+    const finalResult = negotiations[index] || MOCK_NEGOTIATION;
+    const reportId = persistNegotiationResult(finalResult);
     navigate(`/result/${reportId}/detail`, {
       state: { result: finalResult, reportId, source: 'feed' },
     });
-  }, [currentReportId, navigate, negotiationResult, persistNegotiationResult]);
+  }, [navigate, negotiations, persistNegotiationResult]);
 
-  // Use API feed data, fallback to mock
   const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
-  const guidePreference = inferGuidePreference(onboardingData.interests ?? []);
-  const guideAnchorIndex = Math.min(locationCardTriggerCount, displayVideos.length - 1);
-  const guideAnchorVideo = displayVideos[guideAnchorIndex] ?? displayVideos[0];
 
-  const locationCardItem = createLocationCardItem(guideAnchorVideo, guidePreference);
-
-  // Build items list: videos + twin_card
-  const twinCardItem: VideoItem = {
-    id: 'twin1',
-    type: 'twin_card',
-    cover_url: guideAnchorVideo?.cover_url ?? '/images/dali.jpg',
-    video_url: guideAnchorVideo?.video_url ?? '/videos/video1.mp4',
-    location: guideAnchorVideo?.location ?? '大理',
-    title: `懂你卡片 · ${guideAnchorVideo?.location ?? '大理'}之约`,
-    buddy: guideAnchorVideo?.buddy ?? displayVideos[0]?.buddy,
-  };
-
-  const items: VideoItem[] = buildFeedSequence(
-    displayVideos,
-    locationCardItem,
-    twinCardItem,
-    locationCardTriggerCount,
-  );
-
-  // Show loading skeleton on first load
   if (isFeedLoading) {
     return (
       <div className="relative min-h-screen bg-black flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-neon-primary/30 border-t-neon-primary rounded-full animate-spin" />
-          <p className="text-neon-text-secondary text-sm">正在加载搭子...</p>
+          <div className="w-10 h-10 border-4 border-white/20 border-t-[#4ade80] rounded-full animate-spin" />
         </div>
-        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="relative">
-      {/* Feed container */}
+    <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative relative">
+      <button
+        onClick={handleRestart}
+        className="fixed top-8 right-4 z-50 p-2 rounded-full bg-black/40 backdrop-blur-xl hover:bg-black/60 transition-colors"
+        title="重新测试"
+      >
+        <RotateCcw className="w-4 h-4 text-white/90" />
+      </button>
+
       <div
         ref={feedRef}
-        className="feed-container"
+        className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar scroll-smooth"
       >
-        {feedError && (
-          <div className="fixed top-12 left-1/2 -translate-x-1/2 z-30 bg-neon-primary/20 text-neon-primary text-xs px-3 py-1.5 rounded-full">
-            {feedError}
-          </div>
-        )}
-        {/* 重新测试按钮 */}
-        <button
-          onClick={handleRestart}
-          className="fixed top-4 right-4 z-30 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
-          title="重新测试"
-        >
-          <RotateCcw className="w-4 h-4 text-neon-text-secondary" />
-        </button>
-        {items.map((item, index) =>
-          item.type === 'location_card' ? (
-            <LocationGuideCard
-              key={item.id}
+        {displayVideos.map((item, i) => {
+          const negResult = negotiations[i];
+          
+          let radarData: LocalRadarData | undefined;
+          if (negResult) {
+            radarData = {
+              matchRate: Math.round(item.buddy?.compatibility_score || 85),
+              tags: negResult.plan?.slice(0, 3) || ['旅游契合'],
+              dimensions: negResult.radar || []
+            };
+          }
+
+          let messagesData: ChatMessage[] | undefined;
+          if (negResult?.messages) {
+            messagesData = negResult.messages.map((msg, idx) => ({
+              id: idx,
+              text: msg.content,
+              isSelf: msg.speaker === 'user'
+            })).slice(-3); // Show last 3 messages
+          }
+
+          return (
+            <ImmersiveFeedItem
+              key={item.id + i}
               item={item}
-              onTwinCard={handleTwinCard}
+              isActive={currentIndex === i}
+              isLoading={loadingNegotiations[i]}
+              radarData={radarData}
+              messages={messagesData}
+              onAccept={() => handleTwinCardConfirm(i)}
+              onReject={handleReject}
+              onChatExpand={() => handleChatExpand(i)}
             />
-          ) : item.type === 'twin_card' ? (
-            <VideoCard
-              key={item.id}
-              item={item}
-              onLike={() => {}}
-              onComment={() => {}}
-              onShare={() => {}}
-              onTwinCard={handleTwinCard}
-              liked={!!likedItems[item.id]}
-              likeCount={likeCounts[item.id] ?? 0}
-              commentCount={commentCounts[item.id] ?? 0}
-              shareCount={shareCounts[item.id] ?? 0}
-            />
-          ) : (
-            <TikTokVideo
-              key={item.id}
-              videoUrl={item.video_url || ''}
-              buddy={item.buddy}
-              location={item.location}
-              title={item.title}
-              liked={!!likedItems[item.id]}
-              isActive={currentIndex === index}
-              likeCount={likeCounts[item.id] ?? 0}
-              commentCount={commentCounts[item.id] ?? 0}
-              shareCount={shareCounts[item.id] ?? 0}
-              onLike={() => {}}
-              onComment={() => {}}
-              onShare={() => {}}
-              onTwinCard={handleTwinCard}
-            />
-          ),
-        )}
+          );
+        })}
       </div>
 
-      {/* Scroll progress indicator */}
-      <div className="fixed top-0 left-0 right-0 z-40 h-0.5 bg-white/5">
-        <div
-          className="h-full bg-neon-primary/60 transition-all duration-300"
-          style={{ width: `${((currentIndex + 1) / items.length) * 100}%` }}
-        />
-      </div>
-
-      {/* TwinCard Overlay */}
-      {showTwinCard && (
-        <TwinCardOverlay
-          result={negotiationResult ?? MOCK_NEGOTIATION}
-          isLoading={isNegotiating}
-          onClose={() => {
-            setShowTwinCard(false);
-            setNegotiationResult(null);
-          }}
-          onConfirm={handleTwinCardConfirm}
-          onViewDetails={handleViewNegotiationDetail}
-        />
-      )}
-
-      {/* Bottom Navigation */}
       <BottomNav />
     </div>
   );

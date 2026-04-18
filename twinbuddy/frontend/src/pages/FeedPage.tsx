@@ -2,13 +2,28 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TikTokVideo } from '../components/feed/TikTokVideo';
 import { VideoCard } from '../components/feed/VideoCard';
+import { LocationGuideCard } from '../components/feed/LocationGuideCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
-import type { VideoItem, NegotiationResult, OnboardingData, Buddy } from '../types';
+import type {
+  VideoItem,
+  NegotiationResult,
+  OnboardingData,
+  Buddy,
+  NegotiationReportSnapshots,
+} from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { STORAGE_KEYS } from '../types';
 import { negotiate } from '../api/client';
+import { createReportId } from '../utils/reportId';
+import { createLocationCardItem } from '../mocks/locationGuides';
+import { inferGuidePreference } from '../utils/scenePreference';
+import {
+  buildFeedSequence,
+  chooseLocationCardTriggerCount,
+  shouldTriggerTwinCard,
+} from '../utils/feedFlow';
 import { RotateCcw } from 'lucide-react';
 
 // ── Mock Data (fallback when API unavailable) ──────────
@@ -163,11 +178,13 @@ function TwinCardOverlay({
   isLoading,
   onClose,
   onConfirm,
+  onViewDetails,
 }: {
   result: NegotiationResult;
   isLoading: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onViewDetails: () => void;
 }) {
   // Close on backdrop click
   const handleBackdrop = (e: React.MouseEvent) => {
@@ -205,6 +222,7 @@ function TwinCardOverlay({
           userName="你的数字人"
           buddyName="搭子的数字人"
           onConfirm={onConfirm}
+          onViewDetails={onViewDetails}
         />
       </div>
     </div>
@@ -216,6 +234,7 @@ function TwinCardOverlay({
 export default function FeedPage() {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [locationCardTriggerCount] = useState<number>(() => chooseLocationCardTriggerCount());
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   const isFeedLoadingRef = useRef(true);
@@ -243,13 +262,22 @@ export default function FeedPage() {
     STORAGE_KEYS.twin_cards_seen,
     [],
   );
+  const [, setNegotiationReports] = useLocalStorage<NegotiationReportSnapshots>(
+    STORAGE_KEYS.negotiation_reports,
+    {},
+  );
+  const [, setLatestReportId] = useLocalStorage<string | null>(
+    STORAGE_KEYS.latest_report_id,
+    null,
+  );
   const [, setStoredNegotiationResult] = useLocalStorage<NegotiationResult | null>(
     STORAGE_KEYS.negotiation_result,
     null,
   );
+  const [currentReportId, setCurrentReportId] = useState<string | null>(null);
 
   // 重新测试功能
-  const { clearData } = useOnboarding();
+  const { clearData, data: onboardingData } = useOnboarding();
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
       clearData();
@@ -285,11 +313,11 @@ export default function FeedPage() {
     if (!el) return;
     const index = Math.round(el.scrollTop / window.innerHeight);
     setCurrentIndex(index);
-    // 滚动到第3个视频时强制显示卡片
-    if (index >= 2) {
+    // 先看 2 或 3 条视频，再经过地点攻略卡片后触发懂你弹窗
+    if (shouldTriggerTwinCard(index, locationCardTriggerCount)) {
       triggerTwinCard();
     }
-  }, [triggerTwinCard]);
+  }, [locationCardTriggerCount, triggerTwinCard]);
 
   // Attach scroll listener
   useEffect(() => {
@@ -299,16 +327,17 @@ export default function FeedPage() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [handleScroll, showTwinCard]);
 
-  // Initial twin card trigger after mount (fallback if no scroll)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!showTwinCardRef.current && !isFeedLoadingRef.current) {
-        triggerTwinCard();
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const persistNegotiationResult = useCallback((result: NegotiationResult): string => {
+    const reportId = createReportId();
+    setNegotiationReports((prev) => ({
+      ...prev,
+      [reportId]: result,
+    }));
+    setLatestReportId(reportId);
+    setStoredNegotiationResult(result);
+    setCurrentReportId(reportId);
+    return reportId;
+  }, [setLatestReportId, setNegotiationReports, setStoredNegotiationResult]);
 
   // Load onboarding data for negotiation
   const loadNegotiationResult = useCallback(async (destination: string, buddyMbti: string) => {
@@ -328,51 +357,71 @@ export default function FeedPage() {
         destination,
       });
       setNegotiationResult(result);
-      setStoredNegotiationResult(result);
+      persistNegotiationResult(result);
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
       setNegotiationResult(MOCK_NEGOTIATION);
-      setStoredNegotiationResult(MOCK_NEGOTIATION);
+      persistNegotiationResult(MOCK_NEGOTIATION);
     } finally {
       setIsNegotiating(false);
     }
-  }, [setStoredNegotiationResult]);
+  }, [persistNegotiationResult]);
 
   // When TwinCard overlay is opened, load real negotiation result
   const handleTwinCard = useCallback(() => {
     setShowTwinCard(true);
-    // Find the twin_card item to get destination and buddy MBTI
-    const twinItem = feedVideos.find((v) => v.type === 'twin_card');
-    const destination = twinItem?.location || 'dali';
-    const buddyMbti = twinItem?.buddy?.mbti || 'ENFP';
+    const sourceVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
+    const anchorIndex = Math.min(locationCardTriggerCount, sourceVideos.length - 1);
+    const anchorVideo = sourceVideos[anchorIndex] ?? sourceVideos[0];
+    const destination = anchorVideo?.location || '大理';
+    const buddyMbti = anchorVideo?.buddy?.mbti || 'ENFP';
     loadNegotiationResult(destination, buddyMbti);
-  }, [feedVideos, loadNegotiationResult]);
+  }, [feedVideos, loadNegotiationResult, locationCardTriggerCount]);
 
   const handleTwinCardConfirm = useCallback(() => {
     const finalResult = negotiationResult ?? MOCK_NEGOTIATION;
-    setStoredNegotiationResult(finalResult);
+    const reportId = currentReportId ?? persistNegotiationResult(finalResult);
     setShowTwinCard(false);
     setNegotiationResult(finalResult);
     setTimeout(() => {
-      navigate('/result', { state: { result: finalResult } });
+      navigate('/result', { state: { result: finalResult, reportId } });
     }, 200);
-  }, [navigate, negotiationResult, setStoredNegotiationResult]);
+  }, [currentReportId, navigate, negotiationResult, persistNegotiationResult]);
+
+  const handleViewNegotiationDetail = useCallback(() => {
+    const finalResult = negotiationResult ?? MOCK_NEGOTIATION;
+    const reportId = currentReportId ?? persistNegotiationResult(finalResult);
+    setShowTwinCard(false);
+    navigate(`/result/${reportId}/detail`, {
+      state: { result: finalResult, reportId, source: 'feed' },
+    });
+  }, [currentReportId, navigate, negotiationResult, persistNegotiationResult]);
 
   // Use API feed data, fallback to mock
   const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
+  const guidePreference = inferGuidePreference(onboardingData.interests ?? []);
+  const guideAnchorIndex = Math.min(locationCardTriggerCount, displayVideos.length - 1);
+  const guideAnchorVideo = displayVideos[guideAnchorIndex] ?? displayVideos[0];
+
+  const locationCardItem = createLocationCardItem(guideAnchorVideo, guidePreference);
 
   // Build items list: videos + twin_card
   const twinCardItem: VideoItem = {
     id: 'twin1',
     type: 'twin_card',
-    cover_url: '/images/dali.jpg',
-    video_url: '/videos/video1.mp4',
-    location: '大理',
-    title: '懂你卡片 · 大理之约',
-    buddy: displayVideos[0]?.buddy,
+    cover_url: guideAnchorVideo?.cover_url ?? '/images/dali.jpg',
+    video_url: guideAnchorVideo?.video_url ?? '/videos/video1.mp4',
+    location: guideAnchorVideo?.location ?? '大理',
+    title: `懂你卡片 · ${guideAnchorVideo?.location ?? '大理'}之约`,
+    buddy: guideAnchorVideo?.buddy ?? displayVideos[0]?.buddy,
   };
 
-  const items: VideoItem[] = [...displayVideos, twinCardItem];
+  const items: VideoItem[] = buildFeedSequence(
+    displayVideos,
+    locationCardItem,
+    twinCardItem,
+    locationCardTriggerCount,
+  );
 
   // Show loading skeleton on first load
   if (isFeedLoading) {
@@ -408,7 +457,13 @@ export default function FeedPage() {
           <RotateCcw className="w-4 h-4 text-neon-text-secondary" />
         </button>
         {items.map((item, index) =>
-          item.type === 'twin_card' ? (
+          item.type === 'location_card' ? (
+            <LocationGuideCard
+              key={item.id}
+              item={item}
+              onTwinCard={handleTwinCard}
+            />
+          ) : item.type === 'twin_card' ? (
             <VideoCard
               key={item.id}
               item={item}
@@ -460,6 +515,7 @@ export default function FeedPage() {
             setNegotiationResult(null);
           }}
           onConfirm={handleTwinCardConfirm}
+          onViewDetails={handleViewNegotiationDetail}
         />
       )}
 

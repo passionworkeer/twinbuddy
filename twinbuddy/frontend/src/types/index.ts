@@ -62,15 +62,34 @@ export interface FeedResponse {
 
 // ── Feed / Video ─────────────────────────────────────
 
+export type GuidePreference = 'indoor' | 'outdoor';
+
+export interface LocationGuideVersion {
+  heading: string;
+  summary: string;
+  highlights: string[];
+  strategies: string[];
+}
+
+export interface LocationGuide {
+  locationId: string;
+  headline: string;
+  description: string;
+  preference: GuidePreference;
+  preferenceLabel: string;
+  version: LocationGuideVersion;
+}
+
 export interface VideoItem {
   id: string;
-  type: 'video' | 'twin_card';
+  type: 'video' | 'twin_card' | 'location_card';
   cover_url: string;
   video_url: string;
   location: string;
   title: string;
   description?: string;
   buddy?: Buddy;
+  locationGuide?: LocationGuide;
 }
 
 export interface VideoStats {
@@ -139,6 +158,8 @@ export interface NegotiationResult {
   };
 }
 
+export type NegotiationReportSnapshots = Record<string, NegotiationResult>;
+
 // ── TwinCard ─────────────────────────────────────────
 
 export type TwinCardLayer = 1 | 2 | 3;
@@ -160,6 +181,8 @@ export const STORAGE_KEYS = {
   video_likes: 'twinbuddy_video_likes_v3',
   matched_personas: 'twinbuddy_matched',
   negotiation_result: 'twinbuddy_negotiation_result_v3',
+  negotiation_reports: 'twinbuddy_negotiation_reports_v3',
+  latest_report_id: 'twinbuddy_latest_report_id_v3',
 } as const;
 
 // ── MBTI Constants ───────────────────────────────────

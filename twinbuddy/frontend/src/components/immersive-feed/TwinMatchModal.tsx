@@ -4,6 +4,15 @@ import { RadarChartCard, LocalRadarData } from './RadarChartCard';
 import { ChatHistoryOverlay, ChatMessage } from './ChatHistoryOverlay';
 import { FullChatHistory } from './FullChatHistory';
 
+// ── Webm animation constants ─────────────────────────────────
+const GREETING_DURATION_MS = 4400;
+const HIGHFIVE_LINKS = [
+  'https://v.douyin.com/ANQxLmeC7Q0/',
+  'https://v.douyin.com/2LD36YFoTbE/',
+  'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
+  'https://v.douyin.com/3lV9tMGO13E/',
+];
+
 interface TwinMatchModalProps {
   result: NegotiationResult | null;
   isLoading: boolean;
@@ -34,6 +43,37 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   const [chatExpanded, setChatExpanded] = useState(false);
   const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
+
+  // ── Greeting animation ────────────────────────────────────
+  const [showGreeting, setShowGreeting] = useState(false);
+  const greetingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Trigger greeting when result data arrives
+  useEffect(() => {
+    if (result) {
+      setShowGreeting(true);
+      if (greetingTimerRef.current) clearTimeout(greetingTimerRef.current);
+      greetingTimerRef.current = setTimeout(() => {
+        setShowGreeting(false);
+      }, GREETING_DURATION_MS);
+    }
+    return () => {
+      if (greetingTimerRef.current) clearTimeout(greetingTimerRef.current);
+    };
+  }, [result]);
+
+  // ── Highfive animation ────────────────────────────────────
+  const [showHighfive, setShowHighfive] = useState(false);
+
+  const handleAddFriend = () => {
+    setShowHighfive(true);
+  };
+
+  const handleHighfiveEnded = () => {
+    const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
+    window.open(randomLink, '_blank');
+    setShowHighfive(false);
+  };
 
   // 实时消息动画：每当 liveMessages 更新，逐条显示
   useEffect(() => {
@@ -164,6 +204,41 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
+      {/* ── Greeting webm overlay ── */}
+      {showGreeting && (
+        <div
+          className="fixed top-6 right-6 z-[9999] pointer-events-none"
+          style={{ width: 180, height: 180 }}
+        >
+          <video
+            src="/mod/greeting.webm"
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-contain"
+            style={{ borderRadius: 16 }}
+          />
+        </div>
+      )}
+
+      {/* ── Highfive webm fullscreen overlay ── */}
+      {showHighfive && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/85 flex items-center justify-center"
+          onClick={handleHighfiveEnded}
+        >
+          <video
+            src="/mod/highfive.webm"
+            autoPlay
+            muted
+            playsInline
+            onEnded={handleHighfiveEnded}
+            className="max-w-full max-h-full object-contain"
+            style={{ maxWidth: '90vw', maxHeight: '80vh' }}
+          />
+        </div>
+      )}
+
       {/* Background (Image) */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -339,17 +414,8 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                 >
                   不感兴趣
                 </button>
-                <button 
-                  onClick={() => {
-                    const links = [
-                      'https://v.douyin.com/ANQxLmeC7Q0/',
-                      'https://v.douyin.com/2LD36YFoTbE/',
-                      'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
-                      'https://v.douyin.com/3lV9tMGO13E/'
-                    ];
-                    const randomLink = links[Math.floor(Math.random() * links.length)];
-                    window.open(randomLink, '_blank');
-                  }}
+                <button
+                  onClick={handleAddFriend}
                   className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
                 >
                   加他好友
@@ -357,23 +423,14 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
               </>
             ) : (
               <>
-                <button 
+                <button
                   onClick={onClose}
                   className="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors"
                 >
                   不感兴趣
                 </button>
-                <button 
-                  onClick={() => {
-                    const links = [
-                      'https://v.douyin.com/ANQxLmeC7Q0/',
-                      'https://v.douyin.com/2LD36YFoTbE/',
-                      'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
-                      'https://v.douyin.com/3lV9tMGO13E/'
-                    ];
-                    const randomLink = links[Math.floor(Math.random() * links.length)];
-                    window.open(randomLink, '_blank');
-                  }}
+                <button
+                  onClick={handleAddFriend}
                   className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
                 >
                   加他好友

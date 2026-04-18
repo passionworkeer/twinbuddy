@@ -220,9 +220,9 @@ export function TikTokVideo({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    console.log('[TikTokVideo] isActive:', isActive, 'videoUrl:', videoUrl);
     if (isActive) {
       video.play().catch((err) => {
-        // 只在非用户主动取消播放时记录，避免 autoplay 被浏览器阻止的噪音
         if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
           console.warn('[TikTokVideo] playback error:', err);
         }

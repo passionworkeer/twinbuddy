@@ -2,33 +2,59 @@
   "videos": [
     {
       "video_id": 1,
-      "title": "一个人的川西自驾，邂逅绝美日落",
+      "title": "川西自驾之旅",
       "category": "travel",
+      "video_url": "/videos/3a25a0d3ce7e5939c065f297e17b461d_裁剪版.mp4",
       "trigger_card": false
     },
     {
       "video_id": 2,
-      "title": "成都美食地图｜必吃的10家苍蝇馆子",
+      "title": "成都美食探店",
       "category": "food",
+      "video_url": "/videos/40f98311ef12a26d5bb92ffb668a7029_裁剪版.mp4",
       "trigger_card": false
     },
     {
       "video_id": 3,
-      "title": "ENFP灵魂拷问：你是这样的自己吗？",
+      "title": "成都citywalk",
       "category": "lifestyle",
-      "trigger_card": true
+      "video_url": "/videos/7c2e35507979c9cedd5f558bfc33d674.mp4",
+      "trigger_card": false
     },
     {
       "video_id": 4,
-      "title": "INFP vs ENFP：理想主义者的共鸣与差异",
+      "title": "慢节奏生活",
       "category": "social",
-      "trigger_card": true
+      "video_url": "/videos/842636456c2fe795f0e186a012984110.mp4",
+      "trigger_card": false
     },
     {
       "video_id": 5,
-      "title": "ISTJ深度解析：你是不是传说中的靠谱搭子？",
+      "title": "小众打卡地",
       "category": "adventure",
-      "trigger_card": true
+      "video_url": "/videos/9b39ec3f9eef4dd5ce7856d95048de03.mp4",
+      "trigger_card": false
+    },
+    {
+      "video_id": 6,
+      "title": "旅行日常",
+      "category": "travel",
+      "video_url": "/videos/a54607e868cf9bb618ae181b773b6e32_裁剪版.mp4",
+      "trigger_card": false
+    },
+    {
+      "video_id": 7,
+      "title": "风景记录",
+      "category": "lifestyle",
+      "video_url": "/videos/d8b9eaa06194ea9b49c46a3691aec26f_裁剪版.mp4",
+      "trigger_card": false
+    },
+    {
+      "video_id": 8,
+      "title": "成都夜生活",
+      "category": "social",
+      "video_url": "/videos/抖音2026417-371186_裁剪版.mp4",
+      "trigger_card": false
     }
   ]
 }

@@ -131,6 +131,12 @@ export interface NegotiationResult {
   radar: RadarData[];
   red_flags: string[];
   messages: NegotiationMessage[];
+  analysis_report?: string;
+  analysis_basis?: {
+    input_tags?: string[];
+    strengths?: string[];
+    conflicts?: string[];
+  };
 }
 
 // ── TwinCard ─────────────────────────────────────────
@@ -210,7 +216,12 @@ export type City = typeof CITIES[number];
 // ── API Params ────────────────────────────────────────
 
 export interface NegotiateParams {
+  user_id?: string;
   user_persona_id?: string;
   buddy_mbti?: string;
+  mbti?: string;
+  interests?: string[];
+  voiceText?: string;
+  travel_style?: string;
   destination: string;
 }

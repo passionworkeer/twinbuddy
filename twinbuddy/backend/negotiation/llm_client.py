@@ -66,7 +66,9 @@ def _get_headers(api_key: str) -> Dict[str, str]:
 
 def _call_api(payload: Dict[str, Any], api_key: str) -> Dict[str, Any]:
     """用指定 key 调用 MiniMax Chat API（同步版本）"""
-    with httpx.Client(timeout=60.0) as client:
+    proxies = os.environ.get("http_proxy") or os.environ.get("HTTP_PROXY") or None
+    transport = httpx.HTTPTransport(retries=1)
+    with httpx.Client(timeout=60.0, proxy=proxies, transport=transport) as client:
         resp = client.post(
             f"{_BASE_URL}/v1/text/chatcompletion_v2",
             headers=_get_headers(api_key),

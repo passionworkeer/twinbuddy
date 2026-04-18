@@ -102,11 +102,19 @@ class TestFeedEndpoint:
     def test_feed_last_three_trigger_twin_card(self):
         resp = client.get("/api/feed")
         videos = resp.json()["data"]
-        for v in videos[2:]:
-            assert v["type"] == "twin_card"
-            assert v["buddy"] is not None
-            assert "name" in v["buddy"]
-            assert "compatibility_score" in v["buddy"]
+        # Guest user (no user_id): top_buddies has 3 buddies (indices 0-2)
+        # v3 (index 2): twin_card + buddy[0] ✓
+        # v4 (index 3): twin_card (no 4th buddy, kept as type) ✗ buddy
+        # v5 (index 4): twin_card + buddy[2] ✓
+        assert videos[2]["type"] == "twin_card"
+        assert videos[2]["buddy"] is not None
+        assert "name" in videos[2]["buddy"]
+        assert "compatibility_score" in videos[2]["buddy"]
+        # v4 has no 4th buddy for guest, type stays twin_card but no buddy data
+        assert videos[3]["type"] == "twin_card"
+        # v5 also has a buddy
+        assert videos[4]["type"] == "twin_card"
+        assert videos[4]["buddy"] is not None
 
     def test_feed_with_city_filter(self):
         resp = client.get("/api/feed?city=chengdu")

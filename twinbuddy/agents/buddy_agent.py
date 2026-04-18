@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 BuddyAgent — TwinBuddy MVP
 A single companion agent driven by full MBTI persona.

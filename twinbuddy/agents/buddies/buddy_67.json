@@ -47,7 +47,7 @@
     "decision_style": "快速果断，基于经验和实际情况做决定，不犹豫不纠结。相信自己的判断，很少被他人意见左右。如果对方建议合理会采纳但不解释原因，如果觉得对方在说废话会直接无视。遇到问题时'先干了再说'，行动派而非思考派。",
     "risk_tolerance": "高",
     "fear_factors": [
-      "未知因素"
+      "我有点担心……"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -104,7 +104,8 @@
       "有故事的小城"
     ],
     "hated_destinations": [
-      "你觉得这样好吗？"
+      "人山人海的景点",
+      "网红打卡地"
     ]
   },
   "personality_layers": {

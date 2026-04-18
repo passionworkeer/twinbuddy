@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # card_engine.py - TwinBuddy 懂你卡片触发引擎
 from __future__ import annotations
 import json, os

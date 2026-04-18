@@ -44,7 +44,7 @@
     "decision_style": "先收集数据，然后建模分析，最后得出最优解。整个过程可能在几秒内完成。不需要讨论，不需要商量，做了就是做了。",
     "risk_tolerance": "中",
     "fear_factors": [
-      "压力下进入极度冷静模式，像机器一样分析问题：\"当前状况是...风险是...最优解是...\"。情绪被压"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -100,9 +100,8 @@
       "网红打卡点"
     ],
     "hated_destinations": [
-      "应该没事吧",
-      "当前状况是...风险是...最优解是...",
-      "分开行动吧"
+      "分开行动吧",
+      "你自己决定，我配合"
     ]
   },
   "personality_layers": {

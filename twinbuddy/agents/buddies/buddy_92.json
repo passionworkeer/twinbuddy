@@ -42,7 +42,7 @@
     "decision_style": "快速收集信息、交叉验证、形成判断，决定后直接行动。压力下更冷静更快，进入工作模式用专业来应对，但长期压力会导致职业倦怠。",
     "risk_tolerance": "高",
     "fear_factors": [
-      "压力下更冷静更快，进入工作模式。长期高压会导致职业倦怠，需要主动休息和放空。不会情绪化，但会用沉默来"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -85,8 +85,8 @@
   },
   "preferences": {
     "likes": [
-      "旅行",
-      "探索新地方"
+      "所以你的意思是",
+      "关键点是什么"
     ],
     "dislikes": [
       "人山人海",

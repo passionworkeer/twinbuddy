@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mic, Sparkles } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { usePrecomputedMatch } from '../hooks/usePrecomputedMatch';
 import { MBTI_TYPES, MBTI_LABELS, INTEREST_TAGS, VideoItem } from '../types';
-import { fetchBuddies } from '../api/client';
 import MOCK_VIDEOS from '../mocks/videos.json';
 
 const LOCATIONS = [
@@ -484,47 +484,32 @@ export default function OnboardingPage() {
     completeOnboarding,
   } = useOnboarding();
 
+  const { startPrecomputation, clearPrecomputed } = usePrecomputedMatch();
+
   const TOTAL_STEPS = 4;
 
   // 显式步骤状态：由用户操作驱动，第 1/2 步会基于数据自动前进。
   const [step, setStep] = useState(1);
 
-  // Preload feed data to make the Feed page load instantly
+  // 预加载 Feed 数据 + 启动预计算
   useEffect(() => {
-    // Only start preloading when the user reaches the second step to save some bandwidth if they bounce early
-    if (step >= 2 && !sessionStorage.getItem('twinbuddy_preloaded_feed')) {
-      async function preloadFeedData() {
-        try {
-          const buddies = await fetchBuddies(undefined, 8);
-          const videosWithBuddies: VideoItem[] = (MOCK_VIDEOS as VideoItem[]).map((tpl, i) => ({
-            ...tpl,
-            buddy: buddies[i]
-              ? {
-                  name: String(buddies[i].name ?? ''),
-                  mbti: String(buddies[i].mbti ?? 'ENFP'),
-                  avatar_emoji: String(buddies[i].avatar_emoji ?? ''),
-                  typical_phrases: (buddies[i].typical_phrases as string[]) ?? [],
-                  travel_style: String(buddies[i].travel_style ?? ''),
-                  compatibility_score: Number((buddies[i] as Record<string, unknown>).compatibility_score ?? 80),
-                }
-              : undefined,
-          }));
-          
-          // Shuffle videos exactly like FeedPage does
-          const next = [...videosWithBuddies];
-          for (let i = next.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [next[i], next[j]] = [next[j], next[i]];
-          }
-          
-          sessionStorage.setItem('twinbuddy_preloaded_feed', JSON.stringify(next));
-        } catch (err) {
-          console.error("Failed to preload feed data:", err);
-        }
-      }
-      preloadFeedData();
+    if (!data.completed) return;
+
+    // 随机打乱视频列表
+    const shuffled = [...(MOCK_VIDEOS as VideoItem[])];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-  }, [step]);
+    sessionStorage.setItem('twinbuddy_preloaded_feed', JSON.stringify(shuffled));
+
+    // 清除旧的预计算数据，然后启动新的预计算
+    clearPrecomputed();
+    // 使用 setTimeout 确保在导航之前启动，避免阻塞
+    setTimeout(() => {
+      startPrecomputation(data);
+    }, 100);
+  }, [data.completed, data, startPrecomputation, clearPrecomputed]);
 
   // 标记是否正在回退，用于防止回退时触发自动前进
   const isNavigatingBack = useRef(false);

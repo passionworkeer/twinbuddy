@@ -225,6 +225,28 @@ export default function ResultPage() {
           <RadarChart data={resultData.radar} size={200} />
         </div>
 
+        {/* AI analysis report */}
+        {resultData.analysis_report && (
+          <div className="glass-panel p-5 animate-slide-up" style={{ animationDelay: '260ms' }}>
+            <h3 className="text-sm font-semibold text-neon-text-secondary mb-3 uppercase tracking-widest">
+              AI 协商报告
+            </h3>
+            <p className="text-sm text-neon-text leading-relaxed">{resultData.analysis_report}</p>
+            {(resultData.analysis_basis?.input_tags?.length ?? 0) > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {resultData.analysis_basis?.input_tags?.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-neon-primary/30 bg-neon-primary/10 px-2.5 py-1 text-xs text-neon-text-secondary"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Plan */}
         <div className="glass-panel p-5 animate-slide-up" style={{ animationDelay: '300ms' }}>
           <h3 className="text-sm font-semibold text-neon-text-secondary mb-4 uppercase tracking-widest">

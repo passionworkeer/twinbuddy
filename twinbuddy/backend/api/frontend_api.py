@@ -332,8 +332,13 @@ def _build_user_prefs_from_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
         mbti_match = _re.search(r"\b([IE][NS][TF][JP])([AT])?\b", mbti_influence)
     mbti = mbti_match.group(0) if mbti_match else persona.get("mbti_type") or persona.get("mbti", "ENFP")
 
-    # likes：优先 core_values，其次 language_markers
-    likes: List[str] = identity.get("core_values", []) or []
+    # likes：优先 interest_tags，其次 core_values，再次 language_markers
+    likes: List[str] = []
+    raw_interest_tags = persona.get("interest_tags", [])
+    if isinstance(raw_interest_tags, list):
+        likes = [str(x).strip() for x in raw_interest_tags if str(x).strip()]
+    if not likes:
+        likes = identity.get("core_values", []) or []
     if not likes:
         markers: List[str] = sp.get("language_markers", [])
         likes = [m for m in markers if len(m) > 2][:5]
@@ -342,6 +347,8 @@ def _build_user_prefs_from_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
     dealbreakers: List[str] = []
     if isinstance(layer0, dict):
         dealbreakers = layer0.get("dealbreakers", []) or []
+    elif isinstance(layer0, list):
+        dealbreakers = [str(x).strip() for x in layer0 if str(x).strip()]
 
     # budget
     budget = ""
@@ -489,9 +496,21 @@ class VideoItemResponse(BaseModel):
 
 class NegotiationRequest(BaseModel):
     """POST /api/negotiate 请求体"""
+    user_id: Optional[str] = None
     user_persona_id: Optional[str] = None
     buddy_mbti: Optional[str] = None
+    mbti: Optional[str] = None
+    interests: List[str] = Field(default_factory=list)
+    voiceText: str = Field(default="")
+    travel_style: Optional[str] = None
     destination: str = Field(..., description="目的地城市ID")
+
+    @field_validator("mbti")
+    @classmethod
+    def normalize_optional_mbti(cls, v: Optional[str]) -> Optional[str]:
+        if not v:
+            return v
+        return v.strip().upper()
 
 
 # ---------------------------------------------------------------------------
@@ -1214,6 +1233,12 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "radar": radar,
             "red_flags": red_flags,
             "messages": messages,
+            "analysis_report": compat.get("recommendation", "匹配度较好，建议围绕共同偏好展开行程。"),
+            "analysis_basis": {
+                "input_tags": [],
+                "strengths": compat.get("strengths", [])[:3],
+                "conflicts": compat.get("challenges", [])[:3],
+            },
         }
     else:
         return {
@@ -1226,6 +1251,8 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "radar": [],
             "red_flags": ["数据不足，请补充更多信息"],
             "messages": [],
+            "analysis_report": "当前信息不足，建议补充兴趣标签后重新协商。",
+            "analysis_basis": {"input_tags": [], "strengths": [], "conflicts": ["输入信息不足"]},
         }
 
 
@@ -1522,10 +1549,13 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
 
     city = req.destination or "dali"
     city_name = _CITY_NAMES.get(city, city or "大理")
+    requested_mbti = (req.mbti or "").strip().upper()
+    requested_interests = [str(x).strip() for x in (req.interests or []) if str(x).strip()]
+    requested_voice = (req.voiceText or "").strip()
 
     # ── 获取用户 persona（优先 .md 文件，其次内存）────────────────────
     user_persona: Optional[Dict[str, Any]] = None
-    user_mbti = "ENFP"
+    user_mbti = requested_mbti or "ENFP"
     user_name = "你"
 
     if req.user_persona_id:
@@ -1548,6 +1578,39 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                     or user_mbti
                 )
                 break
+
+    # 方式2：通过 user_id 直接关联后端持久化数据
+    if not user_persona and req.user_id:
+        md_doc = persona_doc.load_persona_doc(req.user_id)
+        if md_doc:
+            fm, body = persona_doc.parse_persona_doc(md_doc)
+            if fm:
+                user_persona = persona_doc.dict_from_frontmatter(fm, body)
+                user_name = str(user_persona.get("name") or user_name)
+                user_mbti = fm.get("mbti", user_mbti)
+
+        if not user_persona and req.user_id in _persona_store:
+            p = _persona_store[req.user_id]
+            user_persona = p
+            user_name = str(p.get("name") or user_name)
+            user_mbti = (
+                _extract_mbti(str(p.get("mbti_influence") or ""))
+                or _extract_mbti(str(p.get("mbti_type") or ""))
+                or user_mbti
+            )
+
+        if not user_persona and req.user_id in _onboarding_store:
+            onboarding = _onboarding_store[req.user_id]
+            user_mbti = str(onboarding.get("mbti") or user_mbti).upper()
+            user_persona = _build_persona_from_onboarding(
+                user_mbti,
+                str(onboarding.get("city") or city),
+                onboarding.get("interests") or [],
+                str(onboarding.get("voiceText") or ""),
+            )
+
+    if requested_mbti:
+        user_mbti = requested_mbti
 
     # ── 获取 Buddy persona（优先 .md 文件，其次 JSON，最后规则生成）──
     buddy_mbti = (req.buddy_mbti or "INFP").upper()
@@ -1583,11 +1646,40 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     try:
         from negotiation.graph import run_negotiation
 
+        # 优先从请求与历史记录中提取标签/语音上下文
+        context_interests = list(requested_interests)
+        context_voice = requested_voice
+        if req.user_id and req.user_id in _onboarding_store:
+            onboarding = _onboarding_store[req.user_id]
+            if not context_interests:
+                context_interests = [
+                    str(x).strip() for x in (onboarding.get("interests") or []) if str(x).strip()
+                ]
+            if not context_voice:
+                context_voice = str(onboarding.get("voiceText") or "").strip()
+
         # 使用的人格数据（优先用户 persona，fallback 到动态生成）
-        active_user_persona = (
-            user_persona
-            or _build_persona_from_onboarding(user_mbti, city, [], "")
-        )
+        if user_persona:
+            active_user_persona = dict(user_persona)
+        else:
+            active_user_persona = _build_persona_from_onboarding(
+                user_mbti,
+                city,
+                context_interests,
+                context_voice,
+            )
+
+        # 将前端标签与语音上下文注入 persona，供 LLM 协商 prompt 使用
+        if context_interests:
+            active_user_persona["interest_tags"] = context_interests[:12]
+            identity = active_user_persona.get("identity", {})
+            if isinstance(identity, dict):
+                raw_core = identity.get("core_values", [])
+                core_values = [str(x).strip() for x in raw_core if str(x).strip()] if isinstance(raw_core, list) else []
+                identity["core_values"] = list(dict.fromkeys(context_interests + core_values))[:12]
+                active_user_persona["identity"] = identity
+        if context_voice:
+            active_user_persona["voice_text"] = context_voice
 
         # 构建 user_prefs 以计算兼容性分解（供 LLM 深度注入）
         user_prefs_for_compat: Optional[Dict[str, Any]] = None
@@ -1595,6 +1687,17 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             user_prefs_for_compat = _build_user_prefs_from_persona(active_user_persona)
         except Exception:
             pass
+
+        if user_prefs_for_compat is None:
+            user_prefs_for_compat = {}
+        if user_mbti and not user_prefs_for_compat.get("mbti"):
+            user_prefs_for_compat["mbti"] = user_mbti
+        if context_interests:
+            user_prefs_for_compat["likes"] = context_interests
+        if requested_mbti:
+            user_prefs_for_compat["mbti"] = requested_mbti
+        if req.travel_style:
+            user_prefs_for_compat["travel_style"] = req.travel_style
 
         # 计算协商兼容性分解（包含 total/strengths/red_flags/easy_to_compromise）
         compat_breakdown = _get_negotiation_compatibility_breakdown(
@@ -1636,6 +1739,9 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             ]
 
         overall = final_report.get("overall_score", 0.5) if final_report else 0.5
+        final_tags = context_interests or (
+            user_prefs_for_compat.get("likes", []) if isinstance(user_prefs_for_compat, dict) else []
+        )
         result_data = {
             "destination": city_name,
             "dates": "5月10日-5月15日",
@@ -1646,6 +1752,12 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "radar": radar,
             "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
             "messages": messages,
+            "analysis_report": final_report.get("recommendation", "") if final_report else "",
+            "analysis_basis": {
+                "input_tags": final_tags[:8] if isinstance(final_tags, list) else [],
+                "strengths": final_report.get("strengths", [])[:3] if final_report else [],
+                "conflicts": final_report.get("challenges", [])[:3] if final_report else [],
+            },
         }
         llm_source = "llm"
         try:
@@ -1665,6 +1777,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "buddy_mbti": buddy_mbti,
                 "destination": city,
                 "overall_score": overall,
+                "tag_count": len(final_tags) if isinstance(final_tags, list) else 0,
             },
         }
     except Exception as exc:

@@ -74,7 +74,7 @@ describe("Step 2: Interests", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
   });
 
@@ -83,9 +83,9 @@ describe("Step 2: Interests", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
-    // Selecting interest immediately advances to step 3 (data-driven)
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
     await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
   });
 });
@@ -100,7 +100,9 @@ describe("Step 3: VoiceOrText (voice and text optional)", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
     await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
   });
 
@@ -109,7 +111,9 @@ describe("Step 3: VoiceOrText (voice and text optional)", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
   });
 
@@ -118,7 +122,9 @@ describe("Step 3: VoiceOrText (voice and text optional)", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
+    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await user.click(getContinueBtn());
     await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
     const textarea = screen.getByPlaceholderText(/描述你理想的搭子/);
     await user.clear(textarea);
@@ -139,9 +145,12 @@ describe("Step 4: Destination (free text, optional)", () => {
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     // Step 2 -> select interest -> enables continue
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
-    // Step 3 -> click continue
+    // Step 2 -> Step 3
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
+    // Step 3 -> Step 4
     await user.click(getContinueBtn());
     // Step 4 should show destination input
     await waitFor(() => expect(screen.getByText(/你想去哪/)).toBeInTheDocument());
@@ -152,25 +161,37 @@ describe("Step 4: Destination (free text, optional)", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    // Step 2 -> Step 3
     await user.click(getContinueBtn());
-    await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
+    // Step 3 -> Step 4
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你想去哪/)).toBeInTheDocument());
+    expect(screen.getByRole("button", { name: /开始刷搭子/i })).toBeEnabled();
   });
 
-  it("browse button completes onboarding without city", async () => {
+  it("finish button completes onboarding without city", async () => {
     const user = userEvent.setup({ delay: null });
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    // Step 2 -> Step 3
     await user.click(getContinueBtn());
-    await waitFor(() => expect(screen.getByRole("button", { name: /随便看看/i })).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /随便看看/i }));
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
-    expect(stored.completed).toBe(true);
-    expect(stored.city).toBe("");
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
+    // Step 3 -> Step 4
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByText(/你想去哪/)).toBeInTheDocument());
+    // Step 4 -> Complete
+    await user.click(getContinueBtn());
+    await waitFor(() => {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as OnboardingData;
+      expect(stored.completed).toBe(true);
+      expect(stored.city).toBe("");
+    });
   });
 
   it("typing destination stores it", async () => {
@@ -178,8 +199,12 @@ describe("Step 4: Destination (free text, optional)", () => {
     renderOnboarding();
     await user.click(screen.getByRole("button", { name: /ENFP/i }));
     await waitFor(() => expect(screen.getByText(/你向往哪种旅行/)).toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /川西/i }));
+    await user.click(screen.getByRole("button", { name: /摄影打卡/i }));
     await waitFor(() => expect(getContinueBtn()).toBeEnabled());
+    // Step 2 -> Step 3
+    await user.click(getContinueBtn());
+    await waitFor(() => expect(screen.getByPlaceholderText(/描述你理想的搭子/)).toBeInTheDocument());
+    // Step 3 -> Step 4
     await user.click(getContinueBtn());
     await waitFor(() => expect(screen.getByPlaceholderText(/例如：成都/)).toBeInTheDocument());
     const input = screen.getByPlaceholderText(/例如：成都/);

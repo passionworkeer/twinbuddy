@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # card_engine.py - TwinBuddy 懂你卡片触发引擎
 from __future__ import annotations
-import json, os
 from typing import Any, Dict, Optional
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Trigger logic (pure function, no side effects)
@@ -34,18 +32,23 @@ def get_video_data(video_id: int) -> Optional[Dict[str, Any]]:
     return MOCK_VIDEOS.get(video_id)
 
 # ---------------------------------------------------------------------------
-# Mock persona loader
+# Lightweight compatibility builder (no filesystem dependency)
 # ---------------------------------------------------------------------------
 
-MOCK_PERSONAS_DIR = Path(__file__).parent / "mock_personas"
-
 def load_mock_persona(mbti_a: str, mbti_b: str) -> Optional[Dict[str, Any]]:
-    combo = sorted([mbti_a.upper(), mbti_b.upper()])
-    path = MOCK_PERSONAS_DIR / combo[0].lower() / f"compatibility_{combo[0].lower()}_{combo[1].lower()}.json"
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+    pair = {mbti_a.upper(), mbti_b.upper()}
+    score = 0.82 if pair == {"ENFP", "INFP"} else 0.76
+    return {
+        "phase": "REPORT_GENERATED",
+        "overall_score": score,
+        "rounds": [
+            {"topic": "行程节奏", "result": "达成共识"},
+            {"topic": "预算与体验", "result": "互补可协同"},
+        ],
+        "final_report": {
+            "summary": "建议先约定每日节奏与预算边界，再按共同兴趣排优先级。",
+        },
+    }
 
 # ---------------------------------------------------------------------------
 # Feed endpoint builder

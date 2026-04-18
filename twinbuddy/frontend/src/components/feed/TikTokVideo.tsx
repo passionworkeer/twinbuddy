@@ -200,8 +200,6 @@ export function TikTokVideo({
   const [videoAspect, setVideoAspect] = useState<'portrait' | 'landscape' | 'square'>('portrait');
   const playIndicatorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  console.log('[TikTokVideo] Rendered, isActive:', isActive, 'videoUrl:', videoUrl);
-
   // Detect video orientation
   const handleMetadata = useCallback(() => {
     const video = videoRef.current;
@@ -221,15 +219,15 @@ export function TikTokVideo({
   // Auto-play / pause based on visibility
   useEffect(() => {
     const video = videoRef.current;
-    console.log('[TikTokVideo] useEffect, video:', !!video, 'videoUrl:', videoUrl, 'isActive:', isActive);
     if (!video || !videoUrl) return;
 
     if (isActive) {
       // 确保视频元数据加载完成后再播放
       const playVideo = () => {
-        console.log('[TikTokVideo] playVideo called');
         video.play().catch((err) => {
-          console.warn('[TikTokVideo] playback error:', err.name, err.message);
+          if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+            console.warn('[TikTokVideo] playback error:', err.name, err.message);
+          }
         });
         setPaused(false);
       };

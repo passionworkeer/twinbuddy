@@ -241,7 +241,6 @@ twinbuddy/
 │   ├── mock_videos.json       ← Mock 视频数据
 │   ├── langgraph/             ← 协商状态机
 │   │   └── negotiation_graph.py
-│   ├── mock_personas/          ← Mock 人格池
 │   ├── agents/                 ← Agent 核心
 │   │   ├── buddy_agent.py     ← 数字人 Agent
 │   │   ├── matching_graph.py  ← 匹配图

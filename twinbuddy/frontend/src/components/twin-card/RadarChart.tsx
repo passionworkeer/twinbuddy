@@ -24,6 +24,8 @@ interface TooltipState {
 }
 
 export function RadarChart({ data, size = 240 }: Props) {
+  if (!data || data.length === 0) return null;
+
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, dimension: '', userScore: 0, buddyScore: 0,
   });

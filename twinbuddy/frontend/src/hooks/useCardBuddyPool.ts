@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchBuddies } from '../api/client';
 import type { Buddy, OnboardingData } from '../types';
 
@@ -76,14 +76,18 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
     }
   }, []);
 
+  // Always read the current pool via ref to avoid stale closures
+  const poolRef = useRef(pool);
+  useEffect(() => { poolRef.current = pool; }, [pool]);
+
   // 推进到下一个（环形）
   const advanceIndex = useCallback(() => {
     setIndex(prev => {
-      const next = advanceBuddyIndex(pool, prev);
-      persistPool(pool, next);
+      const next = advanceBuddyIndex(poolRef.current, prev);
+      persistPool(poolRef.current, next);
       return next;
     });
-  }, [pool]);
+  }, []); // no deps — reads current pool via ref
 
   return {
     pool,

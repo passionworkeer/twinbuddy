@@ -40,7 +40,7 @@ from agents.buddies import (
     get_buddy_public,
 )
 from agents import persona_doc
-from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
+from agents.scoring import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
 
 # ---------------------------------------------------------------------------
@@ -1719,6 +1719,303 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "destination": city,
             },
         }
+
+
+# ---------------------------------------------------------------------------
+# Buddy Persona 预计算缓存
+# ---------------------------------------------------------------------------
+
+_BUDDY_PERSONA_CACHE: Dict[str, Dict[str, Any]] = {}
+
+
+@router.post("/precompute-buddy")
+async def precompute_buddy(req: NegotiationRequest) -> Dict[str, Any]:
+    """
+    预计算搭子 persona（异步，不阻塞用户请求）。
+
+    前端在用户点击目的地时调用此接口，
+    后端在后台生成 top-3 搭子的 persona，结果存入 _BUDDY_PERSONA_CACHE。
+    后续 /api/negotiate/stream 直接从缓存读取，无需等待 LLM。
+    """
+    import asyncio
+    import logging
+    logger = logging.getLogger("twinbuddy.api")
+
+    user_mbti = (req.mbti or "ENFP").strip().upper()
+    interests = req.interests or []
+    city = req.destination or "dali"
+
+    user_prefs = _build_user_prefs({"mbti": user_mbti, "interests": interests, "city": city})
+
+    def _compute():
+        try:
+            top_buddies = get_top_buddies(user_prefs, limit=3)
+        except Exception:
+            top_buddies = []
+
+        results = {}
+        for i, buddy in enumerate(top_buddies):
+            buddy_id = buddy.get("id", f"buddy_{i+1:02d}")
+            try:
+                from agents.buddy_persona_generator import generate_buddy_persona_from_user
+                buddy_persona = generate_buddy_persona_from_user(
+                    user_mbti=user_mbti,
+                    user_interests=interests,
+                    destination=city,
+                )
+            except Exception:
+                buddy_persona = buddy
+            results[buddy_id] = buddy_persona
+            _BUDDY_PERSONA_CACHE[f"{req.user_persona_id or 'anon'}:{buddy_id}"] = buddy_persona
+        return results
+
+    # 后台执行，不阻塞
+    asyncio.get_event_loop().run_in_executor(None, _compute)
+    logger.info("预计算搭子 persona 已启动 | user_mbti=%s | destination=%s", user_mbti, city)
+    return {"success": True, "message": "预计算已启动"}
+
+
+@router.post("/negotiate/stream")
+async def negotiate_stream(req: NegotiationRequest):
+    """
+    SSE 流式协商接口 — 实时返回 MiniMax LLM 生成的消息。
+
+    流式输出：每个 LLM 调用完成后立即 yield，
+    前端可实时展示对话，无需等待全部生成完毕。
+
+    SSE 格式：
+      event: message
+      data: {"speaker": "user"|"buddy", "content": "...", "topic": "...", "round": 1}
+
+      event: done
+      data: {"summary": "...", "overall": 0.85}
+    """
+    import asyncio
+    import logging
+    import concurrent.futures
+    from fastapi.responses import StreamingResponse
+    from fastapi import Query
+
+    logger = logging.getLogger("twinbuddy.api")
+    city = req.destination or "dali"
+    city_name = _CITY_NAMES.get(city, city or "大理")
+
+    # ── 获取用户 persona ──────────────────────────────────────────────
+    user_persona: Optional[Dict[str, Any]] = None
+    user_mbti = (req.mbti or "ENFP").strip().upper()
+    user_id = req.user_persona_id or "anon"
+
+    if req.user_persona_id:
+        for uid_key, p in _persona_store.items():
+            if p.get("persona_id") == req.user_persona_id:
+                user_persona = p
+                break
+
+    # 构建用户 prefs
+    active_user_persona = (
+        user_persona
+        or {"mbti_type": user_mbti, "identity": {"content": ""},
+            "speaking_style": {"chat_tone": "热情直接", "typical_phrases": ["说走就走！"]},
+            "emotion_decision": {"decision_style": "凭直觉"},
+            "negotiation_style": {"approach": "友好协商"},
+            "city": city}
+    )
+
+    # ── 获取 Buddy persona（缓存优先）─────────────────────────────────
+    buddy_mbti = (req.buddy_mbti or "INFP").strip().upper()
+    buddy_id_key = f"{user_id}:{buddy_mbti}"
+
+    twin_persona = _BUDDY_PERSONA_CACHE.get(buddy_id_key)
+    if not twin_persona:
+        try:
+            from agents.buddy_persona_generator import generate_buddy_persona_from_user
+            twin_persona = generate_buddy_persona_from_user(
+                user_mbti=user_mbti,
+                user_interests=req.interests or [],
+                destination=city,
+            )
+        except Exception:
+            twin_persona = {
+                "mbti_type": buddy_mbti,
+                "identity": {"content": f"MBTI={buddy_mbti}的旅行者"},
+                "speaking_style": {"chat_tone": "温和随和", "typical_phrases": ["慢慢来", "挺好的"]},
+                "emotion_decision": {"decision_style": "凭直觉"},
+                "negotiation_style": {"approach": "温和协商", "easy_to_compromise": ["节奏"], "hard_to_compromise": ["预算"]},
+            }
+
+    # ── 计算兼容性分解 ────────────────────────────────────────────────
+    try:
+        user_prefs = _build_user_prefs_from_persona(active_user_persona)
+    except Exception:
+        user_prefs = None
+
+    compat_breakdown = _get_negotiation_compatibility_breakdown(user_prefs, twin_persona)
+
+    # ── SSE 生成器 ────────────────────────────────────────────────────
+    TOPICS_LIST = ["travel_rhythm", "food", "budget"]
+
+    async def _stream_negotiation():
+        """在 executor 中运行同步 LLM 调用，yield 每个生成的消息。"""
+        loop = asyncio.get_event_loop()
+        round_num = [0]
+
+        def _generate():
+            """同步 LLM 生成（运行在线程池中）。"""
+            try:
+                from backend.negotiation.llm_client import llm_client
+                from backend.negotiation.nodes import TOPIC_LABELS, PROPOSALS
+                from backend.negotiation.state import NegotiationPhase
+                import random
+
+                def _trait(p, dim):
+                    """从 persona 中提取某维度的 trait。"""
+                    travel = p.get("travel_style", {})
+                    if isinstance(travel, dict):
+                        pace = travel.get("preferred_pace", "")
+                    elif isinstance(travel, str):
+                        pace = travel
+                    else:
+                        pace = "flexible"
+
+                    trait_map = {
+                        "travel_rhythm": {"early": "早睡早起", "night": "夜猫子", "flexible": "灵活"},
+                        "food": {"local": "本地美食", "varied": "多样尝试", "safe": "熟悉安全"},
+                        "budget": {"high": "300-500/天", "medium": "200-300/天", "low": "100-200/天"},
+                    }
+                    return trait_map.get(dim, {}).get(
+                        list(trait_map.get(dim, {}).keys())[round(random.random() * 10) % len(trait_map.get(dim, {}))],
+                        "flexible"
+                    )
+
+                def _fmt_pref(topic, persona):
+                    trait = _trait(persona, topic)
+                    proposals = {
+                        "travel_rhythm": {"early": "希望早睡早起，享受清晨时光", "night": "夜猫子模式，夜晚才有灵感", "flexible": "节奏灵活，随遇而安"},
+                        "food": {"local": "必吃本地特色美食", "varied": "什么都想尝试", "safe": "找熟悉的连锁餐厅"},
+                        "budget": {"high": "预算充足，想体验最好的", "medium": "性价比优先", "low": "穷游，能省则省"},
+                    }
+                    return proposals.get(topic, {}).get(trait, "希望旅途愉快")
+
+                # 构建人格注入块
+                def _build_block(persona, role):
+                    sp = persona.get("speaking_style", {}) or {}
+                    sp = sp if isinstance(sp, dict) else {}
+                    emo = persona.get("emotion_decision", {}) or {}
+                    emo = emo if isinstance(emo, dict) else {}
+                    neg = persona.get("negotiation_style", {}) or {}
+                    neg = neg if isinstance(neg, dict) else {}
+                    phrases = sp.get("typical_phrases", []) or []
+                    typical = "、".join(phrases[:2]) if phrases else "无特殊口头禅"
+                    return {
+                        "mbti": persona.get("mbti_type") or persona.get("mbti", "ENFP"),
+                        "tone": sp.get("chat_tone", "自然随性"),
+                        "typical_phrases": typical,
+                        "hard_to_compromise": "、".join(neg.get("hard_to_compromise", [])[:1]) or "无特殊底线",
+                        "easy_to_compromise": "、".join(neg.get("easy_to_compromise", [])[:1]) or "多数可协商",
+                        "decision_style": emo.get("decision_style", "凭直觉"),
+                        "stress_response": emo.get("stress_response", "情绪来得快去得快"),
+                    }
+
+                user_block = _build_block(active_user_persona, "user")
+                buddy_block = _build_block(twin_persona, "buddy")
+
+                compat_block = ""
+                if compat_breakdown:
+                    total = compat_breakdown.get("total", 0.5)
+                    strengths = compat_breakdown.get("strengths", [])
+                    compat_block = f"【匹配分析】你们整体匹配度 {int(total*100)}%。{compat_block}"
+
+                # 遍历话题，逐个 LLM 调用
+                for topic in TOPICS_LIST:
+                    round_num[0] += 1
+                    topic_label = TOPIC_LABELS.get(topic, topic)
+                    user_pref = _fmt_pref(topic, active_user_persona)
+                    buddy_pref = _fmt_pref(topic, twin_persona)
+
+                    # 构造 proposer prompt
+                    proposer_msg = (
+                        f"你是user的数字分身，正在和buddy协商旅行计划。\n\n"
+                        f"【你的人格】MBTI={user_block['mbti']}，说话语气={user_block['tone']}，"
+                        f"口头禅={user_block['typical_phrases']}，决策风格={user_block['decision_style']}，"
+                        f"绝不让步={user_block['hard_to_compromise']}，可以妥协={user_block['easy_to_compromise']}。"
+                        f"{compat_block}\n\n"
+                        f"【话题：{topic_label}】你的偏好：{user_pref}。"
+                        f"对方偏好：{buddy_pref}。\n"
+                        f"请用符合你性格的方式说一段话（30-50字），表达你的偏好和要求。"
+                    )
+
+                    system_prompt = "你是一个旅行搭子协商AI，生成符合性格的对话。"
+                    result_user = llm_client.chat(proposer_msg, system_prompt=system_prompt)
+                    if not result_user:
+                        result_user = f"{user_block['typical_phrases']}！关于{topic_label}，我想这样安排……"
+
+                    yield {
+                        "event": "message",
+                        "data": {
+                            "speaker": "user",
+                            "content": result_user,
+                            "topic": topic_label,
+                            "round": round_num[0],
+                        }
+                    }
+
+                    # Buddy 评估
+                    evaluator_msg = (
+                        f"你是buddy的数字分身，正在回应user的提议。\n\n"
+                        f"【你的人格】MBTI={buddy_block['mbti']}，说话语气={buddy_block['tone']}，"
+                        f"口头禅={buddy_block['typical_phrases']}，决策风格={buddy_block['decision_style']}，"
+                        f"绝不让步={buddy_block['hard_to_compromise']}，可以妥协={buddy_block['easy_to_compromise']}。\n\n"
+                        f"【话题：{topic_label}】对方的提议：{result_user}。"
+                        f"你的偏好：{buddy_pref}。\n"
+                        f"请用符合你性格的方式回应（20-40字），表示认同、部分认同或提出不同意见。"
+                    )
+                    result_buddy = llm_client.chat(evaluator_msg, system_prompt=system_prompt)
+                    if not result_buddy:
+                        result_buddy = f"嗯，我理解你的想法。关于{topic_label}，我们可以再商量一下。"
+
+                    yield {
+                        "event": "message",
+                        "data": {
+                            "speaker": "buddy",
+                            "content": result_buddy,
+                            "topic": topic_label,
+                            "round": round_num[0],
+                        }
+                    }
+
+                # 最终总结
+                summary_prompt = (
+                    f"两个旅行搭子完成了关于{city_name}的协商。"
+                    f"用户是{user_block['mbti']}类型，搭子是{buddy_block['mbti']}类型。"
+                    f"请生成一段30字的推荐总结，说明他们的匹配度和旅行建议。"
+                )
+                summary = llm_client.chat(summary_prompt)
+                yield {"event": "done", "data": {"summary": summary or "推荐深入交流"}}
+
+            except Exception as exc:
+                logger.error("SSE生成失败: %s", exc)
+                yield {"event": "error", "data": {"message": str(exc)}}
+
+        # 将同步生成器放到线程池执行
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            gen = await loop.run_in_executor(pool, _generate)
+            for item in gen:
+                if item["event"] == "message":
+                    yield f"event: message\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
+                elif item["event"] == "done":
+                    yield f"event: done\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
+                elif item["event"] == "error":
+                    yield f"event: error\ndata: {json.dumps(item['data'], ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        _stream_negotiation(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.post("/stt")

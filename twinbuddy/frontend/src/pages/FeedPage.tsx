@@ -1,12 +1,15 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TikTokVideo } from '../components/feed/TikTokVideo';
 import { VideoCard } from '../components/feed/VideoCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
 import type { VideoItem, NegotiationResult, OnboardingData } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useOnboarding } from '../hooks/useOnboarding';
 import { STORAGE_KEYS } from '../types';
 import { fetchFeed, negotiate } from '../api/client';
+import { RotateCcw } from 'lucide-react';
 
 // ── Mock Data (fallback when API unavailable) ──────────
 
@@ -15,9 +18,9 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v1',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80',
-    video_url: '',
+    video_url: '/videos/3a25a0d3ce7e5939c065f297e17b461d_裁剪版.mp4',
     location: '成都',
-    title: '成都火锅的正确打开方式',
+    title: '川西自驾之旅',
     buddy: {
       name: '小雅',
       mbti: 'ENFP',
@@ -31,9 +34,9 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v2',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-    video_url: '',
+    video_url: '/videos/40f98311ef12a26d5bb92ffb668a7029_裁剪版.mp4',
     location: '川西',
-    title: '川西小环线自驾日记',
+    title: '成都美食探店',
     buddy: {
       name: '小鱼',
       mbti: 'INFP',
@@ -41,6 +44,38 @@ const MOCK_VIDEOS: VideoItem[] = [
       typical_phrases: ['这里好安静', '我们慢慢走'],
       travel_style: '诗意漫游者',
       compatibility_score: 88,
+    },
+  },
+  {
+    id: 'v3',
+    type: 'video',
+    cover_url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+    video_url: '/videos/7c2e35507979c9cedd5f558bfc33d674.mp4',
+    location: '成都',
+    title: '成都citywalk',
+    buddy: {
+      name: '阿泽',
+      mbti: 'ESTP',
+      avatar_emoji: '☀️',
+      typical_phrases: ['冲冲冲！', '这家必去！'],
+      travel_style: '行动派',
+      compatibility_score: 85,
+    },
+  },
+  {
+    id: 'v4',
+    type: 'video',
+    cover_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+    video_url: '/videos/842636456c2fe795f0e186a012984110.mp4',
+    location: '川西',
+    title: '慢节奏生活',
+    buddy: {
+      name: '小林',
+      mbti: 'INFJ',
+      avatar_emoji: '🍃',
+      typical_phrases: ['慢慢来', '感受当下'],
+      travel_style: '深度慢游',
+      compatibility_score: 90,
     },
   },
 ];
@@ -156,6 +191,15 @@ export default function FeedPage() {
     null,
   );
 
+  // 重新测试功能
+  const { clearData } = useOnboarding();
+  const handleRestart = useCallback(() => {
+    if (confirm('确定要重新测试吗？这将清除当前数据。')) {
+      clearData();
+      navigate('/onboarding');
+    }
+  }, [clearData, navigate]);
+
   const feedRef = useRef<HTMLDivElement>(null);
 
   // Load feed from API on mount
@@ -184,13 +228,18 @@ export default function FeedPage() {
     loadFeed();
   }, []);
 
-  // Show twin card after 2nd video
+  // Show twin card after 2nd video (index >= 2)
   const triggerTwinCard = useCallback(() => {
-    if (!cardsSeen.includes('twin1')) {
-      setCardsSeen((prev) => [...prev, 'twin1']);
-      setTimeout(() => setShowTwinCard(true), 300);
+    if (!showTwinCard) {
+      setCardsSeen((prev) => {
+        if (!prev.includes('twin1')) {
+          return [...prev, 'twin1'];
+        }
+        return prev;
+      });
+      setShowTwinCard(true);
     }
-  }, [cardsSeen, setCardsSeen]);
+  }, [showTwinCard]);
 
   // Handle snap scroll
   const handleScroll = useCallback(() => {
@@ -198,10 +247,11 @@ export default function FeedPage() {
     if (!el) return;
     const index = Math.round(el.scrollTop / window.innerHeight);
     setCurrentIndex(index);
-    if (index >= 2 && !cardsSeen.includes('twin1')) {
+    // 滚动到第3个视频时强制显示卡片
+    if (index >= 2) {
       triggerTwinCard();
     }
-  }, [cardsSeen, triggerTwinCard]);
+  }, [triggerTwinCard]);
 
   // Attach scroll listener
   useEffect(() => {
@@ -211,14 +261,13 @@ export default function FeedPage() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  // Initial twin card trigger after mount
+  // Initial twin card trigger after mount (fallback if no scroll)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!cardsSeen.includes('twin1') && !isFeedLoading) {
-        setCardsSeen((prev) => [...prev, 'twin1']);
-        setShowTwinCard(true);
+      if (!showTwinCard && !isFeedLoading) {
+        triggerTwinCard();
       }
-    }, 1500);
+    }, 2000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -275,7 +324,7 @@ export default function FeedPage() {
     id: 'twin1',
     type: 'twin_card',
     cover_url: '',
-    video_url: '',
+    video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
     location: '大理',
     title: '懂你卡片 · 大理之约',
     buddy: displayVideos[0]?.buddy,
@@ -308,20 +357,47 @@ export default function FeedPage() {
             {feedError}
           </div>
         )}
-        {items.map((item) => (
-          <VideoCard
-            key={item.id}
-            item={item}
-            onLike={() => {}}
-            onComment={() => {}}
-            onShare={() => {}}
-            onTwinCard={handleTwinCard}
-            liked={!!likedItems[item.id]}
-            likeCount={likeCounts[item.id] ?? 0}
-            commentCount={commentCounts[item.id] ?? 0}
-            shareCount={shareCounts[item.id] ?? 0}
-          />
-        ))}
+        {/* 重新测试按钮 */}
+        <button
+          onClick={handleRestart}
+          className="fixed top-4 right-4 z-30 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+          title="重新测试"
+        >
+          <RotateCcw className="w-4 h-4 text-neon-text-secondary" />
+        </button>
+        {items.map((item, index) =>
+          item.type === 'twin_card' ? (
+            <VideoCard
+              key={item.id}
+              item={item}
+              onLike={() => {}}
+              onComment={() => {}}
+              onShare={() => {}}
+              onTwinCard={handleTwinCard}
+              liked={!!likedItems[item.id]}
+              likeCount={likeCounts[item.id] ?? 0}
+              commentCount={commentCounts[item.id] ?? 0}
+              shareCount={shareCounts[item.id] ?? 0}
+            />
+          ) : (
+            <TikTokVideo
+              key={item.id}
+              videoUrl={item.video_url || ''}
+              buddy={item.buddy}
+              location={item.location}
+              title={item.title}
+              liked={!!likedItems[item.id]}
+              isActive={currentIndex === index}
+              likeCount={likeCounts[item.id] ?? 0}
+              commentCount={commentCounts[item.id] ?? 0}
+              shareCount={shareCounts[item.id] ?? 0}
+              onLike={() => {}}
+              onComment={() => {}}
+              onShare={() => {}}
+              onTwinCard={handleTwinCard}
+            />
+          ),
+        )}
       </div>
 
       {/* Scroll progress indicator */}

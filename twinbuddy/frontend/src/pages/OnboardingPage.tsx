@@ -590,18 +590,18 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="bg-background text-on-surface font-body antialiased min-h-[100dvh] w-full relative overflow-x-hidden flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] overflow-y-auto onboarding-container">
+    <div className="h-screen overflow-hidden flex flex-col bg-background text-on-surface font-body antialiased pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] onboarding-container">
       {/* Background Image with Gradient Overlay */}
-      <div 
-        className={`fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ${step === 4 ? 'scale-105 filter blur-[2px] brightness-75' : ''}`} 
-        style={{ 
+      <div
+        className={`fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ${step === 4 ? 'scale-105 filter blur-[2px] brightness-75' : ''}`}
+        style={{
           backgroundImage: "url('/images/back.jpg')"
         }}
       />
       <div className={`fixed inset-0 z-0 transition-all duration-700 ${step === 4 ? 'bg-black/60' : 'bg-white/40'}`} />
 
       {/* TopAppBar */}
-      <header className="relative z-20 flex justify-between items-center w-full px-6 py-4">
+      <header className="relative z-20 shrink-0 flex justify-between items-center w-full px-6 py-4">
         {step > 1 ? (
           <button onClick={handleBack} className={`${step === 4 ? 'text-white' : 'text-gray-800'} hover:opacity-80 transition-opacity scale-95 duration-200`}>
             <span className="material-symbols-outlined">arrow_back</span>
@@ -616,7 +616,7 @@ export default function OnboardingPage() {
       </header>
 
       {/* Main Content Canvas */}
-      <main className="relative z-10 flex flex-col flex-1 w-full px-4 sm:px-6 pt-6 sm:pt-10 pb-12 max-w-4xl mx-auto items-center overflow-x-hidden">
+      <main className="relative z-10 flex flex-col flex-1 min-h-0 w-full px-4 sm:px-6 pt-6 sm:pt-10 pb-12 max-w-4xl mx-auto items-center overflow-x-hidden overflow-y-auto">
         
         {step === 1 && <MBTIGrid value={data.mbti} onChange={updateMbti} />}
         {step === 2 && <InterestTags values={data.interests} onToggle={toggleInterest} />}

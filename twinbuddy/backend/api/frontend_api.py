@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field, field_validator
 
 # 搭子系统（从 JSON 文件加载，fallback 到 MOCK_BUDDIES）
@@ -1680,4 +1680,40 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "buddy_mbti": buddy_mbti,
                 "destination": city,
             },
+        }
+
+
+@router.post("/stt")
+async def speech_to_text(
+    audio: UploadFile = File(...),
+) -> Dict[str, Any]:
+    """
+    POST /api/stt
+
+    语音转文字接口。
+    接收音频文件，返回识别文本。
+    目前返回占位文本，未来可接入真实 STT 服务。
+    """
+    import logging
+    logger = logging.getLogger("twinbuddy.api")
+
+    try:
+        # 读取音频文件
+        audio_bytes = await audio.read()
+        logger.info("收到 STT 请求, audio_size=%d bytes", len(audio_bytes))
+
+        # TODO: 接入真实 STT 服务（如 MiniMax、阿里云 ASR 等）
+        # 目前返回占位文本，模拟语音识别成功
+        placeholder_text = "（这是语音转文字的占位文本，请接入真实 STT 服务）"
+
+        return {
+            "success": True,
+            "text": placeholder_text,
+        }
+    except Exception as exc:
+        logger.error("STT 处理失败: %s", exc)
+        return {
+            "success": False,
+            "text": "",
+            "error": str(exc),
         }

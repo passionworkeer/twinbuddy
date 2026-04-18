@@ -195,14 +195,38 @@ export function TikTokVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
   const [showPlayIndicator, setShowPlayIndicator] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [videoAspect, setVideoAspect] = useState<'portrait' | 'landscape' | 'square'>('portrait');
   const playIndicatorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Detect video orientation
+  const handleMetadata = useCallback(() => {
+    const video = videoRef.current;
+    if (video && video.videoWidth && video.videoHeight) {
+      const ratio = video.videoWidth / video.videoHeight;
+      if (ratio > 1.1) {
+        setVideoAspect('landscape');
+      } else if (ratio < 0.9) {
+        setVideoAspect('portrait');
+      } else {
+        setVideoAspect('square');
+      }
+    }
+    setIsLoading(false);
+  }, []);
 
   // Auto-play / pause based on visibility
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     if (isActive) {
-      video.play().catch(() => {});
+      video.play().catch((err) => {
+        // 只在非用户主动取消播放时记录，避免 autoplay 被浏览器阻止的噪音
+        if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+          console.warn('[TikTokVideo] playback error:', err);
+        }
+      });
       setPaused(false);
     } else {
       video.pause();
@@ -224,6 +248,15 @@ export function TikTokVideo({
     setShowPlayIndicator(true);
     if (playIndicatorTimer.current) clearTimeout(playIndicatorTimer.current);
     playIndicatorTimer.current = setTimeout(() => setShowPlayIndicator(false), 600);
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setLoadError(null);
+    setIsLoading(true);
+    const video = videoRef.current;
+    if (video) {
+      video.load();
+    }
   }, []);
 
   const handleDoubleClick = useCallback(() => {
@@ -254,11 +287,32 @@ export function TikTokVideo({
       <video
         ref={videoRef}
         src={videoUrl}
-        className="absolute inset-0 w-full h-full object-cover"
+        className={`
+          absolute
+          ${videoAspect === 'landscape'
+            ? 'w-full h-full object-contain bg-black'  // 横屏：保持比例，黑色背景
+            : 'inset-0 w-full h-full object-cover'    // 竖屏：填充裁剪
+          }
+        `}
+        style={videoAspect === 'landscape' ? { maxHeight: '100%' } : {}}
         muted
         loop
         playsInline
         preload="metadata"
+        onLoadedMetadata={handleMetadata}
+        onCanPlayThrough={() => setIsLoading(false)}
+        onError={() => {
+          setIsLoading(false);
+          setLoadError('视频加载失败');
+        }}
+        onStalled={() => setLoadError('视频加载缓慢，请检查网络')}
+        onWaiting={() => {
+          if (!loadError) setIsLoading(true);
+        }}
+        onPlaying={() => {
+          setIsLoading(false);
+          setLoadError(null);
+        }}
       />
 
       {/* Gradient overlay */}
@@ -281,10 +335,28 @@ export function TikTokVideo({
         />
       </div>
 
-      {/* Loading spinner (shown while video loads) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <div className="w-10 h-10 border-2 border-white/20 border-t-neon-primary/80 rounded-full animate-spin shadow-glow-primary/50" />
-      </div>
+      {/* Loading spinner — only shown while video is loading and no error */}
+      {isLoading && !loadError && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div className="w-10 h-10 border-2 border-white/20 border-t-neon-primary/80 rounded-full animate-spin shadow-glow-primary/50" />
+        </div>
+      )}
+
+      {/* Error overlay */}
+      {loadError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/60 backdrop-blur-sm">
+          <p className="text-white/80 text-sm mb-4">{loadError}</p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRetry();
+            }}
+            className="px-4 py-2 rounded-full bg-neon-primary/80 text-white text-sm font-medium hover:bg-neon-primary transition-colors"
+          >
+            重试
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -160,20 +160,6 @@ _DEFAULT_VIDEOS = [
     {"id": "v5", "type": "twin_card", "cover_url": _VIDEO_COVERS[4], "location": "厦门", "title": _VIDEO_TITLES[4],  "video_url": None, "buddy": None},
 ]
 
-# 城市 emoji
-_CITY_EMOJI: Dict[str, str] = {
-    "chengdu": "🐼", "chongqing": "🌶️", "dali": "🌊",
-    "lijiang": "🏔️", "huangguoshu": "💧", "xian": "🏯",
-    "qingdao": "🍺", "guilin": "🎋", "harbin": "❄️", "xiamen": "🌴",
-}
-
-# 城市中文名
-_CITY_NAMES: Dict[str, str] = {
-    "chengdu": "成都", "chongqing": "重庆", "dali": "大理",
-    "lijiang": "丽江", "huangguoshu": "黄果树", "xian": "西安",
-    "qingdao": "青岛", "guilin": "桂林", "harbin": "哈尔滨", "xiamen": "厦门",
-}
-
 
 def _load_mock_videos() -> List[Dict[str, Any]]:
     """
@@ -279,21 +265,6 @@ def _build_user_prefs(onboarding: Dict[str, Any], user_id: str = "") -> Dict[str
         "travel_style": travel_style,
         "negotiation_style": negotiation_style,
         "city": city,
-    }
-
-
-def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:
-    """根据 MBTI 构建搭子信息（用于视频中无用户数据时的 fallback）。"""
-    config = _BUDDY_CONFIGS.get(mbti.lower(), _BUDDY_CONFIGS["enfp"])
-    compat = _load_compatibility("ENFP", mbti)
-    score = int(compat["overall_score"] * 100) if compat else 75
-    return {
-        "name": config["name"],
-        "mbti": config["mbti"],
-        "avatar_emoji": config["avatar_emoji"],
-        "typical_phrases": config["typical_phrases"],
-        "travel_style": config["travel_style"],
-        "compatibility_score": score,
     }
 
 

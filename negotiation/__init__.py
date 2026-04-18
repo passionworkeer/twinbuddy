@@ -1,2 +1,2 @@
 # langgraph package
-from .graph import build_negotiation_graph, run_negotiation
+from .graph import negotiate, run_negotiation

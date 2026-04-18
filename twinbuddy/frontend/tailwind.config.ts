@@ -96,9 +96,9 @@ export default {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         orbitron: ['Orbitron', 'Inter', 'sans-serif'],
-        headline: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
-        body: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
-        label: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        headline: ['Epilogue', 'Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        body: ['Manrope', 'Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        label: ['Manrope', 'Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
       },
       borderRadius: {
         "DEFAULT": "1rem",

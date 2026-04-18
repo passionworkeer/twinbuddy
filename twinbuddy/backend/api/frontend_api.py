@@ -40,7 +40,7 @@ from agents.buddies import (
     get_buddy_public,
 )
 from agents import persona_doc
-from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
+from agents.scoring import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
 
 # ---------------------------------------------------------------------------
@@ -124,6 +124,9 @@ _MBTI_EMOJI: Dict[str, str] = {
     "ISFP": "🎨", "ISFJ": "🛡️", "ISTP": "🔧", "ISTJ": "📐",
 }
 
+_NEGOTIATION_DIM_LABELS: List[str] = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
+_NEGOTIATION_DIM_WEIGHTS: List[float] = [0.8, 0.6, 0.5, 0.7, 0.9, 0.6]
+
 # ---------------------------------------------------------------------------
 # Mock 视频数据（Feed 用）
 # ---------------------------------------------------------------------------
@@ -182,6 +185,90 @@ def _load_mock_videos() -> List[Dict[str, Any]]:
         except Exception:
             pass
     return _DEFAULT_VIDEOS
+
+
+def _clamp_score(value: Any, fallback: int = 70) -> int:
+    """将分数标准化到 0-100，输入异常时回退到 fallback。"""
+    try:
+        score = int(float(value))
+    except Exception:
+        score = fallback
+    return max(0, min(100, score))
+
+
+def _normalize_radar(raw_radar: Any) -> List[Dict[str, Any]]:
+    """规范化雷达图结构，确保始终返回 6 维可渲染数据。"""
+    radar_list = raw_radar if isinstance(raw_radar, list) else []
+    normalized: List[Dict[str, Any]] = []
+
+    for idx, label in enumerate(_NEGOTIATION_DIM_LABELS):
+        source = radar_list[idx] if idx < len(radar_list) and isinstance(radar_list[idx], dict) else {}
+        fallback_score = 68 + idx * 3
+        normalized.append({
+            "dimension": label,
+            "user_score": _clamp_score(source.get("user_score"), fallback=fallback_score),
+            "buddy_score": _clamp_score(source.get("buddy_score"), fallback=fallback_score - 4),
+            "weight": float(source.get("weight", _NEGOTIATION_DIM_WEIGHTS[idx])),
+        })
+
+    return normalized
+
+
+def _normalize_analysis_basis(raw_basis: Any) -> Dict[str, List[str]]:
+    """保证 analysis_basis 三个字段始终存在且类型稳定。"""
+    basis = raw_basis if isinstance(raw_basis, dict) else {}
+
+    def _normalize_list(key: str) -> List[str]:
+        value = basis.get(key, [])
+        if not isinstance(value, list):
+            return []
+        return [str(item).strip() for item in value if str(item).strip()]
+
+    return {
+        "input_tags": _normalize_list("input_tags"),
+        "strengths": _normalize_list("strengths"),
+        "conflicts": _normalize_list("conflicts"),
+    }
+
+
+def _ensure_negotiation_payload(data: Dict[str, Any]) -> Dict[str, Any]:
+    """对协商结果做统一兜底，保障前端详情页字段稳定。"""
+    payload = dict(data)
+    destination = str(payload.get("destination") or "大理")
+
+    payload["destination"] = destination
+    payload["radar"] = _normalize_radar(payload.get("radar"))
+
+    messages = payload.get("messages")
+    payload["messages"] = messages if isinstance(messages, list) else []
+
+    red_flags = payload.get("red_flags")
+    payload["red_flags"] = [str(flag).strip() for flag in red_flags if str(flag).strip()] if isinstance(red_flags, list) else []
+
+    plan = payload.get("plan")
+    if isinstance(plan, list):
+        payload["plan"] = [str(item).strip() for item in plan if str(item).strip()]
+    else:
+        payload["plan"] = []
+
+    if not payload["plan"]:
+        payload["plan"] = [
+            f"{destination}古城民宿2晚",
+            f"{destination}周边自然风光1天",
+            "特色美食探索之旅",
+        ]
+
+    payload["analysis_report"] = str(payload.get("analysis_report") or "协商已完成，建议按当前共识先执行首轮行程。")
+    payload["analysis_basis"] = _normalize_analysis_basis(payload.get("analysis_basis"))
+
+    if not isinstance(payload.get("matched_buddies"), list):
+        payload["matched_buddies"] = []
+
+    payload["dates"] = str(payload.get("dates") or "待定")
+    payload["budget"] = str(payload.get("budget") or "待定")
+    payload["consensus"] = bool(payload.get("consensus", False))
+
+    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -1326,7 +1413,7 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "特色美食探索之旅",
             "轻松休闲一日",
         ]
-        return {
+        return _ensure_negotiation_payload({
             "destination": city_name,
             "dates": "5月10日-5月15日",
             "budget": "人均3500元",
@@ -1342,9 +1429,9 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
                 "strengths": compat.get("strengths", [])[:3],
                 "conflicts": compat.get("challenges", [])[:3],
             },
-        }
+        })
     else:
-        return {
+        return _ensure_negotiation_payload({
             "destination": city_name,
             "dates": "待定",
             "budget": "待定",
@@ -1356,7 +1443,7 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "messages": [],
             "analysis_report": "当前信息不足，建议补充兴趣标签后重新协商。",
             "analysis_basis": {"input_tags": [], "strengths": [], "conflicts": ["输入信息不足"]},
-        }
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -1567,13 +1654,15 @@ async def get_feed(
 
 @router.get("/buddies")
 async def get_buddies(
-    user_id: str = Query(...),
+    user_id: Optional[str] = Query(default=None),
     limit: int = Query(default=10, ge=1, le=50),
 ) -> Dict[str, Any]:
     """
-    GET /api/buddies?user_id=xxx&limit=10
+    GET /api/buddies?limit=10
+    GET /api/buddies?user_id=xxx&limit=10  （带评分排序）
 
-    返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
+    无 user_id：返回所有搭子（无评分）
+    有 user_id：返回按 MING 六维度兼容性评分排序的推荐搭子
 
     响应结构：
       {
@@ -1587,51 +1676,59 @@ async def get_buddies(
             "travel_style": "...",
             "typical_phrases": [...],
             "compatibility_score": 87.5,
-            "compatibility_breakdown": {
-              "total": 87.5,
-              "dimensions": {
-                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
-                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
-                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
-                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
-                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
-              },
-              "personality_completion": {"score": 0.0, "reason": "..."},
-              "red_flags":  [...],
-              "strengths":  [...],
-            },
+            ...
           },
           ...
         ],
         "user_prefs": {...},
         "meta": {...}
       }
-
-    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
     """
-    # 1. 获取用户 onboarding 数据
-    if user_id not in _onboarding_store:
-        raise HTTPException(
-            status_code=404,
-            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
-        )
+    # 1. 构建 user_prefs（如果提供了 user_id）
+    user_prefs: Optional[Dict[str, Any]] = None
+    if user_id:
+        if user_id in _onboarding_store:
+            onboarding = _onboarding_store[user_id]
+            user_prefs = _build_user_prefs(onboarding, user_id)
+        else:
+            # 尝试从 persona .md 读取
+            md_prefs = persona_doc.get_persona_for_algorithm(user_id)
+            if md_prefs:
+                user_prefs = md_prefs
 
-    onboarding = _onboarding_store[user_id]
-    user_prefs = _build_user_prefs(onboarding, user_id)
-
-    # 2. 获取 top-N 搭子（使用 MING 六维度评分）
-    top_buddies = get_top_buddies(user_prefs, limit=limit)
+    # 2. 获取搭子列表
+    if user_prefs:
+        # 有用户数据 → 六维度评分排序
+        top_buddies = get_top_buddies(user_prefs, limit=limit)
+        buddies_data = [get_buddy_public(buddy, user_prefs) for buddy in top_buddies]
+    else:
+        # 无用户数据 → 返回全部搭子（无评分）
+        all_buddies = get_all_buddies()
+        buddies_data = [
+            {
+                "id": b.get("id", ""),
+                "name": b.get("name", ""),
+                "mbti": b.get("mbti", ""),
+                "avatar_emoji": b.get("avatar_emoji", ""),
+                "avatar_prompt": b.get("avatar_prompt", ""),
+                "travel_style": b.get("travel_style", ""),
+                "typical_phrases": b.get("speaking_style", {}).get("typical_phrases", [])
+                                 if isinstance(b.get("speaking_style"), dict)
+                                 else b.get("typical_phrases", []),
+            }
+            for b in all_buddies[:limit]
+        ]
 
     return {
         "success": True,
-        "buddies": [get_buddy_public(buddy, user_prefs) for buddy in top_buddies],
+        "buddies": buddies_data,
         "user_prefs": user_prefs,
         "meta": {
             "user_id": user_id,
             "limit": limit,
-            "total_buddies": len(top_buddies),
-            "mbti": user_prefs.get("mbti"),
-            "city": user_prefs.get("city"),
+            "total_buddies": len(buddies_data),
+            "mbti": user_prefs.get("mbti") if user_prefs else None,
+            "city": user_prefs.get("city") if user_prefs else None,
         },
     }
 
@@ -1824,13 +1921,12 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
 
         radar = []
-        DIM_LABELS = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
         for i, (t, s) in enumerate(consensus_scores.items()):
             radar.append({
-                "dimension": DIM_LABELS[i] if i < len(DIM_LABELS) else t,
+                "dimension": _NEGOTIATION_DIM_LABELS[i] if i < len(_NEGOTIATION_DIM_LABELS) else t,
                 "user_score": int(s * 100),
                 "buddy_score": int(s * 90),
-                "weight": 0.7,
+                "weight": _NEGOTIATION_DIM_WEIGHTS[i] if i < len(_NEGOTIATION_DIM_WEIGHTS) else 0.7,
             })
 
         plan = final_report.get("strengths", []) if final_report else []
@@ -1862,6 +1958,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "conflicts": final_report.get("challenges", [])[:3] if final_report else [],
             },
         }
+        result_data = _ensure_negotiation_payload(result_data)
         llm_source = "llm"
         try:
             from negotiation.llm_client import _KEYS as _LLM_KEYS

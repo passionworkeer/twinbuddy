@@ -75,6 +75,14 @@ export default function FeedPage() {
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [matchBackground, setMatchBackground] = useState<VideoItem | null>(null);
   const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
+  const [matchedBuddy, setMatchedBuddy] = useState<{
+    name: string;
+    mbti: string;
+    avatar_emoji: string;
+    travel_style: string;
+    compatibility_score: number;
+  } | null>(null);
+  const [liveMessages, setLiveMessages] = useState<{ speaker: 'user' | 'buddy'; content: string; timestamp: number }[]>([]);
 
   const [, setNegotiationReports] = useLocalStorage<NegotiationReportSnapshots>(
     STORAGE_KEYS.negotiation_reports,
@@ -147,10 +155,24 @@ export default function FeedPage() {
       id: bgLocation.id,
       location: bgLocation.location,
       title: bgLocation.title,
-      image: (bgLocation as any).image,
+      cover_url: (bgLocation as any).image,
     } as any);
 
     setShowMatchModal(true);
+
+    // 立即显示搭子预览（即使协商还在进行）
+    if (precomputed?.topBuddy) {
+      const buddy = precomputed.topBuddy as any;
+      setMatchedBuddy({
+        name: buddy.name || '神秘搭子',
+        mbti: buddy.mbti || 'ENFP',
+        avatar_emoji: buddy.avatar_emoji || '👋',
+        travel_style: buddy.travel_style || '',
+        compatibility_score: buddy.compatibility_score || 80,
+      });
+    } else {
+      setMatchedBuddy(null);
+    }
 
     // 2. 如果预计算已完成，直接使用预计算结果
     if (precomputed?.status === 'ready' && precomputed.negotiationResult) {
@@ -198,22 +220,47 @@ export default function FeedPage() {
         voiceText: obData?.voiceText || undefined,
         destination: bgLocation.location,
       });
+
+      // 消息逐条显示效果：先将消息传入 liveMessages，保持 isNegotiating=true
+      // TwinMatchModal 会自动逐条渲染这些消息
       setMatchResult(result);
+      if (result.messages && result.messages.length > 0) {
+        setLiveMessages(result.messages);
+        // 等消息全部显示完成后，才关闭 loading 状态
+        // 每条消息 800ms 动画，总共 result.messages.length * 800ms
+        const totalDelay = result.messages.length * 800 + 1500;
+        setTimeout(() => {
+          setIsNegotiating(false);
+          setLiveMessages([]); // 清空，让 Modal 使用完整 result
+        }, totalDelay);
+      } else {
+        setIsNegotiating(false);
+      }
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setMatchResult({
+      const mockResult = {
         ...MOCK_NEGOTIATION,
         destination: bgLocation.location
-      });
-    } finally {
-      setIsNegotiating(false);
+      };
+      setMatchResult(mockResult);
+      if (mockResult.messages && mockResult.messages.length > 0) {
+        setLiveMessages(mockResult.messages);
+        const totalDelay = mockResult.messages.length * 800 + 1500;
+        setTimeout(() => {
+          setIsNegotiating(false);
+          setLiveMessages([]);
+        }, totalDelay);
+      } else {
+        setIsNegotiating(false);
+      }
     }
   }, [currentIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
-  // Auto trigger match on the 3rd or 4th video (index 2 or 3) randomly
-  const targetTriggerIndex = useMemo(() => Math.floor(Math.random() * 2) + 2, []);
+  // Auto trigger match on the 2nd or 3rd video (index 1 or 2) for faster experience
+  // With pre-computation starting during onboarding, results should be ready by now
+  const targetTriggerIndex = useMemo(() => Math.floor(Math.random() * 2) + 1, []);
 
   useEffect(() => {
     if (currentIndex >= targetTriggerIndex && !hasAutoTriggered && feedVideos.length > 0) {
@@ -320,9 +367,14 @@ export default function FeedPage() {
         <TwinMatchModal
           result={matchResult}
           isLoading={isNegotiating}
-          onClose={() => setShowMatchModal(false)}
+          onClose={() => {
+            setShowMatchModal(false);
+            setLiveMessages([]);
+          }}
           onConfirm={handleMatchConfirm}
           backgroundItem={matchBackground}
+          matchedBuddy={matchedBuddy}
+          liveMessages={liveMessages}
         />
       )}
     </div>

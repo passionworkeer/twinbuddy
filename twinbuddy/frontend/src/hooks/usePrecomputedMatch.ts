@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { negotiate, fetchBuddies } from '../api/client';
-import { STORAGE_KEYS, type PrecomputedMatch, type Buddy, type NegotiationResult, type OnboardingData } from '../types';
+import { negotiate, fetchBuddies, fetchPersona } from '../api/client';
+import { STORAGE_KEYS, type PrecomputedMatch, type Buddy, type NegotiationResult, type OnboardingData, type Persona } from '../types';
 
 const MATCH_SCENE_CARDS = [
   { id: 'chengdu', location: '成都' },
@@ -65,18 +65,39 @@ export function usePrecomputedMatch() {
 
   // 开始预计算
   const startPrecomputation = useCallback(async (obData: OnboardingData) => {
-    // 初始化状态为 pending
+    // 1. 确定目的地
+    let destination = obData.city || MATCH_SCENE_CARDS[Math.floor(Math.random() * MATCH_SCENE_CARDS.length)].location;
+    const matchedCard = MATCH_SCENE_CARDS.find(c => c.id === destination);
+    if (matchedCard) {
+      destination = matchedCard.location;
+    }
+
+    // 初始化状态：先保存目的地和 pending 状态
     const initialMatch: PrecomputedMatch = {
       topBuddy: null,
       negotiationResult: null,
-      destination: obData.city || MATCH_SCENE_CARDS[3].location, // 默认大理
+      destination,
       computedAt: Date.now(),
       status: 'pending',
     };
     savePrecomputed(initialMatch);
 
     try {
-      // 1. 获取 top1 搭子（直接传参数，不需要后端存储用户数据）
+      // 2. LLM 分析用户人格（根据 MBTI + 兴趣 + 城市 + 语音）
+      let userPersona: Persona | null = null;
+      try {
+        userPersona = await fetchPersona({
+          mbti: obData.mbti,
+          interests: obData.interests,
+          city: obData.city,
+          voiceText: obData.voiceText,
+        });
+        console.log('预计算：用户人格生成成功', userPersona?.persona_id);
+      } catch (personaErr) {
+        console.error('预计算：生成用户人格失败', personaErr);
+      }
+
+      // 3. 获取 top1 搭子（基于用户人格）
       let topBuddy: Buddy | null = null;
       try {
         const buddies = await fetchBuddies(
@@ -87,24 +108,21 @@ export function usePrecomputedMatch() {
           obData.city
         );
         topBuddy = (buddies[0] || null) as unknown as Buddy | null;
+        // 立即保存搭子信息，这样卡片可以立即显示搭子预览
+        savePrecomputed({
+          ...initialMatch,
+          topBuddy,
+        });
       } catch (buddyErr) {
         console.error('预计算：获取搭子失败', buddyErr);
       }
 
-      // 2. 确定目的地
-      let destination = obData.city || MATCH_SCENE_CARDS[Math.floor(Math.random() * MATCH_SCENE_CARDS.length)].location;
-      // 如果是 id，转换为 location
-      const matchedCard = MATCH_SCENE_CARDS.find(c => c.id === destination);
-      if (matchedCard) {
-        destination = matchedCard.location;
-      }
-
-      // 3. 真实协商
+      // 4. 真实协商（使用 LLM 生成的人格）
       let negotiationResult: NegotiationResult | null = null;
       try {
         negotiationResult = await negotiate({
           user_id: obData.user_id || undefined,
-          user_persona_id: obData.persona_id || undefined,
+          user_persona_id: userPersona?.persona_id || obData.persona_id || undefined,
           buddy_mbti: topBuddy?.mbti || 'ENFP',
           mbti: obData.mbti || undefined,
           interests: obData.interests ?? [],

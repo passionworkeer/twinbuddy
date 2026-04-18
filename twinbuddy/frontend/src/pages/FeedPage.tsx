@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/feed/BottomNav';
 import { TikTokVideo } from '../components/feed/TikTokVideo';
@@ -9,9 +9,11 @@ import type {
   NegotiationResult,
   OnboardingData,
   NegotiationReportSnapshots,
+  PrecomputedMatch,
 } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { usePrecomputedMatch } from '../hooks/usePrecomputedMatch';
 import { STORAGE_KEYS } from '../types';
 import { negotiate, fetchBuddies } from '../api/client';
 import { createReportId } from '../utils/reportId';
@@ -19,14 +21,14 @@ import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
 
 const MOCK_SCENE_CARDS = [
-  { id: 'sc1', type: 'image', cover_url: '/images/丽江古城夜景.jpg', video_url: '', location: '丽江', title: '丽江古城夜景漫步', description: '主街和支巷分开逛，既有热闹也能留出安静时段。' },
-  { id: 'sc2', type: 'image', cover_url: '/images/大唐不夜城.jpg', video_url: '', location: '西安', title: '大唐不夜城夜色', description: '大唐不夜城和周边历史片区分时体验，避免同段拥堵。' },
-  { id: 'sc3', type: 'image', cover_url: '/images/川西雪山草原.jpg', video_url: '', location: '川西', title: '川西雪山草原', description: '先保证高质量风景段，再决定是否加码深度点位。' },
-  { id: 'sc4', type: 'image', cover_url: '/images/成都宽窄巷子.jpg', video_url: '', location: '成都', title: '成都宽窄巷子', description: '从巷子与茶馆切入，会比打卡清单更像真正的成都。' },
-  { id: 'sc5', type: 'image', cover_url: '/images/洱海古城.jpg', video_url: '', location: '大理', title: '大理洱海古城', description: '洱海与古城之间留白体验，比密集打卡更容易出片。' },
-  { id: 'sc6', type: 'image', cover_url: '/images/重庆夜景洪崖洞.jpg', video_url: '', location: '重庆', title: '重庆夜景洪崖洞', description: '把夜景和坡地步行拆开体验，体感会轻松很多。' },
-  { id: 'sc7', type: 'image', cover_url: '/images/青岛海边.jpg', video_url: '', location: '青岛', title: '青岛海边轻攻略', description: '海边与街区混搭，比单一打卡更有节奏感。' },
-  { id: 'sc8', type: 'image', cover_url: '/images/鼓浪屿 – 竖屏版.jpg', video_url: '', location: '厦门', title: '鼓浪屿慢拍路线', description: '街角和海风节奏搭配，适合做轻量深度体验。' }
+  { id: 'chengdu', location: '成都', title: '成都宽窄巷子茶馆', image: '/images/chengdu.jpg' },
+  { id: 'chongqing', location: '重庆', title: '重庆洪崖洞夜景', image: '/images/chongqing.jpg' },
+  { id: 'chuanxi', location: '川西', title: '川西雪山草地自驾', image: '/images/chuanxi.jpg' },
+  { id: 'dali', location: '大理', title: '大理洱海骑行', image: '/images/dali.jpg' },
+  { id: 'lijiang', location: '丽江', title: '丽江古城漫步', image: '/images/lijiang.jpg' },
+  { id: 'qingdao', location: '青岛', title: '青岛海边吹风', image: '/images/qingdao.jpg' },
+  { id: 'xiamen', location: '厦门', title: '厦门鼓浪屿发呆', image: '/images/xiamen.jpg' },
+  { id: 'xian', location: '西安', title: '大唐不夜城夜色', image: '/images/xian.jpg' },
 ] as unknown as VideoItem[];
 
 function shuffleVideos(videos: VideoItem[]): VideoItem[] {
@@ -88,54 +90,22 @@ export default function FeedPage() {
   );
 
   const { clearData, data: onboardingData } = useOnboarding();
+  const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
   const feedRef = useRef<HTMLDivElement>(null);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
+      clearPrecomputed();
       clearData();
       navigate('/onboarding');
     }
-  }, [clearData, navigate]);
+  }, [clearData, clearPrecomputed, navigate]);
 
   useEffect(() => {
     async function loadFeed() {
-      // Check if we have preloaded videos in session storage
-      const preloadedVideosStr = sessionStorage.getItem('twinbuddy_preloaded_feed');
-      
-      if (preloadedVideosStr) {
-        try {
-          const preloadedVideos = JSON.parse(preloadedVideosStr);
-          if (Array.isArray(preloadedVideos) && preloadedVideos.length > 0) {
-            setFeedVideos(preloadedVideos);
-            setIsFeedLoading(false);
-            return;
-          }
-        } catch (e) {
-          console.error("Failed to parse preloaded videos", e);
-        }
-      }
-
-      try {
-        const buddies = await fetchBuddies(undefined, 8);
-        const videosWithBuddies: VideoItem[] = (MOCK_VIDEOS as VideoItem[]).map((tpl, i) => ({
-          ...tpl,
-          buddy: buddies[i]
-            ? {
-                name: String(buddies[i].name ?? ''),
-                mbti: String(buddies[i].mbti ?? 'ENFP'),
-                avatar_emoji: String(buddies[i].avatar_emoji ?? ''),
-                typical_phrases: (buddies[i].typical_phrases as string[]) ?? [],
-                travel_style: String(buddies[i].travel_style ?? ''),
-                compatibility_score: Number((buddies[i] as Record<string, unknown>).compatibility_score ?? 80),
-              }
-            : undefined,
-        }));
-        setFeedVideos(shuffleVideos(videosWithBuddies));
-      } catch {
-        setFeedVideos(shuffleVideos(MOCK_VIDEOS as VideoItem[]));
-      } finally {
-        setIsFeedLoading(false);
-      }
+      // 视频直接用本地 mock，随机播放
+      setFeedVideos(shuffleVideos([...(MOCK_VIDEOS as VideoItem[])]));
+      setIsFeedLoading(false);
     }
     loadFeed();
   }, []);
@@ -148,35 +118,73 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
+    if (isFeedLoading) return;
     const el = feedRef.current;
     if (!el) return;
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+  }, [handleScroll, isFeedLoading]);
 
   const triggerMatch = useCallback(async () => {
-    if (isNegotiating || showMatchModal) return;
-    
-    // Select random background from 8 mocks
-    const randomBg = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)];
-    setMatchBackground(randomBg);
+    if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
+    const currentVideo = feedVideos[currentIndex];
+    if (!currentVideo) return;
+
+    // 1. 优先使用预计算数据
+    const precomputed = getPrecomputed();
+
+    // Determine the background/location based on precomputed or user's choice or fallback
+    let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)]; // fallback random
+    if (precomputed?.destination) {
+      const match = MOCK_SCENE_CARDS.find(c => c.location === precomputed.destination);
+      if (match) bgLocation = match;
+    } else if (onboardingData?.city) {
+      const match = MOCK_SCENE_CARDS.find(c => c.id === onboardingData.city || c.location === onboardingData.city);
+      if (match) bgLocation = match;
+    }
+
+    setMatchBackground({
+      id: bgLocation.id,
+      location: bgLocation.location,
+      title: bgLocation.title,
+      image: (bgLocation as any).image,
+    } as any);
+
     setShowMatchModal(true);
+
+    // 2. 如果预计算已完成，直接使用预计算结果
+    if (precomputed?.status === 'ready' && precomputed.negotiationResult) {
+      setMatchResult(precomputed.negotiationResult);
+      setIsNegotiating(false);
+      return;
+    }
+
+    // 3. 预计算未完成或失败，实时计算
     setIsNegotiating(true);
 
     try {
+      // 从 localStorage 获取用户 onboarding 数据
       const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
       const obData: OnboardingData | null = stored ? JSON.parse(stored) : null;
-      
-      const activeVideo = feedVideos[currentIndex] || randomBg;
 
+      // 获取 top1 搭子（从 100 个搭子中根据用户 MBTI/兴趣匹配）
+      let topBuddy = null;
+      try {
+        const buddies = await fetchBuddies(obData?.user_id, 1);
+        topBuddy = (buddies[0] || null) as any;
+      } catch (buddyErr) {
+        console.error('获取搭子失败:', buddyErr);
+      }
+
+      // 真实协商（两个 agent 对话）
       const result = await negotiate({
         user_id: obData?.user_id || undefined,
         user_persona_id: obData?.persona_id || undefined,
-        buddy_mbti: activeVideo.buddy?.mbti || 'ENFP',
+        buddy_mbti: topBuddy?.mbti || 'ENFP',
         mbti: obData?.mbti || undefined,
         interests: obData?.interests ?? [],
         voiceText: obData?.voiceText || undefined,
-        destination: randomBg.location,
+        destination: bgLocation.location,
       });
       setMatchResult(result);
     } catch (err) {
@@ -185,16 +193,16 @@ export default function FeedPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       setMatchResult({
         ...MOCK_NEGOTIATION,
-        destination: randomBg.location
+        destination: bgLocation.location
       });
     } finally {
       setIsNegotiating(false);
     }
-  }, [currentIndex, feedVideos, isNegotiating, showMatchModal]);
+  }, [currentIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
-  // Auto trigger match on the 3rd video (index 2)
+  // Auto trigger match on the 2nd video (index 1)
   useEffect(() => {
-    if (currentIndex >= 2 && !hasAutoTriggered && feedVideos.length > 0) {
+    if (currentIndex >= 1 && !hasAutoTriggered && feedVideos.length > 0) {
       setHasAutoTriggered(true);
       triggerMatch();
     }

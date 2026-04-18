@@ -183,7 +183,18 @@ export const STORAGE_KEYS = {
   negotiation_result: 'twinbuddy_negotiation_result_v3',
   negotiation_reports: 'twinbuddy_negotiation_reports_v3',
   latest_report_id: 'twinbuddy_latest_report_id_v3',
+  precomputed_match: 'twinbuddy_precomputed_match_v3', // 预计算的懂你卡片数据
 } as const;
+
+// ── Precomputed Match ────────────────────────────────
+
+export interface PrecomputedMatch {
+  topBuddy: Buddy | null;
+  negotiationResult: NegotiationResult | null;
+  destination: string;
+  computedAt: number; // 时间戳
+  status: 'pending' | 'ready' | 'error';
+}
 
 // ── MBTI Constants ───────────────────────────────────
 

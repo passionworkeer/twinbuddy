@@ -245,15 +245,8 @@ async def stt_stream(
             },
         }
         await ws.send(json.dumps(first_frame))
-        logger.debug("第一帧已发送，等待认证响应")
-
-        # ── 等待认证确认 ─────────────────────────────────────────────────
-        resp = await ws.recv()
-        resp_data = json.loads(resp)
-        if resp_data.get("code") != 0:
-            msg = resp_data.get("message", "unknown error")
-            raise RuntimeError(f"iFlytek 认证失败 code={resp_data.get('code')} message={msg}")
-        logger.debug("iFlytek 认证成功")
+        # 注意：讯飞不单独返回 auth 确认，第一帧发完后直接进入音频流阶段
+        # 认证隐式成功（后续收到响应即证明认证通过）
 
         # ── 流式发送音频帧 ───────────────────────────────────────────────
         status_sent = 0  # 0=first, 1=middle, 2=last

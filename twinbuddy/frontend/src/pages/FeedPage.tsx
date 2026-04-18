@@ -143,7 +143,7 @@ export default function FeedPage() {
   const handleScroll = useCallback(() => {
     const el = feedRef.current;
     if (!el) return;
-    const index = Math.round(el.scrollTop / window.innerHeight);
+    const index = Math.round(el.scrollTop / el.clientHeight);
     setCurrentIndex(index);
   }, []);
 
@@ -194,7 +194,7 @@ export default function FeedPage() {
 
   // Auto trigger match on the 3rd video (index 2)
   useEffect(() => {
-    if (currentIndex === 2 && !hasAutoTriggered && feedVideos.length > 0) {
+    if (currentIndex >= 2 && !hasAutoTriggered && feedVideos.length > 0) {
       setHasAutoTriggered(true);
       triggerMatch();
     }

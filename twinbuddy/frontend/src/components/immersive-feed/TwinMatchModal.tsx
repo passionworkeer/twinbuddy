@@ -229,19 +229,52 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
           </>
         ) : (
           <>
-            {!chatExpanded && (
+            {!chatExpanded ? (
               <>
                 <button 
-                  onClick={() => setModalStep('guide')}
+                  onClick={onClose}
                   className="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors"
                 >
-                  返回攻略
+                  不感兴趣
                 </button>
                 <button 
-                  onClick={onConfirm}
+                  onClick={() => {
+                    const links = [
+                      'https://v.douyin.com/ANQxLmeC7Q0/',
+                      'https://v.douyin.com/2LD36YFoTbE/',
+                      'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
+                      'https://v.douyin.com/3lV9tMGO13E/'
+                    ];
+                    const randomLink = links[Math.floor(Math.random() * links.length)];
+                    window.open(randomLink, '_blank');
+                  }}
                   className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
                 >
-                  查看分析报告
+                  加他好友
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={onClose}
+                  className="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors"
+                >
+                  不感兴趣
+                </button>
+                <button 
+                  onClick={() => {
+                    const links = [
+                      'https://v.douyin.com/ANQxLmeC7Q0/',
+                      'https://v.douyin.com/2LD36YFoTbE/',
+                      'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
+                      'https://v.douyin.com/3lV9tMGO13E/'
+                    ];
+                    const randomLink = links[Math.floor(Math.random() * links.length)];
+                    window.open(randomLink, '_blank');
+                  }}
+                  className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
+                >
+                  加他好友
                 </button>
               </>
             )}

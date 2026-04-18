@@ -118,6 +118,32 @@ export default function MatchReportDetailPage() {
         </div>
 
       </div>
+
+      {/* 底部操作按钮 */}
+      <div className="fixed bottom-[40px] left-0 w-full px-6 flex gap-4 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom)]">
+        <button 
+          onClick={handleBack}
+          className="flex-1 py-3.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-medium text-[15px] shadow-[0_4px_24px_rgba(0,0,0,0.2)] hover:bg-white/20 transition-colors"
+        >
+          不感兴趣
+        </button>
+        <button 
+          onClick={() => {
+            const links = [
+              'https://v.douyin.com/ANQxLmeC7Q0/',
+              'https://v.douyin.com/2LD36YFoTbE/',
+              'https://v.douyin.com/x2J_D523nu0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more',
+              'https://v.douyin.com/3lV9tMGO13E/'
+            ];
+            const randomLink = links[Math.floor(Math.random() * links.length)];
+            window.open(randomLink, '_blank');
+          }}
+          className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
+        >
+          加他好友
+        </button>
+      </div>
+
     </div>
   );
 }

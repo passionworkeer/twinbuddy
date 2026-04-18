@@ -207,16 +207,16 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
       {/* ── Greeting webm overlay ── */}
       {showGreeting && (
         <div
-          className="fixed top-6 right-6 z-[9999] pointer-events-none"
-          style={{ width: 180, height: 180 }}
+          className="greeting-pop-anim fixed left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
+          style={{ bottom: '30%', width: 220 }}
         >
           <video
             src="/mod/greeting.webm"
             autoPlay
             muted
+            loop
             playsInline
             className="w-full h-full object-contain"
-            style={{ borderRadius: 16 }}
           />
         </div>
       )}

@@ -40,7 +40,7 @@ from agents.buddies import (
     get_buddy_public,
 )
 from agents import persona_doc
-from agents.scoring import get_compatibility_breakdown as _mock_compat_breakdown
+from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
 
 # ---------------------------------------------------------------------------
@@ -94,6 +94,12 @@ _onboarding_store: Dict[str, Dict[str, Any]] = _load_store(_ONBOARDING_STORE_FIL
 # persona_store: { user_id: Persona }
 _persona_store: Dict[str, Dict[str, Any]] = _load_store(_PERSONA_STORE_FILE)
 
+# ---------------------------------------------------------------------------
+# Mock 数据路径
+# ---------------------------------------------------------------------------
+
+_MOCK_DIR = Path(__file__).parent.parent / "mock_personas"
+
 # 城市 emoji 映射
 _CITY_EMOJI: Dict[str, str] = {
     "chengdu": "🐼", "chongqing": "🌶️", "dali": "🌊",
@@ -123,9 +129,6 @@ _MBTI_EMOJI: Dict[str, str] = {
     "INFP": "🌙", "INFJ": "🔮", "INTP": "📚", "INTJ": "🧠",
     "ISFP": "🎨", "ISFJ": "🛡️", "ISTP": "🔧", "ISTJ": "📐",
 }
-
-_NEGOTIATION_DIM_LABELS: List[str] = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
-_NEGOTIATION_DIM_WEIGHTS: List[float] = [0.8, 0.6, 0.5, 0.7, 0.9, 0.6]
 
 # ---------------------------------------------------------------------------
 # Mock 视频数据（Feed 用）
@@ -185,90 +188,6 @@ def _load_mock_videos() -> List[Dict[str, Any]]:
         except Exception:
             pass
     return _DEFAULT_VIDEOS
-
-
-def _clamp_score(value: Any, fallback: int = 70) -> int:
-    """将分数标准化到 0-100，输入异常时回退到 fallback。"""
-    try:
-        score = int(float(value))
-    except Exception:
-        score = fallback
-    return max(0, min(100, score))
-
-
-def _normalize_radar(raw_radar: Any) -> List[Dict[str, Any]]:
-    """规范化雷达图结构，确保始终返回 6 维可渲染数据。"""
-    radar_list = raw_radar if isinstance(raw_radar, list) else []
-    normalized: List[Dict[str, Any]] = []
-
-    for idx, label in enumerate(_NEGOTIATION_DIM_LABELS):
-        source = radar_list[idx] if idx < len(radar_list) and isinstance(radar_list[idx], dict) else {}
-        fallback_score = 68 + idx * 3
-        normalized.append({
-            "dimension": label,
-            "user_score": _clamp_score(source.get("user_score"), fallback=fallback_score),
-            "buddy_score": _clamp_score(source.get("buddy_score"), fallback=fallback_score - 4),
-            "weight": float(source.get("weight", _NEGOTIATION_DIM_WEIGHTS[idx])),
-        })
-
-    return normalized
-
-
-def _normalize_analysis_basis(raw_basis: Any) -> Dict[str, List[str]]:
-    """保证 analysis_basis 三个字段始终存在且类型稳定。"""
-    basis = raw_basis if isinstance(raw_basis, dict) else {}
-
-    def _normalize_list(key: str) -> List[str]:
-        value = basis.get(key, [])
-        if not isinstance(value, list):
-            return []
-        return [str(item).strip() for item in value if str(item).strip()]
-
-    return {
-        "input_tags": _normalize_list("input_tags"),
-        "strengths": _normalize_list("strengths"),
-        "conflicts": _normalize_list("conflicts"),
-    }
-
-
-def _ensure_negotiation_payload(data: Dict[str, Any]) -> Dict[str, Any]:
-    """对协商结果做统一兜底，保障前端详情页字段稳定。"""
-    payload = dict(data)
-    destination = str(payload.get("destination") or "大理")
-
-    payload["destination"] = destination
-    payload["radar"] = _normalize_radar(payload.get("radar"))
-
-    messages = payload.get("messages")
-    payload["messages"] = messages if isinstance(messages, list) else []
-
-    red_flags = payload.get("red_flags")
-    payload["red_flags"] = [str(flag).strip() for flag in red_flags if str(flag).strip()] if isinstance(red_flags, list) else []
-
-    plan = payload.get("plan")
-    if isinstance(plan, list):
-        payload["plan"] = [str(item).strip() for item in plan if str(item).strip()]
-    else:
-        payload["plan"] = []
-
-    if not payload["plan"]:
-        payload["plan"] = [
-            f"{destination}古城民宿2晚",
-            f"{destination}周边自然风光1天",
-            "特色美食探索之旅",
-        ]
-
-    payload["analysis_report"] = str(payload.get("analysis_report") or "协商已完成，建议按当前共识先执行首轮行程。")
-    payload["analysis_basis"] = _normalize_analysis_basis(payload.get("analysis_basis"))
-
-    if not isinstance(payload.get("matched_buddies"), list):
-        payload["matched_buddies"] = []
-
-    payload["dates"] = str(payload.get("dates") or "待定")
-    payload["budget"] = str(payload.get("budget") or "待定")
-    payload["consensus"] = bool(payload.get("consensus", False))
-
-    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -413,13 +332,8 @@ def _build_user_prefs_from_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
         mbti_match = _re.search(r"\b([IE][NS][TF][JP])([AT])?\b", mbti_influence)
     mbti = mbti_match.group(0) if mbti_match else persona.get("mbti_type") or persona.get("mbti", "ENFP")
 
-    # likes：优先 interest_tags，其次 core_values，再次 language_markers
-    likes: List[str] = []
-    raw_interest_tags = persona.get("interest_tags", [])
-    if isinstance(raw_interest_tags, list):
-        likes = [str(x).strip() for x in raw_interest_tags if str(x).strip()]
-    if not likes:
-        likes = identity.get("core_values", []) or []
+    # likes：优先 core_values，其次 language_markers
+    likes: List[str] = identity.get("core_values", []) or []
     if not likes:
         markers: List[str] = sp.get("language_markers", [])
         likes = [m for m in markers if len(m) > 2][:5]
@@ -428,8 +342,6 @@ def _build_user_prefs_from_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
     dealbreakers: List[str] = []
     if isinstance(layer0, dict):
         dealbreakers = layer0.get("dealbreakers", []) or []
-    elif isinstance(layer0, list):
-        dealbreakers = [str(x).strip() for x in layer0 if str(x).strip()]
 
     # budget
     budget = ""
@@ -577,21 +489,9 @@ class VideoItemResponse(BaseModel):
 
 class NegotiationRequest(BaseModel):
     """POST /api/negotiate 请求体"""
-    user_id: Optional[str] = None
     user_persona_id: Optional[str] = None
     buddy_mbti: Optional[str] = None
-    mbti: Optional[str] = None
-    interests: List[str] = Field(default_factory=list)
-    voiceText: str = Field(default="")
-    travel_style: Optional[str] = None
     destination: str = Field(..., description="目的地城市ID")
-
-    @field_validator("mbti")
-    @classmethod
-    def normalize_optional_mbti(cls, v: Optional[str]) -> Optional[str]:
-        if not v:
-            return v
-        return v.strip().upper()
 
 
 # ---------------------------------------------------------------------------
@@ -614,133 +514,24 @@ def _extract_mbti(text: str) -> Optional[str]:
     return (m.group(1) + (m.group(2) or "")).upper()
 
 
-def _find_buddy_by_mbti(mbti: str) -> Optional[Dict[str, Any]]:
-    """从 agents/buddies 数据集中按 MBTI 找一个可用搭子。"""
-    target = (mbti or "").strip().upper()
-    if not target:
-        return None
-    for buddy in get_all_buddies():
-        if str(buddy.get("mbti", "")).strip().upper() == target:
-            return buddy
-    return None
-
-
-def _buddy_json_to_persona(buddy: Dict[str, Any]) -> Dict[str, Any]:
-    """将 buddies JSON 格式转换为协商链路可消费的 persona 字典。"""
-    identity_raw = buddy.get("identity", {}) if isinstance(buddy.get("identity", {}), dict) else {}
-    speaking_raw = buddy.get("speaking_style", {}) if isinstance(buddy.get("speaking_style", {}), dict) else {}
-    emotion_raw = buddy.get("emotion_decision", {}) if isinstance(buddy.get("emotion_decision", {}), dict) else {}
-    social_raw = buddy.get("social_behavior", {}) if isinstance(buddy.get("social_behavior", {}), dict) else {}
-
-    travel_raw = buddy.get("travel_style", "")
-    if isinstance(travel_raw, dict):
-        travel_style = (
-            str(travel_raw.get("overall") or "").strip()
-            or str(travel_raw.get("pace_preference") or "").strip()
-            or "随性探索型"
-        )
-    else:
-        travel_style = str(travel_raw or "").strip() or "随性探索型"
-
-    raw_layer0 = (
-        buddy.get("personality_layers", {}).get("layer0_hard_rules", {})
-        if isinstance(buddy.get("personality_layers", {}), dict)
-        else {}
-    )
-    hard_rules: List[str] = []
-    if isinstance(raw_layer0, dict):
-        for key in ("dealbreakers", "must_haves"):
-            vals = raw_layer0.get(key, [])
-            if isinstance(vals, list):
-                hard_rules.extend([str(v).strip() for v in vals if str(v).strip()])
-    elif isinstance(raw_layer0, list):
-        hard_rules = [str(v).strip() for v in raw_layer0 if str(v).strip()]
-    hard_rules = list(dict.fromkeys(hard_rules))
-
-    typical_phrases = speaking_raw.get("typical_phrases", [])
-    if not isinstance(typical_phrases, list):
-        typical_phrases = []
-
-    return {
-        "persona_id": str(buddy.get("id") or f"buddy-{str(buddy.get('mbti', '')).lower()}"),
-        "name": str(buddy.get("name") or "搭子"),
-        "mbti_type": str(buddy.get("mbti") or ""),
-        "mbti": str(buddy.get("mbti") or ""),
-        "avatar_emoji": str(buddy.get("avatar_emoji") or "🤖"),
-        "avatar_prompt": str(buddy.get("avatar_prompt") or ""),
-        "identity": {
-            "emoji": "🧭",
-            "title": "Identity",
-            "content": str(identity_raw.get("background") or identity_raw.get("life_stage") or ""),
-        },
-        "speaking_style": {
-            "emoji": "💬",
-            "title": "Style",
-            "content": str(speaking_raw.get("tone") or speaking_raw.get("sentence_patterns") or ""),
-            "typical_phrases": typical_phrases,
-            "chat_tone": str(speaking_raw.get("tone") or ""),
-        },
-        "emotion_decision": {
-            "emoji": "🧠",
-            "title": "Decision",
-            "content": str(emotion_raw.get("decision_style") or ""),
-            "stress_response": str(emotion_raw.get("stress_response") or ""),
-            "decision_style": str(emotion_raw.get("decision_style") or ""),
-        },
-        "social_behavior": {
-            "emoji": "🤝",
-            "title": "Social",
-            "content": str(social_raw.get("conflict_style") or social_raw.get("boundaries") or ""),
-            "social_style": str(social_raw.get("conflict_style") or social_raw.get("social_energy") or ""),
-        },
-        "travel_style": travel_style,
-        "layer0_hard_rules": hard_rules,
-        "preferences": buddy.get("preferences", {}),
-        "negotiation_style": buddy.get("negotiation_style", {}),
-        "compatibility_notes": buddy.get("compatibility_notes", {}),
-    }
-
-
 def _load_mock_persona(mbti: str) -> Optional[Dict[str, Any]]:
-    """
-    加载指定 MBTI 的 persona。
-
-    唯一来源：agents/buddies（主数据源）
-    """
-    buddy = _find_buddy_by_mbti(mbti)
-    if buddy:
-        return _buddy_json_to_persona(buddy)
+    """加载指定 MBTI 的 Mock persona JSON"""
+    mbti_lower = mbti.lower()
+    path = _MOCK_DIR / mbti_lower / "persona.json"
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
     return None
 
 
 def _load_compatibility(a_mbti: str, b_mbti: str) -> Optional[Dict[str, Any]]:
-    """
-    加载两个 MBTI 之间的协商兼容性。
-
-    来源：使用 agents/buddies + MING 评分实时估算
-    """
-    buddy = _find_buddy_by_mbti(b_mbti)
-    if not buddy:
-        return None
-
-    user_prefs = _build_user_prefs({"mbti": a_mbti.upper(), "interests": [], "city": ""})
-    breakdown = _mock_compat_breakdown(user_prefs, buddy)
-    total = float(breakdown.get("total", 75.0))
-
-    if total >= 85:
-        recommendation = "匹配度很高，建议直接围绕共同兴趣制定主线行程。"
-    elif total >= 70:
-        recommendation = "匹配度良好，先约定节奏与预算，再细化景点优先级。"
-    else:
-        recommendation = "匹配度一般，建议先做1天轻量试跑，再决定长线同行。"
-
-    return {
-        "overall_score": round(total / 100.0, 3),
-        "rounds": [],
-        "strengths": breakdown.get("strengths", []),
-        "challenges": breakdown.get("red_flags", []),
-        "recommendation": recommendation,
-    }
+    """加载两个 MBTI 之间的预生成协商结果"""
+    combo = sorted([a_mbti.upper(), b_mbti.upper()])
+    path = _MOCK_DIR / combo[0].lower() / f"compatibility_{combo[0].lower()}_{combo[1].lower()}.json"
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return None
 
 
 def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:
@@ -1413,7 +1204,7 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "特色美食探索之旅",
             "轻松休闲一日",
         ]
-        return _ensure_negotiation_payload({
+        return {
             "destination": city_name,
             "dates": "5月10日-5月15日",
             "budget": "人均3500元",
@@ -1423,15 +1214,9 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "radar": radar,
             "red_flags": red_flags,
             "messages": messages,
-            "analysis_report": compat.get("recommendation", "匹配度较好，建议围绕共同偏好展开行程。"),
-            "analysis_basis": {
-                "input_tags": [],
-                "strengths": compat.get("strengths", [])[:3],
-                "conflicts": compat.get("challenges", [])[:3],
-            },
-        })
+        }
     else:
-        return _ensure_negotiation_payload({
+        return {
             "destination": city_name,
             "dates": "待定",
             "budget": "待定",
@@ -1441,9 +1226,7 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
             "radar": [],
             "red_flags": ["数据不足，请补充更多信息"],
             "messages": [],
-            "analysis_report": "当前信息不足，建议补充兴趣标签后重新协商。",
-            "analysis_basis": {"input_tags": [], "strengths": [], "conflicts": ["输入信息不足"]},
-        })
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -1654,15 +1437,13 @@ async def get_feed(
 
 @router.get("/buddies")
 async def get_buddies(
-    user_id: Optional[str] = Query(default=None),
-    limit: int = Query(default=10, ge=1, le=100),
+    user_id: str = Query(...),
+    limit: int = Query(default=10, ge=1, le=50),
 ) -> Dict[str, Any]:
     """
-    GET /api/buddies?limit=10
-    GET /api/buddies?user_id=xxx&limit=10  （带评分排序）
+    GET /api/buddies?user_id=xxx&limit=10
 
-    无 user_id：返回所有搭子（无评分）
-    有 user_id：返回按 MING 六维度兼容性评分排序的推荐搭子
+    返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
 
     响应结构：
       {
@@ -1676,59 +1457,51 @@ async def get_buddies(
             "travel_style": "...",
             "typical_phrases": [...],
             "compatibility_score": 87.5,
-            ...
+            "compatibility_breakdown": {
+              "total": 87.5,
+              "dimensions": {
+                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
+                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
+                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
+                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
+                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
+              },
+              "personality_completion": {"score": 0.0, "reason": "..."},
+              "red_flags":  [...],
+              "strengths":  [...],
+            },
           },
           ...
         ],
         "user_prefs": {...},
         "meta": {...}
       }
-    """
-    # 1. 构建 user_prefs（如果提供了 user_id）
-    user_prefs: Optional[Dict[str, Any]] = None
-    if user_id:
-        if user_id in _onboarding_store:
-            onboarding = _onboarding_store[user_id]
-            user_prefs = _build_user_prefs(onboarding, user_id)
-        else:
-            # 尝试从 persona .md 读取
-            md_prefs = persona_doc.get_persona_for_algorithm(user_id)
-            if md_prefs:
-                user_prefs = md_prefs
 
-    # 2. 获取搭子列表
-    if user_prefs:
-        # 有用户数据 → 六维度评分排序
-        top_buddies = get_top_buddies(user_prefs, limit=limit)
-        buddies_data = [get_buddy_public(buddy, user_prefs) for buddy in top_buddies]
-    else:
-        # 无用户数据 → 返回全部搭子（无评分）
-        all_buddies = get_all_buddies()
-        buddies_data = [
-            {
-                "id": b.get("id", ""),
-                "name": b.get("name", ""),
-                "mbti": b.get("mbti", ""),
-                "avatar_emoji": b.get("avatar_emoji", ""),
-                "avatar_prompt": b.get("avatar_prompt", ""),
-                "travel_style": b.get("travel_style", ""),
-                "typical_phrases": b.get("speaking_style", {}).get("typical_phrases", [])
-                                 if isinstance(b.get("speaking_style"), dict)
-                                 else b.get("typical_phrases", []),
-            }
-            for b in all_buddies[:limit]
-        ]
+    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
+    """
+    # 1. 获取用户 onboarding 数据
+    if user_id not in _onboarding_store:
+        raise HTTPException(
+            status_code=404,
+            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
+        )
+
+    onboarding = _onboarding_store[user_id]
+    user_prefs = _build_user_prefs(onboarding, user_id)
+
+    # 2. 获取 top-N 搭子（使用 MING 六维度评分）
+    top_buddies = get_top_buddies(user_prefs, limit=limit)
 
     return {
         "success": True,
-        "buddies": buddies_data,
+        "buddies": [get_buddy_public(buddy, user_prefs) for buddy in top_buddies],
         "user_prefs": user_prefs,
         "meta": {
             "user_id": user_id,
             "limit": limit,
-            "total_buddies": len(buddies_data),
-            "mbti": user_prefs.get("mbti") if user_prefs else None,
-            "city": user_prefs.get("city") if user_prefs else None,
+            "total_buddies": len(top_buddies),
+            "mbti": user_prefs.get("mbti"),
+            "city": user_prefs.get("city"),
         },
     }
 
@@ -1749,13 +1522,10 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
 
     city = req.destination or "dali"
     city_name = _CITY_NAMES.get(city, city or "大理")
-    requested_mbti = (req.mbti or "").strip().upper()
-    requested_interests = [str(x).strip() for x in (req.interests or []) if str(x).strip()]
-    requested_voice = (req.voiceText or "").strip()
 
     # ── 获取用户 persona（优先 .md 文件，其次内存）────────────────────
     user_persona: Optional[Dict[str, Any]] = None
-    user_mbti = requested_mbti or "ENFP"
+    user_mbti = "ENFP"
     user_name = "你"
 
     if req.user_persona_id:
@@ -1778,39 +1548,6 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                     or user_mbti
                 )
                 break
-
-    # 方式2：通过 user_id 直接关联后端持久化数据
-    if not user_persona and req.user_id:
-        md_doc = persona_doc.load_persona_doc(req.user_id)
-        if md_doc:
-            fm, body = persona_doc.parse_persona_doc(md_doc)
-            if fm:
-                user_persona = persona_doc.dict_from_frontmatter(fm, body)
-                user_name = str(user_persona.get("name") or user_name)
-                user_mbti = fm.get("mbti", user_mbti)
-
-        if not user_persona and req.user_id in _persona_store:
-            p = _persona_store[req.user_id]
-            user_persona = p
-            user_name = str(p.get("name") or user_name)
-            user_mbti = (
-                _extract_mbti(str(p.get("mbti_influence") or ""))
-                or _extract_mbti(str(p.get("mbti_type") or ""))
-                or user_mbti
-            )
-
-        if not user_persona and req.user_id in _onboarding_store:
-            onboarding = _onboarding_store[req.user_id]
-            user_mbti = str(onboarding.get("mbti") or user_mbti).upper()
-            user_persona = _build_persona_from_onboarding(
-                user_mbti,
-                str(onboarding.get("city") or city),
-                onboarding.get("interests") or [],
-                str(onboarding.get("voiceText") or ""),
-            )
-
-    if requested_mbti:
-        user_mbti = requested_mbti
 
     # ── 获取 Buddy persona（优先 .md 文件，其次 JSON，最后规则生成）──
     buddy_mbti = (req.buddy_mbti or "INFP").upper()
@@ -1846,40 +1583,11 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     try:
         from negotiation.graph import run_negotiation
 
-        # 优先从请求与历史记录中提取标签/语音上下文
-        context_interests = list(requested_interests)
-        context_voice = requested_voice
-        if req.user_id and req.user_id in _onboarding_store:
-            onboarding = _onboarding_store[req.user_id]
-            if not context_interests:
-                context_interests = [
-                    str(x).strip() for x in (onboarding.get("interests") or []) if str(x).strip()
-                ]
-            if not context_voice:
-                context_voice = str(onboarding.get("voiceText") or "").strip()
-
         # 使用的人格数据（优先用户 persona，fallback 到动态生成）
-        if user_persona:
-            active_user_persona = dict(user_persona)
-        else:
-            active_user_persona = _build_persona_from_onboarding(
-                user_mbti,
-                city,
-                context_interests,
-                context_voice,
-            )
-
-        # 将前端标签与语音上下文注入 persona，供 LLM 协商 prompt 使用
-        if context_interests:
-            active_user_persona["interest_tags"] = context_interests[:12]
-            identity = active_user_persona.get("identity", {})
-            if isinstance(identity, dict):
-                raw_core = identity.get("core_values", [])
-                core_values = [str(x).strip() for x in raw_core if str(x).strip()] if isinstance(raw_core, list) else []
-                identity["core_values"] = list(dict.fromkeys(context_interests + core_values))[:12]
-                active_user_persona["identity"] = identity
-        if context_voice:
-            active_user_persona["voice_text"] = context_voice
+        active_user_persona = (
+            user_persona
+            or _build_persona_from_onboarding(user_mbti, city, [], "")
+        )
 
         # 构建 user_prefs 以计算兼容性分解（供 LLM 深度注入）
         user_prefs_for_compat: Optional[Dict[str, Any]] = None
@@ -1887,17 +1595,6 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             user_prefs_for_compat = _build_user_prefs_from_persona(active_user_persona)
         except Exception:
             pass
-
-        if user_prefs_for_compat is None:
-            user_prefs_for_compat = {}
-        if user_mbti and not user_prefs_for_compat.get("mbti"):
-            user_prefs_for_compat["mbti"] = user_mbti
-        if context_interests:
-            user_prefs_for_compat["likes"] = context_interests
-        if requested_mbti:
-            user_prefs_for_compat["mbti"] = requested_mbti
-        if req.travel_style:
-            user_prefs_for_compat["travel_style"] = req.travel_style
 
         # 计算协商兼容性分解（包含 total/strengths/red_flags/easy_to_compromise）
         compat_breakdown = _get_negotiation_compatibility_breakdown(
@@ -1921,12 +1618,13 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
 
         radar = []
+        DIM_LABELS = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
         for i, (t, s) in enumerate(consensus_scores.items()):
             radar.append({
-                "dimension": _NEGOTIATION_DIM_LABELS[i] if i < len(_NEGOTIATION_DIM_LABELS) else t,
+                "dimension": DIM_LABELS[i] if i < len(DIM_LABELS) else t,
                 "user_score": int(s * 100),
                 "buddy_score": int(s * 90),
-                "weight": _NEGOTIATION_DIM_WEIGHTS[i] if i < len(_NEGOTIATION_DIM_WEIGHTS) else 0.7,
+                "weight": 0.7,
             })
 
         plan = final_report.get("strengths", []) if final_report else []
@@ -1938,9 +1636,6 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             ]
 
         overall = final_report.get("overall_score", 0.5) if final_report else 0.5
-        final_tags = context_interests or (
-            user_prefs_for_compat.get("likes", []) if isinstance(user_prefs_for_compat, dict) else []
-        )
         result_data = {
             "destination": city_name,
             "dates": "5月10日-5月15日",
@@ -1951,14 +1646,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "radar": radar,
             "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
             "messages": messages,
-            "analysis_report": final_report.get("recommendation", "") if final_report else "",
-            "analysis_basis": {
-                "input_tags": final_tags[:8] if isinstance(final_tags, list) else [],
-                "strengths": final_report.get("strengths", [])[:3] if final_report else [],
-                "conflicts": final_report.get("challenges", [])[:3] if final_report else [],
-            },
         }
-        result_data = _ensure_negotiation_payload(result_data)
         llm_source = "llm"
         try:
             from negotiation.llm_client import _KEYS as _LLM_KEYS
@@ -1977,7 +1665,6 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "buddy_mbti": buddy_mbti,
                 "destination": city,
                 "overall_score": overall,
-                "tag_count": len(final_tags) if isinstance(final_tags, list) else 0,
             },
         }
     except Exception as exc:

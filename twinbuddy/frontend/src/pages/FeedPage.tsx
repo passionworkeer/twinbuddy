@@ -281,7 +281,8 @@ export default function FeedPage() {
           return (
             <div key={item.id + i} className="h-full w-full snap-start shrink-0">
               <TikTokVideo
-                videoUrl={isNearActive ? (item.video_url || '') : ''}
+                videoUrl={item.video_url || ''}
+                isNearActive={isNearActive}
                 buddy={item.buddy}
                 location={item.location}
                 title={item.title || ''}

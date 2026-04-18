@@ -5,6 +5,7 @@ import { MBTI_LABELS } from '../../types';
 
 interface Props {
   videoUrl: string;
+  isNearActive: boolean;
   buddy?: Buddy;
   location: string;
   title: string;
@@ -68,7 +69,7 @@ function ActionBar({
   onComment,
   onShare,
   onTwinCard,
-}: Omit<Props, 'videoUrl' | 'buddy' | 'location' | 'title' | 'isActive'>) {
+}: Omit<Props, 'videoUrl' | 'buddy' | 'location' | 'title' | 'isActive' | 'isNearActive' | 'description'>) {
   const fmt = (n: number) => (n >= 10000 ? `${(n / 10000).toFixed(1)}w` : String(n));
 
   return (
@@ -178,6 +179,7 @@ function BottomInfo({ buddy, location, title, description }: { buddy?: Buddy; lo
 
 export function TikTokVideo({
   videoUrl,
+  isNearActive,
   buddy,
   location,
   title,
@@ -199,6 +201,16 @@ export function TikTokVideo({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [videoAspect, setVideoAspect] = useState<'portrait' | 'landscape' | 'square'>('portrait');
   const playIndicatorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Use a state to remember if this video has EVER been active or near active
+  // Once it is requested to load, we keep it in the DOM to avoid ERR_ABORTED when scrolling away
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isNearActive) {
+      setHasLoaded(true);
+    }
+  }, [isNearActive]);
 
   // Detect video orientation
   const handleMetadata = useCallback(() => {
@@ -288,7 +300,7 @@ export function TikTokVideo({
       <PlayIndicator visible={showPlayIndicator} />
 
       {/* Video */}
-      {videoUrl ? (
+      {hasLoaded && videoUrl ? (
         <video
           ref={videoRef}
           src={videoUrl}

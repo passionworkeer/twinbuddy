@@ -43,25 +43,25 @@ export function useOnboarding() {
   }, [setData]);
 
   const completeOnboarding = useCallback(async (): Promise<{ user_id: string; persona_id: string } | null> => {
-    try {
-      const { user_id, persona_id } = await saveOnboarding(data)
-      setData((prev) => ({
-        ...prev,
-        user_id,
-        persona_id,
-        completed: true,
-        timestamp: Date.now(),
-      }))
-      return { user_id, persona_id }
-    } catch (error) {
-      console.error('Onboarding API 调用失败，使用本地数据:', error)
-      setData((prev) => ({
-        ...prev,
-        completed: true,
-        timestamp: Date.now(),
-      }))
-      return null
-    }
+    // 生成本地 ID（不等待 API）
+    const user_id = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const persona_id = `persona_${data.mbti.toLowerCase()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    // 立即更新本地状态
+    setData((prev) => ({
+      ...prev,
+      user_id,
+      persona_id,
+      completed: true,
+      timestamp: Date.now(),
+    }));
+
+    // 后台调用 API（不阻塞 UI）
+    saveOnboarding({ ...data, user_id, persona_id }).catch((error) => {
+      console.error('Onboarding API 调用失败:', error);
+    });
+
+    return { user_id, persona_id };
   }, [data, setData]);
 
   // Determine which step the user is currently on (1-4)

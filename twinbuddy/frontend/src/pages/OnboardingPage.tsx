@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Sparkles, Mic } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
@@ -104,8 +104,10 @@ type VoiceState = 'idle' | 'recording' | 'transcribed';
 
 function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [noSupport, setNoSupport] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  // ── Init Speech Recognition ──────────────────────────
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SR) {
@@ -115,7 +117,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       rec.interimResults = false;
 
       rec.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
+        const transcript = event.results[0][0].transcript.trim();
         onChange(transcript);
         setVoiceState('transcribed');
       };
@@ -126,27 +128,29 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       };
 
       rec.onend = () => {
-        if (voiceState === 'recording') setVoiceState('idle');
+        setVoiceState((prev) => (prev === 'recording' ? 'idle' : prev));
       };
 
-      setRecognition(rec);
+      recognitionRef.current = rec;
+    } else {
+      setNoSupport(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStart = () => {
-    if (!recognition) {
-      // Fallback for browsers without Speech API
-      setVoiceState('recording');
-      setTimeout(() => {
-        onChange('');
-        setVoiceState('idle');
-      }, 100);
+  // ── Start/Stop handler ──────────────────────────────
+  const handleMicClick = () => {
+    if (!recognitionRef.current) return;
+
+    if (voiceState === 'recording') {
+      recognitionRef.current.stop();
+      setVoiceState('idle');
       return;
     }
+
     setVoiceState('recording');
     try {
-      recognition.start();
+      recognitionRef.current.start();
     } catch {
       setVoiceState('idle');
     }
@@ -159,15 +163,21 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         <p className="mt-1 text-sm text-neon-text-secondary">说点什么，或者直接跳过</p>
       </div>
 
-      {/* Primary: text input */}
+      {/* Primary: text input — text rendered in dark color so user can edit it */}
       <textarea
         className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/6 px-4 py-3
-                   text-neon-text text-sm resize-none placeholder:text-neon-text-disabled
+                   text-gray-800 text-sm resize-none placeholder:text-gray-400
                    focus:border-neon-primary focus:outline-none focus:shadow-glow-primary transition-all"
         rows={3}
         placeholder="描述你理想的搭子，比如：喜欢慢节奏、会拍照、能吃辣..."
         value={text}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          // If user manually edits after transcription, stay in transcribed state
+          if (voiceState !== 'transcribed') {
+            setVoiceState(e.target.value ? 'transcribed' : 'idle');
+          }
+        }}
       />
 
       {!text && voiceState === 'idle' && (
@@ -176,11 +186,11 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
       {/* Voice recording button */}
       <button
-        onClick={handleStart}
-        disabled={voiceState === 'transcribed'}
+        onClick={handleMicClick}
+        disabled={noSupport}
         className={`
           relative flex items-center justify-center rounded-full
-          transition-all duration-200
+          transition-all duration-200 select-none
           ${voiceState === 'recording'
             ? 'w-28 h-28 bg-red-500/20 border-2 border-red-400 shadow-[0_0_30px_rgba(248,113,113,0.5)] animate-neon-pulse'
             : 'w-24 h-24 bg-neon-primary/10 border-2 border-neon-primary/40 hover:border-neon-primary hover:shadow-glow-primary'
@@ -189,10 +199,17 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       >
         <Mic className={`w-10 h-10 ${voiceState === 'recording' ? 'text-red-400' : 'text-neon-primary'}`} />
         {voiceState === 'recording' && (
-          <span className="absolute -bottom-6 text-xs text-red-400 animate-pulse">录音中...</span>
+          <span className="absolute -bottom-6 text-xs text-red-400 animate-pulse">录音中，点击停止</span>
+        )}
+        {voiceState === 'idle' && !noSupport && (
+          <span className="absolute -bottom-6 text-xs text-neon-text-secondary">点击说话</span>
+        )}
+        {noSupport && (
+          <span className="absolute -bottom-6 text-xs text-neon-text-disabled">浏览器不支持</span>
         )}
       </button>
 
+      {/* Audio waveform visualizer during recording */}
       {voiceState === 'recording' && (
         <div className="flex items-end gap-1 h-8">
           {Array.from({ length: 8 }, (_, i) => (
@@ -208,13 +225,14 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         </div>
       )}
 
+      {/* Transcribed result — user can still edit in textarea above */}
       {voiceState === 'transcribed' && text && (
         <div className="w-full max-w-sm animate-fade-in">
           <div className="glass-panel p-4">
-            <p className="text-sm text-neon-text leading-relaxed">"{text}"</p>
+            <p className="text-sm text-gray-800 leading-relaxed font-medium">"{text}"</p>
             <p className="mt-2 text-xs text-neon-text-secondary flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-neon-tertiary" />
-              AI 已识别你的旅行偏好
+              已识别，你可以在上方修改文本
             </p>
           </div>
         </div>
@@ -268,19 +286,17 @@ export default function OnboardingPage() {
   // 显式步骤状态：由用户操作驱动，第 1/2 步会基于数据自动前进。
   const [step, setStep] = useState(1);
 
-  // 选中 MBTI 后自动进入第 2 步
+  // 标记是否正在回退，用于防止回退时触发自动前进
+  const isNavigatingBack = useRef(false);
+
+  // 选中 MBTI 后自动进入第 2 步（但回退时不触发）
   useEffect(() => {
-    if (data.mbti && step < 2) {
+    if (data.mbti && step < 2 && !isNavigatingBack.current) {
       setStep(2);
     }
   }, [data.mbti, step]);
 
-  // 选中兴趣后自动进入第 3 步
-  useEffect(() => {
-    if (data.mbti && data.interests.length > 0 && step < 3) {
-      setStep(3);
-    }
-  }, [data.interests.length, data.mbti, step]);
+  // 不再基于 interests.length 自动跳转，让用户可以多选后再手动继续
 
   // React 18 batching: completeOnboarding() updates state, then navigate() in
   // the same synchronous tick may not trigger re-render. Use useEffect to
@@ -295,13 +311,22 @@ export default function OnboardingPage() {
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1);
     } else {
-      await completeOnboarding();
+      try {
+        await completeOnboarding();
+      } catch (err) {
+        console.error('[OnboardingPage] completeOnboarding error:', err);
+        // Fallback: force navigation directly so user isn't stuck
+        navigate('/feed');
+      }
     }
-  }, [step, completeOnboarding]);
+  }, [step, completeOnboarding, navigate]);
 
   const handleBack = useCallback(() => {
     if (step > 1) {
+      isNavigatingBack.current = true;
       setStep((s) => s - 1);
+      // 清除标记，让后续前进操作正常进行
+      setTimeout(() => { isNavigatingBack.current = false; }, 100);
     } else {
       navigate('/');
     }
@@ -351,33 +376,22 @@ export default function OnboardingPage() {
 
       {/* CTA */}
       <div className="px-6 pb-8 pt-4 max-w-lg mx-auto w-full">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleNext}
-            disabled={!canProceed()}
-            className={`flex-1 btn-primary py-4 ${!canProceed() ? 'opacity-40' : ''}`}
-          >
-            {step < TOTAL_STEPS ? (
-              <>
-                继续 <ArrowRight className="w-4 h-4" />
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                开始刷搭子
-              </>
-            )}
-          </button>
-        </div>
-        {step === 4 && (
-          <button
-            onClick={completeOnboarding}
-            className="mt-3 w-full py-3 text-center text-sm transition-colors"
-            style={{ color: '#a0a0b8' }}
-          >
-            随便看看
-          </button>
-        )}
+        <button
+          onClick={handleNext}
+          disabled={!canProceed()}
+          className={`w-full btn-primary py-4 ${!canProceed() ? 'opacity-40' : ''}`}
+        >
+          {step < TOTAL_STEPS ? (
+            <>
+              继续 <ArrowRight className="w-4 h-4" />
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4" />
+              开始刷搭子
+            </>
+          )}
+        </button>
         <p className="mt-3 text-center text-xs" style={{ color: '#5a5a70' }}>
           数据仅本地存储，不会上传至服务器
         </p>

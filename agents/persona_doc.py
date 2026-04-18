@@ -41,7 +41,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-from backend.negotiation.llm_client import llm_client
+from negotiation.llm_client import llm_client
 
 # ── 路径配置 ────────────────────────────────────────────────────────────────
 

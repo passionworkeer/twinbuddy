@@ -45,8 +45,8 @@ export const RadarChartCard: React.FC<RadarChartCardProps> = ({ data }) => {
 
   return (
     <>
-      <div className="mb-4 flex justify-center items-center py-2">
-        <svg height="320" viewBox="0 0 200 200" width="320" xmlns="http://www.w3.org/2000/svg">
+      <div className="mb-4 flex justify-center items-center py-2 overflow-visible">
+        <svg height="320" viewBox="-40 -20 280 240" width="100%" className="max-w-full overflow-visible" xmlns="http://www.w3.org/2000/svg">
           {/* Grid Polygons */}
           <polygon fill="none" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70" stroke="rgba(255,255,255,0.3)" strokeWidth="1"></polygon>
           <polygon fill="none" points="100,60 134.64,80 134.64,120 100,140 65.36,120 65.36,80" stroke="rgba(255,255,255,0.2)" strokeWidth="1"></polygon>

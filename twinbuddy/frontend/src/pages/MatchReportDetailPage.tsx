@@ -113,6 +113,7 @@ export default function MatchReportDetailPage() {
             <FullChatHistory 
                 messages={messagesData} 
                 onCollapse={handleBack} 
+                result={resultData}
             />
         </div>
 

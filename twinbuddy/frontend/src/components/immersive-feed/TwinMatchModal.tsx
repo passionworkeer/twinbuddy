@@ -201,6 +201,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                 <FullChatHistory 
                    messages={messagesData} 
                    onCollapse={() => setChatExpanded(false)} 
+                   result={result}
                 />
               )}
             </div>

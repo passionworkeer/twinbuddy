@@ -1,19 +1,5 @@
 import type { Buddy } from '../types/persona';
 
-// ── Keyword tagline pools keyed by MBTI ───────────────────────────────────────
-const KEYWORD_TAGLINES: Record<string, string[]> = {
-  ENFP: ['三分糖 · 第二杯半价', '公路旅行 · 深夜食堂', '七里香 · 未寄出'],
-  ENTP: ['逆风如解意', '召唤师 · 王', '山海'],
-  INFP: ['红豆 · 树洞', '同桌 · 猫', '谷雨 · 镜子'],
-  INFJ: ['未寄出 · 山海', '深夜食堂 · 红豆', '召唤师'],
-  default: ['深夜食堂 · 三分糖', '公路旅行 · 猫', '树洞 · 同桌'],
-};
-
-function getKeywordTagline(mbti: string): string {
-  const pool = KEYWORD_TAGLINES[mbti] ?? KEYWORD_TAGLINES.default;
-  return pool[Math.abs(mbti.length * 7) % pool.length];
-}
-
 interface Props {
   buddy: Buddy;
   isSelected?: boolean;
@@ -118,19 +104,6 @@ export function BuddyCard({ buddy, isSelected = false, onSelect }: Props) {
 
       {/* Compatibility bar */}
       <CompatibilityBar score={buddy.compatibility_score} />
-
-      {/* Keyword tagline watermark */}
-      <p
-        aria-hidden="true"
-        className="mt-2 text-center text-xs italic"
-        style={{
-          opacity: 0.35,
-          color: 'inherit',
-          letterSpacing: '0.08em',
-        }}
-      >
-        {getKeywordTagline(buddy.mbti)}
-      </p>
     </button>
   );
 }

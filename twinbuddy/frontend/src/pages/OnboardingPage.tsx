@@ -591,7 +591,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="bg-background text-on-surface font-body antialiased min-h-[100dvh] w-full relative overflow-x-hidden flex flex-col">
+    <div className="bg-background text-on-surface font-body antialiased min-h-[100dvh] w-full relative overflow-x-hidden flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] overflow-y-auto">
       {/* Background Image with Gradient Overlay */}
       <div 
         className={`fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ${step === 4 ? 'scale-105 filter blur-[2px] brightness-75' : ''}`} 

@@ -128,10 +128,23 @@ export async function saveOnboarding(
 
 /**
  * GET /api/persona?user_id=xxx
+ * 或者 /api/persona?mbti=ENFP&interests=美食,摄影&city=北京
  * 获取当前用户的数字孪生人格
  */
-export async function fetchPersona(userId: string): Promise<Persona> {
-  const res = await apiGet<ApiResponse<Persona>>('/persona', { user_id: userId });
+export async function fetchPersona(params: {
+  userId?: string;
+  mbti?: string;
+  interests?: string[];
+  city?: string;
+  voiceText?: string;
+}): Promise<Persona> {
+  const queryParams: Record<string, string> = {};
+  if (params.userId) queryParams.user_id = params.userId;
+  if (params.mbti) queryParams.mbti = params.mbti;
+  if (params.interests && params.interests.length > 0) queryParams.interests = params.interests.join(',');
+  if (params.city) queryParams.city = params.city;
+  if (params.voiceText) queryParams.voice_text = params.voiceText;
+  const res = await apiGet<ApiResponse<Persona>>('/persona', queryParams);
   return unwrap(res);
 }
 
@@ -166,7 +179,12 @@ export async function fetchBuddies(
   if (mbti) params.mbti = mbti;
   if (interests && interests.length > 0) params.interests = interests.join(',');
   if (city) params.city = city;
-  const res = await apiGet<ApiResponse<unknown[]>>('/buddies', params);
+  const res = await apiGet<ApiResponse<unknown[]> & { buddies?: unknown[] }>('/buddies', params);
+  // 后端返回格式是 { success, buddies, ... }，unwrap 取 data 字段
+  // 但 /buddies 返回的是 buddies 字段，所以直接取 res.buddies
+  if (Array.isArray((res as any).buddies)) {
+    return (res as any).buddies as Record<string, unknown>[];
+  }
   return unwrap(res) as Record<string, unknown>[];
 }
 

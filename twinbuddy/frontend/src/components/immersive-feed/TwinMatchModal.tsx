@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { VideoItem, NegotiationResult, Buddy } from '../../types';
 import { RadarChartCard, LocalRadarData } from './RadarChartCard';
 import { ChatHistoryOverlay, ChatMessage } from './ChatHistoryOverlay';
@@ -9,7 +9,16 @@ interface TwinMatchModalProps {
   isLoading: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  backgroundItem: VideoItem | null; // One of the 8 mock images + desc
+  backgroundItem: VideoItem | null;
+  matchedBuddy?: {
+    name: string;
+    mbti: string;
+    avatar_emoji: string;
+    travel_style: string;
+    compatibility_score: number;
+  } | null;
+  // 实时协商消息（分批到达）
+  liveMessages?: { speaker: 'user' | 'buddy'; content: string; timestamp: number }[];
 }
 
 export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
@@ -17,29 +26,116 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   isLoading,
   onClose,
   onConfirm,
-  backgroundItem
+  backgroundItem,
+  matchedBuddy,
+  liveMessages = []
 }) => {
-  const [modalStep, setModalStep] = useState<'guide' | 'match'>('guide');
+  const [modalStep, setModalStep] = useState<'guide' | 'match'>('match'); // 默认直接进 match 步骤
   const [chatExpanded, setChatExpanded] = useState(false);
+  const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
+  const messageEndRef = useRef<HTMLDivElement>(null);
 
-  // If loading, show the glassmorphic spinner
+  // 实时消息动画：每当 liveMessages 更新，逐条显示
+  useEffect(() => {
+    if (liveMessages.length === 0) return;
+
+    // 逐条添加消息，间隔 800ms
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < liveMessages.length) {
+        const msg = liveMessages[index];
+        setDisplayedMessages(prev => [...prev, {
+          id: Date.now() + index,
+          text: msg.content,
+          isSelf: msg.speaker === 'user'
+        }]);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [liveMessages.length]);
+
+  // 自动滚动到最新消息
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [displayedMessages]);
+
+  // Loading state: show buddy preview with live chat
   if (isLoading || !result) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1C15] overflow-hidden">
-         {/* Background image blurred slightly to show we are loading a match */}
+      <div className="fixed inset-0 z-50 flex flex-col bg-[#0B1C15] overflow-hidden">
+         {/* Background image blurred */}
          {backgroundItem && (
            <div className="absolute inset-0 z-0">
-             <img 
-               src={backgroundItem.cover_url} 
-               className="w-full h-full object-cover blur-sm opacity-50" 
-               alt="" 
+             <img
+               src={backgroundItem.cover_url}
+               className="w-full h-full object-cover blur-sm opacity-50"
+               alt=""
              />
              <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-[#0B1C15]"></div>
            </div>
          )}
-         <div className="relative z-10 flex flex-col items-center">
-            <div className="w-12 h-12 border-4 border-white/20 border-t-[#4ade80] rounded-full animate-spin mb-4" />
-            <p className="text-white/80 font-medium text-sm tracking-widest animate-pulse">正在与可能的搭子对暗号...</p>
+
+         {/* Top bar */}
+         <div className="relative z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,24px)] pb-3">
+           <button onClick={onClose} className="p-2">
+             <span className="material-symbols-outlined text-white text-2xl">close</span>
+           </button>
+           <div className="flex items-center gap-2">
+             {matchedBuddy && (
+               <>
+                 <span className="text-lg">{matchedBuddy.avatar_emoji}</span>
+                 <span className="text-white font-medium">{matchedBuddy.name}</span>
+               </>
+             )}
+           </div>
+           <div className="w-10"></div>
+         </div>
+
+         {/* Live chat area */}
+         <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-32">
+           {displayedMessages.length === 0 ? (
+             <div className="flex flex-col items-center justify-center h-full">
+               <div className="w-12 h-12 border-3 border-white/20 border-t-[#4ade80] rounded-full animate-spin mb-4" />
+               <p className="text-white/80 font-medium">正在连接搭子...</p>
+             </div>
+           ) : (
+             <div className="space-y-3 pt-4">
+               {displayedMessages.map((msg, idx) => (
+                 <div
+                   key={msg.id}
+                   className={`flex items-end gap-2 animate-fade-in ${msg.isSelf ? 'flex-row-reverse' : ''}`}
+                   style={{ animationDelay: '0ms' }}
+                 >
+                   {!msg.isSelf && matchedBuddy && (
+                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm shrink-0">
+                       {matchedBuddy.avatar_emoji}
+                     </div>
+                   )}
+                   <div
+                     className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                       msg.isSelf
+                         ? 'bg-[#4ade80] text-black rounded-br-sm'
+                         : 'bg-white/15 text-white rounded-bl-sm'
+                     }`}
+                   >
+                     {msg.text}
+                   </div>
+                 </div>
+               ))}
+               <div ref={messageEndRef} />
+             </div>
+           )}
+         </div>
+
+         {/* Bottom hint */}
+         <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-[#0B1C15] via-[#0B1C15]/80 to-transparent pt-8 pb-4 px-4 text-center">
+           <p className="text-white/50 text-xs animate-pulse">
+             {displayedMessages.length === 0 ? '正在与搭子建立连接...' : '搭子正在回复中...'}
+           </p>
          </div>
       </div>
     );
@@ -54,11 +150,17 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
     dimensions: result.radar || []
   };
 
-  const messagesData: ChatMessage[] = result.messages?.map((msg, idx) => ({
-    id: idx,
+  // 合并实时消息和最终结果消息
+  const resultMessages: ChatMessage[] = result.messages?.map((msg, idx) => ({
+    id: 10000 + idx,
     text: msg.content,
     isSelf: msg.speaker === 'user'
   })) || [];
+
+  // 如果有实时消息已显示，不重复显示
+  const allMessages = displayedMessages.length > 0
+    ? [...displayedMessages, ...resultMessages.filter(rm => !displayedMessages.some(dm => dm.text === rm.text))]
+    : resultMessages;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
@@ -188,19 +290,19 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                 <>
                   {/* Radar and Match Cards container */}
                   <RadarChartCard data={radarData} />
-                  
+
                   {/* Chat Overlay Snippet */}
-                  {messagesData.length > 0 && (
-                    <ChatHistoryOverlay 
-                      messages={messagesData.slice(-3)} 
-                      onExpand={() => setChatExpanded(true)} 
+                  {allMessages.length > 0 && (
+                    <ChatHistoryOverlay
+                      messages={allMessages.slice(-3)}
+                      onExpand={() => setChatExpanded(true)}
                     />
                   )}
                 </>
               ) : (
-                <FullChatHistory 
-                   messages={messagesData} 
-                   onCollapse={() => setChatExpanded(false)} 
+                <FullChatHistory
+                   messages={allMessages}
+                   onCollapse={() => setChatExpanded(false)}
                    result={result}
                 />
               )}

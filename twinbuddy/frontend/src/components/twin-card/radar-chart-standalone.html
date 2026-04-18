@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>兼容性雷达图</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0e0f1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: #e0e0f0;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 32px 24px 24px;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .title {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(160,160,184,0.8);
+    }
+
+    /* SVG classes matching the React component */
+    .radar-grid-line {
+      fill: none;
+      stroke: rgba(255,255,255,0.08);
+      stroke-width: 1;
+    }
+    .radar-axis {
+      stroke: rgba(255,255,255,0.06);
+      stroke-width: 1;
+    }
+    .radar-area-fill {
+      fill: rgba(52,211,153,0.12);
+      stroke: rgba(52,211,153,0.65);
+      stroke-width: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .legend-label {
+      color: rgba(160,160,184,0.8);
+    }
+    .legend-score {
+      color: #e0e0f0;
+      font-weight: 600;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      background: rgba(14,15,26,0.95);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+    }
+    .tooltip .tip-title {
+      font-weight: 600;
+      color: #34d399;
+      margin-bottom: 4px;
+    }
+    .tooltip .tip-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 2px;
+    }
+    .tip-you  { color: #818cf8; }
+    .tip-buddy{ color: #34d399; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="title">兼容性分析</div>
+
+  <!-- Radar SVG (matches RadarChart.tsx rendering logic) -->
+  <svg id="radar-svg" width="240" height="240" viewBox="0 0 240 240" class="overflow-visible" aria-label="兼容性雷达图"></svg>
+
+  <!-- Legend -->
+  <div class="legend" id="legend"></div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip">
+  <div class="tip-title" id="tip-dim"></div>
+  <div class="tip-row">
+    <span class="tip-you"   id="tip-you"></span>
+    <span class="tip-buddy" id="tip-buddy"></span>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// Mock data — matches MOCK_RESULT in ResultPage.tsx
+// ─────────────────────────────────────────────────────────
+const DIMENSION_COLORS = [
+  '#34d399', // emerald — 行程节奏
+  '#10b981', // green   — 美食偏好
+  '#059669', // teal    — 拍照风格
+  '#047857', // forest  — 预算控制
+  '#065f46', // dark    — 冒险精神
+];
+
+// Scores from MOCK_RESULT radar (already 0–100)
+const data = [
+  { dimension: '行程节奏', user_score: 90, buddy_score: 45 },
+  { dimension: '美食偏好', user_score: 85, buddy_score: 80 },
+  { dimension: '拍照风格', user_score: 75, buddy_score: 95 },
+  { dimension: '预算控制', user_score: 60, buddy_score: 90 },
+  { dimension: '冒险精神', user_score: 95, buddy_score: 55 },
+];
+
+// ─────────────────────────────────────────────────────────
+// Rendering (mirrors RadarChart.tsx exactly)
+// ─────────────────────────────────────────────────────────
+const size = 240;
+const cx = size / 2;
+const cy = size / 2;
+const maxRadius = (size / 2) * 0.78;
+const n = data.length;
+
+const svg = document.getElementById('radar-svg');
+
+// ── Grid rings ──────────────────────────────────────
+[0.25, 0.5, 0.75, 1.0].forEach(scale => {
+  const r = maxRadius * scale;
+  const pts = data.map((_, i) => {
+    const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    return `${(cx + Math.cos(angle) * r).toFixed(1)},${(cy + Math.sin(angle) * r).toFixed(1)}`;
+  }).join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly.setAttribute('points', pts);
+  poly.setAttribute('class', 'radar-grid-line');
+  poly.setAttribute('stroke-width', '1');
+  svg.appendChild(poly);
+});
+
+// ── Axes ─────────────────────────────────────────────
+data.forEach((_, i) => {
+  const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+  const x2 = (cx + Math.cos(angle) * maxRadius).toFixed(1);
+  const y2 = (cy + Math.sin(angle) * maxRadius).toFixed(1);
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', cx);
+  line.setAttribute('y1', cy);
+  line.setAttribute('x2', x2);
+  line.setAttribute('y2', y2);
+  line.setAttribute('class', 'radar-axis');
+  line.setAttribute('stroke-width', '1');
+  svg.appendChild(line);
+});
+
+// ── Compute polygon vertices ─────────────────────────
+const points = data.map((d, i) => {
+  const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+  const avgScore = (d.user_score + d.buddy_score) / 2;
+  return {
+    x: cx + Math.cos(angle) * maxRadius,
+    y: cy + Math.sin(angle) * maxRadius,
+    mx: cx + Math.cos(angle) * (maxRadius * avgScore / 100),
+    my: cy + Math.sin(angle) * (maxRadius * avgScore / 100),
+  };
+});
+
+// ── Data polygon ────────────────────────────────────
+const pathD = points
+  .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.mx.toFixed(1)},${p.my.toFixed(1)}`)
+  .join(' ') + ' Z';
+const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+areaPath.setAttribute('d', pathD);
+areaPath.setAttribute('class', 'radar-area-fill');
+svg.appendChild(areaPath);
+
+// ── Data points ──────────────────────────────────────
+const tooltip = document.getElementById('tooltip');
+const tipDim   = document.getElementById('tip-dim');
+const tipYou   = document.getElementById('tip-you');
+const tipBuddy = document.getElementById('tip-buddy');
+
+points.forEach((p, i) => {
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  const color = DIMENSION_COLORS[i % DIMENSION_COLORS.length];
+  circle.setAttribute('cx', p.mx.toFixed(1));
+  circle.setAttribute('cy', p.my.toFixed(1));
+  circle.setAttribute('r', '4');
+  circle.setAttribute('fill', color);
+  circle.setAttribute('stroke', '#11131e');
+  circle.setAttribute('stroke-width', '2');
+  circle.style.filter = `drop-shadow(0 0 6px ${color})`;
+  circle.style.cursor = 'pointer';
+
+  circle.addEventListener('mouseenter', e => {
+    tipDim.textContent   = data[i].dimension;
+    tipYou.textContent   = `你 ${data[i].user_score}%`;
+    tipBuddy.textContent = `搭 ${data[i].buddy_score}%`;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top  = (e.clientY - 8)  + 'px';
+  });
+  circle.addEventListener('mousemove', e => {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top  = (e.clientY - 8)  + 'px';
+  });
+  circle.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+  });
+
+  svg.appendChild(circle);
+});
+
+// ── Axis labels ─────────────────────────────────────
+points.forEach((p, i) => {
+  const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+  const labelRadius = maxRadius + 20;
+  const lx = cx + Math.cos(angle) * labelRadius;
+  const ly = cy + Math.sin(angle) * labelRadius;
+  const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text.setAttribute('x', lx.toFixed(1));
+  text.setAttribute('y', ly.toFixed(1));
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('dominant-baseline', 'middle');
+  text.setAttribute('font-size', '11');
+  text.setAttribute('fill', '#a0a0b8');
+  text.setAttribute('font-family', 'Inter, sans-serif');
+  text.textContent = data[i].dimension;
+  svg.appendChild(text);
+});
+
+// ── Center dot ──────────────────────────────────────
+const centerDot1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+centerDot1.setAttribute('cx', cx); centerDot1.setAttribute('cy', cy);
+centerDot1.setAttribute('r', '4');
+centerDot1.setAttribute('fill', 'rgba(52,211,153,0.2)');
+centerDot1.setAttribute('stroke', 'rgba(52,211,153,0.4)');
+centerDot1.setAttribute('stroke-width', '1');
+svg.appendChild(centerDot1);
+const centerDot2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+centerDot2.setAttribute('cx', cx); centerDot2.setAttribute('cy', cy);
+centerDot2.setAttribute('r', '2');
+centerDot2.setAttribute('fill', 'rgba(52,211,153,0.6)');
+svg.appendChild(centerDot2);
+
+// ── Legend ──────────────────────────────────────────
+const legend = document.getElementById('legend');
+data.forEach((d, i) => {
+  const color = DIMENSION_COLORS[i % DIMENSION_COLORS.length];
+  const avg = Math.round((d.user_score + d.buddy_score) / 2);
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `
+    <div class="legend-dot" style="background:${color};box-shadow:0 0 4px ${color}"></div>
+    <span class="legend-label">${d.dimension}</span>
+    <span class="legend-score">${avg}%</span>
+  `;
+  legend.appendChild(item);
+});
+</script>
+</body>
+</html>

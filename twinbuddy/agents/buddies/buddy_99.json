@@ -41,7 +41,7 @@
     "decision_style": "稳健保守，需要时间考虑，但决定后会全力执行。压力下会先担心然后开始照顾他人，默默承担压力，不轻易表达自己的不满。",
     "risk_tolerance": "低",
     "fear_factors": [
-      "会先担心然后开始照顾他人，默默承担压力，不轻易表达自己的不满。从包里掏出准备好的东西来应对各种突发状"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -84,8 +84,9 @@
   },
   "preferences": {
     "likes": [
-      "旅行",
-      "探索新地方"
+      "E/I: 外向但有限度，喜欢照顾人，从给予中获得满足感",
+      "你饿不饿",
+      "你冷不冷"
     ],
     "dislikes": [
       "人山人海",

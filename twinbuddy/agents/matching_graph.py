@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 matching_graph.py — TwinBuddy MVP
 LangGraph StateGraph for the companion-matching negotiation pipeline.
@@ -24,8 +25,6 @@ import textwrap
 from dataclasses import dataclass, field
 from typing import Annotated
 
-from langgraph.graph import StateGraph, START, END
-from langgraph.graph.message import add_messages
 
 from buddy_agent import BuddyAgent
 from mock_database import MOCK_BUDDIES, score_compatibility
@@ -311,6 +310,12 @@ def should_continue_negotiation(state: GraphState) -> str:
 
 def build_matching_graph() -> StateGraph:
     """Build and return the compiled matching StateGraph."""
+    try:
+        from langgraph.graph import StateGraph, END
+        from langgraph.graph import add_messages
+    except ImportError:
+        from agents.langgraph_stub.langgraph.graph import StateGraph, END
+        from agents.langgraph_stub.langgraph.graph import add_messages
     builder = StateGraph(GraphState)
 
     builder.add_node("input_node", input_node)

@@ -44,7 +44,7 @@
     "decision_style": "基于数据和经验做决定：我的攻略显示A方案优于B方案，因为时间节省20%。一旦决定就执行，不犹豫。",
     "risk_tolerance": "低",
     "fear_factors": [
-      "压力下会加速执行计划，用\"没问题，我可以解决\"来应对。很少表露情绪，即使内心焦虑也会用行动来掩盖。是"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []

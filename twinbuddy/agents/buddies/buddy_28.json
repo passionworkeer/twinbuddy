@@ -44,7 +44,7 @@
     "decision_style": "基于价值观和感受做决定，不是数据和逻辑。如果一个地方让她\"感受到什么\"，她会毫不犹豫地去。如果一件事让她\"内在感觉不对\"，她会拒绝。",
     "risk_tolerance": "中",
     "fear_factors": [
-      "压力下会先向内转：沉默、独处、写日记、散步。如果对方需要她，会用温和但坚定的方式回应。不会在压力下做"
+      "未知因素"
     ],
     "emotional_triggers_positive": [],
     "emotional_triggers_negative": []
@@ -87,8 +87,7 @@
   },
   "preferences": {
     "likes": [
-      "旅行",
-      "探索新地方"
+      "有点像…"
     ],
     "dislikes": [
       "人山人海",

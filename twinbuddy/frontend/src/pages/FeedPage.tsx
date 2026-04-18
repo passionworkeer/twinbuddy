@@ -19,15 +19,15 @@ import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
 
 const MOCK_SCENE_CARDS = [
-  { id: 'sc1', type: 'image', cover_url: '/images/丽江古城夜景.jpg', location: '丽江', title: '丽江古城夜景漫步', description: '主街和支巷分开逛，既有热闹也能留出安静时段。' },
-  { id: 'sc2', type: 'image', cover_url: '/images/大唐不夜城.jpg', location: '西安', title: '大唐不夜城夜色', description: '大唐不夜城和周边历史片区分时体验，避免同段拥堵。' },
-  { id: 'sc3', type: 'image', cover_url: '/images/川西雪山草原.jpg', location: '川西', title: '川西雪山草原', description: '先保证高质量风景段，再决定是否加码深度点位。' },
-  { id: 'sc4', type: 'image', cover_url: '/images/成都宽窄巷子.jpg', location: '成都', title: '成都宽窄巷子', description: '从巷子与茶馆切入，会比打卡清单更像真正的成都。' },
-  { id: 'sc5', type: 'image', cover_url: '/images/洱海古城.jpg', location: '大理', title: '大理洱海古城', description: '洱海与古城之间留白体验，比密集打卡更容易出片。' },
-  { id: 'sc6', type: 'image', cover_url: '/images/重庆夜景洪崖洞.jpg', location: '重庆', title: '重庆夜景洪崖洞', description: '把夜景和坡地步行拆开体验，体感会轻松很多。' },
-  { id: 'sc7', type: 'image', cover_url: '/images/青岛海边.jpg', location: '青岛', title: '青岛海边轻攻略', description: '海边与街区混搭，比单一打卡更有节奏感。' },
-  { id: 'sc8', type: 'image', cover_url: '/images/鼓浪屿 – 竖屏版.jpg', location: '厦门', title: '鼓浪屿慢拍路线', description: '街角和海风节奏搭配，适合做轻量深度体验。' }
-] as VideoItem[];
+  { id: 'sc1', type: 'image', cover_url: '/images/丽江古城夜景.jpg', video_url: '', location: '丽江', title: '丽江古城夜景漫步', description: '主街和支巷分开逛，既有热闹也能留出安静时段。' },
+  { id: 'sc2', type: 'image', cover_url: '/images/大唐不夜城.jpg', video_url: '', location: '西安', title: '大唐不夜城夜色', description: '大唐不夜城和周边历史片区分时体验，避免同段拥堵。' },
+  { id: 'sc3', type: 'image', cover_url: '/images/川西雪山草原.jpg', video_url: '', location: '川西', title: '川西雪山草原', description: '先保证高质量风景段，再决定是否加码深度点位。' },
+  { id: 'sc4', type: 'image', cover_url: '/images/成都宽窄巷子.jpg', video_url: '', location: '成都', title: '成都宽窄巷子', description: '从巷子与茶馆切入，会比打卡清单更像真正的成都。' },
+  { id: 'sc5', type: 'image', cover_url: '/images/洱海古城.jpg', video_url: '', location: '大理', title: '大理洱海古城', description: '洱海与古城之间留白体验，比密集打卡更容易出片。' },
+  { id: 'sc6', type: 'image', cover_url: '/images/重庆夜景洪崖洞.jpg', video_url: '', location: '重庆', title: '重庆夜景洪崖洞', description: '把夜景和坡地步行拆开体验，体感会轻松很多。' },
+  { id: 'sc7', type: 'image', cover_url: '/images/青岛海边.jpg', video_url: '', location: '青岛', title: '青岛海边轻攻略', description: '海边与街区混搭，比单一打卡更有节奏感。' },
+  { id: 'sc8', type: 'image', cover_url: '/images/鼓浪屿 – 竖屏版.jpg', video_url: '', location: '厦门', title: '鼓浪屿慢拍路线', description: '街角和海风节奏搭配，适合做轻量深度体验。' }
+] as unknown as VideoItem[];
 
 function shuffleVideos(videos: VideoItem[]): VideoItem[] {
   const next = [...videos];

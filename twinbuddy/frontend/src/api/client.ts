@@ -149,14 +149,23 @@ export async function fetchFeed(city?: string, userId?: string): Promise<VideoIt
 }
 
 /**
- * GET /api/buddies?limit=10
- * 获取搭子列表（无 user_id 时返回全部搭子，无评分）
- * GET /api/buddies?user_id=xxx&limit=10
  * 获取按兼容性评分排序的推荐搭子
+ * 支持两种模式：
+ * 1. userId 模式：需要先有后端存储的用户数据
+ * 2. 直接参数模式：传 mbti/interests/city（本地存储场景）
  */
-export async function fetchBuddies(userId?: string, limit = 10) {
+export async function fetchBuddies(
+  userId?: string,
+  limit = 10,
+  mbti?: string,
+  interests?: string[],
+  city?: string
+) {
   const params: Record<string, string> = { limit: String(limit) };
   if (userId) params.user_id = userId;
+  if (mbti) params.mbti = mbti;
+  if (interests && interests.length > 0) params.interests = interests.join(',');
+  if (city) params.city = city;
   const res = await apiGet<ApiResponse<unknown[]>>('/buddies', params);
   return unwrap(res) as Record<string, unknown>[];
 }

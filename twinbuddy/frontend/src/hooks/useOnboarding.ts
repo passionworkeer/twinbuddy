@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
-import { saveOnboarding } from '../api/client';
 import { STORAGE_KEYS, type OnboardingData } from '../types';
 
 const INITIAL_DATA: OnboardingData = {
@@ -43,42 +42,20 @@ export function useOnboarding() {
   }, [setData]);
 
   const completeOnboarding = useCallback(async (): Promise<{ user_id: string; persona_id: string } | null> => {
-    const fallbackUserId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const fallbackPersonaId = `persona_${(data.mbti || 'enfp').toLowerCase()}_${Math.random().toString(36).slice(2, 8)}`;
+    // 本地生成 user_id 和 persona_id（不需要后端存储）
+    const userId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const personaId = `persona_${(data.mbti || 'enfp').toLowerCase()}_${Math.random().toString(36).slice(2, 8)}`;
     const timestamp = Date.now();
 
-    try {
-      const apiIds = await saveOnboarding({
-        ...data,
-        completed: true,
-        timestamp,
-      });
+    setData((prev) => ({
+      ...prev,
+      user_id: userId,
+      persona_id: personaId,
+      completed: true,
+      timestamp,
+    }));
 
-      setData((prev) => ({
-        ...prev,
-        user_id: apiIds.user_id,
-        persona_id: apiIds.persona_id,
-        completed: true,
-        timestamp,
-      }));
-
-      return apiIds;
-    } catch (error) {
-      console.error('Onboarding API 调用失败，使用本地回退 ID:', error);
-
-      // Save fallback data to ensure the flow continues properly
-      setData((prev) => ({
-        ...prev,
-        user_id: fallbackUserId,
-        persona_id: fallbackPersonaId,
-        completed: true,
-        timestamp,
-      }));
-
-      // Throw error to trigger the fallback logic in OnboardingPage if needed,
-      // but state is already updated!
-      return { user_id: fallbackUserId, persona_id: fallbackPersonaId };
-    }
+    return { user_id: userId, persona_id: personaId };
   }, [data, setData]);
 
   // Determine which step the user is currently on (1-4)

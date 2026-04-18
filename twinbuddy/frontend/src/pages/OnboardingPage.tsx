@@ -359,8 +359,8 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full animate-fade-in -mt-4">
-      <div className="text-center mb-8 space-y-2">
+    <div className="flex-1 flex flex-col items-center justify-center w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] -mx-4 sm:-mx-6 animate-fade-in -mt-4 overflow-hidden">
+      <div className="text-center mb-8 space-y-2 w-full">
         <h2 className="font-headline text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
           你的目的地是
         </h2>
@@ -370,15 +370,15 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
       </div>
 
       {/* Horizontal Scroll Area */}
-      <div 
-        ref={scrollRef}
-        className="w-full max-w-2xl overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar flex cursor-grab active:cursor-grabbing" 
-        style={{ 
-          WebkitOverflowScrolling: 'touch', 
-          scrollBehavior: 'smooth',
-          paddingLeft: 'calc(50% - 120px)', // w-60 = 240px, half is 120px
-          paddingRight: 'calc(50% - 120px)'
-        }}
+      <div className="w-full flex flex-col items-center">
+        <div 
+          ref={scrollRef}
+          className="w-full overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar flex cursor-grab active:cursor-grabbing" 
+          style={{ 
+            WebkitOverflowScrolling: 'touch', 
+            paddingLeft: 'calc(50% - 120px)', // w-60 = 240px, half is 120px
+            paddingRight: 'calc(50% - 120px)'
+          }}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeaveOrUp}
         onMouseUp={handleMouseLeaveOrUp}
@@ -431,6 +431,7 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
             );
           })}
         </div>
+      </div>
       </div>
 
       {/* Pagination Dots */}
@@ -559,7 +560,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="bg-background text-on-surface font-body antialiased min-h-screen relative overflow-x-hidden flex flex-col">
+    <div className="bg-background text-on-surface font-body antialiased min-h-[100dvh] w-full relative overflow-x-hidden flex flex-col">
       {/* Background Image with Gradient Overlay */}
       <div 
         className={`fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ${step === 4 ? 'scale-105 filter blur-[2px] brightness-75' : ''}`} 
@@ -585,7 +586,7 @@ export default function OnboardingPage() {
       </header>
 
       {/* Main Content Canvas */}
-      <main className="relative z-10 flex flex-col min-h-[calc(100vh-80px)] px-4 sm:px-6 pt-6 sm:pt-10 pb-12 max-w-4xl mx-auto items-center">
+      <main className="relative z-10 flex flex-col flex-1 w-full px-4 sm:px-6 pt-6 sm:pt-10 pb-12 max-w-4xl mx-auto items-center overflow-x-hidden">
         
         {step === 1 && <MBTIGrid value={data.mbti} onChange={updateMbti} />}
         {step === 2 && <InterestTags values={data.interests} onToggle={toggleInterest} />}

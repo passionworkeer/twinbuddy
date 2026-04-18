@@ -164,13 +164,25 @@ export default function FeedPage() {
 
     try {
       // 从 localStorage 获取用户 onboarding 数据
-      const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-      const obData: OnboardingData | null = stored ? JSON.parse(stored) : null;
+      let obData: OnboardingData | null = null;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
+        if (stored) obData = JSON.parse(stored) as OnboardingData;
+      } catch {
+        // localStorage 数据损坏，静默降级
+        obData = null;
+      }
 
-      // 获取 top1 搭子（从 100 个搭子中根据用户 MBTI/兴趣匹配）
+      // 获取 top1 搭子（直接传参数，不需要后端存储用户数据）
       let topBuddy = null;
       try {
-        const buddies = await fetchBuddies(obData?.user_id, 1);
+        const buddies = await fetchBuddies(
+          undefined, // user_id (不需要)
+          1,
+          obData?.mbti,
+          obData?.interests,
+          obData?.city
+        );
         topBuddy = (buddies[0] || null) as any;
       } catch (buddyErr) {
         console.error('获取搭子失败:', buddyErr);

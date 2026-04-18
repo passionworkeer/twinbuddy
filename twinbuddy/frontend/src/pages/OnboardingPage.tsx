@@ -307,6 +307,31 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
+  // 使用 IntersectionObserver 监听哪个卡片滚动到了中间
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const id = entry.target.getAttribute('data-id');
+            if (id && id !== value) {
+              onChange(id);
+            }
+          }
+        });
+      },
+      {
+        root: scrollRef.current,
+        threshold: 0.5,
+      }
+    );
+
+    const cards = scrollRef.current?.querySelectorAll('.destination-card');
+    cards?.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, [onChange, value]);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     isDown.current = true;
     if (scrollRef.current) {
@@ -317,15 +342,7 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
     }
   };
 
-  const handleMouseLeave = () => {
-    isDown.current = false;
-    if (scrollRef.current) {
-      scrollRef.current.style.scrollBehavior = 'smooth';
-      scrollRef.current.classList.remove('active');
-    }
-  };
-
-  const handleMouseUp = () => {
+  const handleMouseLeaveOrUp = () => {
     isDown.current = false;
     if (scrollRef.current) {
       scrollRef.current.style.scrollBehavior = 'smooth';
@@ -335,33 +352,9 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDown.current || !scrollRef.current) return;
+    e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.5; // adjust scrolling speed
-    scrollRef.current.scrollLeft = scrollLeft.current - walk;
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    isDown.current = true;
-    if (scrollRef.current) {
-      scrollRef.current.style.scrollBehavior = 'auto'; // Disable smooth scroll while dragging
-      scrollRef.current.classList.add('active');
-      startX.current = e.touches[0].pageX - scrollRef.current.offsetLeft;
-      scrollLeft.current = scrollRef.current.scrollLeft;
-    }
-  };
-
-  const handleTouchEnd = () => {
-    isDown.current = false;
-    if (scrollRef.current) {
-      scrollRef.current.style.scrollBehavior = 'smooth';
-      scrollRef.current.classList.remove('active');
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDown.current || !scrollRef.current) return;
-    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5;
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
@@ -372,28 +365,24 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
           你的目的地是
         </h2>
         <p className="font-body text-sm text-white/60">
-          请选择一个或多个城市
+          左右滑动选择你心仪的城市
         </p>
       </div>
 
       {/* Horizontal Scroll Area */}
       <div 
         ref={scrollRef}
-        className="w-full max-w-2xl overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar flex touch-pan-x cursor-grab active:cursor-grabbing px-1/2-screen" 
+        className="w-full max-w-2xl overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar flex cursor-grab active:cursor-grabbing" 
         style={{ 
           WebkitOverflowScrolling: 'touch', 
           scrollBehavior: 'smooth',
-          paddingLeft: 'max(1.5rem, calc(50vw - 9rem))', // w-72 = 18rem, half is 9rem
-          paddingRight: 'max(1.5rem, calc(50vw - 9rem))'
+          paddingLeft: 'calc(50% - 120px)', // w-60 = 240px, half is 120px
+          paddingRight: 'calc(50% - 120px)'
         }}
         onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeaveOrUp}
+        onMouseUp={handleMouseLeaveOrUp}
         onMouseMove={handleMouseMove}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchEnd}
-        onTouchMove={handleTouchMove}
       >
         <div className="flex gap-4 w-max shrink-0 items-center">
           {LOCATIONS.map((loc) => {
@@ -401,25 +390,24 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
             return (
               <div
                 key={loc.id}
+                data-id={loc.id}
                 onClick={() => {
                   if (!isDown.current) {
                     onChange(loc.id);
                     // scroll to center
-                    if (scrollRef.current) {
-                      const el = scrollRef.current.children[0].children[LOCATIONS.indexOf(loc)] as HTMLElement;
-                      if (el) {
-                        scrollRef.current.scrollTo({
-                          left: el.offsetLeft - scrollRef.current.clientWidth / 2 + el.clientWidth / 2,
-                          behavior: 'smooth'
-                        });
-                      }
+                    const el = document.querySelector(`[data-id="${loc.id}"]`) as HTMLElement;
+                    if (el && scrollRef.current) {
+                      scrollRef.current.scrollTo({
+                        left: el.offsetLeft - scrollRef.current.clientWidth / 2 + el.clientWidth / 2,
+                        behavior: 'smooth'
+                      });
                     }
                   }
                 }}
                 className={`
-                  snap-center relative shrink-0 w-72 aspect-[3/4] rounded-3xl overflow-hidden cursor-pointer
-                  transition-all duration-500 ease-out transform flex flex-col select-none
-                  ${selected ? 'scale-100 opacity-100 shadow-2xl z-10 border border-white/20' : 'scale-90 opacity-60 hover:opacity-80 border border-transparent'}
+                  destination-card snap-center relative shrink-0 w-60 aspect-[3/4] rounded-3xl overflow-hidden cursor-pointer
+                  transition-all duration-300 ease-out transform flex flex-col select-none
+                  ${selected ? 'scale-100 opacity-100 shadow-2xl z-10 border border-white/30' : 'scale-90 opacity-50 hover:opacity-80 border border-transparent'}
                 `}
               >
                 <div className="absolute inset-0 w-full h-full">
@@ -431,11 +419,11 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end">
-                  <h3 className="font-headline text-3xl font-bold mb-2 text-white drop-shadow-md">
+                <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end">
+                  <h3 className="font-headline text-2xl font-bold mb-1.5 text-white drop-shadow-md">
                     {loc.name}
                   </h3>
-                  <p className="font-body text-sm text-white/90 leading-relaxed drop-shadow-sm">
+                  <p className="font-body text-xs text-white/90 leading-relaxed drop-shadow-sm">
                     {loc.desc}
                   </p>
                 </div>
@@ -447,10 +435,10 @@ function DestinationInput({ value, onChange }: { value: string; onChange: (c: st
 
       {/* Pagination Dots */}
       <div className="flex gap-2 justify-center mt-2 mb-6">
-        {LOCATIONS.map((loc, i) => (
+        {LOCATIONS.map((loc) => (
           <div 
-            key={i} 
-            className={`h-1.5 rounded-full transition-all duration-300 ${value === loc.id ? 'w-6 bg-white/80' : 'w-1.5 bg-white/30'}`}
+            key={loc.id} 
+            className={`h-1.5 rounded-full transition-all duration-300 ${value === loc.id ? 'w-6 bg-white/90' : 'w-1.5 bg-white/30'}`}
           />
         ))}
       </div>

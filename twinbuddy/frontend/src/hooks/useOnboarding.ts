@@ -44,18 +44,22 @@ export function useOnboarding() {
 
   const completeOnboarding = useCallback(async (): Promise<{ user_id: string; persona_id: string } | null> => {
     try {
-      // 调用后端 API 保存数据，获取 user_id 和 persona_id
       const { user_id, persona_id } = await saveOnboarding(data)
-      const fullData = { ...data, user_id, persona_id, completed: true, timestamp: Date.now() }
-      setData(fullData)
-      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(fullData))
+      setData((prev) => ({
+        ...prev,
+        user_id,
+        persona_id,
+        completed: true,
+        timestamp: Date.now(),
+      }))
       return { user_id, persona_id }
     } catch (error) {
       console.error('Onboarding API 调用失败，使用本地数据:', error)
-      // 如果API调用失败，至少存localStorage保证流程继续
-      const fullData = { ...data, completed: true, timestamp: Date.now() }
-      setData(fullData)
-      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(fullData))
+      setData((prev) => ({
+        ...prev,
+        completed: true,
+        timestamp: Date.now(),
+      }))
       return null
     }
   }, [data, setData]);

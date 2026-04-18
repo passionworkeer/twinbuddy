@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, MapPin, Calendar, Wallet, Heart, ArrowRight, RotateCcw } from 'lucide-react';
 import { RadarChart } from '../components/twin-card/RadarChart';
 import type { RadarData, NegotiationResult } from '../types';
@@ -105,14 +105,27 @@ function ScoreRing({ score }: { score: number }) {
 // ── Result Page ────────────────────────────────────────
 
 export default function ResultPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [cardsSeen] = useLocalStorage<string[]>(STORAGE_KEYS.twin_cards_seen, []);
+  const [storedResult] = useLocalStorage<NegotiationResult | null>(
+    STORAGE_KEYS.negotiation_result,
+    null,
+  );
+
+  const locationState = location.state as { result?: NegotiationResult } | null;
+  const resultData = locationState?.result ?? storedResult ?? MOCK_RESULT;
 
   // Calculate overall score from radar
+  const totalWeight = resultData.radar.reduce((sum: number, d: RadarData) => sum + d.weight, 0);
   const avgScore = Math.round(
-    MOCK_RESULT.radar.reduce((sum: number, d: RadarData) => sum + (d.user_score + d.buddy_score) / 2 * d.weight, 0) /
-    MOCK_RESULT.radar.reduce((sum: number, d: RadarData) => sum + d.weight, 0),
+    totalWeight > 0
+      ? resultData.radar.reduce(
+          (sum: number, d: RadarData) => sum + (d.user_score + d.buddy_score) / 2 * d.weight,
+          0,
+        ) / totalWeight
+      : 0,
   );
 
   useEffect(() => {
@@ -172,7 +185,7 @@ export default function ResultPage() {
         <div className="glass-panel p-5 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <ScoreRing score={avgScore} />
           <div className="mt-4 flex justify-center gap-3">
-            {MOCK_RESULT.matched_buddies.map((name) => (
+            {resultData.matched_buddies.map((name) => (
               <div key={name} className="flex items-center gap-1.5 text-sm text-neon-text-secondary">
                 <div className="w-5 h-5 rounded-full bg-neon-primary/10 border border-neon-primary/20 flex items-center justify-center text-xs">
                   ✦
@@ -187,19 +200,19 @@ export default function ResultPage() {
         <div className="glass-panel p-4 flex items-center justify-around stagger-children">
           <div className="flex flex-col items-center gap-1">
             <MapPin className="w-5 h-5 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{MOCK_RESULT.destination}</span>
+            <span className="text-sm font-semibold text-neon-text">{resultData.destination}</span>
             <span className="text-xs text-neon-text-secondary">目的地</span>
           </div>
           <div className="w-px h-8 bg-white/8" />
           <div className="flex flex-col items-center gap-1">
             <Calendar className="w-5 h-5 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{MOCK_RESULT.dates}</span>
+            <span className="text-sm font-semibold text-neon-text">{resultData.dates}</span>
             <span className="text-xs text-neon-text-secondary">出发日期</span>
           </div>
           <div className="w-px h-8 bg-white/8" />
           <div className="flex flex-col items-center gap-1">
             <Wallet className="w-5 h-5 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{MOCK_RESULT.budget}</span>
+            <span className="text-sm font-semibold text-neon-text">{resultData.budget}</span>
             <span className="text-xs text-neon-text-secondary">预算</span>
           </div>
         </div>
@@ -209,7 +222,7 @@ export default function ResultPage() {
           <h3 className="text-sm font-semibold text-neon-text-secondary mb-4 text-center uppercase tracking-widest">
             兼容性分析
           </h3>
-          <RadarChart data={MOCK_RESULT.radar} size={200} />
+          <RadarChart data={resultData.radar} size={200} />
         </div>
 
         {/* Plan */}
@@ -218,7 +231,7 @@ export default function ResultPage() {
             行程安排
           </h3>
           <div className="space-y-3">
-            {MOCK_RESULT.plan.map((item, i) => (
+            {resultData.plan.map((item, i) => (
               <div key={i} className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-neon-primary/10 border border-neon-primary/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-xs text-neon-primary font-bold">{i + 1}</span>

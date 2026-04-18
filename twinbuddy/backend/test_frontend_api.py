@@ -158,6 +158,21 @@ class TestNegotiateEndpoint:
         assert len(result["messages"]) > 0
         assert len(result["radar"]) > 0
 
+    def test_negotiate_uses_interest_tags_in_report(self):
+        tags = ["摄影打卡", "重度火锅党", "慢节奏旅行"]
+        resp = client.post("/api/negotiate", json={
+            "destination": "dali",
+            "buddy_mbti": "INFP",
+            "mbti": "ENFP",
+            "interests": tags,
+            "voiceText": "我想慢慢玩，重点拍照和吃好吃的",
+        })
+        assert resp.status_code == 200
+        data = resp.json()["data"]
+        assert isinstance(data.get("analysis_report", ""), str)
+        basis = data.get("analysis_basis", {})
+        assert basis.get("input_tags") == tags
+
     def test_negotiate_unknown_city(self):
         resp = client.post("/api/negotiate", json={
             "destination": "unknown_city",

@@ -200,6 +200,8 @@ export function TikTokVideo({
   const [videoAspect, setVideoAspect] = useState<'portrait' | 'landscape' | 'square'>('portrait');
   const playIndicatorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  console.log('[TikTokVideo] Rendered, isActive:', isActive, 'videoUrl:', videoUrl);
+
   // Detect video orientation
   const handleMetadata = useCallback(() => {
     const video = videoRef.current;
@@ -219,19 +221,30 @@ export function TikTokVideo({
   // Auto-play / pause based on visibility
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-    console.log('[TikTokVideo] isActive:', isActive, 'videoUrl:', videoUrl);
+    console.log('[TikTokVideo] useEffect, video:', !!video, 'videoUrl:', videoUrl, 'isActive:', isActive);
+    if (!video || !videoUrl) return;
+
     if (isActive) {
-      video.play().catch((err) => {
-        if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
-          console.warn('[TikTokVideo] playback error:', err);
-        }
-      });
-      setPaused(false);
+      // 确保视频元数据加载完成后再播放
+      const playVideo = () => {
+        console.log('[TikTokVideo] playVideo called');
+        video.play().catch((err) => {
+          console.warn('[TikTokVideo] playback error:', err.name, err.message);
+        });
+        setPaused(false);
+      };
+
+      // 如果视频已经加载了元数据，立即播放
+      if (video.readyState >= 1) {
+        playVideo();
+      } else {
+        // 否则等待元数据加载
+        video.addEventListener('loadedmetadata', playVideo, { once: true });
+      }
     } else {
       video.pause();
     }
-  }, [isActive]);
+  }, [isActive, videoUrl]);
 
   const handleTap = useCallback(() => {
     const video = videoRef.current;

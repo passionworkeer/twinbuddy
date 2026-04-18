@@ -27,6 +27,7 @@ import asyncio
 import logging
 from typing import AsyncGenerator, AsyncIterator
 
+import websockets
 from fastapi import APIRouter, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
@@ -126,12 +127,17 @@ async def stt_websocket(websocket: WebSocket) -> None:
 
     错误处理：
       - 认证失败：发送 {"type": "error", "message": "..."} 后关闭
-      - 超时（60s 无数据）：自动关闭连接
+      - 超时（10s 无数据）：自动关闭连接
       - iFlytek 服务异常：转发错误消息后关闭
     """
     await websocket.accept()
 
     logger.debug("STT WebSocket 连接已建立 | client=%s", websocket.client)
+
+    # CORS note: FastAPI's CORSMiddleware handles the HTTP upgrade handshake.
+    # Binary PCM frames do not require additional CORS headers.
+
+    _WS_TIMEOUT = 10.0  # seconds — frontend signals end via empty binary frame
 
     class ChunkStream(AsyncIterator[bytes]):
         """
@@ -159,7 +165,7 @@ async def stt_websocket(websocket: WebSocket) -> None:
             try:
                 data = await asyncio.wait_for(
                     self._ws.receive_bytes(),
-                    timeout=60.0,
+                    timeout=_WS_TIMEOUT,
                 )
                 # 空消息 = 音频结束信号
                 if len(data) == 0:
@@ -169,30 +175,33 @@ async def stt_websocket(websocket: WebSocket) -> None:
                 return data
 
             except asyncio.TimeoutError:
-                logger.warning("WebSocket 接收超时（60s），自动关闭")
+                logger.warning("WebSocket 接收超时（%.0fs），自动关闭", _WS_TIMEOUT)
+                self._ended = True
+                raise StopAsyncIteration
+            except (websockets.exceptions.ConnectionClosed, websockets.exceptions.ConnectionClosedOK):
+                logger.debug("WebSocket 连接关闭")
                 self._ended = True
                 raise StopAsyncIteration
 
+    # 累积文本，处理 iFlytek pgs="rpl" 替换模式
+    accumulated: list[str] = []
+
     try:
         stream = ChunkStream(websocket)
-        accumulated: list[str] = []
 
-        async for text in stt_stream(stream):
-            if text:
-                accumulated.append(text)
-                await websocket.send_json({
-                    "type": "text",
-                    "content": text,
-                })
-                logger.debug("推送识别片段 | len=%d", len(text))
-
-        # 发送完成信号
-        final_text = "".join(accumulated)
-        await websocket.send_json({
-            "type": "done",
-            "text": final_text,
-        })
-        logger.info("STT WebSocket 完成 | total_chars=%d", len(final_text))
+        # stt_stream yields (text, is_replace)
+        async for text, is_replace in stt_stream(stream):
+            if not text:
+                continue
+            if is_replace:
+                accumulated.clear()
+                logger.debug("iFlytek 替换模式，清除旧结果")
+            accumulated.append(text)
+            await websocket.send_json({
+                "type": "text",
+                "content": text,
+            })
+            logger.debug("推送识别片段 | len=%d | is_replace=%s", len(text), is_replace)
 
     except WebSocketDisconnect:
         logger.debug("客户端主动断开 WebSocket")
@@ -206,6 +215,18 @@ async def stt_websocket(websocket: WebSocket) -> None:
             })
         except Exception:
             pass  # 连接可能已断开
+
+    finally:
+        # 始终发送 done 帧，保证前端总能收到结束信号
+        final_text = "".join(accumulated)
+        try:
+            await websocket.send_json({
+                "type": "done",
+                "text": final_text,
+            })
+            logger.info("STT WebSocket 完成 | total_chars=%d", len(final_text))
+        except Exception:
+            logger.debug("done 帧未发送（连接已关闭）")
 
 
 # ---------------------------------------------------------------------------

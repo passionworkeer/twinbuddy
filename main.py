@@ -55,6 +55,7 @@ from pydantic import BaseModel, Field, field_validator
 # 项目内部模块
 from persona_engine import generate_persona
 from api.frontend_api import router as frontend_router
+from api.stt_api import router as stt_router
 from negotiation.api import router as langgraph_router
 
 # ---------------------------------------------------------------------------
@@ -93,6 +94,7 @@ app = FastAPI(
 
 # 前端对接路由
 app.include_router(frontend_router)
+app.include_router(stt_router)
 app.include_router(langgraph_router)
 
 # CORS — 允许前端访问

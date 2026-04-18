@@ -97,6 +97,9 @@ function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: st
 
 type VoiceState = 'idle' | 'connecting' | 'recording' | 'transcribed' | 'error';
 
+// Vite proxy 不支持 WebSocket，开发环境直连后端端口
+const WS_BASE = import.meta.env.VITE_WS_BASE || 'ws://localhost:8000';
+
 function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
 
   const [voiceState, setVoiceState] = useState<VoiceState>(text ? 'transcribed' : 'idle');
@@ -107,10 +110,12 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<AudioWorkletNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const isRecordingRef = useRef(false);
   const finalTextRef = useRef(text ? `${text.trim()} ` : '');
   const wsConnectedRef = useRef(false);
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 同步外部 text → local ref（用户可能在录音期间编辑 textarea）
   useEffect(() => {
@@ -119,52 +124,95 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     }
   }, [text]);
 
+  const cleanup = useCallback(() => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.onerror = null;
+      try { wsRef.current.close(); } catch { /* ignore */ }
+      wsRef.current = null;
+      wsConnectedRef.current = false;
+    }
+    if (processorRef.current) {
+      try { processorRef.current.disconnect(); } catch { /* ignore */ }
+      processorRef.current = null;
+    }
+    if (sourceRef.current) {
+      try { sourceRef.current.disconnect(); } catch { /* ignore */ }
+      sourceRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    setInterimText('');
+  }, []);
+
   // ── Audio + WebSocket STT ────────────────────────────
   const startRecording = useCallback(async () => {
     setNoSupport(false);
-
-    // 保留已有文字，追加新录音
     finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
     setInterimText('');
     setVoiceState('connecting');
     isRecordingRef.current = true;
 
     try {
-      // 1. 请求麦克风权限 + 创建 AudioContext
+      // 1. 麦克风权限 + AudioContext
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 16000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-        },
+        audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
       });
       streamRef.current = stream;
 
       const ctx = new AudioContext({ sampleRate: 16000 });
       audioCtxRef.current = ctx;
 
-      // 2. 加载 AudioWorklet（从 /audio-processor.js）
-      try {
-        await ctx.audioWorklet.addModule('/audio-processor.js');
-      } catch {
-        console.error('AudioWorklet 加载失败，浏览器可能不支持');
-        throw new Error('AudioWorklet not supported');
-      }
+      // 2. AudioWorklet
+      await ctx.audioWorklet.addModule('/audio-processor.js');
 
       const source = ctx.createMediaStreamSource(stream);
+      sourceRef.current = source;
       const processor = new AudioWorkletNode(ctx, 'pcm-processor');
       processorRef.current = processor;
 
-      // 3. 连接 WebSocket
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/api/stt/ws`;
+      // 3. WebSocket（直连后端，跳过 Vite proxy）
+      const wsUrl = `${WS_BASE}/api/stt/ws`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
       ws.binaryType = 'arraybuffer';
 
+      // 连接超时 5s
+      openTimeoutRef.current = setTimeout(() => {
+        if (wsRef.current && wsRef.current.readyState !== WebSocket.OPEN) {
+          ws.close();
+          isRecordingRef.current = false;
+          setVoiceState('error');
+          cleanup();
+        }
+      }, 5000);
+
       ws.onopen = () => {
+        clearTimeout(openTimeoutRef.current!);
+        openTimeoutRef.current = null;
         wsConnectedRef.current = true;
+        // WebSocket 就绪后才连接音频管线，避免首帧丢失
+        source.connect(processor);
+        processor.connect(ctx.destination);
+        // AudioWorklet → WebSocket
+        // FIX BUG 3: Use wsConnectedRef (set here in onopen) instead of ws.readyState.
+        // AudioWorklet port messages can fire before onopen fires, making
+        // readyState unreliable as a guard.
+        processor.port.onmessage = (e: MessageEvent) => {
+          if (wsConnectedRef.current && isRecordingRef.current) {
+            ws.send(e.data as ArrayBuffer);
+          }
+        };
         setVoiceState('recording');
       };
 
@@ -178,34 +226,38 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         } else if (msg.type === 'done') {
           const allFinal = finalTextRef.current.trim();
           onChange(allFinal);
+          isRecordingRef.current = false;
           setVoiceState(allFinal ? 'transcribed' : 'idle');
-          if (allFinal) setShowBadge(true);
           cleanup();
         } else if (msg.type === 'error') {
           console.error('STT error:', msg.message);
-          setVoiceState(finalTextRef.current.trim() ? 'transcribed' : 'idle');
-          if (finalTextRef.current.trim()) setShowBadge(true);
+          isRecordingRef.current = false;
+          setVoiceState('error');
           cleanup();
         }
       };
 
-      ws.onerror = (err) => {
-        console.error('WebSocket error', err);
+      ws.onerror = () => {
+        clearTimeout(openTimeoutRef.current!);
+        openTimeoutRef.current = null;
+        wsConnectedRef.current = false;
         isRecordingRef.current = false;
         setVoiceState('error');
         cleanup();
       };
 
-      // 4. AudioWorklet → WebSocket 数据流
-      processor.port.onmessage = (e: MessageEvent) => {
-        if (ws.readyState === WebSocket.OPEN && isRecordingRef.current) {
-          ws.send(e.data as ArrayBuffer);
+      ws.onclose = () => {
+        clearTimeout(openTimeoutRef.current!);
+        openTimeoutRef.current = null;
+        wsConnectedRef.current = false;
+        if (isRecordingRef.current) {
+          isRecordingRef.current = false;
+          const hasText = !!finalTextRef.current.trim();
+          setVoiceState(hasText ? 'transcribed' : 'idle');
+          if (hasText) setShowBadge(true);
         }
+        cleanup();
       };
-
-      // 5. 启动音频管线
-      source.connect(processor);
-      processor.connect(ctx.destination);
 
     } catch (err) {
       console.error('录音启动失败:', err);
@@ -216,42 +268,17 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
 
-  const cleanup = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.onclose = null;
-      if (wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
-      }
-      wsRef.current = null;
-      wsConnectedRef.current = false;
-    }
-    if (processorRef.current) {
-      try { processorRef.current.disconnect(); } catch { /* ignore */ }
-      processorRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close().catch(() => {});
-      audioCtxRef.current = null;
-    }
-    setInterimText('');
-  }, []);
-
   const stopRecording = useCallback(() => {
     isRecordingRef.current = false;
-    // 发送空数据通知后端结束
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
+    // FIX BUG 3: Use wsConnectedRef — same timing reason as AudioWorklet send above
+    if (wsRef.current && wsConnectedRef.current) {
       wsRef.current.send(new ArrayBuffer(0));
     }
-    setVoiceState(finalTextRef.current.trim() ? 'transcribed' : 'idle');
-    if (finalTextRef.current.trim()) setShowBadge(true);
+    // transcribed 状态由 onclose 统一设置，不在此处设置
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalTextRef.current]);
+  }, []);
 
-  // 组件卸载或状态重置时清理
+  // 组件卸载时清理
   useEffect(() => {
     return () => {
       isRecordingRef.current = false;
@@ -299,7 +326,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
               if (!isRecordingRef.current) {
                 finalTextRef.current = e.target.value ? `${e.target.value.trim()} ` : '';
                 setVoiceState(e.target.value ? 'transcribed' : 'idle');
-                if (e.target.value.trim()) setShowBadge(true);
+                // 手动输入不显示"已识别"徽章，只有语音识别结果才显示
               }
               onChange(e.target.value);
             }}

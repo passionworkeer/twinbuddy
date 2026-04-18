@@ -149,7 +149,7 @@ async def generate_auth_url() -> str:
 # 结果解析
 # ---------------------------------------------------------------------------
 
-def _parse_result(resp_data: dict) -> Optional[str]:
+def _parse_result(resp_data: dict) -> tuple[Optional[str], bool]:
     """
     从 iFlytek 响应中解析识别文本。
 
@@ -168,24 +168,28 @@ def _parse_result(resp_data: dict) -> Optional[str]:
         }
       }
 
-    当 pgs="rpl" 时，表示这是完整的新结果，
-    旧结果应被替换（替换模式下返回完整新文本）。
+    当 pgs="rpl" 时，ws[] 包含完整的新文本（需替换旧结果），
+    不只是差异部分。返回 (完整文本, True)。
 
     Returns:
-        拼接后的中文文本，失败返回 None
+        (拼接后的中文文本, 是否为替换模式)  失败时 (None, False)
     """
     try:
         if resp_data.get("code") != 0:
             code = resp_data.get("code")
             message = resp_data.get("message", "")
             logger.warning("iFlytek 返回错误 code=%d message=%s", code, message)
-            return None
+            return None, False
 
         result = resp_data.get("data", {}).get("result", {})
         ws_list: list = result.get("ws", [])
 
         if not ws_list:
-            return None
+            return None, False
+
+        # 判断是否为替换模式（iFlytek 动态纠错时收到完整新结果）
+        pgs = result.get("pgs", "apd")
+        is_replace = pgs == "rpl"
 
         # 提取所有词
         words: list[str] = []
@@ -195,11 +199,11 @@ def _parse_result(resp_data: dict) -> Optional[str]:
                 if word:
                     words.append(word)
 
-        return "".join(words)
+        return "".join(words), is_replace
 
     except Exception as exc:
         logger.debug("解析 iFlytek 响应失败: %s", exc)
-        return None
+        return None, False
 
 
 # ---------------------------------------------------------------------------
@@ -208,7 +212,7 @@ def _parse_result(resp_data: dict) -> Optional[str]:
 
 async def stt_stream(
     audio_chunks: AsyncIterator[bytes],
-) -> AsyncGenerator[str, None]:
+) -> AsyncGenerator[tuple[str, bool], None]:
     """
     将音频块流发送给 iFlytek，实时 yield 识别结果文本。
 
@@ -217,7 +221,7 @@ async def stt_stream(
       2. 发送第一个帧（包含 common + business + data）
       3. 等待并检查认证响应
       4. 逐帧发送音频（status=1）
-      5. 实时解析并 yield 识别结果
+      5. 实时解析并 yield 识别结果（text, is_replace）
       6. 发送结束帧（status=2）
       7. 接收残余结果后关闭
 
@@ -225,12 +229,15 @@ async def stt_stream(
         audio_chunks: 异步迭代器，每次 yield 一个 PCM 音频块（1280 字节）
 
     Yields:
-        str: 识别出的文本片段（实时，收到即解析）
+        (str, bool): 识别文本 + 是否为替换模式（pgs="rpl" 时为 True，
+                     调用方应替换累积结果而非追加）
     """
     url = _build_auth_url()
     app_id = os.environ.get("XFYUN_APP_ID", "")
 
-    async with websockets.connect(url, ping_interval=None) as ws:
+    end_frame_sent = False
+
+    async with websockets.connect(url, ping_interval=15) as ws:
         logger.debug("iFlytek WebSocket 连接已建立")
 
         # ── 第一帧：包含 common + business 参数 ─────────────────────────
@@ -245,77 +252,86 @@ async def stt_stream(
             },
         }
         await ws.send(json.dumps(first_frame))
-        # 讯飞不单独返回 auth 确认，第一帧发完后直接进入音频流阶段
-        # 认证隐式成功（后续收到响应即证明认证通过）
         logger.debug("第一帧已发送，进入音频流阶段")
 
         # ── 流式发送音频帧 ───────────────────────────────────────────────
         status_sent = 0  # 0=first, 1=middle, 2=last
 
-        async for chunk in audio_chunks:
-            status_sent = 1  # 后续帧全部标记为 middle
+        try:
+            async for chunk in audio_chunks:
+                status_sent = 1  # 后续帧全部标记为 middle
 
-            frame = {
+                frame = {
+                    "data": {
+                        "status": status_sent,
+                        "format": "audio/L16;rate=16000",
+                        "encoding": "raw",
+                        "audio": base64.b64encode(chunk).decode("utf-8"),
+                    }
+                }
+                await ws.send(json.dumps(frame))
+
+                # 接收识别结果（非阻塞，5s 超时）
+                try:
+                    resp = await asyncio.wait_for(ws.recv(), timeout=5.0)
+                    resp_data = json.loads(resp)
+
+                    text, is_replace = _parse_result(resp_data)
+                    if text:
+                        yield text, is_replace
+
+                    # 会话正常结束
+                    data_status = resp_data.get("data", {}).get("status")
+                    if data_status == 2:
+                        logger.debug("收到 iFlytek 结束帧，退出接收循环")
+                        break
+
+                except asyncio.TimeoutError:
+                    # 5s 内无响应（正常，中间帧可能没有结果），继续发送
+                    logger.debug("等待识别结果超时，继续发送音频帧")
+                    continue
+                except websockets.exceptions.ConnectionClosedOK:
+                    # 讯飞提前关闭（音频无语音时会超时关闭），正常退出
+                    logger.debug("iFlytek WebSocket 提前关闭（无语音内容）")
+                    break
+                except websockets.exceptions.ConnectionClosed:
+                    logger.warning("iFlytek WebSocket 非正常关闭")
+                    break
+        finally:
+            # ── 确保结束帧总是被发送 ────────────────────────────────────
+            # 注意：iFlytek 期望结束帧包含 format/encoding 以正确处理
+            end_frame = {
                 "data": {
-                    "status": status_sent,
+                    "status": 2,
                     "format": "audio/L16;rate=16000",
                     "encoding": "raw",
-                    "audio": base64.b64encode(chunk).decode("utf-8"),
+                    "audio": "",
                 }
             }
-            await ws.send(json.dumps(frame))
-
-            # 接收识别结果（非阻塞，5s 超时）
             try:
-                resp = await asyncio.wait_for(ws.recv(), timeout=5.0)
-                resp_data = json.loads(resp)
-
-                text = _parse_result(resp_data)
-                if text:
-                    yield text
-
-                # 会话正常结束
-                data_status = resp_data.get("data", {}).get("status")
-                if data_status == 2:
-                    logger.debug("收到 iFlytek 结束帧，退出接收循环")
-                    break
-
-            except asyncio.TimeoutError:
-                # 5s 内无响应（正常，中间帧可能没有结果），继续发送
-                logger.debug("等待识别结果超时，继续发送音频帧")
-                continue
-            except websockets.exceptions.ConnectionClosedOK:
-                # 讯飞提前关闭（音频无语音时会超时关闭），正常退出
-                logger.debug("iFlytek WebSocket 提前关闭（无语音内容）")
-                break
+                await ws.send(json.dumps(end_frame))
+                end_frame_sent = True
+                logger.debug("结束帧已发送")
             except websockets.exceptions.ConnectionClosed:
-                logger.warning("iFlytek WebSocket 非正常关闭")
-                break
-
-        # ── 发送结束帧 ────────────────────────────────────────────────────
-        end_frame = {"data": {"status": 2}}
-        try:
-            await ws.send(json.dumps(end_frame))
-        except websockets.exceptions.ConnectionClosed:
-            pass  # 连接已关闭，无所谓
-        logger.debug("结束帧已发送")
+                logger.debug("结束帧未发送（连接已关闭）")
 
         # ── 接收残余结果 ──────────────────────────────────────────────────
-        try:
-            while True:
-                resp = await asyncio.wait_for(ws.recv(), timeout=3.0)
-                resp_data = json.loads(resp)
-                text = _parse_result(resp_data)
-                if text:
-                    yield text
-                if resp_data.get("data", {}).get("status") == 2:
-                    break
-        except asyncio.TimeoutError:
-            logger.debug("残余结果接收完成（超时）")
-        except websockets.exceptions.ConnectionClosedOK:
-            logger.debug("iFlytek WebSocket 关闭")
-        except websockets.exceptions.ConnectionClosed:
-            logger.debug("iFlytek WebSocket 非正常关闭")
+        if end_frame_sent:
+            try:
+                while True:
+                    resp = await asyncio.wait_for(ws.recv(), timeout=3.0)
+                    resp_data = json.loads(resp)
+                    text, _ = _parse_result(resp_data)
+                    if text:
+                        yield text, False
+                    if resp_data.get("data", {}).get("status") == 2:
+                        break
+            except asyncio.TimeoutError:
+                logger.debug("残余结果接收完成（超时）")
+            except websockets.exceptions.ConnectionClosedOK:
+                logger.debug("iFlytek WebSocket 关闭")
+            except websockets.exceptions.ConnectionClosed:
+                logger.debug("iFlytek WebSocket 非正常关闭")
 
     logger.debug("iFlytek WebSocket 连接已关闭")
 
@@ -338,17 +354,20 @@ async def stt_stream_from_bytes(
         frame_size: 每帧字节数，默认 1280（约 40ms）
 
     Returns:
-        完整识别文本（所有片段拼接）
+        完整识别文本（所有片段拼接，pgs="rpl" 替换模式下自动去重）
     """
     async def chunk_gen() -> AsyncGenerator[bytes, None]:
         for i in range(0, len(audio_data), frame_size):
             yield audio_data[i : i + frame_size]
 
-    results: list[str] = []
-    async for text in stt_stream(chunk_gen()):
-        results.append(text)
+    # 累积文本，遇到 pgs="rpl" 替换模式时替换
+    accumulated: list[str] = []
+    async for text, is_replace in stt_stream(chunk_gen()):
+        if is_replace:
+            accumulated.clear()
+        accumulated.append(text)
 
-    return "".join(results)
+    return "".join(accumulated)
 
 
 # ---------------------------------------------------------------------------

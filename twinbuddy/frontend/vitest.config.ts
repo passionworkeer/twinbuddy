@@ -21,6 +21,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: [path.resolve(__dirname, 'src/vitest.setup.ts')],
     globals: true,
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    exclude: ['e2e/**', 'test-results/**', 'playwright-report/**'],
     // Prevent React pre-bundling in jsdom
     deps: {
       noExternal: [],

@@ -301,17 +301,69 @@ bash /opt/twinbuddy/deploy/update.sh
 
 ---
 
-## 九、域名 + HTTPS（可选）
+## 九、域名 + HTTPS 配置（阿里云 CAS 证书）
+
+### 第一步：下载证书
+
+1. 登录阿里云 CAS 控制台 → SSL 证书
+2. 下载证书（选择 **Nginx** 类型）
+3. 下载后得到两个文件：
+   - `xxx.pem`  ← 公钥证书
+   - `xxx.key`  ← 私钥
+
+### 第二步：上传证书到服务器
 
 ```bash
-# 1. 安装 Certbot
-sudo apt install certbot python3-certbot-nginx
+# 在本地执行，上传到服务器
+scp ~/Downloads/xxx.pem root@your-server:/tmp/twinbuddy.pem
+scp ~/Downloads/xxx.key root@your-server:/tmp/twinbuddy.key
 
-# 2. 申请 Let's Encrypt 证书
-sudo certbot --nginx -d your-domain.com
+# 在服务器上移动到 Nginx 证书目录
+sudo mkdir -p /etc/nginx/ssl
+sudo mv /tmp/twinbuddy.pem /etc/nginx/ssl/twinbuddy.pem
+sudo mv /tmp/twinbuddy.key /etc/nginx/ssl/twinbuddy.key
+sudo chmod 600 /etc/nginx/ssl/twinbuddy.key   # 私钥必须限制权限
+```
 
-# 3. 自动续期（Certbot 会配置好 cron）
-sudo systemctl status certbot.timer
+### 第三步：更新 Nginx 配置
+
+`nginx.conf` 中已内置 HTTPS 配置，复制并重载即可：
+
+```bash
+# 1. 复制 Nginx 配置
+sudo cp /opt/twinbuddy/deploy/nginx.conf /etc/nginx/sites-available/twinbuddy
+
+# 2. 编辑证书路径（确认文件存在）
+sudo ls -la /etc/nginx/ssl/
+
+# 3. 测试配置
+sudo nginx -t
+
+# 4. 重载 Nginx
+sudo systemctl reload nginx
+```
+
+### 第四步：验证 HTTPS
+
+```bash
+# 检查443端口是否监听
+sudo ss -tlnp | grep 443
+
+# 访问测试
+curl -I https://twinbuddy.xyz
+
+# 在线 SSL 检测
+# https://www.ssllabs.com/ssltest/analyze.html?d=twinbuddy.xyz
+```
+
+### 证书自动续期提醒
+
+阿里云 CAS 证书有效期 1 年。到期前 30 天在阿里云控制台续期，下载新证书后重新执行：
+
+```bash
+sudo cp new_certificate.pem /etc/nginx/ssl/twinbuddy.pem
+sudo cp new_private.key /etc/nginx/ssl/twinbuddy.key
+sudo systemctl reload nginx
 ```
 
 ---

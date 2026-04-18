@@ -1,29 +1,36 @@
-import { Home, Search, MessageCircle, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export default function BottomNav() {
   return (
-    <nav className="bottom-nav px-2">
-      <NavLink
-        to="/feed"
-        end
-        className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
-      >
-        <Home className="w-5 h-5" />
-        <span>首页</span>
-      </NavLink>
-      <button className="bottom-nav-item" aria-label="搜索">
-        <Search className="w-5 h-5" />
-        <span>搜索</span>
-      </button>
-      <button className="bottom-nav-item" aria-label="消息">
-        <MessageCircle className="w-5 h-5" />
-        <span>消息</span>
-      </button>
-      <button className="bottom-nav-item" aria-label="我的">
-        <User className="w-5 h-5" />
-        <span>我的</span>
-      </button>
-    </nav>
+    <div className="md:hidden">
+      <nav className="fixed bottom-0 w-full z-50 bg-black pt-3 pb-safe">
+        <div className="flex justify-between items-center px-6 pb-2 text-[15px] font-medium text-white/70">
+          <NavLink
+            to="/feed"
+            end
+            className={({ isActive }) => `flex flex-col items-center justify-center font-bold w-12 ${isActive ? 'text-white' : 'hover:text-white transition-colors'}`}
+          >
+            首页
+          </NavLink>
+          <button className="flex flex-col items-center justify-center hover:text-white transition-colors w-12">
+            朋友
+          </button>
+          
+          {/* Prominent Center Add Button */}
+          <button className="flex items-center justify-center px-4 py-1.5 border-[2px] border-white rounded-[14px] bg-black text-white hover:bg-white/10 transition-colors mx-2">
+            <span className="material-symbols-outlined text-[20px] font-bold">add</span>
+          </button>
+          
+          <button className="flex flex-col items-center justify-center hover:text-white transition-colors w-12">
+            消息
+          </button>
+          <button className="flex flex-col items-center justify-center hover:text-white transition-colors w-12">
+            我
+          </button>
+        </div>
+        {/* Safe area padding for newer iPhones */}
+        <div className="h-6 w-full bg-black"></div>
+      </nav>
+    </div>
   );
 }

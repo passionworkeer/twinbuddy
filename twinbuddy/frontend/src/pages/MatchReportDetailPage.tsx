@@ -1,33 +1,10 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import {
-  ArrowLeft,
-  MapPin,
-  Calendar,
-  Wallet,
-  AlertTriangle,
-  MessageCircle,
-  CheckCircle2,
-} from 'lucide-react';
-import { RadarChart } from '../components/twin-card/RadarChart';
+import { ArrowLeft, MapPin, Calendar, Wallet } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import type { NegotiationResult, NegotiationReportSnapshots } from '../types';
 import { STORAGE_KEYS } from '../types';
-
-function formatMessageTime(ts: number): string {
-  if (!Number.isFinite(ts)) {
-    return '--:--';
-  }
-  const date = new Date(ts * 1000);
-  if (Number.isNaN(date.getTime())) {
-    return '--:--';
-  }
-  return date.toLocaleTimeString('zh-CN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-}
+import { FullChatHistory } from '../components/immersive-feed/FullChatHistory';
 
 export default function MatchReportDetailPage() {
   const navigate = useNavigate();
@@ -47,7 +24,7 @@ export default function MatchReportDetailPage() {
     null,
   );
 
-  const locationState = location.state as { result?: NegotiationResult; reportId?: string } | null;
+  const locationState = location.state as { result?: NegotiationResult; reportId?: string; source?: string } | null;
   const resolvedReportId = params.reportId ?? locationState?.reportId ?? latestReportId ?? null;
 
   const resultData = useMemo(() => {
@@ -60,156 +37,85 @@ export default function MatchReportDetailPage() {
     return storedResult;
   }, [locationState?.result, reportSnapshots, resolvedReportId, storedResult]);
 
-  const handleBackToResult = () => {
-    navigate('/result', {
-      state: { result: resultData, reportId: resolvedReportId },
-    });
+  const handleBack = () => {
+    if (locationState?.source === 'feed') {
+        navigate('/feed');
+    } else {
+        navigate('/result', {
+          state: { result: resultData, reportId: resolvedReportId },
+        });
+    }
   };
 
   if (!resultData) {
     return (
-      <div className="min-h-screen bg-neon-bg px-4 py-12">
-        <div className="mx-auto max-w-md glass-panel p-6 text-center space-y-3">
-          <h1 className="text-lg font-bold text-neon-text">协商详情暂不可用</h1>
-          <p className="text-sm text-neon-text-secondary">当前没有可读取的协商快照，请先返回结果页重新触发一次协商。</p>
-          <button
-            onClick={() => navigate('/result')}
-            className="rounded-xl border border-neon-primary/30 px-4 py-2 text-sm text-neon-text hover:bg-neon-primary/10 transition-all"
-          >
-            返回结果页
-          </button>
-        </div>
+      <div className="min-h-[100dvh] bg-[#0B1C15] flex items-center justify-center p-6">
+        <div className="text-center text-white/60">数据已丢失，请返回重新测试</div>
       </div>
     );
   }
 
+  const messagesData = resultData.messages.map((msg, idx) => ({
+      id: idx,
+      text: msg.content,
+      isSelf: msg.speaker === 'user'
+  }));
+
   return (
-    <div className="min-h-screen bg-neon-bg pb-24">
-      <div className="sticky top-0 z-20 glass-panel-strong border-b border-white/8 px-4 py-3">
-        <div className="mx-auto max-w-md flex items-center justify-between gap-3">
-          <button
-            onClick={handleBackToResult}
-            className="flex items-center gap-1 text-sm text-neon-text-secondary hover:text-neon-text transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            返回概览
+    <div className="min-h-[100dvh] bg-[#0B1C15] text-white flex flex-col relative overflow-y-auto overflow-x-hidden animate-fade-in">
+      {/* 模糊背景层 */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[#0B1C15]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1E2A23]/50 via-transparent to-transparent"></div>
+      </div>
+
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-[#0B1C15]/80 backdrop-blur-xl border-b border-white/5 pt-[env(safe-area-inset-top,24px)] pb-3 px-4">
+        <div className="flex items-center justify-between">
+          <button onClick={handleBack} className="p-2 -ml-2 text-white/80 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="text-right">
-            <h1 className="text-sm font-semibold text-neon-text">协商详情</h1>
-            {resolvedReportId && (
-              <p className="text-[11px] text-neon-text-disabled">报告ID: {resolvedReportId.slice(0, 8)}</p>
-            )}
-          </div>
+          <span className="font-headline tracking-wide text-[17px] font-medium">完整协商记录</span>
+          <div className="w-9" /> {/* Spacer */}
         </div>
       </div>
 
-      <div className="mx-auto max-w-md px-4 pt-6 space-y-5">
-        <div className="glass-panel p-4 flex items-center justify-around">
-          <div className="flex flex-col items-center gap-1">
-            <MapPin className="w-4 h-4 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{resultData.destination}</span>
-            <span className="text-[11px] text-neon-text-secondary">目的地</span>
-          </div>
-          <div className="w-px h-8 bg-white/8" />
-          <div className="flex flex-col items-center gap-1">
-            <Calendar className="w-4 h-4 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{resultData.dates}</span>
-            <span className="text-[11px] text-neon-text-secondary">日期</span>
-          </div>
-          <div className="w-px h-8 bg-white/8" />
-          <div className="flex flex-col items-center gap-1">
-            <Wallet className="w-4 h-4 text-neon-secondary" />
-            <span className="text-sm font-semibold text-neon-text">{resultData.budget}</span>
-            <span className="text-[11px] text-neon-text-secondary">预算</span>
-          </div>
-        </div>
-
-        <div className="glass-panel p-5">
-          <h2 className="text-xs font-semibold text-neon-text-secondary mb-3 uppercase tracking-widest">六维兼容雷达</h2>
-          <RadarChart data={resultData.radar} size={220} />
-        </div>
-
-        <div className="glass-panel p-5 space-y-3">
-          <h2 className="text-xs font-semibold text-neon-text-secondary uppercase tracking-widest flex items-center gap-2">
-            <MessageCircle className="w-4 h-4" />
-            完整协商记录
-          </h2>
-          <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
-            {resultData.messages.map((msg, idx) => (
-              <div key={`${msg.timestamp}-${idx}`} className="space-y-1">
-                <div className={msg.speaker === 'user' ? 'bubble-user' : 'bubble-buddy'}>
-                  <p className="text-sm text-neon-text leading-relaxed">{msg.content}</p>
-                </div>
-                <p className="text-[11px] text-neon-text-disabled px-1">{formatMessageTime(msg.timestamp)}</p>
+      {/* Content */}
+      <div className="flex-1 px-4 py-6 relative z-10 flex flex-col gap-6 pb-[env(safe-area-inset-bottom,32px)]">
+        
+        {/* 行程概要卡片 */}
+        <div className="w-full bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10">
+           <h3 className="text-white/60 text-xs font-medium mb-4 tracking-wider">当前行程共识</h3>
+           <div className="flex items-center justify-between">
+              <div className="flex flex-col items-center gap-2">
+                 <div className="w-10 h-10 rounded-full bg-[#1E2A23] flex items-center justify-center border border-white/5">
+                   <MapPin className="w-5 h-5 text-[#4ade80]" />
+                 </div>
+                 <span className="text-[13px] font-medium">{resultData.destination}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="glass-panel p-5 space-y-3">
-          <h2 className="text-xs font-semibold text-neon-text-secondary uppercase tracking-widest">最终方案</h2>
-          <div className="space-y-2">
-            {resultData.plan.map((item, idx) => (
-              <div key={`${item}-${idx}`} className="flex items-start gap-2 text-sm text-neon-text">
-                <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-neon-primary/35 bg-neon-primary/10 text-xs font-semibold text-neon-primary">
-                  {idx + 1}
-                </span>
-                <span>{item}</span>
+              <div className="flex flex-col items-center gap-2">
+                 <div className="w-10 h-10 rounded-full bg-[#1E2A23] flex items-center justify-center border border-white/5">
+                   <Calendar className="w-5 h-5 text-[#4ade80]" />
+                 </div>
+                 <span className="text-[13px] font-medium">{resultData.dates === '待定' ? '时间灵活' : resultData.dates}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {!!resultData.red_flags.length && (
-          <div className="glass-panel p-5 space-y-2 border border-yellow-400/25 bg-yellow-500/5">
-            <h2 className="text-xs font-semibold text-yellow-200 uppercase tracking-widest flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              风险提示
-            </h2>
-            <ul className="space-y-1.5">
-              {resultData.red_flags.map((flag, idx) => (
-                <li key={`${flag}-${idx}`} className="text-sm text-neon-text-secondary">• {flag}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {!!resultData.analysis_report && (
-          <div className="glass-panel p-5 space-y-3">
-            <h2 className="text-xs font-semibold text-neon-text-secondary uppercase tracking-widest">AI 协商总结</h2>
-            <p className="text-sm text-neon-text leading-relaxed">{resultData.analysis_report}</p>
-            {!!resultData.analysis_basis?.input_tags?.length && (
-              <div className="flex flex-wrap gap-2">
-                {resultData.analysis_basis.input_tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-neon-primary/35 bg-neon-primary/10 px-2.5 py-1 text-xs text-neon-text-secondary"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="flex flex-col items-center gap-2">
+                 <div className="w-10 h-10 rounded-full bg-[#1E2A23] flex items-center justify-center border border-white/5">
+                   <Wallet className="w-5 h-5 text-[#4ade80]" />
+                 </div>
+                 <span className="text-[13px] font-medium">{resultData.budget}</span>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 border-t border-white/8 glass-panel-strong px-4 py-4 z-30">
-        <div className="mx-auto max-w-md flex gap-3">
-          <button
-            onClick={handleBackToResult}
-            className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-neon-text-secondary hover:text-neon-text hover:border-white/20 transition-all"
-          >
-            返回概览
-          </button>
-          <button
-            onClick={handleBackToResult}
-            className="flex-1 rounded-2xl bg-gradient-to-r from-neon-primary to-neon-primary-dark py-3 text-sm font-bold text-neon-bg shadow-glow-primary hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            确认搭子
-          </button>
+           </div>
         </div>
+
+        {/* 聊天记录核心组件复用 */}
+        <div className="flex-1 -mt-4">
+            <FullChatHistory 
+                messages={messagesData} 
+                onCollapse={handleBack} 
+            />
+        </div>
+
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/feed/BottomNav';
-import { ImmersiveFeedItem } from '../components/immersive-feed/ImmersiveFeedItem';
-import type { LocalRadarData } from '../components/immersive-feed/RadarChartCard';
+import { TikTokVideo } from '../components/feed/TikTokVideo';
+import { TwinMatchModal } from '../components/immersive-feed/TwinMatchModal';
 import type { ChatMessage } from '../components/immersive-feed/ChatHistoryOverlay';
 import type {
   VideoItem,
@@ -16,43 +16,18 @@ import { STORAGE_KEYS } from '../types';
 import { negotiate, fetchBuddies } from '../api/client';
 import { createReportId } from '../utils/reportId';
 import { RotateCcw } from 'lucide-react';
+import MOCK_VIDEOS from '../mocks/videos.json';
 
-// ── Video templates (static, buddy data comes from API) ──
-
-const VIDEO_TEMPLATES = [
-  {
-    id: 'v1',
-    type: 'video',
-    cover_url: '/images/chengdu.jpg',
-    video_url: '/videos/video1.mp4',
-    location: '成都',
-    title: '成都宽窄巷子慢生活',
-  },
-  {
-    id: 'v2',
-    type: 'video',
-    cover_url: '/images/chongqing.jpg',
-    video_url: '/videos/video2.mp4',
-    location: '重庆',
-    title: '重庆夜景洪崖洞',
-  },
-  {
-    id: 'v3',
-    type: 'video',
-    cover_url: '/images/chuanxi.jpg',
-    video_url: '/videos/video3.mp4',
-    location: '川西',
-    title: '川西雪山草原公路片段',
-  },
-  {
-    id: 'v4',
-    type: 'video',
-    cover_url: '/images/dali.jpg',
-    video_url: '/videos/video4.mp4',
-    location: '大理',
-    title: '洱海古城日落',
-  },
-];
+const MOCK_SCENE_CARDS = [
+  { id: 'sc1', type: 'image', cover_url: '/images/丽江古城夜景.jpg', location: '丽江', title: '丽江古城夜景漫步', description: '主街和支巷分开逛，既有热闹也能留出安静时段。' },
+  { id: 'sc2', type: 'image', cover_url: '/images/大唐不夜城.jpg', location: '西安', title: '大唐不夜城夜色', description: '大唐不夜城和周边历史片区分时体验，避免同段拥堵。' },
+  { id: 'sc3', type: 'image', cover_url: '/images/川西雪山草原.jpg', location: '川西', title: '川西雪山草原', description: '先保证高质量风景段，再决定是否加码深度点位。' },
+  { id: 'sc4', type: 'image', cover_url: '/images/成都宽窄巷子.jpg', location: '成都', title: '成都宽窄巷子', description: '从巷子与茶馆切入，会比打卡清单更像真正的成都。' },
+  { id: 'sc5', type: 'image', cover_url: '/images/洱海古城.jpg', location: '大理', title: '大理洱海古城', description: '洱海与古城之间留白体验，比密集打卡更容易出片。' },
+  { id: 'sc6', type: 'image', cover_url: '/images/重庆夜景洪崖洞.jpg', location: '重庆', title: '重庆夜景洪崖洞', description: '把夜景和坡地步行拆开体验，体感会轻松很多。' },
+  { id: 'sc7', type: 'image', cover_url: '/images/青岛海边.jpg', location: '青岛', title: '青岛海边轻攻略', description: '海边与街区混搭，比单一打卡更有节奏感。' },
+  { id: 'sc8', type: 'image', cover_url: '/images/鼓浪屿 – 竖屏版.jpg', location: '厦门', title: '鼓浪屿慢拍路线', description: '街角和海风节奏搭配，适合做轻量深度体验。' }
+] as VideoItem[];
 
 function shuffleVideos(videos: VideoItem[]): VideoItem[] {
   const next = [...videos];
@@ -68,26 +43,24 @@ const MOCK_NEGOTIATION: NegotiationResult = {
   dates: '5月10日-5月15日',
   budget: '人均3500元',
   consensus: true,
-  plan: ['洱海边民宿2晚', '古城内民宿3晚', '环洱海骑行1天', '苍山徒步半日'],
+  plan: ['风景优先', '轻徒步', '特色民宿'],
   matched_buddies: ['小雅', '小鱼'],
   radar: [
-    { dimension: '行程节奏', user_score: 90, buddy_score: 45, weight: 0.8 },
+    { dimension: '行程节奏', user_score: 90, buddy_score: 85, weight: 0.8 },
     { dimension: '美食偏好', user_score: 85, buddy_score: 80, weight: 0.6 },
     { dimension: '拍照风格', user_score: 75, buddy_score: 95, weight: 0.5 },
-    { dimension: '预算控制', user_score: 60, buddy_score: 90, weight: 0.7 },
-    { dimension: '冒险精神', user_score: 95, buddy_score: 55, weight: 0.9 },
+    { dimension: '预算控制', user_score: 60, buddy_score: 70, weight: 0.7 },
+    { dimension: '冒险精神', user_score: 95, buddy_score: 85, weight: 0.9 },
+    { dimension: '随性程度', user_score: 80, buddy_score: 90, weight: 0.8 },
   ],
   red_flags: [],
   messages: [
-    { speaker: 'user', content: '我想每天换个地方住，体验不同民宿！', timestamp: 1700000000 },
-    { speaker: 'buddy', content: '我更想在一个地方多待几天，慢下来感受', timestamp: 1700000010 },
-    { speaker: 'user', content: '那我们折中一下，住两家不同风格民宿怎么样？', timestamp: 1700000020 },
-    { speaker: 'buddy', content: '好！一家洱海边，一家古城内，完美', timestamp: 1700000030 },
-    { speaker: 'user', content: '就这么说定！', timestamp: 1700000040 },
+    { speaker: 'user', content: '这次周末去走个线，风景不错，要不要一起？', timestamp: 1700000000 },
+    { speaker: 'buddy', content: '听起来不错！难度大吗？我最近体力还可以，想挑战一下。', timestamp: 1700000010 },
+    { speaker: 'user', content: '爬升有点，但竹海那段很舒服的，准备好越野鞋就行。', timestamp: 1700000020 },
+    { speaker: 'buddy', content: '好！我这就去准备装备。', timestamp: 1700000030 },
   ],
 };
-
-// ── Feed Page ──────────────────────────────────────────
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -95,9 +68,11 @@ export default function FeedPage() {
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   
-  // Negotiation state keyed by index
-  const [negotiations, setNegotiations] = useState<Record<number, NegotiationResult>>({});
-  const [loadingNegotiations, setLoadingNegotiations] = useState<Record<number, boolean>>({});
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [matchResult, setMatchResult] = useState<NegotiationResult | null>(null);
+  const [isNegotiating, setIsNegotiating] = useState(false);
+  const [matchBackground, setMatchBackground] = useState<VideoItem | null>(null);
+  const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
 
   const [, setNegotiationReports] = useLocalStorage<NegotiationReportSnapshots>(
     STORAGE_KEYS.negotiation_reports,
@@ -122,12 +97,27 @@ export default function FeedPage() {
     }
   }, [clearData, navigate]);
 
-  // Load buddies from API, then combine with video templates
   useEffect(() => {
     async function loadFeed() {
+      // Check if we have preloaded videos in session storage
+      const preloadedVideosStr = sessionStorage.getItem('twinbuddy_preloaded_feed');
+      
+      if (preloadedVideosStr) {
+        try {
+          const preloadedVideos = JSON.parse(preloadedVideosStr);
+          if (Array.isArray(preloadedVideos) && preloadedVideos.length > 0) {
+            setFeedVideos(preloadedVideos);
+            setIsFeedLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse preloaded videos", e);
+        }
+      }
+
       try {
-        const buddies = await fetchBuddies(undefined, 4);
-        const videosWithBuddies: VideoItem[] = VIDEO_TEMPLATES.map((tpl, i) => ({
+        const buddies = await fetchBuddies(undefined, 8);
+        const videosWithBuddies: VideoItem[] = (MOCK_VIDEOS as VideoItem[]).map((tpl, i) => ({
           ...tpl,
           buddy: buddies[i]
             ? {
@@ -142,8 +132,7 @@ export default function FeedPage() {
         }));
         setFeedVideos(shuffleVideos(videosWithBuddies));
       } catch {
-        // Fallback: use templates without buddies
-        setFeedVideos(shuffleVideos(VIDEO_TEMPLATES.map(tpl => ({ ...tpl, buddy: undefined }))));
+        setFeedVideos(shuffleVideos(MOCK_VIDEOS as VideoItem[]));
       } finally {
         setIsFeedLoading(false);
       }
@@ -165,6 +154,52 @@ export default function FeedPage() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
+  const triggerMatch = useCallback(async () => {
+    if (isNegotiating || showMatchModal) return;
+    
+    // Select random background from 8 mocks
+    const randomBg = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)];
+    setMatchBackground(randomBg);
+    setShowMatchModal(true);
+    setIsNegotiating(true);
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
+      const obData: OnboardingData | null = stored ? JSON.parse(stored) : null;
+      
+      const activeVideo = feedVideos[currentIndex] || randomBg;
+
+      const result = await negotiate({
+        user_id: obData?.user_id || undefined,
+        user_persona_id: obData?.persona_id || undefined,
+        buddy_mbti: activeVideo.buddy?.mbti || 'ENFP',
+        mbti: obData?.mbti || undefined,
+        interests: obData?.interests ?? [],
+        voiceText: obData?.voiceText || undefined,
+        destination: randomBg.location,
+      });
+      setMatchResult(result);
+    } catch (err) {
+      console.error('协商 API 调用失败，使用 Mock 数据:', err);
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setMatchResult({
+        ...MOCK_NEGOTIATION,
+        destination: randomBg.location
+      });
+    } finally {
+      setIsNegotiating(false);
+    }
+  }, [currentIndex, feedVideos, isNegotiating, showMatchModal]);
+
+  // Auto trigger match on the 3rd video (index 2)
+  useEffect(() => {
+    if (currentIndex === 2 && !hasAutoTriggered && feedVideos.length > 0) {
+      setHasAutoTriggered(true);
+      triggerMatch();
+    }
+  }, [currentIndex, hasAutoTriggered, feedVideos.length, triggerMatch]);
+
   const persistNegotiationResult = useCallback((result: NegotiationResult): string => {
     const reportId = createReportId();
     setNegotiationReports((prev) => ({
@@ -176,70 +211,15 @@ export default function FeedPage() {
     return reportId;
   }, [setLatestReportId, setNegotiationReports, setStoredNegotiationResult]);
 
-  // Load negotiation result for a specific index/video
-  const loadNegotiationResultForIndex = useCallback(async (index: number) => {
-    if (loadingNegotiations[index] || negotiations[index]) return; // Already loaded or loading
-    
-    setLoadingNegotiations(prev => ({ ...prev, [index]: true }));
-    const activeVideo = feedVideos[index];
-    const destination = activeVideo?.location || '大理';
-    const buddyMbti = activeVideo?.buddy?.mbti || 'ENFP';
-
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-      const obData: OnboardingData | null = stored ? JSON.parse(stored) : null;
-      const userPersonaId = obData?.persona_id || undefined;
-
-      const result = await negotiate({
-        user_id: obData?.user_id || undefined,
-        user_persona_id: userPersonaId,
-        buddy_mbti: buddyMbti,
-        mbti: obData?.mbti || undefined,
-        interests: obData?.interests ?? [],
-        voiceText: obData?.voiceText || undefined,
-        destination,
-      });
-      setNegotiations(prev => ({ ...prev, [index]: result }));
-    } catch (err) {
-      console.error('协商 API 调用失败，使用 Mock 数据:', err);
-      setNegotiations(prev => ({ ...prev, [index]: MOCK_NEGOTIATION }));
-    } finally {
-      setLoadingNegotiations(prev => ({ ...prev, [index]: false }));
-    }
-  }, [feedVideos, loadingNegotiations, negotiations]);
-
-  // Trigger loading when index changes (with a slight debounce so fast swiping doesn't spam)
-  useEffect(() => {
-    if (feedVideos.length === 0) return;
-    const timer = setTimeout(() => {
-      loadNegotiationResultForIndex(currentIndex);
-    }, 500); // 500ms debounce
-    return () => clearTimeout(timer);
-  }, [currentIndex, feedVideos, loadNegotiationResultForIndex]);
-
-  const handleTwinCardConfirm = useCallback((index: number) => {
-    const finalResult = negotiations[index] || MOCK_NEGOTIATION;
-    const reportId = persistNegotiationResult(finalResult);
+  const handleMatchConfirm = useCallback(() => {
+    if (!matchResult) return;
+    const reportId = persistNegotiationResult(matchResult);
     setTimeout(() => {
-      navigate('/result', { state: { result: finalResult, reportId } });
+      navigate('/result', { state: { result: matchResult, reportId } });
     }, 200);
-  }, [navigate, negotiations, persistNegotiationResult]);
+  }, [matchResult, navigate, persistNegotiationResult]);
 
-  const handleReject = useCallback(() => {
-    if (feedRef.current) {
-        feedRef.current.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-    }
-  }, []);
-
-  const handleChatExpand = useCallback((index: number) => {
-    const finalResult = negotiations[index] || MOCK_NEGOTIATION;
-    const reportId = persistNegotiationResult(finalResult);
-    navigate(`/result/${reportId}/detail`, {
-      state: { result: finalResult, reportId, source: 'feed' },
-    });
-  }, [navigate, negotiations, persistNegotiationResult]);
-
-  const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;
+  const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS as VideoItem[];
 
   if (isFeedLoading) {
     return (
@@ -255,54 +235,70 @@ export default function FeedPage() {
     <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative relative">
       <button
         onClick={handleRestart}
-        className="fixed top-8 right-4 z-50 p-2 rounded-full bg-black/40 backdrop-blur-xl hover:bg-black/60 transition-colors"
+        className="fixed top-[120px] right-4 z-50 p-2 rounded-full bg-black/40 backdrop-blur-xl hover:bg-black/60 transition-colors pointer-events-auto"
         title="重新测试"
       >
         <RotateCcw className="w-4 h-4 text-white/90" />
       </button>
 
+      {/* Top Navigation */}
+      <nav className="flex items-center justify-between px-4 pt-[env(safe-area-inset-top,44px)] pb-2 w-full absolute top-0 z-40 text-white/90 text-[16px] drop-shadow-md pointer-events-none">
+        <button className="p-2 flex items-center justify-center text-white pointer-events-auto">
+          <span className="material-symbols-outlined text-[28px] font-light">menu</span>
+        </button>
+        <div className="flex-1 flex gap-6 overflow-x-auto no-scrollbar items-center justify-center px-2 pointer-events-auto">
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">团购</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">经验</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">北京</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">关注</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">商城</span>
+          <div className="flex flex-col items-center cursor-pointer text-white font-bold relative">
+            <span className="whitespace-nowrap text-[17px]">推荐</span>
+            <div className="h-[3px] w-6 bg-white rounded-full mt-1.5"></div>
+          </div>
+        </div>
+        <button className="p-2 flex items-center justify-center text-white pointer-events-auto">
+          <span className="material-symbols-outlined text-[28px] font-light">search</span>
+        </button>
+      </nav>
+
       <div
         ref={feedRef}
         className="flex-1 w-full h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar scroll-smooth"
       >
-        {displayVideos.map((item, i) => {
-          const negResult = negotiations[i];
-          
-          let radarData: LocalRadarData | undefined;
-          if (negResult) {
-            radarData = {
-              matchRate: Math.round(item.buddy?.compatibility_score || 85),
-              tags: negResult.plan?.slice(0, 3) || ['旅游契合'],
-              dimensions: negResult.radar || []
-            };
-          }
-
-          let messagesData: ChatMessage[] | undefined;
-          if (negResult?.messages) {
-            messagesData = negResult.messages.map((msg, idx) => ({
-              id: idx,
-              text: msg.content,
-              isSelf: msg.speaker === 'user'
-            })).slice(-3); // Show last 3 messages
-          }
-
-          return (
-            <ImmersiveFeedItem
-              key={item.id + i}
-              item={item}
-              isActive={currentIndex === i}
-              isLoading={loadingNegotiations[i]}
-              radarData={radarData}
-              messages={messagesData}
-              onAccept={() => handleTwinCardConfirm(i)}
-              onReject={handleReject}
-              onChatExpand={() => handleChatExpand(i)}
+        {displayVideos.map((item, i) => (
+          <div key={item.id + i} className="h-full w-full snap-start shrink-0">
+            <TikTokVideo
+              videoUrl={item.video_url || ''}
+              buddy={item.buddy}
+              location={item.location}
+              title={item.title || ''}
+              description={item.description}
+              likeCount={Math.floor(Math.random() * 50000) + 1000}
+              commentCount={Math.floor(Math.random() * 5000) + 100}
+              shareCount={Math.floor(Math.random() * 2000) + 50}
+              liked={false}
+              isActive={currentIndex === i && !showMatchModal}
+              onLike={() => {}}
+              onComment={() => {}}
+              onShare={() => {}}
+              onTwinCard={triggerMatch}
             />
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       <BottomNav />
+
+      {showMatchModal && (
+        <TwinMatchModal
+          result={matchResult}
+          isLoading={isNegotiating}
+          onClose={() => setShowMatchModal(false)}
+          onConfirm={handleMatchConfirm}
+          backgroundItem={matchBackground}
+        />
+      )}
     </div>
   );
 }

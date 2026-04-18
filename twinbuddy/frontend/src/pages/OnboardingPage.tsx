@@ -95,7 +95,7 @@ function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: st
 
 // ── Step 3: Voice or Text ─────────────────────────────
 
-type VoiceState = 'idle' | 'recording' | 'transcribed';
+type VoiceState = 'idle' | 'connecting' | 'recording' | 'transcribed' | 'error';
 
 function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
 
@@ -104,10 +104,13 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const [interimText, setInterimText] = useState('');
   const [showBadge, setShowBadge] = useState(false);
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const processorRef = useRef<AudioWorkletNode | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
   const isRecordingRef = useRef(false);
-  const lastResultIndexRef = useRef(0);
-  const finalTextRef = useRef('');
+  const finalTextRef = useRef(text ? `${text.trim()} ` : '');
+  const wsConnectedRef = useRef(false);
 
   // 同步外部 text → local ref（用户可能在录音期间编辑 textarea）
   useEffect(() => {
@@ -116,98 +119,154 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     }
   }, [text]);
 
-  // ── Init Speech Recognition ──────────────────────────
-  useEffect(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SR) {
-      const rec = new SR();
-      rec.lang = 'zh-CN';
-      rec.continuous = true;
-      rec.interimResults = true;
+  // ── Audio + WebSocket STT ────────────────────────────
+  const startRecording = useCallback(async () => {
+    setNoSupport(false);
 
-      rec.onresult = (event: SpeechRecognitionEvent) => {
-        let newFinal = '';
-        let newInterim = '';
+    // 保留已有文字，追加新录音
+    finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
+    setInterimText('');
+    setVoiceState('connecting');
+    isRecordingRef.current = true;
 
-        for (let i = lastResultIndexRef.current; i < event.results.length; i++) {
-          const chunk = event.results[i][0]?.transcript ?? '';
-          if (!chunk) continue;
-          if (event.results[i].isFinal) {
-            newFinal += chunk;
-          } else {
-            newInterim += chunk;
-          }
-        }
+    try {
+      // 1. 请求麦克风权限 + 创建 AudioContext
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
+      streamRef.current = stream;
 
-        lastResultIndexRef.current = event.results.length;
+      const ctx = new AudioContext({ sampleRate: 16000 });
+      audioCtxRef.current = ctx;
 
-        if (newFinal) {
-          finalTextRef.current += newFinal;
-        }
+      // 2. 加载 AudioWorklet（从 /audio-processor.js）
+      try {
+        await ctx.audioWorklet.addModule('/audio-processor.js');
+      } catch {
+        console.error('AudioWorklet 加载失败，浏览器可能不支持');
+        throw new Error('AudioWorklet not supported');
+      }
 
-        const allFinal = finalTextRef.current.trim();
-        const preview = allFinal ? `${allFinal}${newInterim}` : newInterim;
+      const source = ctx.createMediaStreamSource(stream);
+      const processor = new AudioWorkletNode(ctx, 'pcm-processor');
+      processorRef.current = processor;
 
-        setInterimText(newInterim);
-        onChange(allFinal || preview);
-        if (allFinal) setShowBadge(true);
+      // 3. 连接 WebSocket
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/api/stt/ws`;
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+      ws.binaryType = 'arraybuffer';
+
+      ws.onopen = () => {
+        wsConnectedRef.current = true;
+        setVoiceState('recording');
       };
 
-      rec.onerror = (event: SpeechRecognitionErrorEvent) => {
-        if (event.error === 'aborted' || event.error === 'no-speech') return;
-        console.warn('Speech recognition error:', event.error);
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data as string);
+        if (msg.type === 'text') {
+          finalTextRef.current += msg.content;
+          const allFinal = finalTextRef.current.trim();
+          onChange(allFinal);
+          setShowBadge(true);
+        } else if (msg.type === 'done') {
+          const allFinal = finalTextRef.current.trim();
+          onChange(allFinal);
+          setVoiceState(allFinal ? 'transcribed' : 'idle');
+          if (allFinal) setShowBadge(true);
+          cleanup();
+        } else if (msg.type === 'error') {
+          console.error('STT error:', msg.message);
+          setVoiceState(finalTextRef.current.trim() ? 'transcribed' : 'idle');
+          if (finalTextRef.current.trim()) setShowBadge(true);
+          cleanup();
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.error('WebSocket error', err);
         isRecordingRef.current = false;
-        setVoiceState(finalTextRef.current ? 'transcribed' : 'idle');
-        if (finalTextRef.current.trim()) setShowBadge(true);
-        setInterimText('');
+        setVoiceState('error');
+        cleanup();
       };
 
-      rec.onend = () => {
-        if (isRecordingRef.current) {
-          try { rec.start(); } catch { isRecordingRef.current = false; }
-        } else {
-          setInterimText('');
+      // 4. AudioWorklet → WebSocket 数据流
+      processor.port.onmessage = (e: MessageEvent) => {
+        if (ws.readyState === WebSocket.OPEN && isRecordingRef.current) {
+          ws.send(e.data as ArrayBuffer);
         }
       };
 
-      recognitionRef.current = rec;
+      // 5. 启动音频管线
+      source.connect(processor);
+      processor.connect(ctx.destination);
 
-      return () => {
-        isRecordingRef.current = false;
-        try { rec.stop(); } catch { /* ignore */ }
-      };
-    } else {
-      setNoSupport(true);
+    } catch (err) {
+      console.error('录音启动失败:', err);
+      isRecordingRef.current = false;
+      setVoiceState('error');
+      cleanup();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+
+  const cleanup = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      if (wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+      wsRef.current = null;
+      wsConnectedRef.current = false;
+    }
+    if (processorRef.current) {
+      try { processorRef.current.disconnect(); } catch { /* ignore */ }
+      processorRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    setInterimText('');
   }, []);
+
+  const stopRecording = useCallback(() => {
+    isRecordingRef.current = false;
+    // 发送空数据通知后端结束
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(new ArrayBuffer(0));
+    }
+    setVoiceState(finalTextRef.current.trim() ? 'transcribed' : 'idle');
+    if (finalTextRef.current.trim()) setShowBadge(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finalTextRef.current]);
+
+  // 组件卸载或状态重置时清理
+  useEffect(() => {
+    return () => {
+      isRecordingRef.current = false;
+      cleanup();
+    };
+  }, [cleanup]);
 
   // ── Start/Stop handler ──────────────────────────────
   const handleMicClick = () => {
-    const rec = recognitionRef.current;
-    if (!rec) return;
-
-    if (isRecordingRef.current) {
-      isRecordingRef.current = false;
-      setVoiceState(finalTextRef.current ? 'transcribed' : 'idle');
-      setInterimText('');
-      if (finalTextRef.current.trim()) setShowBadge(true);
-      try { rec.stop(); } catch { /* ignore */ }
+    if (voiceState === 'recording') {
+      stopRecording();
       return;
     }
-
-    // 保留已有文字，追加新录音
-    lastResultIndexRef.current = 0;
-    finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
-    setInterimText('');
-    isRecordingRef.current = true;
-    setVoiceState('recording');
-
-    try {
-      rec.start();
-    } catch {
-      isRecordingRef.current = false;
-      setVoiceState(text ? 'transcribed' : 'idle');
+    if (voiceState === 'idle' || voiceState === 'transcribed' || voiceState === 'error') {
+      startRecording();
     }
   };
 
@@ -250,23 +309,33 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         {/* Voice recording button */}
         <button
           onClick={handleMicClick}
-          disabled={noSupport}
+          disabled={noSupport || voiceState === 'connecting'}
           className={`
             relative flex items-center justify-center rounded-full
             transition-all duration-300 select-none
             ${voiceState === 'recording'
               ? 'w-24 h-24 bg-red-100 border-2 border-red-500 shadow-[0_0_30px_rgba(249,86,48,0.5)] animate-pulse'
+              : voiceState === 'connecting'
+              ? 'w-20 h-20 bg-gray-100 border border-gray-300'
               : 'w-20 h-20 bg-white/50 backdrop-blur-[12px] border border-gray-300 hover:border-primary hover:shadow-[0_0_20px_rgba(255,181,159,0.3)] hover:bg-white/80'
             }
           `}
         >
-          <Mic className={`w-8 h-8 ${voiceState === 'recording' ? 'text-red-500' : 'text-primary'}`} />
+          <Mic className={`w-8 h-8 ${voiceState === 'recording' ? 'text-red-500' : voiceState === 'connecting' ? 'text-gray-400 animate-pulse' : 'text-primary'}`} />
           {voiceState === 'recording' && (
             <span className="absolute -bottom-8 text-xs text-red-500 animate-pulse font-body whitespace-nowrap">录音中，点击停止</span>
           )}
-          {voiceState !== 'recording' && !noSupport && (
+          {voiceState === 'connecting' && (
+            <span className="absolute -bottom-8 text-xs text-gray-500 animate-pulse font-body whitespace-nowrap">正在连接…</span>
+          )}
+          {voiceState === 'idle' && !noSupport && (
             <span className="absolute -bottom-8 text-xs text-gray-600 font-body whitespace-nowrap">
               {text ? '继续录音' : '点击说话'}
+            </span>
+          )}
+          {(voiceState === 'transcribed' || voiceState === 'error') && !noSupport && (
+            <span className="absolute -bottom-8 text-xs text-gray-600 font-body whitespace-nowrap">
+              {voiceState === 'error' ? '点击重试' : (text ? '继续录音' : '点击说话')}
             </span>
           )}
           {noSupport && (

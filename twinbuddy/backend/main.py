@@ -24,6 +24,12 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
+# 加载 .env 文件中的环境变量（如 MINIMAX_API_KEY）
+from dotenv import load_dotenv
+_env = Path(__file__).resolve().parent / ".env"
+if _env.exists():
+    load_dotenv(_env)
+
 # 确保 twinbuddy 根目录在 Python path 中，使 backend/agents 可被找到
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:

@@ -1,6 +1,8 @@
+
 import type { Config } from 'tailwindcss'
 
 export default {
+  darkMode: "class",
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
@@ -31,6 +33,57 @@ export default {
           purple:            '#a78bfa',
           pink:              '#fb7185',
         },
+        "on-secondary-fixed-variant": "#5c5b5b",
+        "on-surface-variant": "#5c5b5b",
+        "on-background": "#2f2f2e",
+        "on-tertiary": "#f7f0ff",
+        "error": "#b02500",
+        "tertiary-fixed-dim": "#ab93ff",
+        "inverse-on-surface": "#9e9c9c",
+        "secondary-dim": "#504f4f",
+        "on-surface": "#2f2f2e",
+        "tertiary-fixed": "#b8a3ff",
+        "tertiary": "#652fe7",
+        "surface-container-high": "#e4e2e1",
+        "primary-fixed": "#ff7856",
+        "on-primary-fixed-variant": "#5a0f00",
+        "surface-tint": "#af2700",
+        "tertiary-container": "#b8a3ff",
+        "surface-variant": "#dfdcdc",
+        "on-secondary": "#f5f2f1",
+        "on-primary-container": "#490b00",
+        "on-primary": "#ffefec",
+        "secondary-container": "#e5e2e1",
+        "outline": "#787676",
+        "on-error": "#ffefec",
+        "surface-dim": "#d6d4d3",
+        "error-container": "#f95630",
+        "surface-container-lowest": "#ffffff",
+        "primary-fixed-dim": "#ff5c34",
+        "secondary-fixed-dim": "#d6d4d3",
+        "surface": "#f9f6f5",
+        "error-dim": "#b92902",
+        "background": "#f9f6f5",
+        "inverse-primary": "#ff562c",
+        "on-tertiary-container": "#370096",
+        "on-primary-fixed": "#000000",
+        "surface-container-highest": "#dfdcdc",
+        "on-tertiary-fixed-variant": "#4000ad",
+        "outline-variant": "#afadac",
+        "surface-container": "#eae7e7",
+        "on-secondary-fixed": "#403f3f",
+        "primary-dim": "#9a2100",
+        "on-tertiary-fixed": "#1c0055",
+        "surface-bright": "#f9f6f5",
+        "on-error-container": "#520c00",
+        "surface-container-low": "#f3f0ef",
+        "tertiary-dim": "#5819db",
+        "secondary-fixed": "#e5e2e1",
+        "on-secondary-container": "#525151",
+        "primary-container": "#ff7856",
+        "primary": "#af2700",
+        "secondary": "#5c5b5b",
+        "inverse-surface": "#0e0e0e"
       },
       backgroundImage: {
         'gradient-radial':  'radial-gradient(var(--tw-gradient-stops))',
@@ -43,9 +96,16 @@ export default {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         orbitron: ['Orbitron', 'Inter', 'sans-serif'],
+        headline: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        body: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        label: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
       },
       borderRadius: {
+        "DEFAULT": "1rem",
+        "lg": "2rem",
+        "xl": "3rem",
         '4xl': '2rem',
+        "full": "9999px"
       },
       boxShadow: {
         'glow-primary':   '0 0 20px rgba(255,179,182,0.4), 0 0 40px rgba(255,179,182,0.15)',
@@ -67,6 +127,7 @@ export default {
         'bounce-in':      'bounceIn 500ms cubic-bezier(0.34,1.56,0.64,1) both',
         'glow-pulse':     'glowPulse 2.5s ease-in-out infinite',
         'shimmer':        'shimmer 2s linear infinite',
+        'float-subtle':   'float-subtle 2s ease-in-out infinite',
       },
       keyframes: {
         neonPulse: {
@@ -98,17 +159,13 @@ export default {
         },
         glowPulse: {
           '0%, 100%': { opacity: '0.4' },
-          '50%':       { opacity: '1' },
         },
-        shimmer: {
-          from: { backgroundPosition: '200% center' },
-          to:   { backgroundPosition: '-200% center' },
-        },
-      },
-      backdropBlur: {
-        xs: '2px',
+        "float-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-4px)" }
+        }
       },
     },
   },
-  plugins: [],
 } satisfies Config
+

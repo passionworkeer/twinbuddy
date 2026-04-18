@@ -4,11 +4,10 @@ from __future__ import annotations
 from typing import Any, Dict, List
 from .state import NegotiationState, NegotiationPhase, NegotiationRound
 
-TOPICS = ["travel_rhythm", "food", "budget", "social", "boundaries", "schedule"]
+TOPICS = ["travel_rhythm", "food", "budget"]
 TOPIC_LABELS = {
     "travel_rhythm": "旅行节奏", "food": "美食偏好",
-    "budget": "预算范围", "social": "社交方式",
-    "boundaries": "边界设置", "schedule": "作息时间",
+    "budget": "预算范围",
 }
 PROPOSALS = {
     "travel_rhythm": {

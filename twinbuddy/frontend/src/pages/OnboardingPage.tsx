@@ -178,7 +178,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
       <button
         onClick={handleStart}
         disabled={voiceState === 'transcribed'}
-        className={`}
+        className={`
           relative flex items-center justify-center rounded-full
           transition-all duration-200
           ${voiceState === 'recording'
@@ -261,11 +261,26 @@ export default function OnboardingPage() {
     setVoiceText,
     setCity,
     completeOnboarding,
-    currentStep,
   } = useOnboarding();
 
-  const step = currentStep();
   const TOTAL_STEPS = 4;
+
+  // 显式步骤状态：由用户操作驱动，第 1/2 步会基于数据自动前进。
+  const [step, setStep] = useState(1);
+
+  // 选中 MBTI 后自动进入第 2 步
+  useEffect(() => {
+    if (data.mbti && step < 2) {
+      setStep(2);
+    }
+  }, [data.mbti, step]);
+
+  // 选中兴趣后自动进入第 3 步
+  useEffect(() => {
+    if (data.mbti && data.interests.length > 0 && step < 3) {
+      setStep(3);
+    }
+  }, [data.interests.length, data.mbti, step]);
 
   // React 18 batching: completeOnboarding() updates state, then navigate() in
   // the same synchronous tick may not trigger re-render. Use useEffect to
@@ -277,21 +292,22 @@ export default function OnboardingPage() {
   }, [data.completed, navigate]);
 
   const handleNext = useCallback(async () => {
-    if (step === TOTAL_STEPS) {
-      // 调用 API 保存 onboarding 数据，然后由 useEffect 导航到 /feed
-      await completeOnboarding();
-    } else if (step === TOTAL_STEPS - 1) {
-      // On step 3, complete onboarding to advance to step 4
+    if (step < TOTAL_STEPS) {
+      setStep((s) => s + 1);
+    } else {
       await completeOnboarding();
     }
   }, [step, completeOnboarding]);
 
   const handleBack = useCallback(() => {
-    if (step === 1) navigate('/');
+    if (step > 1) {
+      setStep((s) => s - 1);
+    } else {
+      navigate('/');
+    }
   }, [step, navigate]);
 
   // canProceed checks the requirements for the step we are CURRENTLY on.
-  // step comes from currentStep() which reflects the visible step.
   const canProceed = () => {
     switch (step) {
       case 1: return !!data.mbti;
@@ -303,7 +319,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neon-bg flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#11131e' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-6 pb-2">
         {step > 1 ? (
@@ -353,10 +369,16 @@ export default function OnboardingPage() {
             )}
           </button>
         </div>
-                {step === 4 && (
-          <button onClick={completeOnboarding} className="mt-3 w-full py-3 text-center text-sm text-neon-text-secondary hover:text-neon-text transition-colors">随便看看</button>
+        {step === 4 && (
+          <button
+            onClick={completeOnboarding}
+            className="mt-3 w-full py-3 text-center text-sm transition-colors"
+            style={{ color: '#a0a0b8' }}
+          >
+            随便看看
+          </button>
         )}
-        <p className="mt-3 text-center text-xs text-neon-text-disabled">
+        <p className="mt-3 text-center text-xs" style={{ color: '#5a5a70' }}>
           数据仅本地存储，不会上传至服务器
         </p>
       </div>

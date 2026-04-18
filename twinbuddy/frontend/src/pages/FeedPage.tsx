@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { VideoCard } from '../components/feed/VideoCard';
 import BottomNav from '../components/feed/BottomNav';
 import { TwinCard } from '../components/twin-card/TwinCard';
@@ -126,6 +127,7 @@ function TwinCardOverlay({
 // ── Feed Page ──────────────────────────────────────────
 
 export default function FeedPage() {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
@@ -148,6 +150,10 @@ export default function FeedPage() {
   const [cardsSeen, setCardsSeen] = useLocalStorage<string[]>(
     STORAGE_KEYS.twin_cards_seen,
     [],
+  );
+  const [, setStoredNegotiationResult] = useLocalStorage<NegotiationResult | null>(
+    STORAGE_KEYS.negotiation_result,
+    null,
   );
 
   const feedRef = useRef<HTMLDivElement>(null);
@@ -231,13 +237,15 @@ export default function FeedPage() {
         destination,
       });
       setNegotiationResult(result);
+      setStoredNegotiationResult(result);
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
       setNegotiationResult(MOCK_NEGOTIATION);
+      setStoredNegotiationResult(MOCK_NEGOTIATION);
     } finally {
       setIsNegotiating(false);
     }
-  }, []);
+  }, [setStoredNegotiationResult]);
 
   // When TwinCard overlay is opened, load real negotiation result
   const handleTwinCard = useCallback(() => {
@@ -250,13 +258,14 @@ export default function FeedPage() {
   }, [feedVideos, loadNegotiationResult]);
 
   const handleTwinCardConfirm = useCallback(() => {
+    const finalResult = negotiationResult ?? MOCK_NEGOTIATION;
+    setStoredNegotiationResult(finalResult);
     setShowTwinCard(false);
-    setNegotiationResult(null);
-    // Navigate to result after short delay
+    setNegotiationResult(finalResult);
     setTimeout(() => {
-      window.location.href = '/result';
-    }, 800);
-  }, []);
+      navigate('/result', { state: { result: finalResult } });
+    }, 200);
+  }, [navigate, negotiationResult, setStoredNegotiationResult]);
 
   // Use API feed data, fallback to mock
   const displayVideos = feedVideos.length > 0 ? feedVideos : MOCK_VIDEOS;

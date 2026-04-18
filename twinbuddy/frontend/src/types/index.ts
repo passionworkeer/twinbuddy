@@ -153,6 +153,7 @@ export const STORAGE_KEYS = {
   twin_cards_seen: 'twinbuddy_cards_seen',
   video_likes: 'twinbuddy_video_likes_v3',
   matched_personas: 'twinbuddy_matched',
+  negotiation_result: 'twinbuddy_negotiation_result_v3',
 } as const;
 
 // ── MBTI Constants ───────────────────────────────────

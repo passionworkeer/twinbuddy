@@ -564,7 +564,8 @@ def llm_proposer_node(state: NegotiationState) -> NegotiationState:
     new_conf = state["conflict_topics"] if score >= 0.6 else state["conflict_topics"] + [topic]
     new_scores = dict(state["consensus_scores"])
     new_scores[topic] = round(score, 3)
-    done = num >= len(TOPICS)
+    # 以“已覆盖的话题数”作为结束条件，避免冲突加轮导致提前收敛
+    done = len(new_scores) >= len(TOPICS)
 
     return NegotiationState(
         phase=NegotiationPhase.CONSENSUS_FOUND if done else NegotiationPhase.CHAT_ROUND,

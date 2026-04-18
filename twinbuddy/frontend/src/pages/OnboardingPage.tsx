@@ -679,7 +679,7 @@ export default function OnboardingPage() {
           <div className="w-6"></div>
         )}
         <div className="text-center">
-          <h1 className={`${step === 4 ? 'text-white' : 'text-gray-800'} font-headline text-xl font-bold tracking-tight drop-shadow-sm`}>Twin buddy</h1>
+          <h1 className={`${step === 4 ? 'text-white' : 'text-gray-800'} font-headline text-xl font-bold tracking-tight drop-shadow-sm`}>拼途旅行</h1>
         </div>
         <div className="w-6"></div>
       </header>

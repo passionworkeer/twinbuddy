@@ -210,7 +210,7 @@ export default function ResultPage() {
         <div className="mx-auto max-w-md flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-neon-text">搭子匹配结果</h1>
-            <p className="text-xs text-neon-text-secondary">TwinBuddy 数字人协商</p>
+            <p className="text-xs text-neon-text-secondary">拼途旅行 数字人协商</p>
           </div>
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-neon-tertiary" />

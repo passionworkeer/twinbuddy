@@ -207,6 +207,37 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">
 
+      {/* ── Greeting avatar + bubble (fixed at bottom, only during guide step) ── */}
+      {showGuideGreeting && modalStep === 'guide' && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-[9999] pointer-events-none greeting-pop-anim"
+          style={{ bottom: '120px', width: 160 }}
+        >
+          <img
+            src="/mod/greeting-transparent.gif"
+            alt=""
+            className="w-full h-full object-contain"
+          />
+          {/* Speech bubble — top-right of greeting */}
+          {showGuideBubble && (
+            <div
+              className="absolute bubble-pop-anim"
+              style={{ top: '-8px', right: '-12px', whiteSpace: 'nowrap' }}
+            >
+              <div className="bg-white/90 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-2.5 shadow-lg relative">
+                <p className="text-sm font-medium text-gray-800 leading-snug">
+                  嗨，你要和我一起去<span className="text-[#4ade80] font-bold">{result.destination}</span>嘛
+                </p>
+                <div
+                  className="absolute w-3 h-3 bg-white/90 -bottom-1.5 left-1/2 -translate-x-1/2 rotate-45"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Highfive overlay (transparent GIF, fullscreen) ── */}
       {showHighfive && (
         <div
@@ -250,44 +281,8 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
         <div className="px-4 max-w-md mx-auto w-full mt-20">
           
           {modalStep === 'guide' && (
-            <div className="animate-fade-in flex flex-col items-center w-full relative">
-              {/* Greeting avatar + bubble (positioned at bottom of guide content) */}
-              {showGuideGreeting && (
-                <div
-                  className="greeting-pop-anim absolute left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
-                  style={{ bottom: '-60px', width: 160 }}
-                >
-                  <img
-                    src="/mod/greeting-transparent.gif"
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
-                  {/* Speech bubble — top-right of greeting */}
-                  {showGuideBubble && (
-                    <div
-                      className="absolute bubble-pop-anim"
-                      style={{
-                        top: '-8px',
-                        right: '-12px',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <div className="bg-white/90 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-2.5 shadow-lg relative">
-                        <p className="text-sm font-medium text-gray-800 leading-snug">
-                          嗨，你要和我一起去<span className="text-[#4ade80] font-bold">{result.destination}</span>嘛
-                        </p>
-                        {/* bubble tail */}
-                        <div
-                          className="absolute w-3 h-3 bg-white/90 -bottom-1.5 left-1/2 -translate-x-1/2 rotate-45"
-                          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Main Title matching travel_guide_full_width_glass_cards */}
+            <div className="animate-fade-in flex flex-col items-center w-full">
+              {/* Main Title */}
               <h1 className="font-headline font-extrabold text-4xl leading-tight text-white mb-8 tracking-tight px-2 drop-shadow-lg text-center w-full">
                 {backgroundItem?.title || `${result.destination}旅行攻略`}
               </h1>
@@ -382,7 +377,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
                       <p className="text-xs text-white/80 line-clamp-2">寻遍当地最地道的美食，从街头小吃到隐藏餐厅，吃出旅行的灵魂。</p>
                     </div>
                     <div className="w-24 h-24 shrink-0 rounded-[12px] overflow-hidden">
-                      <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0a8V7xF5pKm9T3wZQ7GvL8XnkJHKS7L4k5tY2mR3qP6dC9xW1hJ5vN8bK9sP2dL4kV7tY2mR3qP6dC9xW1hJ5vN8bK" alt="food" />
+                      <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=200&fit=crop" alt="food" />
                     </div>
                   </div>
                 </div>

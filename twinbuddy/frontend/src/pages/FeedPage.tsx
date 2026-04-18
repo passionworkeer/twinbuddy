@@ -18,7 +18,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v1',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1537531383496-f4749c6c3aa2?w=800&q=80',
-    video_url: '/videos/3a25a0d3ce7e5939c065f297e17b461d_裁剪版.mp4',
+    video_url: '/videos/video1.mp4',
     location: '成都',
     title: '川西自驾之旅',
     buddy: {
@@ -34,7 +34,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v2',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-    video_url: '/videos/40f98311ef12a26d5bb92ffb668a7029_裁剪版.mp4',
+    video_url: '/videos/video2.mp4',
     location: '川西',
     title: '成都美食探店',
     buddy: {
@@ -50,7 +50,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v3',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
-    video_url: '/videos/7c2e35507979c9cedd5f558bfc33d674.mp4',
+    video_url: '/videos/video3.mp4',
     location: '成都',
     title: '成都citywalk',
     buddy: {
@@ -66,7 +66,7 @@ const MOCK_VIDEOS: VideoItem[] = [
     id: 'v4',
     type: 'video',
     cover_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-    video_url: '/videos/842636456c2fe795f0e186a012984110.mp4',
+    video_url: '/videos/video4.mp4',
     location: '川西',
     title: '慢节奏生活',
     buddy: {
@@ -180,6 +180,9 @@ export default function FeedPage() {
   const [shareCounts] = useState<Record<string, number>>({ v1: 89, v2: 67, twin1: 0 });
 
   const [showTwinCard, setShowTwinCard] = useState(false);
+  // Ref to always read current showTwinCard value (avoids stale closure in scroll handler)
+  const showTwinCardRef = useRef(showTwinCard);
+  showTwinCardRef.current = showTwinCard;
   const [negotiationResult, setNegotiationResult] = useState<NegotiationResult | null>(null);
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [cardsSeen, setCardsSeen] = useLocalStorage<string[]>(
@@ -202,35 +205,14 @@ export default function FeedPage() {
 
   const feedRef = useRef<HTMLDivElement>(null);
 
-  // Load feed from API on mount
+  // 直接使用本地 mock 视频（不调 API）
   useEffect(() => {
-    const loadFeed = async () => {
-      setIsFeedLoading(true);
-      setFeedError(null);
-      try {
-        // 从 localStorage 读取 onboarding 数据
-        const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-        const onboardingData: OnboardingData | null = stored ? JSON.parse(stored) : null;
-        const city = onboardingData?.city || undefined;
-        const userId = onboardingData?.user_id || undefined;
-
-        const videos = await fetchFeed(city, userId);
-        setFeedVideos(videos);
-      } catch (err) {
-        console.error('Feed API 加载失败，使用 Mock 数据:', err);
-        setFeedError('无法加载真实数据，显示演示内容');
-        setFeedVideos(MOCK_VIDEOS);
-      } finally {
-        setIsFeedLoading(false);
-      }
-    };
-
-    loadFeed();
+    setFeedVideos(MOCK_VIDEOS);
   }, []);
 
   // Show twin card after 2nd video (index >= 2)
   const triggerTwinCard = useCallback(() => {
-    if (!showTwinCard) {
+    if (!showTwinCardRef.current) {
       setCardsSeen((prev) => {
         if (!prev.includes('twin1')) {
           return [...prev, 'twin1'];
@@ -239,7 +221,7 @@ export default function FeedPage() {
       });
       setShowTwinCard(true);
     }
-  }, [showTwinCard]);
+  }, []); // intentionally no deps — reads from ref to avoid stale closure
 
   // Handle snap scroll
   const handleScroll = useCallback(() => {
@@ -247,6 +229,7 @@ export default function FeedPage() {
     if (!el) return;
     const index = Math.round(el.scrollTop / window.innerHeight);
     setCurrentIndex(index);
+    console.log('[Feed] scroll index:', index, 'showTwinCard:', showTwinCardRef.current);
     // 滚动到第3个视频时强制显示卡片
     if (index >= 2) {
       triggerTwinCard();
@@ -259,7 +242,7 @@ export default function FeedPage() {
     if (!el) return;
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+  }, [handleScroll, showTwinCard]);
 
   // Initial twin card trigger after mount (fallback if no scroll)
   useEffect(() => {
@@ -281,8 +264,12 @@ export default function FeedPage() {
       const userPersonaId = onboardingData?.persona_id || undefined;
 
       const result = await negotiate({
+        user_id: onboardingData?.user_id || undefined,
         user_persona_id: userPersonaId,
         buddy_mbti: buddyMbti,
+        mbti: onboardingData?.mbti || undefined,
+        interests: onboardingData?.interests ?? [],
+        voiceText: onboardingData?.voiceText || undefined,
         destination,
       });
       setNegotiationResult(result);

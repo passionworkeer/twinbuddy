@@ -41,32 +41,32 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   // ── Greeting + Bubble animation (guide step only) ───────
   const [showGuideGreeting, setShowGuideGreeting] = useState(false);
   const [showGuideBubble, setShowGuideBubble] = useState(false);
-  const guideAnimPlayedForResultRef = React.useRef<string>('');
+  const animationTriggeredRef = React.useRef(false);
 
+  // result 变化时重置并触发动画
   useEffect(() => {
-    // 每次 result 变化时，重置动画
-    if (!result) return;
-    const resultId = result.destination + (result.messages?.[0]?.content || '');
+    if (!result || modalStep !== 'guide') return;
 
-    // 如果是新的 result，重置动画状态
-    if (guideAnimPlayedForResultRef.current !== resultId) {
-      guideAnimPlayedForResultRef.current = resultId;
-      setShowGuideGreeting(false);
-      setShowGuideBubble(false);
+    // 防止重复触发
+    if (animationTriggeredRef.current) return;
+    animationTriggeredRef.current = true;
 
-      // 1秒后弹出数字人GIF
-      const t1 = setTimeout(() => setShowGuideGreeting(true), 1000);
-      // 1.5秒后弹出气泡
-      const t2 = setTimeout(() => setShowGuideBubble(true), 1500);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
-    }
-  }, [result]);
+    // 先重置状态
+    setShowGuideGreeting(false);
+    setShowGuideBubble(false);
 
+    // 1秒后弹出数字人GIF
+    const t1 = setTimeout(() => setShowGuideGreeting(true), 1000);
+    // 1.5秒后弹出气泡
+    const t2 = setTimeout(() => setShowGuideBubble(true), 1500);
+
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [result, modalStep]);
+
+  // modalStep 切换时重置动画触发标志
   useEffect(() => {
-    // modalStep 切换时隐藏/显示动画
     if (modalStep !== 'guide') {
-      setShowGuideGreeting(false);
-      setShowGuideBubble(false);
+      animationTriggeredRef.current = false;
     }
   }, [modalStep]);
 

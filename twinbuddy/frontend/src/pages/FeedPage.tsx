@@ -194,7 +194,7 @@ export default function FeedPage() {
 
     setShowMatchModal(true);
 
-    // 立即显示搭子预览（即使协商还在进行）
+    // 立即显示搭子预览
     if (buddy) {
       setMatchedBuddy({
         name: buddy.name || '神秘搭子',
@@ -213,64 +213,23 @@ export default function FeedPage() {
         compatibility_score: precomputedBuddy.compatibility_score || 80,
       });
     } else {
-      setMatchedBuddy(null);
-    }
-
-    // 2. 如果预计算已完成，直接使用预计算结果
-    if (precomputed?.status === 'ready' && precomputed.negotiationResult) {
-      setMatchResult(precomputed.negotiationResult);
-      setIsNegotiating(false);
-      return;
-    }
-
-    // 3. 预计算未完成或失败，实时协商
-    setIsNegotiating(true);
-
-    try {
-      // 从 localStorage 获取用户 onboarding 数据
-      let obData = null;
-      try {
-        const stored = localStorage.getItem(STORAGE_KEYS.onboarding);
-        if (stored) obData = JSON.parse(stored);
-      } catch {
-        obData = null;
-      }
-
-      // 真实协商（两个 agent 对话）
-      const result = await negotiate({
-        user_id: obData?.user_id || undefined,
-        user_persona_id: obData?.persona_id || undefined,
-        buddy_mbti: buddy?.mbti || precomputed?.topBuddy?.mbti || 'ENFP',
-        mbti: obData?.mbti || undefined,
-        interests: obData?.interests ?? [],
-        voiceText: obData?.voiceText || undefined,
-        destination: bgLocation.location,
+      // 默认搭子
+      setMatchedBuddy({
+        name: '小满',
+        mbti: 'ENFP',
+        avatar_emoji: '😊',
+        travel_style: '随性探索型',
+        compatibility_score: 85,
       });
-
-      setMatchResult(result);
-      setIsNegotiating(false);
-    } catch (err) {
-      console.error('协商 API 调用失败，使用 Mock 数据:', err);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      // 从 mock 数据中查找匹配的协商结果
-      const mockRecord = findMockNegotiation(
-        onboardingData?.mbti || 'ENFP',
-        bgLocation.location
-      );
-      const mockResult = mockRecord || {
-        destination: bgLocation.location,
-        dates: '待定',
-        budget: '待定',
-        consensus: true,
-        plan: [],
-        matched_buddies: [],
-        radar: [],
-        red_flags: [],
-        messages: [],
-      };
-      setMatchResult(mockResult);
-      setIsNegotiating(false);
     }
+
+    // 直接使用 mock 数据，不调用 API
+    const mockRecord = findMockNegotiation(
+      onboardingData?.mbti || 'ENFP',
+      bgLocation.location
+    );
+    setMatchResult(mockRecord);
+    setIsNegotiating(false);
   }, [cardBuddyIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
   // 同步 triggerMatchRef

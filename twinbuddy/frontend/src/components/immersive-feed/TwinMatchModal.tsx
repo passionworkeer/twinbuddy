@@ -41,27 +41,34 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   // ── Greeting + Bubble animation (guide step only) ───────
   const [showGuideGreeting, setShowGuideGreeting] = useState(false);
   const [showGuideBubble, setShowGuideBubble] = useState(false);
-  const guideAnimPlayedRef = React.useRef(false);
-  const prevResultRef = React.useRef<NegotiationResult | null>(null);
+  const guideAnimPlayedForResultRef = React.useRef<string>('');
 
   useEffect(() => {
-    if (result && prevResultRef.current === null) {
-      guideAnimPlayedRef.current = false;
-    }
-    prevResultRef.current = result;
+    // 每次 result 变化时，重置动画
+    if (!result) return;
+    const resultId = result.destination + (result.messages?.[0]?.content || '');
 
-    if (modalStep === 'guide' && result && !guideAnimPlayedRef.current) {
-      guideAnimPlayedRef.current = true;
+    // 如果是新的 result，重置动画状态
+    if (guideAnimPlayedForResultRef.current !== resultId) {
+      guideAnimPlayedForResultRef.current = resultId;
+      setShowGuideGreeting(false);
+      setShowGuideBubble(false);
+
+      // 1秒后弹出数字人GIF
       const t1 = setTimeout(() => setShowGuideGreeting(true), 1000);
+      // 1.5秒后弹出气泡
       const t2 = setTimeout(() => setShowGuideBubble(true), 1500);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
+  }, [result]);
+
+  useEffect(() => {
+    // modalStep 切换时隐藏/显示动画
     if (modalStep !== 'guide') {
       setShowGuideGreeting(false);
       setShowGuideBubble(false);
-      guideAnimPlayedRef.current = false;
     }
-  }, [modalStep, result]);
+  }, [modalStep]);
 
   // ── Highfive animation ────────────────────────────────────
   const [showHighfive, setShowHighfive] = useState(false);

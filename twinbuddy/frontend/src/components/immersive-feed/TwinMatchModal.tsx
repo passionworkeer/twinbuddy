@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { VideoItem, NegotiationResult, Buddy } from '../../types';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { VideoItem, NegotiationResult } from '../../types';
 import { RadarChartCard, LocalRadarData } from './RadarChartCard';
 import { ChatHistoryOverlay, ChatMessage } from './ChatHistoryOverlay';
 import { FullChatHistory } from './FullChatHistory';
@@ -25,8 +25,6 @@ interface TwinMatchModalProps {
     travel_style: string;
     compatibility_score: number;
   } | null;
-  // 实时协商消息（分批到达）
-  liveMessages?: { speaker: 'user' | 'buddy'; content: string; timestamp: number }[];
 }
 
 export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
@@ -36,24 +34,17 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   onConfirm,
   backgroundItem,
   matchedBuddy,
-  liveMessages = []
 }) => {
-  const [modalStep, setModalStep] = useState<'guide' | 'match'>('guide'); // 默认先显示 guide 步骤
+  const [modalStep, setModalStep] = useState<'guide' | 'match'>('guide');
   const [chatExpanded, setChatExpanded] = useState(false);
-  const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
-  const messageEndRef = useRef<HTMLDivElement>(null);
 
   // ── Greeting + Bubble animation (guide step only) ───────
-  // Reset the animation ref whenever result becomes non-null (fresh modal session).
-  // This handles the case where the component stays mounted across multiple opens:
-  // result transitions null → value = new session → reset guard so animation fires.
   const [showGuideGreeting, setShowGuideGreeting] = useState(false);
   const [showGuideBubble, setShowGuideBubble] = useState(false);
-  const guideAnimPlayedRef = useRef(false);
-  const prevResultRef = useRef<NegotiationResult | null>(null);
+  const guideAnimPlayedRef = React.useRef(false);
+  const prevResultRef = React.useRef<NegotiationResult | null>(null);
 
   useEffect(() => {
-    // Detect a fresh session: result went from null (or undefined) → populated
     if (result && prevResultRef.current === null) {
       guideAnimPlayedRef.current = false;
     }
@@ -61,9 +52,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
     if (modalStep === 'guide' && result && !guideAnimPlayedRef.current) {
       guideAnimPlayedRef.current = true;
-      // 1s 后弹出小人
       const t1 = setTimeout(() => setShowGuideGreeting(true), 1000);
-      // 1s + 0.5s 后弹出气泡
       const t2 = setTimeout(() => setShowGuideBubble(true), 1500);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
@@ -76,8 +65,7 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   // ── Highfive animation ────────────────────────────────────
   const [showHighfive, setShowHighfive] = useState(false);
-  // Guard against double-fire: both the overlay click AND the timer can call navigate
-  const hasNavigatedRef = useRef(false);
+  const hasNavigatedRef = React.useRef(false);
 
   const handleAddFriend = () => {
     hasNavigatedRef.current = false;
@@ -85,7 +73,6 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   };
 
   const handleHighfiveEnded = useCallback(() => {
-    // Prevent double-fire: if already navigated, ignore
     if (hasNavigatedRef.current) return;
     hasNavigatedRef.current = true;
     const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
@@ -93,139 +80,68 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
     setShowHighfive(false);
   }, []);
 
-  // 用 useEffect 可靠触发定时跳转，不依赖 GIF onLoad（浏览器缓存后 onLoad 可能不触发）
   useEffect(() => {
     if (!showHighfive) return;
     const timer = setTimeout(handleHighfiveEnded, 3400);
     return () => clearTimeout(timer);
   }, [showHighfive, handleHighfiveEnded]);
 
-  // 实时消息动画：每当 liveMessages 更新，逐条显示
-  useEffect(() => {
-    if (liveMessages.length === 0) return;
-
-    // 逐条添加消息，间隔 800ms
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < liveMessages.length) {
-        const msg = liveMessages[index];
-        setDisplayedMessages(prev => [...prev, {
-          id: Date.now() + index,
-          text: msg.content,
-          isSelf: msg.speaker === 'user'
-        }]);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 800);
-
-    return () => clearInterval(interval);
-  }, [liveMessages.length]);
-
-  // 自动滚动到最新消息
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [displayedMessages]);
-
-  // Loading state: show buddy preview with live chat
+  // Loading state: show buddy preview without chat animation
   if (isLoading || !result) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-[#0B1C15] overflow-hidden">
-         {/* Background image blurred */}
-         {backgroundItem && (
-           <div className="absolute inset-0 z-0">
-             <img
-               src={backgroundItem.cover_url}
-               className="w-full h-full object-cover blur-sm opacity-50"
-               alt=""
-             />
-             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-[#0B1C15]"></div>
-           </div>
-         )}
+        {backgroundItem && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={backgroundItem.cover_url}
+              className="w-full h-full object-cover blur-sm opacity-50"
+              alt=""
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-[#0B1C15]"></div>
+          </div>
+        )}
 
-         {/* Top bar */}
-         <div className="relative z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,24px)] pb-3">
-           <button onClick={onClose} className="p-2">
-             <span className="material-symbols-outlined text-white text-2xl">close</span>
-           </button>
-           <div className="flex items-center gap-2">
-             {matchedBuddy && (
-               <>
-                 <span className="text-lg">{matchedBuddy.avatar_emoji}</span>
-                 <span className="text-white font-medium">{matchedBuddy.name}</span>
-               </>
-             )}
-           </div>
-           <div className="w-10"></div>
-         </div>
+        <div className="relative z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,24px)] pb-3">
+          <button onClick={onClose} className="p-2">
+            <span className="material-symbols-outlined text-white text-2xl">close</span>
+          </button>
+          <div className="flex items-center gap-2">
+            {matchedBuddy && (
+              <>
+                <span className="text-lg">{matchedBuddy.avatar_emoji}</span>
+                <span className="text-white font-medium">{matchedBuddy.name}</span>
+              </>
+            )}
+          </div>
+          <div className="w-10"></div>
+        </div>
 
-         {/* Live chat area */}
-         <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-32">
-           {displayedMessages.length === 0 ? (
-             <div className="flex flex-col items-center justify-center h-full">
-               <div className="w-12 h-12 border-3 border-white/20 border-t-[#4ade80] rounded-full animate-spin mb-4" />
-               <p className="text-white/80 font-medium">正在连接搭子...</p>
-             </div>
-           ) : (
-             <div className="space-y-3 pt-4">
-               {displayedMessages.map((msg, idx) => (
-                 <div
-                   key={msg.id}
-                   className={`flex items-end gap-2 animate-fade-in ${msg.isSelf ? 'flex-row-reverse' : ''}`}
-                   style={{ animationDelay: '0ms' }}
-                 >
-                   {!msg.isSelf && matchedBuddy && (
-                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm shrink-0">
-                       {matchedBuddy.avatar_emoji}
-                     </div>
-                   )}
-                   <div
-                     className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                       msg.isSelf
-                         ? 'bg-[#4ade80] text-black rounded-br-sm'
-                         : 'bg-white/15 text-white rounded-bl-sm'
-                     }`}
-                   >
-                     {msg.text}
-                   </div>
-                 </div>
-               ))}
-               <div ref={messageEndRef} />
-             </div>
-           )}
-         </div>
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pb-32">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-[#4ade80] rounded-full animate-spin mb-4" />
+          <p className="text-white/80 font-medium">正在连接搭子...</p>
+        </div>
 
-         {/* Bottom hint */}
-         <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-[#0B1C15] via-[#0B1C15]/80 to-transparent pt-8 pb-4 px-4 text-center">
-           <p className="text-white/50 text-xs animate-pulse">
-             {displayedMessages.length === 0 ? '正在与搭子建立连接...' : '搭子正在回复中...'}
-           </p>
-         </div>
+        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-[#0B1C15] via-[#0B1C15]/80 to-transparent pt-8 pb-4 px-4 text-center">
+          <p className="text-white/50 text-xs animate-pulse">正在与搭子建立连接...</p>
+        </div>
       </div>
     );
   }
 
   const radarData: LocalRadarData = {
     matchRate: Math.round(
-       // Use matched_buddies scores or default to 85. We can approximate compatibility by picking random near 90 or reading dimension
        result.radar?.reduce((acc, curr) => acc + (curr.user_score + curr.buddy_score) / 2, 0) / (result.radar?.length || 1) || 88
     ),
     tags: result.plan?.slice(0, 3) || ['旅游契合'],
     dimensions: result.radar || []
   };
 
-  // 合并实时消息和最终结果消息
-  const resultMessages: ChatMessage[] = result.messages?.map((msg, idx) => ({
+  // 消息列表
+  const allMessages: ChatMessage[] = result.messages?.map((msg, idx) => ({
     id: 10000 + idx,
     text: msg.content,
     isSelf: msg.speaker === 'user'
   })) || [];
-
-  // 如果有实时消息已显示，不重复显示
-  const allMessages = displayedMessages.length > 0
-    ? [...displayedMessages, ...resultMessages.filter(rm => !displayedMessages.some(dm => dm.text === rm.text))]
-    : resultMessages;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col h-[100dvh] w-[100vw] overflow-hidden animate-slide-up bg-[#0B1C15]">

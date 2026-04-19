@@ -26,8 +26,6 @@ const MOCK_SCENE_CARDS = [
   { id: 'xian', location: '西安', title: '大唐不夜城夜色', image: '/images/xian.jpg' },
 ] as unknown as VideoItem[];
 
-import { chooseLocationCardTriggerCount } from '../utils/feedFlow';
-
 function shuffleVideos(videos: VideoItem[]): VideoItem[] {
   const next = [...videos];
   for (let i = next.length - 1; i > 0; i--) {
@@ -76,7 +74,6 @@ export default function FeedPage() {
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [matchBackground, setMatchBackground] = useState<VideoItem | null>(null);
   const [lastTriggerVideoIndex, setLastTriggerVideoIndex] = useState(0);
-  const [nextTriggerInterval, setNextTriggerInterval] = useState(() => chooseLocationCardTriggerCount());
   const [matchedBuddy, setMatchedBuddy] = useState<{
     name: string;
     mbti: string;
@@ -84,7 +81,6 @@ export default function FeedPage() {
     travel_style: string;
     compatibility_score: number;
   } | null>(null);
-  const [liveMessages, setLiveMessages] = useState<{ speaker: 'user' | 'buddy'; content: string; timestamp: number }[]>([]);
 
   const [, setNegotiationReports] = useLocalStorage<NegotiationReportSnapshots>(
     STORAGE_KEYS.negotiation_reports,
@@ -104,13 +100,12 @@ export default function FeedPage() {
   const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
 
-  // 用 ref 存储最新的 pool，避免闭包 stale 问题
+  // 用 ref 存储最新的值，避免闭包 stale 问题
   const cardBuddyPoolRef = useRef(cardBuddyPool);
   useEffect(() => { cardBuddyPoolRef.current = cardBuddyPool; }, [cardBuddyPool]);
   const lastTriggerRef = useRef(lastTriggerVideoIndex);
   useEffect(() => { lastTriggerRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
-  const nextIntervalRef = useRef(nextTriggerInterval);
-  useEffect(() => { nextIntervalRef.current = nextTriggerInterval; }, [nextTriggerInterval]);
+  const triggerMatchRef = useRef<(() => void) | null>(null);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
@@ -145,16 +140,17 @@ export default function FeedPage() {
     setCurrentIndex(index);
 
     // ── 自动触发判断 ─────────────────────────────────────
-    // 使用 ref 读取最新的 pool 和 lastTrigger，避免闭包 stale
+    // 每滑动 CARD_TRIGGER_INTERVAL 个视频触发一次
     if (
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      index - lastTriggerRef.current >= nextIntervalRef.current
+      cardBuddyPoolRef.current.length > 0 &&
+      index - lastTriggerRef.current >= CARD_TRIGGER_INTERVAL
     ) {
+      lastTriggerRef.current = index;
       setLastTriggerVideoIndex(index);
-      setNextTriggerInterval(chooseLocationCardTriggerCount());
-      triggerMatch({ isAuto: true });
+      triggerMatchRef.current?.({ isAuto: true });
     }
   }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
 
@@ -252,16 +248,7 @@ export default function FeedPage() {
       });
 
       setMatchResult(result);
-      if (result.messages && result.messages.length > 0) {
-        setLiveMessages(result.messages);
-        const totalDelay = result.messages.length * 800 + 1500;
-        setTimeout(() => {
-          setIsNegotiating(false);
-          setLiveMessages([]);
-        }, totalDelay);
-      } else {
-        setIsNegotiating(false);
-      }
+      setIsNegotiating(false);
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -282,18 +269,14 @@ export default function FeedPage() {
         messages: [],
       };
       setMatchResult(mockResult);
-      if (mockResult.messages && mockResult.messages.length > 0) {
-        setLiveMessages(mockResult.messages);
-        const totalDelay = mockResult.messages.length * 800 + 1500;
-        setTimeout(() => {
-          setIsNegotiating(false);
-          setLiveMessages([]);
-        }, totalDelay);
-      } else {
-        setIsNegotiating(false);
-      }
+      setIsNegotiating(false);
     }
   }, [cardBuddyIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+
+  // 同步 triggerMatchRef
+  useEffect(() => {
+    triggerMatchRef.current = triggerMatch;
+  }, [triggerMatch]);
 
   // ── mount 时初始化搭子池 ────────────────────────────────
   useEffect(() => {
@@ -402,12 +385,10 @@ export default function FeedPage() {
           isLoading={isNegotiating}
           onClose={() => {
             setShowMatchModal(false);
-            setLiveMessages([]);
           }}
           onConfirm={handleMatchConfirm}
           backgroundItem={matchBackground}
           matchedBuddy={matchedBuddy}
-          liveMessages={liveMessages}
         />
       )}
     </div>

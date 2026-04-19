@@ -15,6 +15,8 @@ import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
 import MOCK_NEGOTIATIONS from '../mocks/negotiations.json';
 
+const CARD_TRIGGER_INTERVAL = 3; // 每3个视频触发一次
+
 const MOCK_SCENE_CARDS = [
   { id: 'chengdu', location: '成都', title: '成都宽窄巷子茶馆', image: '/images/chengdu.jpg' },
   { id: 'chongqing', location: '重庆', title: '重庆洪崖洞夜景', image: '/images/chongqing.jpg' },
@@ -228,7 +230,30 @@ export default function FeedPage() {
       onboardingData?.mbti || 'ENFP',
       bgLocation.location
     );
-    setMatchResult(mockRecord);
+    // 如果没有匹配的 mock 数据，生成默认结果
+    const finalResult = mockRecord || {
+      destination: bgLocation.location,
+      dates: '5月10日-5月15日',
+      budget: '人均3500元',
+      consensus: true,
+      plan: ['风景优先', '轻徒步', '特色民宿'],
+      matched_buddies: ['小满'],
+      radar: [
+        { dimension: '行程节奏', user_score: 85, buddy_score: 80, weight: 0.8 },
+        { dimension: '美食偏好', user_score: 80, buddy_score: 85, weight: 0.6 },
+        { dimension: '拍照风格', user_score: 90, buddy_score: 75, weight: 0.5 },
+        { dimension: '预算控制', user_score: 70, buddy_score: 75, weight: 0.7 },
+        { dimension: '冒险精神', user_score: 85, buddy_score: 90, weight: 0.9 },
+      ],
+      red_flags: [],
+      messages: [
+        { speaker: 'user', content: '我们周末去旅行吧！', timestamp: 1700000000 },
+        { speaker: 'buddy', content: '听起来不错！我也想出去走走。', timestamp: 1700000010 },
+        { speaker: 'user', content: '那就说定了！', timestamp: 1700000020 },
+        { speaker: 'buddy', content: '好的，期待这次旅行！', timestamp: 1700000030 },
+      ],
+    };
+    setMatchResult(finalResult);
     setIsNegotiating(false);
   }, [cardBuddyIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 

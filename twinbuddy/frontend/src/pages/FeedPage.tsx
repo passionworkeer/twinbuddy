@@ -249,13 +249,17 @@ export default function FeedPage() {
     }
 
     setIsNegotiating(true);
-    setTimeout(() => {
-      // 直接使用 mock 数据，不调用 API
+    setShowMatchModal(true);
+
+    let fallbackTimer: ReturnType<typeof setTimeout>;
+    let apiCall: Promise<void>;
+
+    const useMockResult = () => {
+      clearTimeout(fallbackTimer);
       const mockRecord = findMockNegotiation(
         onboardingData?.mbti || 'ENFP',
         bgLocation.location
       );
-      // 如果没有匹配的 mock 数据，生成默认结果
       const finalResult = mockRecord || {
         destination: bgLocation.location,
         dates: '5月10日-5月15日',
@@ -280,7 +284,44 @@ export default function FeedPage() {
       };
       setMatchResult(finalResult);
       setIsNegotiating(false);
-    }, 1500);
+    };
+
+    // 3秒超时，回退到 mock 数据
+    fallbackTimer = setTimeout(() => {
+      console.warn('[triggerMatch] LLM 超时 25 秒，使用 mock 数据');
+      useMockResult();
+    }, 3000);
+
+    // 优先使用预计算数据（onboarding 期间已生成）
+    const precomputed = getPrecomputed();
+    const destination = onboardingData?.city || precomputed?.destination || bgLocation.location;
+    const buddyMbti = (precomputed?.topBuddy as any)?.mbti || 'ENFP';
+
+    apiCall = (async () => {
+      try {
+        const result = await negotiate({
+          user_persona_id: precomputed?.persona_id || undefined,
+          buddy_mbti: buddyMbti,
+          mbti: onboardingData?.mbti || undefined,
+          interests: onboardingData?.interests ?? [],
+          voiceText: onboardingData?.voiceText || undefined,
+          destination,
+        });
+        clearTimeout(fallbackTimer);
+        setMatchResult(result);
+      } catch (negErr) {
+        console.error('[triggerMatch] 协商失败，使用 mock', negErr);
+      } finally {
+        setIsNegotiating(false);
+      }
+    })();
+
+    // 如果预计算数据已存在，直接用，跳过 API 调用
+    if (precomputed?.negotiationResult) {
+      clearTimeout(fallbackTimer);
+      setMatchResult(precomputed.negotiationResult);
+      setIsNegotiating(false);
+    }
   }, [cardBuddyIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
   // 同步 triggerMatchRef

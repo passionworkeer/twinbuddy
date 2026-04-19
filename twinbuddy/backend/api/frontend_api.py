@@ -1671,7 +1671,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             ts = ts_base + i * 15
             messages.append({"speaker": m.get("speaker", "user"), "content": m.get("content", ""), "timestamp": ts})
 
-        overall = float(llm_data.get("overall_score", 0.75))
+        overall = float(llm_data.get("overall_score") or 0.75)
         final_report = {"overall_score": overall, "strengths": compat_strengths, "recommendation": llm_data.get("recommendation", "")}
 
         # 用 MING 六维度算法生成雷达图数据（不依赖 LLM topic 数）
@@ -1695,11 +1695,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
         # breakdown 包含完整 dimensions（_get_negotiation_compatibility_breakdown 会去掉 dimensions）
         breakdown = _mock_compat_breakdown(user_prefs_for_compat, twin_persona) if user_prefs_for_compat else None
         # DEBUG: print breakdown dims and user_prefs keys
-        import sys
-        sys.stderr.write(f"DEBUG breakdown_has_dims={breakdown is not None and 'dimensions' in breakdown} "
-            f"interest_align={(breakdown or {}).get('dimensions',{}).get('interest_alignment') if breakdown else None} "
-            f"user_prefs_keys={list((user_prefs_for_compat or {}).keys())}\n")
-        sys.stderr.flush()
+        # DEBUG print removed
         for i, algo_key in enumerate(ALGORITHM_KEYS):
             user_score = 70
             buddy_score = 65
@@ -1743,6 +1739,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "destination": city_name,
             "dates": "5月10日-5月15日",
             "budget": "人均3500元",
+            "overall_score": overall,
             "consensus": overall > 0.5,
             "plan": plan,
             "matched_buddies": [user_name, buddy_config["name"]],

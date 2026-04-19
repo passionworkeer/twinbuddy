@@ -1596,10 +1596,11 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
         if user_prefs_for_compat and req.interests:
             user_prefs_for_compat["likes"] = req.interests
 
-        # 计算协商兼容性分解（包含 total/strengths/red_flags/easy_to_compromise）
         compat_breakdown = _get_negotiation_compatibility_breakdown(
             user_prefs_for_compat, twin_persona
         )
+        # 雷达图需要完整的 dimensions，直接用 _mock_compat_breakdown
+        breakdown = _mock_compat_breakdown(user_prefs_for_compat, twin_persona) if user_prefs_for_compat else None
 
         # ── 单次 LLM 调用生成协商对话 ─────────────────────────────────────────
         # 不走 LangGraph 状态机，直接一次请求返回完整结果
@@ -1691,7 +1692,14 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "budget", "personality_completion", "social_energy",
         ]
         WEIGHTS = [0.8, 0.6, 0.5, 0.7, 0.9, 0.8]
+        # breakdown 包含完整 dimensions（_get_negotiation_compatibility_breakdown 会去掉 dimensions）
         breakdown = _mock_compat_breakdown(user_prefs_for_compat, twin_persona) if user_prefs_for_compat else None
+        # DEBUG: print breakdown dims and user_prefs keys
+        import sys
+        sys.stderr.write(f"DEBUG breakdown_has_dims={breakdown is not None and 'dimensions' in breakdown} "
+            f"interest_align={(breakdown or {}).get('dimensions',{}).get('interest_alignment') if breakdown else None} "
+            f"user_prefs_keys={list((user_prefs_for_compat or {}).keys())}\n")
+        sys.stderr.flush()
         for i, algo_key in enumerate(ALGORITHM_KEYS):
             user_score = 70
             buddy_score = 65

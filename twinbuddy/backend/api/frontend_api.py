@@ -1571,9 +1571,8 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             },
         }
 
-    # 尝试 LLM 真实协商
+    # 尝试 LLM 真实协商（单次调用，不走 LangGraph 状态机）
     try:
-        from negotiation.graph import run_negotiation
 
         # 使用的人格数据（优先用户 persona，fallback 到动态生成）
         # 优先使用请求体直接传入的 onboarding 数据
@@ -1602,21 +1601,77 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             user_prefs_for_compat, twin_persona
         )
 
-        langgraph_result = run_negotiation(
-            active_user_persona,
-            twin_persona,
-            user_compatibility_breakdown=compat_breakdown,
-        )
-        rounds = langgraph_result.get("rounds", [])
-        consensus_scores = langgraph_result.get("consensus_scores", {})
-        final_report = langgraph_result.get("final_report", {})
+        # ── 单次 LLM 调用生成协商对话 ─────────────────────────────────────────
+        # 不走 LangGraph 状态机，直接一次请求返回完整结果
+        # 3 个 key 自动轮换，失败不降级 mock，直接抛异常
+        user_mbti_str = user_mbti or "ENFP"
+        buddy_mbti_str = twin_persona.get("mbti") or twin_persona.get("mbti_type") or buddy_mbti
+        interests_str = "、".join(req.interests) if req.interests else "美食和风景"
+        user_style = active_user_persona.get("speaking_style", {}).get("chat_tone", "热情直接") if isinstance(active_user_persona.get("speaking_style"), dict) else "热情直接"
+        buddy_style = twin_persona.get("speaking_style", {}).get("chat_tone", "温和细腻") if isinstance(twin_persona.get("speaking_style"), dict) else "温和细腻"
+        user_phrases = active_user_persona.get("speaking_style", {}).get("typical_phrases", []) if isinstance(active_user_persona.get("speaking_style"), dict) else []
+        buddy_phrases = twin_persona.get("speaking_style", {}).get("typical_phrases", []) if isinstance(twin_persona.get("speaking_style"), dict) else []
 
-        # 格式化为前端期望的结构
+        compat_total = compat_breakdown.get("total", 0.75) if compat_breakdown else 0.75
+        compat_strengths = compat_breakdown.get("strengths", [])[:2] if compat_breakdown else []
+        compat_flags = compat_breakdown.get("red_flags", [])[:2] if compat_breakdown else []
+
+        SYSTEM_PROMPT = "你是一个旅行搭子协商助手，严格输出JSON，不要输出任何其他文字。"
+        USER_PROMPT = f"""两个旅行搭子在协商去{city_name}旅行。
+
+用户信息：MBTI={user_mbti_str}，兴趣={interests_str}，说话风格={user_style}
+搭子信息：MBTI={buddy_mbti_str}，说话风格={buddy_style}
+用户口头禅：{'、'.join(user_phrases[:2]) if user_phrases else '说走就走'}
+搭子口头禅：{'、'.join(buddy_phrases[:2]) if buddy_phrases else '慢慢来'}
+整体匹配度：{int(compat_total*100)}%
+匹配优势：{'；'.join(compat_strengths) if compat_strengths else '旅行节奏接近，沟通顺畅'}
+潜在分歧：{'；'.join(compat_flags) if compat_flags else '需要约定休息时间'}
+
+请生成协商对话，JSON格式：
+{{
+  "messages": [
+    {{"speaker": "user", "content": "..."}},
+    {{"speaker": "buddy", "content": "..."}},
+    ...共6-8条消息，像微信聊天，短句口语化...
+  ]],
+  "overall_score": 0.0-1.0的浮点数,
+  "recommendation": "25字推荐语"
+}}
+
+要求：
+- 对话要有来有回，用户和搭子各说3-4条
+- 消息要短（10-30字），像微信聊天
+- 必须提到具体的旅行内容（大理的景点/美食/住宿）
+- 用户要提到自己的兴趣：{interests_str}
+- 不要每条都加emoji，最多1/3
+- 整体合拍就高分，有分歧就中等
+- 只输出JSON，不要markdown代码块"""
+
+        from negotiation.llm_client import llm_client
+        raw = llm_client.chat(USER_PROMPT, system_prompt=SYSTEM_PROMPT)
+        if not raw:
+            raise ValueError("LLM返回空")
+
+        # 解析 JSON
+        raw = raw.strip()
+        if raw.startswith("```"):
+            parts = raw.split("```")
+            for p in parts:
+                p = p.strip()
+                if p and not p.startswith("json"):
+                    raw = p
+                    break
+        llm_data: Dict[str, Any] = json.loads(raw)
+
+        messages_raw: List[Dict[str, Any]] = llm_data.get("messages", [])
         messages = []
-        for r in rounds:
-            ts_base = 1700000000 + r["round_num"] * 100
-            messages.append({"speaker": "user", "content": r.get("proposer_message", ""), "timestamp": ts_base})
-            messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
+        ts_base = 1700000000
+        for i, m in enumerate(messages_raw):
+            ts = ts_base + i * 15
+            messages.append({"speaker": m.get("speaker", "user"), "content": m.get("content", ""), "timestamp": ts})
+
+        overall = float(llm_data.get("overall_score", 0.75))
+        final_report = {"overall_score": overall, "strengths": compat_strengths, "recommendation": llm_data.get("recommendation", "")}
 
         # 用 MING 六维度算法生成雷达图数据（不依赖 LLM topic 数）
         # 算法分数字典需要归一化到 0-100
@@ -1695,7 +1750,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
         except Exception:
             pass
 
-        logger.info("LLM 协商成功 | source=%s | overall=%.3f | rounds=%d", llm_source, overall, len(rounds))
+        logger.info("LLM 协商成功 | source=%s | overall=%.3f | msgs=%d", llm_source, overall, len(messages))
         return {
             "success": True,
             "data": result_data,
@@ -1708,19 +1763,9 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             },
         }
     except Exception as exc:
-        logger.warning("LLM 协商失败，降级到 Mock: %s", exc)
-        # Fallback：使用 Mock 数据
-        result = _build_negotiation_result(city, user_mbti, buddy_mbti)
-        return {
-            "success": True,
-            "data": result,
-            "meta": {
-                "source": "mock",
-                "user_mbti": user_mbti,
-                "buddy_mbti": buddy_mbti,
-                "destination": city,
-            },
-        }
+        # 3 个 key 自动轮换都失败了，不降级 mock，直接报错
+        logger.error("LLM 全部失败（3 key 均不可用）: %s", exc)
+        raise HTTPException(status_code=503, detail=f"LLM 服务不可用: {exc}")
 
 
 # ---------------------------------------------------------------------------

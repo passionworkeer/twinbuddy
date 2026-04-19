@@ -95,9 +95,11 @@ export default function FeedPage() {
 
   const { clearData, data: onboardingData } = useOnboarding();
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
-  const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
+  const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool, poolError } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
   const initPoolOnceRef = useRef(false);
+  const poolErrorRef = useRef(poolError);
+  useEffect(() => { poolErrorRef.current = poolError; }, [poolError]);
 
   // Refs to avoid stale closures in the scroll listener
   const cardBuddyPoolRef = useRef(cardBuddyPool);
@@ -108,6 +110,8 @@ export default function FeedPage() {
   useEffect(() => { lastTriggerVideoIndexRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
   const advanceIndexRef = useRef(advanceIndex);
   useEffect(() => { advanceIndexRef.current = advanceIndex; }, [advanceIndex]);
+  const initPoolRef = useRef(initPool);
+  useEffect(() => { initPoolRef.current = initPool; }, [initPool]);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
@@ -146,9 +150,17 @@ export default function FeedPage() {
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      cardBuddyPoolRef.current.length > 0 &&
       index - lastTriggerVideoIndexRef.current >= CARD_TRIGGER_INTERVAL
     ) {
+      if (cardBuddyPoolRef.current.length === 0 && !poolErrorRef.current) {
+        // Pool not ready yet — retry init once
+        initPoolRef.current?.(onboardingData ?? null);
+        return;
+      }
+      if (cardBuddyPoolRef.current.length === 0) {
+        // Pool failed — skip silently, user sees no modal
+        return;
+      }
       setLastTriggerVideoIndex(index);
       triggerMatchRef.current?.({ isAuto: true });
     }

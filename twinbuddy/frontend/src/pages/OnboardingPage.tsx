@@ -39,7 +39,7 @@ const LOCATIONS = [
 
 function MBTIGrid({ value, onChange }: { value: string; onChange: (m: string) => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in -mt-12">
+    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in pt-4">
       <div className="text-center mb-10 space-y-2 sm:space-y-3">
         <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm">
           在自己眼中<br />你是怎样的人
@@ -79,7 +79,7 @@ function MBTIGrid({ value, onChange }: { value: string; onChange: (m: string) =>
 
 function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: string) => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in -mt-12">
+    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in pt-4">
       <div className="text-center mb-10 space-y-2">
         <h2 className="font-headline text-3xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm">
           选择你喜欢的旅行方式
@@ -323,7 +323,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in -mt-12">
+    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg mx-auto animate-fade-in pt-4">
       <div className="text-center mb-10 space-y-2">
         <h2 className="font-headline text-3xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm">用一句话描述<br />你理想的搭子</h2>
         <p className="font-body text-sm text-gray-700">说点什么，或者直接跳过</p>

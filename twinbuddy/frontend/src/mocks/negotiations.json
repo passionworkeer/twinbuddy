@@ -7,33 +7,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 90,
+        "buddy_score": 52,
+        "weight": 0.88
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 87,
+        "buddy_score": 40,
+        "weight": 0.62
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 70,
+        "buddy_score": 95,
+        "weight": 0.55
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 75,
+        "buddy_score": 48,
+        "weight": 0.68
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 85,
+        "buddy_score": 45,
+        "weight": 0.65
       }
     ],
     "red_flags": [],
@@ -147,33 +147,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 28,
+        "buddy_score": 78,
+        "weight": 0.85
       },
       {
         "dimension": "美食偏好",
-        "user_score": 65,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 58,
+        "buddy_score": 48,
+        "weight": 0.58
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 45,
+        "buddy_score": 82,
+        "weight": 0.52
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 82,
+        "buddy_score": 55,
+        "weight": 0.72
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 65,
+        "buddy_score": 52,
+        "weight": 0.6
       }
     ],
     "red_flags": [],
@@ -287,33 +287,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "user_score": 88,
+        "buddy_score": 18,
+        "weight": 0.9
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.6
+        "user_score": 92,
+        "buddy_score": 35,
+        "weight": 0.65
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 65,
+        "buddy_score": 40,
+        "weight": 0.48
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
+        "user_score": 70,
+        "buddy_score": 42,
         "weight": 0.7
       },
       {
         "dimension": "冒险精神",
         "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "buddy_score": 30,
+        "weight": 0.58
       }
     ],
     "red_flags": [],
@@ -427,32 +427,32 @@
       {
         "dimension": "行程节奏",
         "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "buddy_score": 35,
+        "weight": 0.82
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
+        "user_score": 82,
+        "buddy_score": 48,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
+        "user_score": 62,
+        "buddy_score": 58,
         "weight": 0.5
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 68,
+        "buddy_score": 52,
+        "weight": 0.65
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 90,
+        "buddy_score": 38,
+        "weight": 0.75
       }
     ],
     "red_flags": [],
@@ -565,33 +565,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 55,
+        "buddy_score": 75,
+        "weight": 0.78
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 42,
+        "buddy_score": 78,
+        "weight": 0.55
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 93,
+        "buddy_score": 68,
+        "weight": 0.6
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 50,
+        "buddy_score": 72,
+        "weight": 0.62
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
+        "user_score": 48,
         "buddy_score": 65,
-        "weight": 0.9
+        "weight": 0.55
       }
     ],
     "red_flags": [],
@@ -705,33 +705,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 65,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 45,
+        "buddy_score": 88,
+        "weight": 0.85
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
+        "user_score": 55,
+        "buddy_score": 85,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
+        "user_score": 60,
         "buddy_score": 75,
-        "weight": 0.5
+        "weight": 0.52
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 80,
-        "weight": 0.7
+        "user_score": 58,
+        "buddy_score": 70,
+        "weight": 0.65
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 68,
+        "buddy_score": 82,
+        "weight": 0.7
       }
     ],
     "red_flags": [],
@@ -834,33 +834,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 80,
+        "user_score": 82,
+        "buddy_score": 40,
         "weight": 0.8
       },
       {
         "dimension": "美食偏好",
-        "user_score": 65,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 78,
+        "buddy_score": 45,
+        "weight": 0.58
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 55,
+        "buddy_score": 85,
+        "weight": 0.55
       },
       {
         "dimension": "预算控制",
-        "user_score": 70,
-        "buddy_score": 70,
-        "weight": 0.7
+        "user_score": 72,
+        "buddy_score": 60,
+        "weight": 0.68
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 88,
+        "buddy_score": 52,
+        "weight": 0.78
       }
     ],
     "red_flags": [],
@@ -959,33 +959,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "user_score": 90,
+        "buddy_score": 25,
+        "weight": 0.87
       },
       {
         "dimension": "美食偏好",
-        "user_score": 65,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 88,
+        "buddy_score": 50,
+        "weight": 0.62
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 68,
+        "buddy_score": 45,
+        "weight": 0.48
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 80,
+        "user_score": 75,
+        "buddy_score": 65,
         "weight": 0.7
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 78,
+        "buddy_score": 55,
+        "weight": 0.65
       }
     ],
     "red_flags": [],
@@ -1084,33 +1084,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 92,
+        "buddy_score": 70,
+        "weight": 0.75
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.6
+        "user_score": 80,
+        "buddy_score": 52,
+        "weight": 0.55
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 78,
+        "buddy_score": 88,
+        "weight": 0.58
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 68,
+        "buddy_score": 58,
+        "weight": 0.62
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 82,
+        "buddy_score": 60,
+        "weight": 0.6
       }
     ],
     "red_flags": [],
@@ -1204,33 +1204,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.8
+        "user_score": 89,
+        "buddy_score": 22,
+        "weight": 0.9
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
+        "user_score": 83,
+        "buddy_score": 55,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
+        "user_score": 72,
+        "buddy_score": 50,
         "weight": 0.5
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 78,
+        "buddy_score": 68,
+        "weight": 0.75
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 85,
+        "buddy_score": 58,
+        "weight": 0.72
       }
     ],
     "red_flags": [],
@@ -1323,33 +1323,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "user_score": 91,
+        "buddy_score": 48,
+        "weight": 0.82
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.6
+        "user_score": 86,
+        "buddy_score": 60,
+        "weight": 0.58
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 75,
+        "buddy_score": 58,
+        "weight": 0.52
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 70,
+        "buddy_score": 55,
+        "weight": 0.65
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 80,
+        "buddy_score": 72,
+        "weight": 0.68
       }
     ],
     "red_flags": [],
@@ -1452,33 +1452,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.8
+        "user_score": 25,
+        "buddy_score": 89,
+        "weight": 0.88
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 80,
+        "user_score": 52,
+        "buddy_score": 84,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 48,
+        "buddy_score": 78,
+        "weight": 0.55
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
+        "user_score": 75,
+        "buddy_score": 72,
         "weight": 0.7
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 60,
+        "buddy_score": 83,
+        "weight": 0.7
       }
     ],
     "red_flags": [],
@@ -1582,33 +1582,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "user_score": 90,
+        "buddy_score": 20,
+        "weight": 0.89
       },
       {
         "dimension": "美食偏好",
         "user_score": 85,
-        "buddy_score": 80,
-        "weight": 0.6
+        "buddy_score": 40,
+        "weight": 0.63
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 73,
+        "buddy_score": 42,
+        "weight": 0.48
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 68,
+        "buddy_score": 45,
+        "weight": 0.72
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 82,
+        "buddy_score": 35,
+        "weight": 0.6
       }
     ],
     "red_flags": [],
@@ -1712,33 +1712,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 65,
-        "buddy_score": 80,
+        "user_score": 30,
+        "buddy_score": 60,
         "weight": 0.8
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 60,
+        "buddy_score": 45,
+        "weight": 0.57
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 50,
+        "buddy_score": 90,
+        "weight": 0.58
       },
       {
         "dimension": "预算控制",
         "user_score": 80,
-        "buddy_score": 65,
+        "buddy_score": 50,
         "weight": 0.7
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 68,
+        "buddy_score": 48,
+        "weight": 0.62
       }
     ],
     "red_flags": [],
@@ -1842,33 +1842,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.8
+        "user_score": 22,
+        "buddy_score": 89,
+        "weight": 0.91
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.6
+        "user_score": 38,
+        "buddy_score": 84,
+        "weight": 0.62
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
+        "user_score": 45,
+        "buddy_score": 76,
         "weight": 0.5
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 48,
+        "buddy_score": 72,
+        "weight": 0.68
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 40,
+        "buddy_score": 83,
+        "weight": 0.65
       }
     ],
     "red_flags": [],
@@ -1971,33 +1971,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 65,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 72,
+        "buddy_score": 85,
+        "weight": 0.78
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 50,
+        "buddy_score": 90,
+        "weight": 0.65
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.55
       },
       {
         "dimension": "预算控制",
-        "user_score": 55,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 58,
+        "buddy_score": 73,
+        "weight": 0.63
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 55,
+        "buddy_score": 78,
+        "weight": 0.58
       }
     ],
     "red_flags": [],
@@ -2101,33 +2101,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.8
+        "user_score": 45,
+        "buddy_score": 65,
+        "weight": 0.72
       },
       {
         "dimension": "美食偏好",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.6
+        "user_score": 65,
+        "buddy_score": 55,
+        "weight": 0.55
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
+        "user_score": 55,
+        "buddy_score": 60,
         "weight": 0.5
       },
       {
         "dimension": "预算控制",
-        "user_score": 70,
+        "user_score": 65,
         "buddy_score": 70,
-        "weight": 0.7
+        "weight": 0.68
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 48,
+        "buddy_score": 72,
+        "weight": 0.6
       }
     ],
     "red_flags": [],
@@ -2230,33 +2230,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 75,
-        "buddy_score": 75,
-        "weight": 0.8
+        "user_score": 25,
+        "buddy_score": 78,
+        "weight": 0.85
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 80,
+        "user_score": 42,
+        "buddy_score": 75,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 48,
+        "buddy_score": 65,
+        "weight": 0.52
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 50,
+        "buddy_score": 70,
+        "weight": 0.67
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 38,
+        "buddy_score": 60,
+        "weight": 0.55
       }
     ],
     "red_flags": [],
@@ -2360,33 +2360,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 65,
-        "buddy_score": 80,
+        "user_score": 68,
+        "buddy_score": 35,
         "weight": 0.8
       },
       {
         "dimension": "美食偏好",
-        "user_score": 65,
-        "buddy_score": 70,
-        "weight": 0.6
+        "user_score": 48,
+        "buddy_score": 62,
+        "weight": 0.57
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 88,
+        "buddy_score": 50,
+        "weight": 0.6
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
+        "user_score": 55,
+        "buddy_score": 78,
         "weight": 0.7
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 52,
+        "buddy_score": 45,
+        "weight": 0.58
       }
     ],
     "red_flags": [],
@@ -2490,33 +2490,33 @@
     "radar": [
       {
         "dimension": "行程节奏",
-        "user_score": 65,
-        "buddy_score": 80,
-        "weight": 0.8
+        "user_score": 87,
+        "buddy_score": 50,
+        "weight": 0.83
       },
       {
         "dimension": "美食偏好",
-        "user_score": 85,
-        "buddy_score": 70,
+        "user_score": 80,
+        "buddy_score": 43,
         "weight": 0.6
       },
       {
         "dimension": "拍照风格",
-        "user_score": 80,
-        "buddy_score": 75,
-        "weight": 0.5
+        "user_score": 65,
+        "buddy_score": 92,
+        "weight": 0.57
       },
       {
         "dimension": "预算控制",
-        "user_score": 80,
-        "buddy_score": 65,
-        "weight": 0.7
+        "user_score": 70,
+        "buddy_score": 48,
+        "weight": 0.65
       },
       {
         "dimension": "冒险精神",
-        "user_score": 75,
-        "buddy_score": 65,
-        "weight": 0.9
+        "user_score": 88,
+        "buddy_score": 47,
+        "weight": 0.72
       }
     ],
     "red_flags": [],

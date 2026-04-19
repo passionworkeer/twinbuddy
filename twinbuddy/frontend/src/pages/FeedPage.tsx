@@ -57,19 +57,40 @@ function findMockNegotiation(userMbti: string, destination: string): Negotiation
   // 精确匹配
   const exact = records.find(r => r.user_mbti === userMbti && r.destination === destination);
   if (exact) return { ...exact, matched_buddies: [] };
-  // 按目的地匹配
+  // 按目的地匹配（保留原消息，只改目的地）
   const byDest = records.filter(r => r.destination === destination);
   if (byDest.length > 0) return { ...byDest[0], matched_buddies: [] };
-  // 没有匹配数据时，保留用户选择的 destination，只替换其他字段
+  // 没有匹配数据时，生成完整占位内容（目的地与消息一致）
   if (records.length > 0) {
-    const fallback = records[Math.floor(Math.random() * records.length)];
-    return {
-      ...fallback,
-      destination, // 保留用户选择的城市
-      matched_buddies: [],
-    };
+    return buildFallbackNegotiation(destination);
   }
   return null;
+}
+
+// 生成完整的 fallback 内容，避免消息和目的地不匹配
+function buildFallbackNegotiation(destination: string): NegotiationResult {
+  return {
+    destination,
+    dates: '5月10日-5月15日',
+    budget: '人均3500元',
+    consensus: true,
+    plan: ['风景优先', '轻徒步', '特色民宿'],
+    matched_buddies: [],
+    radar: [
+      { dimension: '行程节奏', user_score: 85, buddy_score: 80, weight: 0.8 },
+      { dimension: '美食偏好', user_score: 80, buddy_score: 85, weight: 0.6 },
+      { dimension: '拍照风格', user_score: 90, buddy_score: 75, weight: 0.5 },
+      { dimension: '预算控制', user_score: 70, buddy_score: 75, weight: 0.7 },
+      { dimension: '冒险精神', user_score: 85, buddy_score: 90, weight: 0.9 },
+    ],
+    red_flags: [],
+    messages: [
+      { speaker: 'user', content: `我们去${destination}旅行吧！`, timestamp: 1700000000 },
+      { speaker: 'buddy', content: `好呀，${destination}一直是我想去的！`, timestamp: 1700000010 },
+      { speaker: 'user', content: `那就说定了！`, timestamp: 1700000020 },
+      { speaker: 'buddy', content: `太好了，已经迫不及待了！`, timestamp: 1700000030 },
+    ],
+  };
 }
 
 export default function FeedPage() {
@@ -260,28 +281,7 @@ export default function FeedPage() {
         onboardingData?.mbti || 'ENFP',
         bgLocation.location
       );
-      const finalResult = mockRecord || {
-        destination: bgLocation.location,
-        dates: '5月10日-5月15日',
-        budget: '人均3500元',
-        consensus: true,
-        plan: ['风景优先', '轻徒步', '特色民宿'],
-        matched_buddies: ['小满'],
-        radar: [
-          { dimension: '行程节奏', user_score: 85, buddy_score: 80, weight: 0.8 },
-          { dimension: '美食偏好', user_score: 80, buddy_score: 85, weight: 0.6 },
-          { dimension: '拍照风格', user_score: 90, buddy_score: 75, weight: 0.5 },
-          { dimension: '预算控制', user_score: 70, buddy_score: 75, weight: 0.7 },
-          { dimension: '冒险精神', user_score: 85, buddy_score: 90, weight: 0.9 },
-        ],
-        red_flags: [],
-        messages: [
-          { speaker: 'user', content: '我们周末去旅行吧！', timestamp: 1700000000 },
-          { speaker: 'buddy', content: '听起来不错！我也想出去走走。', timestamp: 1700000010 },
-          { speaker: 'user', content: '那就说定了！', timestamp: 1700000020 },
-          { speaker: 'buddy', content: '好的，期待这次旅行！', timestamp: 1700000030 },
-        ],
-      };
+      const finalResult = mockRecord || buildFallbackNegotiation(bgLocation.location);
       setMatchResult(finalResult);
       setIsNegotiating(false);
     };

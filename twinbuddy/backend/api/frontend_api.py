@@ -98,7 +98,7 @@ _persona_store: Dict[str, Dict[str, Any]] = _load_store(_PERSONA_STORE_FILE)
 # Mock 数据路径
 # ---------------------------------------------------------------------------
 
-_MOCK_DIR = Path(__file__).parent.parent / "mock_personas"
+_MOCK_DIR = Path(__file__).parent.parent.parent.parent / "mock_personas"
 
 # 城市 emoji 映射
 _CITY_EMOJI: Dict[str, str] = {
@@ -1440,59 +1440,40 @@ async def get_feed(
 
 @router.get("/buddies")
 async def get_buddies(
-    user_id: str = Query(...),
+    user_id: Optional[str] = Query(default=None),
     limit: int = Query(default=10, ge=1, le=50),
+    mbti: Optional[str] = Query(default=None),
+    interests: Optional[str] = Query(default=None),
+    city: Optional[str] = Query(default=None),
 ) -> Dict[str, Any]:
     """
-    GET /api/buddies?user_id=xxx&limit=10
+    GET /api/buddies
 
     返回用户的推荐搭子列表（按 MING 六维度兼容性评分排序）。
+
+    支持两种调用方式：
+    1. user_id 模式：user_id 存在时使用存储的用户数据
+    2. 直接参数模式：传 mbti/interests/city（本地存储场景，无需 user_id）
 
     响应结构：
       {
         "success": true,
-        "buddies": [
-          {
-            "id": "buddy_01",
-            "name": "小满",
-            "mbti": "ENFP",
-            "avatar_emoji": "✨",
-            "travel_style": "...",
-            "typical_phrases": [...],
-            "compatibility_score": 87.5,
-            "compatibility_breakdown": {
-              "total": 87.5,
-              "dimensions": {
-                "pace":               {"score": 25.0, "max": 25, "reason": "..."},
-                "social_energy":     {"score": 20.0, "max": 20, "reason": "..."},
-                "decision_style":    {"score": 20.0, "max": 20, "reason": "..."},
-                "interest_alignment":{"score": 15.0, "max": 25, "reason": "..."},
-                "budget":            {"score": 7.5,  "max": 15, "reason": "..."},
-              },
-              "personality_completion": {"score": 0.0, "reason": "..."},
-              "red_flags":  [...],
-              "strengths":  [...],
-            },
-          },
-          ...
-        ],
+        "buddies": [...],
         "user_prefs": {...},
         "meta": {...}
       }
-
-    如果 user_id 不存在于 onboarding_store，返回所有搭子（无评分排序）。
     """
-    # 1. 获取用户 onboarding 数据
-    if user_id not in _onboarding_store:
-        raise HTTPException(
-            status_code=404,
-            detail=f"未找到 user_id={user_id} 的 onboarding 数据，请先 POST /api/onboarding",
-        )
+    # 构建 user_prefs：优先用存储的数据，否则用直接参数
+    user_prefs: Dict[str, Any] = {"mbti": mbti, "interests": [], "city": city, "voice_text": None}
 
-    onboarding = _onboarding_store[user_id]
-    user_prefs = _build_user_prefs(onboarding, user_id)
+    if interests:
+        user_prefs["interests"] = [i.strip() for i in interests.split(",") if i.strip()]
 
-    # 2. 获取 top-N 搭子（使用 MING 六维度评分）
+    if user_id and user_id in _onboarding_store:
+        onboarding = _onboarding_store[user_id]
+        user_prefs = _build_user_prefs(onboarding, user_id)
+
+    # 获取 top-N 搭子（使用 MING 六维度评分）
     top_buddies = get_top_buddies(user_prefs, limit=limit)
 
     return {
@@ -1571,6 +1552,10 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
     # 方式3：fallback 到规则生成
     if not twin_persona:
         import uuid as _uuid
+        # 从用户兴趣中随机选一部分作为搭子兴趣（模拟部分重叠）
+        user_interests = req.interests or []
+        shared = [i for i in user_interests if i in ["美食", "摄影", "自然风光", "城市探索"]]
+        buddy_interests = shared[:1] + [i for i in ["美食", "摄影", "自然风光", "城市探索"] if i not in shared][:2]
         twin_persona = {
             "persona_id": f"persona-{buddy_mbti.lower()}-{_uuid.uuid4().hex[:8]}",
             "mbti_type": buddy_mbti,
@@ -1580,6 +1565,10 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
                 "typical_phrases": buddy_config["typical_phrases"],
             },
             "mbti_dimension_evidence": {"energy": "introvert", "lifestyle": "perceiving"},
+            "preferences": {
+                "likes": buddy_interests,
+                "dislikes": ["人挤人", "打卡拍照"],
+            },
         }
 
     # 尝试 LLM 真实协商
@@ -1604,6 +1593,9 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             user_prefs_for_compat = _build_user_prefs_from_persona(active_user_persona)
         except Exception:
             pass
+        # 将请求中的 interests 直接注入，避免 persona 构建丢失
+        if user_prefs_for_compat and req.interests:
+            user_prefs_for_compat["likes"] = req.interests
 
         # 计算协商兼容性分解（包含 total/strengths/red_flags/easy_to_compromise）
         compat_breakdown = _get_negotiation_compatibility_breakdown(
@@ -1627,32 +1619,40 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
 
         # 用 MING 六维度算法生成雷达图数据（不依赖 LLM topic 数）
+        # 算法分数字典需要归一化到 0-100
+        # pace(max25), social_energy(max20), decision_style(max20), interest_alignment(max25), budget(max15), personality_completion(-5~10)
+        ALGO_MAX = {
+            "pace": 25, "social_energy": 20, "decision_style": 20,
+            "interest_alignment": 25, "budget": 15,
+        }
+        BUDDY_RATIO = {
+            "pace": 0.90, "social_energy": 0.85, "decision_style": 0.88,
+            "interest_alignment": 0.90, "budget": 0.92, "personality_completion": 0.90,
+        }
         radar = []
         DIM_LABELS = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
         ALGORITHM_KEYS = [
-            "pace",
-            "interest_alignment",
-            "interest_alignment",
-            "budget",
-            "personality_completion",
-            "social_energy",
+            "pace", "interest_alignment", "interest_alignment",
+            "budget", "personality_completion", "social_energy",
         ]
         WEIGHTS = [0.8, 0.6, 0.5, 0.7, 0.9, 0.8]
         breakdown = _mock_compat_breakdown(user_prefs_for_compat, twin_persona) if user_prefs_for_compat else None
         for i, algo_key in enumerate(ALGORITHM_KEYS):
-            if breakdown and "dimensions" in breakdown:
-                dim_data = breakdown["dimensions"].get(algo_key) or breakdown["dimensions"].get(list(breakdown["dimensions"].keys())[0], {})
-                score = dim_data.get("score", 50)
-                user_score = int(score)
-                buddy_score = int(score * 0.9)
-            elif breakdown and algo_key == "personality_completion":
-                pc = breakdown.get("personality_completion", {})
-                score = pc.get("score", 50)
-                user_score = int(score)
-                buddy_score = int(score * 0.9)
-            else:
-                user_score = 70
-                buddy_score = 65
+            user_score = 70
+            buddy_score = 65
+            if breakdown:
+                if algo_key == "personality_completion":
+                    pc = breakdown.get("personality_completion", {})
+                    raw = pc.get("score", 0)
+                    # 归一化: -5..10 → 0..100
+                    user_score = int((raw + 5) / 15 * 100)
+                    buddy_score = int(user_score * BUDDY_RATIO[algo_key])
+                elif algo_key in ALGO_MAX:
+                    dim_data = breakdown["dimensions"].get(algo_key, {})
+                    raw = dim_data.get("score", 0)
+                    mx = ALGO_MAX[algo_key]
+                    user_score = int(raw / mx * 100) if mx else 70
+                    buddy_score = int(user_score * BUDDY_RATIO.get(algo_key, 0.9))
             radar.append({
                 "dimension": DIM_LABELS[i],
                 "user_score": user_score,

@@ -76,12 +76,18 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
 
   // ── Highfive animation ────────────────────────────────────
   const [showHighfive, setShowHighfive] = useState(false);
+  // Guard against double-fire: both the overlay click AND the timer can call navigate
+  const hasNavigatedRef = useRef(false);
 
   const handleAddFriend = () => {
+    hasNavigatedRef.current = false;
     setShowHighfive(true);
   };
 
   const handleHighfiveEnded = useCallback(() => {
+    // Prevent double-fire: if already navigated, ignore
+    if (hasNavigatedRef.current) return;
+    hasNavigatedRef.current = true;
     const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
     window.open(randomLink, '_blank');
     setShowHighfive(false);

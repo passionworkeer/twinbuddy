@@ -636,6 +636,7 @@ export default function OnboardingPage() {
   // 用户选择城市后立即触发预计算
   useEffect(() => {
     if (step === 4 && data.city && !precomputeTriggeredRef.current) {
+      console.log('[OnboardingPage] 触发预计算, city:', data.city);
       // 延迟一点确保数据已更新
       const timer = setTimeout(triggerPrecomputation, 200);
       return () => clearTimeout(timer);

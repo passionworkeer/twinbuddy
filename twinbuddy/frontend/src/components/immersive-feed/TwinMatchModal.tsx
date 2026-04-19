@@ -75,15 +75,13 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   const hasNavigatedRef = React.useRef(false);
 
   const handleAddFriend = () => {
-    // 用户点击时立即跳转 - 这是最可靠的方式，不会被浏览器拦截
-    const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
-    window.location.href = randomLink;
-    // 动画作为视觉反馈继续播放
     setShowHighfive(true);
   };
 
   const handleHighfiveEnded = useCallback(() => {
-    // 动画结束后关闭弹窗（跳转已在 handleAddFriend 中完成）
+    // 动画结束后跳转 - 使用 window.location.href 成功率比 a.click() 更高
+    const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
+    window.location.href = randomLink;
     setShowHighfive(false);
   }, []);
 

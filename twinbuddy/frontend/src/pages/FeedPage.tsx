@@ -95,22 +95,8 @@ export default function FeedPage() {
 
   const { clearData, data: onboardingData } = useOnboarding();
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
-  const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool, poolError } = useCardBuddyPool();
+  const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
-  const poolErrorRef = useRef(poolError);
-  useEffect(() => { poolErrorRef.current = poolError; }, [poolError]);
-
-  // Refs to avoid stale closures in the scroll listener
-  const cardBuddyPoolRef = useRef(cardBuddyPool);
-  useEffect(() => { cardBuddyPoolRef.current = cardBuddyPool; }, [cardBuddyPool]);
-  const cardBuddyIndexRef = useRef(cardBuddyIndex);
-  useEffect(() => { cardBuddyIndexRef.current = cardBuddyIndex; }, [cardBuddyIndex]);
-  const lastTriggerVideoIndexRef = useRef(lastTriggerVideoIndex);
-  useEffect(() => { lastTriggerVideoIndexRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
-  const advanceIndexRef = useRef(advanceIndex);
-  useEffect(() => { advanceIndexRef.current = advanceIndex; }, [advanceIndex]);
-  const initPoolRef = useRef(initPool);
-  useEffect(() => { initPoolRef.current = initPool; }, [initPool]);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
@@ -149,32 +135,13 @@ export default function FeedPage() {
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      index - lastTriggerVideoIndexRef.current >= CARD_TRIGGER_INTERVAL
+      cardBuddyPool.length > 0 &&
+      index - lastTriggerVideoIndex >= CARD_TRIGGER_INTERVAL
     ) {
-      console.log('[FeedPage] 滚动触发检查:', {
-        currentIndex: index,
-        lastTriggerIndex: lastTriggerVideoIndexRef.current,
-        poolLength: cardBuddyPoolRef.current.length,
-        poolError: poolErrorRef.current,
-      });
-
-      if (cardBuddyPoolRef.current.length === 0 && !poolErrorRef.current) {
-        // Pool not ready yet — retry init
-        console.log('[FeedPage] 池子未就绪，尝试重新初始化...');
-        initPoolRef.current?.(onboardingData ?? null);
-        return;
-      }
-      if (cardBuddyPoolRef.current.length === 0) {
-        console.warn('[FeedPage] 池子初始化失败，跳过卡片触发');
-        return;
-      }
-      // 先更新 ref，避免重复触发
-      lastTriggerVideoIndexRef.current = index;
       setLastTriggerVideoIndex(index);
-      console.log('[FeedPage] 触发懂你卡片弹窗!');
-      triggerMatchRef.current?.({ isAuto: true });
+      triggerMatch({ isAuto: true });
     }
-  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
+  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length, cardBuddyPool.length, lastTriggerVideoIndex]);
 
   useEffect(() => {
     if (isFeedLoading) return;
@@ -187,33 +154,20 @@ export default function FeedPage() {
   const triggerMatch = useCallback(async (options?: { isAuto?: boolean }) => {
     if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
 
-    // 从搭子池取搭子（通过 ref 读取，避免 stale closure）
-    let buddy = cardBuddyPoolRef.current[cardBuddyIndexRef.current];
+    // 从搭子池取搭子
+    let buddy = cardBuddyPool[cardBuddyIndex];
 
     // 1. 优先使用预计算数据中的搭子（onboarding期间预计算好的）
     const precomputed = getPrecomputed();
 
     // Determine the background/location based on precomputed or user's choice or fallback
     let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)]; // fallback random
-    console.log('[FeedPage] 地点选择:', {
-      precomputedDestination: precomputed?.destination,
-      onboardingCity: onboardingData?.city,
-      selectedLocation: bgLocation.location,
-    });
-
-    // 优先使用预计算的 destination，其次使用 onboarding 的 city
-    const userLocation = precomputed?.destination || onboardingData?.city;
-    if (userLocation) {
-      // 同时用 id（拼音）和 location（中文）匹配
-      const match = MOCK_SCENE_CARDS.find(c =>
-        c.id === userLocation || c.location === userLocation
-      );
-      if (match) {
-        bgLocation = match;
-        console.log('[FeedPage] 使用用户选择地点:', bgLocation.location);
-      } else {
-        console.warn('[FeedPage] 未找到匹配的地点卡片:', userLocation);
-      }
+    if (precomputed?.destination) {
+      const match = MOCK_SCENE_CARDS.find(c => c.location === precomputed.destination);
+      if (match) bgLocation = match;
+    } else if (onboardingData?.city) {
+      const match = MOCK_SCENE_CARDS.find(c => c.id === onboardingData.city || c.location === onboardingData.city);
+      if (match) bgLocation = match;
     }
 
     setMatchBackground({
@@ -225,7 +179,7 @@ export default function FeedPage() {
 
     // 自动触发时推进池子 index（手动触发不推进）
     if (options?.isAuto) {
-      advanceIndexRef.current();
+      advanceIndex();
     }
 
     setShowMatchModal(true);
@@ -262,7 +216,6 @@ export default function FeedPage() {
     // 3. 预计算未完成或失败，实时协商
     setIsNegotiating(true);
 
-    let matchResultSet = false;
     try {
       // 从 localStorage 获取用户 onboarding 数据
       let obData = null;
@@ -285,7 +238,6 @@ export default function FeedPage() {
       });
 
       setMatchResult(result);
-      matchResultSet = true;
       if (result.messages && result.messages.length > 0) {
         setLiveMessages(result.messages);
         const totalDelay = result.messages.length * 800 + 1500;
@@ -297,8 +249,7 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     } catch (err) {
-      console.warn('协商 API 调用失败，使用 Mock 数据:', err);
-      if (matchResultSet) return;
+      console.error('协商 API 调用失败，使用 Mock 数据:', err);
       await new Promise(resolve => setTimeout(resolve, 1500));
       const mockResult = {
         ...MOCK_NEGOTIATION,
@@ -316,18 +267,12 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     }
-  }, [feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+  }, [cardBuddyPool, cardBuddyIndex, advanceIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
-  // Keep triggerMatchRef in sync — must be after triggerMatch definition
-  const triggerMatchRef = useRef<(options?: { isAuto?: boolean }) => void>();
-  useEffect(() => { triggerMatchRef.current = triggerMatch; }, [triggerMatch]);
-
-  // ── mount 时初始化搭子池 ─────────────────────────
+  // ── mount 时初始化搭子池 ────────────────────────────────
   useEffect(() => {
-    // feed 加载完成且 onboarding 数据就绪时才初始化
-    if (!isFeedLoading && onboardingData) {
-      console.log('[FeedPage] 初始化搭子池，onboardingData:', onboardingData);
-      initPool(onboardingData);
+    if (!isFeedLoading) {
+      initPool(onboardingData ?? null);
     }
   }, [isFeedLoading, onboardingData, initPool]);
 
@@ -363,7 +308,7 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative">
+    <div className="bg-black text-white h-[100dvh] w-[100vw] overflow-hidden flex flex-col relative relative">
       <button
         onClick={handleRestart}
         className="fixed top-[120px] right-4 z-50 p-2 rounded-full bg-black/40 backdrop-blur-xl hover:bg-black/60 transition-colors pointer-events-auto"
@@ -372,24 +317,24 @@ export default function FeedPage() {
         <RotateCcw className="w-4 h-4 text-white/90" />
       </button>
 
-      {/* Top Navigation - Immersive Douyin Style */}
-      <nav className="flex items-center justify-between px-4 pt-4 pb-1.5 w-full absolute top-0 z-40 text-white/90 text-[15px] drop-shadow-md pointer-events-none bg-gradient-to-b from-black/70 via-black/30 to-transparent">
+      {/* Top Navigation */}
+      <nav className="flex items-center justify-between px-4 pt-[env(safe-area-inset-top,44px)] pb-2 w-full absolute top-0 z-40 text-white/90 text-[16px] drop-shadow-md pointer-events-none">
         <button className="p-2 flex items-center justify-center text-white pointer-events-auto">
-          <span className="material-symbols-outlined text-[26px] font-light">menu</span>
+          <span className="material-symbols-outlined text-[28px] font-light">menu</span>
         </button>
-        <div className="flex-1 flex gap-5 overflow-x-auto no-scrollbar items-center justify-center px-2 pointer-events-auto">
+        <div className="flex-1 flex gap-6 overflow-x-auto no-scrollbar items-center justify-center px-2 pointer-events-auto">
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">团购</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">经验</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">北京</span>
           <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">关注</span>
-          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">南城</span>
+          <span className="whitespace-nowrap cursor-pointer hover:text-white transition-colors">商城</span>
           <div className="flex flex-col items-center cursor-pointer text-white font-bold relative">
-            <span className="whitespace-nowrap text-[16px]">推荐</span>
-            <div className="h-[2px] w-5 bg-white rounded-full mt-1"></div>
+            <span className="whitespace-nowrap text-[17px]">推荐</span>
+            <div className="h-[3px] w-6 bg-white rounded-full mt-1.5"></div>
           </div>
         </div>
         <button className="p-2 flex items-center justify-center text-white pointer-events-auto">
-          <span className="material-symbols-outlined text-[26px] font-light">search</span>
+          <span className="material-symbols-outlined text-[28px] font-light">search</span>
         </button>
       </nav>
 

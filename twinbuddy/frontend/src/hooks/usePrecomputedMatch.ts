@@ -84,6 +84,7 @@ export function usePrecomputedMatch() {
   const getPrecomputed = useCallback((): PrecomputedMatch | null => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.precomputed_match);
+      console.log('[usePrecomputedMatch] getPrecomputed:', stored ? JSON.parse(stored) : null);
       if (!stored) return null;
       return JSON.parse(stored) as PrecomputedMatch;
     } catch {
@@ -99,11 +100,13 @@ export function usePrecomputedMatch() {
   // 开始预计算
   const startPrecomputation = useCallback(async (obData: OnboardingData) => {
     // 1. 确定目的地（同时匹配 id 和 location）
+    console.log('[usePrecomputedMatch] startPrecomputation obData.city:', obData.city);
     let destination = obData.city || MATCH_SCENE_CARDS[Math.floor(Math.random() * MATCH_SCENE_CARDS.length)].location;
     const matchedCard = MATCH_SCENE_CARDS.find(c => c.id === destination || c.location === destination);
     if (matchedCard) {
       destination = matchedCard.location;
     }
+    console.log('[usePrecomputedMatch] 保存的 destination:', destination);
 
     // 初始化状态：先保存目的地和 pending 状态
     const initialMatch: PrecomputedMatch = {

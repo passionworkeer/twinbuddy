@@ -6,8 +6,8 @@ class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     // Batch size: number of sample frames to accumulate before posting
-    // 128 samples at 16kHz ≈ 8ms; we want ~40ms batches
-    this.batchSize = 512; // ~32ms at 16kHz
+    // 640 samples at 16kHz = 40ms = 1280 bytes (iFlytek recommended frame)
+    this.batchSize = 640;
     this.buffer = new Int16Array(this.batchSize);
     this.bufferIdx = 0;
   }

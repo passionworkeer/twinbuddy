@@ -235,103 +235,135 @@ async def stt_stream(
     url = _build_auth_url()
     app_id = os.environ.get("XFYUN_APP_ID", "")
 
-    end_frame_sent = False
-
     async with websockets.connect(url, ping_interval=15) as ws:
         logger.debug("iFlytek WebSocket 连接已建立")
 
-        # ── 第一帧：包含 common + business 参数 ─────────────────────────
+        # ── Send first frame with auth + params, validate first response ─────────
         first_frame = {
             "common": {"app_id": app_id},
             "business": dict(_BUSINESS_PARAMS),
             "data": {
-                "status": 0,  # 开始帧
+                "status": 0,
                 "format": "audio/L16;rate=16000",
                 "encoding": "raw",
                 "audio": "",
             },
         }
         await ws.send(json.dumps(first_frame))
-        logger.debug("第一帧已发送，进入音频流阶段")
+        logger.debug("第一帧已发送，等待认证响应")
 
-        # ── 流式发送音频帧 ───────────────────────────────────────────────
-        status_sent = 0  # 0=first, 1=middle, 2=last
-
+        # Validate first response before proceeding
         try:
-            async for chunk in audio_chunks:
-                status_sent = 1  # 后续帧全部标记为 middle
+            first_resp_raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
+            first_resp = json.loads(first_resp_raw)
+            first_code = first_resp.get("code")
+            if first_code != 0:
+                raise RuntimeError(
+                    f"iFlytek 拒绝请求: code={first_code} msg={first_resp.get('message', '')}"
+                )
+            logger.debug("iFlytek 认证成功，开始流式识别")
+        except asyncio.TimeoutError:
+            raise RuntimeError("iFlytek 认证响应超时（5s），请检查网络或 API 密钥")
+        except websockets.exceptions.ConnectionClosed:
+            raise RuntimeError("iFlytek 连接在认证阶段关闭")
 
-                frame = {
-                    "data": {
-                        "status": status_sent,
-                        "format": "audio/L16;rate=16000",
-                        "encoding": "raw",
-                        "audio": base64.b64encode(chunk).decode("utf-8"),
+        # ── Concurrent audio send + result receive ───────────────────────────────
+        # iFlytek expects continuous audio at ~40ms intervals.
+        # Decouple sending from receiving using a queue.
+
+        result_queue: asyncio.Queue[tuple[str, bool]] = asyncio.Queue()
+        send_done = asyncio.Event()
+
+        async def _send_loop() -> None:
+            status = 0
+            try:
+                async for chunk in audio_chunks:
+                    if status == 0:
+                        status = 1
+                    frame = {
+                        "data": {
+                            "status": status,
+                            "format": "audio/L16;rate=16000",
+                            "encoding": "raw",
+                            "audio": base64.b64encode(chunk).decode("utf-8"),
+                        }
                     }
-                }
-                await ws.send(json.dumps(frame))
+                    await ws.send(json.dumps(frame))
+                    await asyncio.sleep(0.040)
+            except StopAsyncIteration:
+                pass
+            except websockets.exceptions.ConnectionClosed:
+                pass
+            finally:
+                send_done.set()
+                logger.debug("音频发送线程结束")
 
-                # 接收识别结果（非阻塞，5s 超时）
+        async def _recv_loop() -> None:
+            while not send_done.is_set():
                 try:
                     resp = await asyncio.wait_for(ws.recv(), timeout=5.0)
                     resp_data = json.loads(resp)
-
                     text, is_replace = _parse_result(resp_data)
                     if text:
-                        yield text, is_replace
-
-                    # 会话正常结束
-                    data_status = resp_data.get("data", {}).get("status")
-                    if data_status == 2:
-                        logger.debug("收到 iFlytek 结束帧，退出接收循环")
-                        break
-
-                except asyncio.TimeoutError:
-                    # 5s 内无响应（正常，中间帧可能没有结果），继续发送
-                    logger.debug("等待识别结果超时，继续发送音频帧")
-                    continue
-                except websockets.exceptions.ConnectionClosedOK:
-                    # 讯飞提前关闭（音频无语音时会超时关闭），正常退出
-                    logger.debug("iFlytek WebSocket 提前关闭（无语音内容）")
-                    break
-                except websockets.exceptions.ConnectionClosed:
-                    logger.warning("iFlytek WebSocket 非正常关闭")
-                    break
-        finally:
-            # ── 确保结束帧总是被发送 ────────────────────────────────────
-            # 注意：iFlytek 期望结束帧包含 format/encoding 以正确处理
-            end_frame = {
-                "data": {
-                    "status": 2,
-                    "format": "audio/L16;rate=16000",
-                    "encoding": "raw",
-                    "audio": "",
-                }
-            }
-            try:
-                await ws.send(json.dumps(end_frame))
-                end_frame_sent = True
-                logger.debug("结束帧已发送")
-            except websockets.exceptions.ConnectionClosed:
-                logger.debug("结束帧未发送（连接已关闭）")
-
-        # ── 接收残余结果 ──────────────────────────────────────────────────
-        if end_frame_sent:
-            try:
-                while True:
-                    resp = await asyncio.wait_for(ws.recv(), timeout=3.0)
-                    resp_data = json.loads(resp)
-                    text, _ = _parse_result(resp_data)
-                    if text:
-                        yield text, False
+                        await result_queue.put((text, is_replace))
                     if resp_data.get("data", {}).get("status") == 2:
+                        logger.debug("收到 iFlytek 结束帧")
                         break
-            except asyncio.TimeoutError:
-                logger.debug("残余结果接收完成（超时）")
-            except websockets.exceptions.ConnectionClosedOK:
-                logger.debug("iFlytek WebSocket 关闭")
-            except websockets.exceptions.ConnectionClosed:
-                logger.debug("iFlytek WebSocket 非正常关闭")
+                except asyncio.TimeoutError:
+                    continue
+                except (websockets.exceptions.ConnectionClosedOK,
+                        websockets.exceptions.ConnectionClosed):
+                    break
+
+        send_task = asyncio.create_task(_send_loop())
+
+        try:
+            await _recv_loop()
+        finally:
+            send_task.cancel()
+            try:
+                await send_task
+            except asyncio.CancelledError:
+                pass
+
+        # Drain results from queue
+        while not result_queue.empty():
+            try:
+                text, is_replace = result_queue.get_nowait()
+                yield text, is_replace
+            except asyncio.QueueEmpty:
+                break
+
+        # ── Send end frame + receive trailing results ──────────────────────────────
+        end_frame = {
+            "data": {
+                "status": 2,
+                "format": "audio/L16;rate=16000",
+                "encoding": "raw",
+                "audio": "",
+            }
+        }
+        try:
+            await ws.send(json.dumps(end_frame))
+            logger.debug("结束帧已发送")
+        except websockets.exceptions.ConnectionClosed:
+            logger.debug("结束帧未发送（连接已关闭）")
+
+        # Receive trailing results (last batch from iFlytek)
+        try:
+            while True:
+                resp = await asyncio.wait_for(ws.recv(), timeout=3.0)
+                resp_data = json.loads(resp)
+                text, _ = _parse_result(resp_data)
+                if text:
+                    yield text, False
+                if resp_data.get("data", {}).get("status") == 2:
+                    break
+        except asyncio.TimeoutError:
+            logger.debug("残余结果接收完成（超时）")
+        except (websockets.exceptions.ConnectionClosedOK,
+               websockets.exceptions.ConnectionClosed):
+            logger.debug("iFlytek WebSocket 关闭")
 
     logger.debug("iFlytek WebSocket 连接已关闭")
 

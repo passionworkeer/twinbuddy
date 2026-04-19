@@ -67,6 +67,18 @@ function findMockNegotiation(userMbti: string, destination: string): Negotiation
   return null;
 }
 
+// id → location 互查，用于跨 id/location 格式匹配
+const LOC_MAP: Record<string, string> = {
+  chengdu: '成都', chongqing: '重庆', chuanxi: '川西', dali: '大理',
+  lijiang: '丽江', qingdao: '青岛', xiamen: '厦门', xian: '西安',
+};
+const LOC_REVERSE: Record<string, string> = Object.fromEntries(
+  Object.entries(LOC_MAP).map(([k, v]) => [v, k])
+);
+function precomputedLookup(val: string): string {
+  return LOC_MAP[val] || LOC_REVERSE[val] || val;
+}
+
 // 生成完整的 fallback 内容，避免消息和目的地不匹配
 function buildFallbackNegotiation(destination: string): NegotiationResult {
   return {
@@ -315,8 +327,16 @@ export default function FeedPage() {
       }
     })();
 
-    // 如果预计算数据已存在，直接用，跳过 API 调用
-    if (precomputed?.negotiationResult) {
+    // 如果预计算数据已存在且 destination 一致，直接用；否则走 mock
+    const userDestination = onboardingData?.city || precomputed?.destination || bgLocation.location;
+    const preDest = precomputed?.destination;
+    const destMatch = preDest && (
+      userDestination === preDest ||
+      userDestination === precomputedLookup(preDest) ||
+      precomputedLookup(userDestination) === preDest
+    );
+    if (precomputed?.negotiationResult && destMatch) {
+      console.log('[triggerMatch] 复用 precomputed 结果，destination:', precomputed.destination);
       clearTimeout(fallbackTimer);
       setMatchResult(precomputed.negotiationResult);
       setIsNegotiating(false);

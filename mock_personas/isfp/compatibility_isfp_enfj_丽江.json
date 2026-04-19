@@ -1,0 +1,38 @@
+{
+  "destination": "丽江",
+  "user_mbti": "ISFP",
+  "buddy_mbti": "ENFJ",
+  "overall_score": 1.0,
+  "strengths": [
+    "旅行节奏完全一致，都喜欢慢节奏规划",
+    "美食偏好高度吻合，都热爱地道苍蝇馆子",
+    "预算观念一致，性价比优先但追求品质"
+  ],
+  "challenges": [],
+  "rounds": [
+    {
+      "topic": "travel_rhythm",
+      "topic_label": "旅行节奏",
+      "proposer_message": "好的，先聊聊节奏吧。我不太喜欢赶行程，想留点独处时间",
+      "evaluator_message": "没问题！我也喜欢慢慢玩，不用排太满，一起放松最重要啦",
+      "evaluator_score": 1.0,
+      "consensus_reached": true
+    },
+    {
+      "topic": "food",
+      "topic_label": "美食偏好",
+      "proposer_message": "嗯嗯，丽江本地的小吃才是精华，苍蝇馆子吃起",
+      "evaluator_message": "对的对的！一起去找那些藏在巷子里的本地味道，这种才有意思~",
+      "evaluator_score": 1.0,
+      "consensus_reached": true
+    },
+    {
+      "topic": "budget",
+      "topic_label": "预算范围",
+      "proposer_message": "预算大概一天300左右吧，性价比优先",
+      "evaluator_message": "没问题！其实省下来的钱可以多吃几顿好的，一起合理消费就好啦",
+      "evaluator_score": 1.0,
+      "consensus_reached": true
+    }
+  ]
+}

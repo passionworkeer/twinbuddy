@@ -1626,23 +1626,54 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             messages.append({"speaker": "user", "content": r.get("proposer_message", ""), "timestamp": ts_base})
             messages.append({"speaker": "buddy", "content": r.get("evaluator_message", ""), "timestamp": ts_base + 10})
 
+        # 用 MING 六维度算法生成雷达图数据（不依赖 LLM topic 数）
         radar = []
         DIM_LABELS = ["行程节奏", "美食偏好", "拍照风格", "预算控制", "冒险精神", "作息时间"]
-        for i, (t, s) in enumerate(consensus_scores.items()):
+        ALGORITHM_KEYS = [
+            "pace",
+            "interest_alignment",
+            "interest_alignment",
+            "budget",
+            "personality_completion",
+            "social_energy",
+        ]
+        WEIGHTS = [0.8, 0.6, 0.5, 0.7, 0.9, 0.8]
+        breakdown = _mock_compat_breakdown(user_prefs_for_compat, twin_persona) if user_prefs_for_compat else None
+        for i, algo_key in enumerate(ALGORITHM_KEYS):
+            if breakdown and "dimensions" in breakdown:
+                dim_data = breakdown["dimensions"].get(algo_key) or breakdown["dimensions"].get(list(breakdown["dimensions"].keys())[0], {})
+                score = dim_data.get("score", 50)
+                user_score = int(score)
+                buddy_score = int(score * 0.9)
+            elif breakdown and algo_key == "personality_completion":
+                pc = breakdown.get("personality_completion", {})
+                score = pc.get("score", 50)
+                user_score = int(score)
+                buddy_score = int(score * 0.9)
+            else:
+                user_score = 70
+                buddy_score = 65
             radar.append({
-                "dimension": DIM_LABELS[i] if i < len(DIM_LABELS) else t,
-                "user_score": int(s * 100),
-                "buddy_score": int(s * 90),
-                "weight": 0.7,
+                "dimension": DIM_LABELS[i],
+                "user_score": user_score,
+                "buddy_score": buddy_score,
+                "weight": WEIGHTS[i],
             })
 
-        plan = final_report.get("strengths", []) if final_report else []
-        if not plan:
-            plan = [
-                f"{city_name}古城民宿2晚",
-                f"{city_name}周边自然风光1天",
-                "特色美食探索之旅",
-            ]
+        # red_flags / strengths 优先用算法结果，其次用 final_report
+        red_flags = []
+        strengths = []
+        if breakdown:
+            red_flags = breakdown.get("red_flags", [])[:2]
+            strengths = breakdown.get("strengths", [])
+        if not strengths and final_report:
+            strengths = final_report.get("strengths", [])
+
+        plan = strengths[:3] if strengths else [
+            f"{city_name}古城民宿2晚",
+            f"{city_name}周边自然风光1天",
+            "特色美食探索之旅",
+        ]
 
         overall = final_report.get("overall_score", 0.5) if final_report else 0.5
         result_data = {
@@ -1653,7 +1684,7 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             "plan": plan,
             "matched_buddies": [user_name, buddy_config["name"]],
             "radar": radar,
-            "red_flags": final_report.get("challenges", [])[:2] if final_report else [],
+            "red_flags": red_flags,
             "messages": messages,
         }
         llm_source = "llm"

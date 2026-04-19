@@ -1,0 +1,38 @@
+{
+  "destination": "青岛",
+  "user_mbti": "ESTP",
+  "buddy_mbti": "INFJ",
+  "overall_score": 0.97,
+  "strengths": [
+    "旅行节奏",
+    "美食偏好",
+    "预算范围"
+  ],
+  "challenges": [],
+  "rounds": [
+    {
+      "topic": "travel_rhythm",
+      "topic_label": "旅行节奏",
+      "proposer_message": "青岛这几天我想慢悠悠逛，别搞太满，每天睡到自然醒那种~",
+      "evaluator_message": "我理解你的意思，其实不必排太紧，留点空白反而能更好地感受这座城。",
+      "evaluator_score": 0.98,
+      "consensus_reached": true
+    },
+    {
+      "topic": "food",
+      "topic_label": "美食偏好",
+      "proposer_message": "青岛啤酒配路边烤串才是正解啊！那些网红店我不感兴趣~",
+      "evaluator_message": "其实不必非去苍蝇馆子，但地道的味道确实是最难得的，我也有同感。",
+      "evaluator_score": 0.98,
+      "consensus_reached": true
+    },
+    {
+      "topic": "budget",
+      "topic_label": "预算范围",
+      "proposer_message": "花钱这事别省，关键得值！青岛海鲜我来了必须放开吃~",
+      "evaluator_message": "我理解，旅途中有些体验不能省，但整体还是性价比优先比较好。",
+      "evaluator_score": 0.95,
+      "consensus_reached": true
+    }
+  ]
+}

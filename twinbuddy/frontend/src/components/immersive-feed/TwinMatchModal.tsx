@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { VideoItem, NegotiationResult, Buddy } from '../../types';
 import { RadarChartCard, LocalRadarData } from './RadarChartCard';
 import { ChatHistoryOverlay, ChatMessage } from './ChatHistoryOverlay';
@@ -81,11 +81,18 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
     setShowHighfive(true);
   };
 
-  const handleHighfiveEnded = () => {
+  const handleHighfiveEnded = useCallback(() => {
     const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
     window.open(randomLink, '_blank');
     setShowHighfive(false);
-  };
+  }, []);
+
+  // 用 useEffect 可靠触发定时跳转，不依赖 GIF onLoad（浏览器缓存后 onLoad 可能不触发）
+  useEffect(() => {
+    if (!showHighfive) return;
+    const timer = setTimeout(handleHighfiveEnded, 3400);
+    return () => clearTimeout(timer);
+  }, [showHighfive, handleHighfiveEnded]);
 
   // 实时消息动画：每当 liveMessages 更新，逐条显示
   useEffect(() => {
@@ -258,9 +265,6 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
             src="/mod/highfive-transparent.gif"
             alt=""
             className="max-w-full max-h-full object-contain"
-            onLoad={(e) => {
-              setTimeout(() => handleHighfiveEnded(), 3400);
-            }}
           />
         </div>
       )}

@@ -1,4 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+
+// ── 视频预热（Onboarding 期间静默执行，用户进入 FeedPage 时直接命中缓存）───
+const PRELOAD_COUNT = 3;
+const videoPreloadTriggeredRef = { value: false };
+function preloadVideos() {
+  if (videoPreloadTriggeredRef.value) return;
+  videoPreloadTriggeredRef.value = true;
+  const videos = MOCK_VIDEOS as VideoItem[];
+  for (let i = 0; i < Math.min(PRELOAD_COUNT, videos.length); i++) {
+    const url = videos[i].video_url;
+    if (url) fetch(url, { mode: 'cors' }).catch(() => {/* 静默，缓存不保证 */});
+  }
+  // 击掌 GIF 也预热，弹窗时直接命中缓存
+  fetch('/mod/highfive-transparent.gif', { mode: 'cors' }).catch(() => {/* 静默 */});
+}
 import { useNavigate } from 'react-router-dom';
 import { Mic, Sparkles } from 'lucide-react';
 import { useOnboarding } from '../hooks/useOnboarding';
@@ -645,6 +660,13 @@ export default function OnboardingPage() {
       setStep(2);
     }
   }, [data.mbti, step]);
+
+  // ── 视频预热：用户开始填 MBTI（step 1）时即触发 ──────────────
+  useEffect(() => {
+    if (data.mbti) {
+      preloadVideos();
+    }
+  }, [data.mbti]);
 
   // 不再基于 interests.length 自动跳转，让用户可以多选后再手动继续
 

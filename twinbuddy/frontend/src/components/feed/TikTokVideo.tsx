@@ -247,7 +247,13 @@ export function TikTokVideo({
       setPaused(false);
     } else {
       video.muted = true;
-      video.pause();
+      // 避免中断进行中的 play 请求
+      if (!video.paused) {
+        const pausePromise = video.pause();
+        if (pausePromise !== undefined) {
+          (pausePromise as Promise<void>).catch(() => {});
+        }
+      }
       video.currentTime = 0;
     }
   }, [isActive, videoUrl]);

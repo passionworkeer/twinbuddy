@@ -83,7 +83,16 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
     if (hasNavigatedRef.current) return;
     hasNavigatedRef.current = true;
     const randomLink = HIGHFIVE_LINKS[Math.floor(Math.random() * HIGHFIVE_LINKS.length)];
-    window.open(randomLink, '_blank');
+    // 在 setTimeout 中直接调用 window.open 会被浏览器当成广告弹窗拦截
+    // 改为使用 location.href 在当前页跳转，或提前打开新窗口后重定向
+    // 这里采用动态创建 a 标签模拟点击的方式，某些环境下跳转更可靠
+    const a = document.createElement('a');
+    a.href = randomLink;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     setShowHighfive(false);
   }, []);
 

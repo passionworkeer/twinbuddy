@@ -97,7 +97,6 @@ export default function FeedPage() {
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
   const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool, poolError } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
-  const initPoolOnceRef = useRef(false);
   const poolErrorRef = useRef(poolError);
   useEffect(() => { poolErrorRef.current = poolError; }, [poolError]);
 
@@ -152,16 +151,27 @@ export default function FeedPage() {
       feedVideos.length > 0 &&
       index - lastTriggerVideoIndexRef.current >= CARD_TRIGGER_INTERVAL
     ) {
+      console.log('[FeedPage] 滚动触发检查:', {
+        currentIndex: index,
+        lastTriggerIndex: lastTriggerVideoIndexRef.current,
+        poolLength: cardBuddyPoolRef.current.length,
+        poolError: poolErrorRef.current,
+      });
+
       if (cardBuddyPoolRef.current.length === 0 && !poolErrorRef.current) {
-        // Pool not ready yet — retry init once
+        // Pool not ready yet — retry init
+        console.log('[FeedPage] 池子未就绪，尝试重新初始化...');
         initPoolRef.current?.(onboardingData ?? null);
         return;
       }
       if (cardBuddyPoolRef.current.length === 0) {
-        // Pool failed — skip silently, user sees no modal
+        console.warn('[FeedPage] 池子初始化失败，跳过卡片触发');
         return;
       }
+      // 先更新 ref，避免重复触发
+      lastTriggerVideoIndexRef.current = index;
       setLastTriggerVideoIndex(index);
+      console.log('[FeedPage] 触发懂你卡片弹窗!');
       triggerMatchRef.current?.({ isAuto: true });
     }
   }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
@@ -185,12 +195,25 @@ export default function FeedPage() {
 
     // Determine the background/location based on precomputed or user's choice or fallback
     let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)]; // fallback random
-    if (precomputed?.destination) {
-      const match = MOCK_SCENE_CARDS.find(c => c.location === precomputed.destination);
-      if (match) bgLocation = match;
-    } else if (onboardingData?.city) {
-      const match = MOCK_SCENE_CARDS.find(c => c.id === onboardingData.city || c.location === onboardingData.city);
-      if (match) bgLocation = match;
+    console.log('[FeedPage] 地点选择:', {
+      precomputedDestination: precomputed?.destination,
+      onboardingCity: onboardingData?.city,
+      selectedLocation: bgLocation.location,
+    });
+
+    // 优先使用预计算的 destination，其次使用 onboarding 的 city
+    const userLocation = precomputed?.destination || onboardingData?.city;
+    if (userLocation) {
+      // 同时用 id（拼音）和 location（中文）匹配
+      const match = MOCK_SCENE_CARDS.find(c =>
+        c.id === userLocation || c.location === userLocation
+      );
+      if (match) {
+        bgLocation = match;
+        console.log('[FeedPage] 使用用户选择地点:', bgLocation.location);
+      } else {
+        console.warn('[FeedPage] 未找到匹配的地点卡片:', userLocation);
+      }
     }
 
     setMatchBackground({
@@ -299,11 +322,12 @@ export default function FeedPage() {
   const triggerMatchRef = useRef<(options?: { isAuto?: boolean }) => void>();
   useEffect(() => { triggerMatchRef.current = triggerMatch; }, [triggerMatch]);
 
-  // ── mount 时初始化搭子池（仅一次）────────────────────────
+  // ── mount 时初始化搭子池 ─────────────────────────
   useEffect(() => {
-    if (!isFeedLoading && !initPoolOnceRef.current) {
-      initPoolOnceRef.current = true;
-      initPool(onboardingData ?? null);
+    // feed 加载完成且 onboarding 数据就绪时才初始化
+    if (!isFeedLoading && onboardingData) {
+      console.log('[FeedPage] 初始化搭子池，onboardingData:', onboardingData);
+      initPool(onboardingData);
     }
   }, [isFeedLoading, onboardingData, initPool]);
 

@@ -56,11 +56,27 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
   });
   const [isLoading, setIsLoading] = useState(() => loadPoolFromStorage() === null);
   const [poolError, setPoolError] = useState<string | null>(null);
+  const initAttemptsRef = useRef(0);
+  const maxInitAttempts = 3;
 
   // 初始化：从 API 加载搭子池
   const initPool = useCallback(async (onboardingData?: OnboardingData | null) => {
+    // 如果已经有池子且加载完成，不需要重复初始化
+    if (pool.length > 0 && !isLoading) return;
+
+    // 限制重试次数
+    if (initAttemptsRef.current >= maxInitAttempts) {
+      console.warn('[CardBuddyPool] 已达到最大初始化尝试次数');
+      setPoolError('初始化失败，请刷新页面');
+      return;
+    }
+
+    initAttemptsRef.current++;
     setIsLoading(true);
+    setPoolError(null);
+
     try {
+      console.log('[CardBuddyPool] 正在初始化搭子池 (尝试 ' + initAttemptsRef.current + ')...', { mbti: onboardingData?.mbti, city: onboardingData?.city });
       const buddies = await fetchBuddies(
         undefined, BUDDY_POOL_SIZE,
         onboardingData?.mbti,
@@ -68,17 +84,20 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
         onboardingData?.city,
       );
       const initialPool = buildInitialPool(buddies as unknown as Buddy[]);
+      console.log('[CardBuddyPool] 搭子池初始化成功:', initialPool.length, '个搭子');
       setPool(initialPool);
       setIndex(0);
       persistPool(initialPool, 0);
+      initAttemptsRef.current = 0; // 成功后重置计数
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
+      console.error('[CardBuddyPool] 搭子池初始化失败:', msg);
       setPoolError(msg);
-      /* silent — pool stays [], caller handles via poolError state */
+      // 失败时不设置 pool 为空，保留可能存在的旧数据
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [pool.length, isLoading]);
 
   // Always read the current pool via ref to avoid stale closures
   const poolRef = useRef(pool);

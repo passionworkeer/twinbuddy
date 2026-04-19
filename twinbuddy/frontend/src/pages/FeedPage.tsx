@@ -292,15 +292,14 @@ export default function FeedPage() {
       useMockResult();
     }, 3000);
 
-    // 优先使用预计算数据（onboarding 期间已生成）
-    const precomputed = getPrecomputed();
+    // 使用已获取的 precomputed 数据
     const destination = onboardingData?.city || precomputed?.destination || bgLocation.location;
     const buddyMbti = (precomputed?.topBuddy as any)?.mbti || 'ENFP';
 
     apiCall = (async () => {
       try {
         const result = await negotiate({
-          user_persona_id: precomputed?.persona_id || undefined,
+          user_persona_id: onboardingData?.persona_id || undefined,
           buddy_mbti: buddyMbti,
           mbti: onboardingData?.mbti || undefined,
           interests: onboardingData?.interests ?? [],

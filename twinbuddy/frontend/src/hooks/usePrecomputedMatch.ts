@@ -70,9 +70,9 @@ export function usePrecomputedMatch() {
 
   // 开始预计算
   const startPrecomputation = useCallback(async (obData: OnboardingData) => {
-    // 1. 确定目的地
+    // 1. 确定目的地（同时匹配 id 和 location）
     let destination = obData.city || MATCH_SCENE_CARDS[Math.floor(Math.random() * MATCH_SCENE_CARDS.length)].location;
-    const matchedCard = MATCH_SCENE_CARDS.find(c => c.id === destination);
+    const matchedCard = MATCH_SCENE_CARDS.find(c => c.id === destination || c.location === destination);
     if (matchedCard) {
       destination = matchedCard.location;
     }

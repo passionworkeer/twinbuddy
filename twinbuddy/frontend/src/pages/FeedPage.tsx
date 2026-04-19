@@ -14,7 +14,7 @@ import { createReportId } from '../utils/reportId';
 import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
 
-const CARD_TRIGGER_INTERVAL = 5;
+const CARD_TRIGGER_INTERVAL = 3;
 
 const MOCK_SCENE_CARDS = [
   { id: 'chengdu', location: '成都', title: '成都宽窄巷子茶馆', image: '/images/chengdu.jpg' },

@@ -408,7 +408,7 @@ def score_compatibility(user_prefs: dict, buddy: dict) -> float:
 def get_compatibility_breakdown(user_prefs: dict, buddy: dict) -> dict:
     """Return detailed multi-dimensional breakdown for radar chart."""
     user_mbti = user_prefs.get("mbti", "")
-    buddy_mbti = buddy.get("mbti", "")
+    buddy_mbti = buddy.get("mbti") or buddy.get("mbti_type") or ""
 
     def get_prefs(d: dict, key: str, default=''):
         return d.get(key) or d.get("preferences", {}).get(key, default) if isinstance(d.get("preferences"), dict) else d.get(key, default)

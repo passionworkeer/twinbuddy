@@ -25,6 +25,10 @@ if sys.platform == "win32":
 
 import os
 os.environ.setdefault("PYTHONPATH", _repo_root)
+# MiniMax API 在中国大陆需要代理（如果直连超时再启用）
+# os.environ.setdefault("http_proxy", "http://127.0.0.1:7890")
+# os.environ.setdefault("https_proxy", "http://127.0.0.1:7890")
+os.environ["LANGGRAPH_STRICT_MSGPACK"] = "false"  # 允许未注册类型反序列化（NegotiationPhase 等）
 
 # 加载 .env 文件（包含 MINIMAX_API_KEY 等）
 from dotenv import load_dotenv
@@ -38,7 +42,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "backend.api.frontend_api:router",
         host="0.0.0.0",
-        port=8004,
+        port=8008,
         reload=True,
         reload_dirs=[_repo_root],
     )

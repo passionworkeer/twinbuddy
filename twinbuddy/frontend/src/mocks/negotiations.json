@@ -5,23 +5,2611 @@
     "buddy_mbti": "ISFP",
     "destination": "大理",
     "radar": [
-      { "dimension": "行程节奏", "user_score": 90, "buddy_score": 45, "weight": 0.8 },
-      { "dimension": "美食偏好", "user_score": 85, "buddy_score": 80, "weight": 0.6 },
-      { "dimension": "拍照风格", "user_score": 75, "buddy_score": 95, "weight": 0.5 },
-      { "dimension": "预算控制", "user_score": 60, "buddy_score": 90, "weight": 0.7 },
-      { "dimension": "冒险精神", "user_score": 95, "buddy_score": 55, "weight": 0.9 }
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
     ],
     "red_flags": [],
     "messages": [
-      { "speaker": "user", "content": "我想每天换个地方住，体验不同民宿！", "timestamp": 1700000000 },
-      { "speaker": "buddy", "content": "我更想在一个地方多待几天，慢下来感受", "timestamp": 1700000010 },
-      { "speaker": "user", "content": "那我们折中一下，住两家不同风格民宿怎么样？", "timestamp": 1700000020 },
-      { "speaker": "buddy", "content": "好！一家洱海边，一家古城内，完美", "timestamp": 1700000030 },
-      { "speaker": "user", "content": "就这么说定！", "timestamp": 1700000040 }
+      {
+        "speaker": "user",
+        "content": "buddy，咱们去大理吧，我已经超级兴奋了！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，大理景色挺美的，我觉得可以去放松放松。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "哇塞，我们租个车到处跑，节奏快点多去几个地方，太棒了！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我觉得慢节奏更好，慢慢走走拍拍照就行。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "但快点才能玩更多啊，你说呢？",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "还不错吧，但我喜欢深度感受当地。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "美食我爱夜市小吃，各种新奇的走起！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢安静餐厅吃清淡本地菜。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "街边摊才地道啊，太刺激了！",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我觉得两者可以试试混着来。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想灵活点，中等玩开心。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望控制预算省着点。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "好啦那就中等吧，先快节奏玩两天再慢下来？",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，可以这样妥协，我觉得行。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "太棒了，就这么定了！",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "好的，期待一起去。",
+        "timestamp": 1700053400
+      },
+      {
+        "speaker": "user",
+        "content": "走起啊！",
+        "timestamp": 1700053520
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯。",
+        "timestamp": 1700053640
+      }
     ],
     "consensus": true,
     "dates": "5月10日-5月15日",
-    "budget": "人均3500元",
-    "plan": ["洱海边民宿2晚", "古城内民宿3晚", "环洱海骑行1天", "苍山徒步半日"]
+    "budget": "人均2000-3000元",
+    "plan": [
+      "大理主要景点游览",
+      "前两天快节奏，后两天慢下来",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "entj_infp",
+    "user_mbti": "ENTJ",
+    "buddy_mbti": "INFP",
+    "destination": "成都",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 65,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "buddy，成都计划定了，我们效率点出发。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我觉得那里有诗意，可以慢慢感受。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "旅行节奏我要每天安排满，满满的景点效率高！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢悠闲点，随心走走别太赶。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "太随意浪费时间，我们折中下。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "好呀，我觉得这样更有感觉。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "美食我要吃正宗火锅和串串，辣的才过瘾！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我更喜欢清淡小吃或素食，温暖内心的。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "偶尔清淡也行，但主打辣！",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，可以混着吃。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想中高档，住舒服酒店。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望经济点，省钱体验本地。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "那定中等预算，平衡下。",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "行，这样挺好的。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "节奏也按计划走，半天满半天自由。",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意，我觉得会很愉快。",
+        "timestamp": 1700053400
+      },
+      {
+        "speaker": "user",
+        "content": "就这么定！",
+        "timestamp": 1700053520
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯。",
+        "timestamp": 1700053640
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "成都主要景点游览",
+      "前两天快节奏，后两天慢下来",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "esfp_istj",
+    "user_mbti": "ESFP",
+    "buddy_mbti": "ISTJ",
+    "destination": "厦门",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "厦门海边超赞，我们去玩吧！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我查了下，行程要按计划来。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏我要随性，每天海滩party玩嗨！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我觉得稳妥点，每天固定时间，别乱。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "别这么严肃嘛，旅行要开心！",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "但计划好才不会出问题。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "美食我爱海鲜大排档，各种新鲜的！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢正规餐厅，卫生第一。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "排档才地道啊，妥协下混吃。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "行吧。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想玩得爽，中等就行。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望低预算，控制开支。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "那中低档平衡。",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意，节奏也按我的计划调整。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "好啦，就这么愉快决定了！",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，这样稳妥。",
+        "timestamp": 1700053400
+      },
+      {
+        "speaker": "user",
+        "content": "期待啊！",
+        "timestamp": 1700053520
+      },
+      {
+        "speaker": "buddy",
+        "content": "是的。",
+        "timestamp": 1700053640
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "厦门主要景点游览",
+      "快节奏多景点",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "entp_isfj",
+    "user_mbti": "ENTP",
+    "buddy_mbti": "ISFJ",
+    "destination": "重庆",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "重庆火锅和夜景，我们去冒险吧！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我觉得可以，但要提前准备好。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏我要灵活，想到哪玩哪，超有趣！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢按部就班，每天安排好别出意外。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈太保守了，试试随性嘛。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "但安全第一，我们折中吧。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "美食我爱重辣火锅和街边！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我偏好温和点的本地家常菜。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "辣的才过瘾，偶尔温和行。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，可以。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想经济点玩多点。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望中等，住舒服点。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "那中等预算吧。",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏上也半天计划半天自由。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "成交！",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "好的，这样安心。",
+        "timestamp": 1700053400
+      },
+      {
+        "speaker": "user",
+        "content": "我们会玩翻的！",
+        "timestamp": 1700053520
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯。",
+        "timestamp": 1700053640
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "重庆主要景点游览",
+      "快节奏多景点",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "isfp_enfj",
+    "user_mbti": "ISFP",
+    "buddy_mbti": "ENFJ",
+    "destination": "丽江",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "丽江古城不错，我们去吧。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "哇塞太棒了！大家一起感受浪漫氛围。",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "我喜欢慢节奏，慢慢逛古街拍照。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "我更想快点，多组织活动玩起来！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，但我需要时间放松。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "好呀，平衡下先慢后快。",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "美食我喜欢安静咖啡馆本地茶。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "我要热闹夜市和小吃，分享给大家！",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "偶尔热闹也行。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯。",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想省点，住客栈就好。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望中等，住好点方便大家。",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "那中等预算折中。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏也这样安排，完美！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "还不错吧。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "太好了，我们会很开心的！",
+        "timestamp": 1700053340
+      },
+      {
+        "speaker": "user",
+        "content": "嗯。",
+        "timestamp": 1700053460
+      },
+      {
+        "speaker": "buddy",
+        "content": "走起！",
+        "timestamp": 1700053580
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "丽江主要景点游览",
+      "前两天快节奏，后两天慢下来",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "istp_enfp",
+    "user_mbti": "ISTP",
+    "buddy_mbti": "ENFP",
+    "destination": "西安",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 65,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 80,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "buddy，我们去西安怎么样？古都挺有意思的。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "哇塞太棒了！西安我超想去的，兵马俑还有小吃街！",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，先说旅行节奏吧，我喜欢按计划走，每天看一两个景点，别太赶。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "啊？我喜欢自由点，随心所欲到处逛啊，节奏太死板多没意思！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "太随意容易累的，行吧咱们看看实际情况调整。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "好呀！美食呢？我要吃各种特色小吃，肉夹馍凉皮全都要！",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "user",
+        "content": "我比较喜欢简单点的本地饭，街边摊可以但别天天吃辣的。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "buddy",
+        "content": "哈哈别这么保守嘛，旅行就是要尝鲜啊！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "user",
+        "content": "预算上我希望控制在中等，别太奢侈。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯嗯我也是，但偶尔住好点酒店放松下可以吧？",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "user",
+        "content": "行，折中一下，住宿选性价比高的。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "buddy",
+        "content": "耶！那我们就这样定，超级期待一起玩！",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "user",
+        "content": "可以，计划慢慢做。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "buddy",
+        "content": "太好了，我们会玩得很开心的！",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，同意。",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "buddy",
+        "content": "那先查查机票？",
+        "timestamp": 1700053160
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "西安主要景点游览",
+      "慢节奏深度游",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "estp_infj",
+    "user_mbti": "ESTP",
+    "buddy_mbti": "INFJ",
+    "destination": "青岛",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 65,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 70,
+        "buddy_score": 70,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "去青岛啊，啤酒和海鲜多爽！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，听起来不错，我觉得可以深度感受一下海滨文化。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏上我喜欢每天都出去玩，晚上还去喝酒。",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我更喜欢慢一点，有时间思考和放松，别太赶。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈别那么文青，旅行就是要刺激点。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "但太累了就没意思了呀，我们可以平衡下。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "行吧，美食我超爱海鲜大餐。",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢清淡点的海鲜和当地小吃，健康为主。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "清淡也行，但要吃够本！预算上我想玩得爽点，不用太抠。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望预算合理，别超支太多。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "那我们定个中等预算，够玩就行。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "好的，妥协一下，节奏上半天活动半天休息如何？",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "可以接受。",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，这样挺好的。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "那就这么定了！",
+        "timestamp": 1700053280
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均3000-4000元",
+    "plan": [
+      "青岛主要景点游览",
+      "前两天快节奏，后两天慢下来",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "esfp_intj",
+    "user_mbti": "ESFP",
+    "buddy_mbti": "INTJ",
+    "destination": "哈尔滨",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 65,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 80,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "哈尔滨冰雪大世界超好玩的，我们去吧！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "计划性要强，我先研究下行程。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "哎呀别想太多，玩得开心最重要，节奏随性点。",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢有详细计划，每天固定几个点，避免浪费时间。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "太死板啦，临时决定多有趣！",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "但没有计划容易乱，我们可以有个大框架。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "好吧。美食我爱吃各种东北菜和烧烤！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "我偏好正宗本地菜，但要卫生好的地方。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算呢？我想玩就玩，不想太节约。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "预算要合理控制，投资回报要高，不能乱花。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "那中档吧，住好点但不奢侈。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意，节奏上也按计划走半天自由。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "行，妥协了。",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "这样效率高。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "我们会玩得很开心的！",
+        "timestamp": 1700053280
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "哈尔滨主要景点游览",
+      "快节奏多景点",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "enfp_infp",
+    "user_mbti": "ENFP",
+    "buddy_mbti": "INFP",
+    "destination": "桂林",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "桂林山水甲天下，我们一起去吧，超级浪漫！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我也很向往那里，可以慢慢感受自然。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏我要每天都去不同地方探险！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢悠闲一点，在一个地方多呆会儿发呆思考。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈那太慢了吧，但可以试试结合。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "好呀。美食的话我喜欢清新素食或当地特色小吃。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "我要吃辣的米粉和各种夜市！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "辣的可以偶尔，但别天天。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想经济实惠，住青旅也行。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望舒适点，有私人空间。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "那选民宿中档的吧。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，节奏也平衡下，早起晚休。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "太棒了，就这么愉快决定了！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "是的，我觉得会很美好。",
+        "timestamp": 1700053160
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "桂林主要景点游览",
+      "前两天快节奏，后两天慢下来",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "enfp_intj",
+    "user_mbti": "ENFP",
+    "buddy_mbti": "INTJ",
+    "destination": "大理",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "大理风花雪月，我们去浪吧！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "我已经列好行程大纲了，先确认下。",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "哇塞效率高！不过我喜欢自由探索，别太严。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "没有计划会低效，我建议每天固定目标。",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "好啦好啦，适当灵活点嘛。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "行。美食我喜欢有特色的餐厅，提前订位。",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "街边小吃更有感觉啊！",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "卫生第一，但可以试试。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算上我无所谓，开心就好。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "我要严格控制成本，选性价比高的。",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "那我们定个合理范围。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意，节奏上也按我的计划微调。",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈成交！",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "这样会很高效。",
+        "timestamp": 1700053100
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "大理主要景点游览",
+      "慢节奏深度游",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "enfp_istp",
+    "user_mbti": "ENFP",
+    "buddy_mbti": "ISTP",
+    "destination": "成都",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "成都吃喝玩乐超多，我们去嗨！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，实用点，先看实际可行。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏我要随性到处逛，太棒了！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢实际点，别太赶但要有重点。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈可以，美食我要火锅串串全吃！",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "我选简单本地饭，够吃就行。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "偶尔简单，辣的才刺激！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "行吧。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算我想灵活，中等玩开心。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我控制在低点，实用为主。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "那中等吧。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏折中，一半随性一半计划。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "超级棒，就这么定了！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，同意。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "走起！",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "可以。",
+        "timestamp": 1700053400
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "成都主要景点游览",
+      "快节奏多景点",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "intj_enfp",
+    "user_mbti": "INTJ",
+    "buddy_mbti": "ENFP",
+    "destination": "厦门",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "厦门行程我规划好了，我们去。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "哇塞太棒了！我要自由玩！",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "节奏按我的计划，每天定点高效。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "啊？我想随心到处浪啊！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "效率低不行，折中下。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "好呀！美食我要夜市海鲜全尝！",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "我选提前订的餐厅，品质好。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "偶尔夜市也行嘛。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算控制严格，中等就够。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "我无所谓，开心最重要！",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "那中等吧。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏一半计划一半自由？",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "可以接受。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "太好了！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "就这样定。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "期待！",
+        "timestamp": 1700053340
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "厦门主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "enfp_istj",
+    "user_mbti": "ENFP",
+    "buddy_mbti": "ISTJ",
+    "destination": "青岛",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "青岛啤酒节我们去浪！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我觉得要按计划准备。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏随性玩，超开心！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢固定日程，避免混乱。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "哈哈折中吧。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食要选卫生好的海鲜店。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "我爱大排档热闹吃！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "可以偶尔。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算灵活点玩爽！",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望严格控制在低中档。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "那中等妥协。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏也计划为主。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "行，就这么定了！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，稳妥。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "太棒了！",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意。",
+        "timestamp": 1700053400
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "青岛主要景点游览",
+      "快节奏多景点",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "entj_isfp",
+    "user_mbti": "ENTJ",
+    "buddy_mbti": "ISFP",
+    "destination": "西安",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 65,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "西安古迹我们高效游！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我觉得慢慢感受就好。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏要满，效率第一！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我觉得慢点放松更好。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "那平衡下。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食喜欢安静本地小馆。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "我爱夜市全吃！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "偶尔也行。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算中高，值得。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "我希望省点。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "中等吧。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏折中就好。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "成交，我们定！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，还不错。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "完美。",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "好的。",
+        "timestamp": 1700053400
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "西安主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "istj_enfp",
+    "user_mbti": "ISTJ",
+    "buddy_mbti": "ENFP",
+    "destination": "大理",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "大理行程我列好了，按计划走。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "哇塞太棒了！我爱自由探索！",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "节奏要稳，每天固定景点。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "太死板啦，随性玩多好！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "但乱了就麻烦，折中。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食我要街边小吃遍尝！",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "我选正规店卫生。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "混着来吧。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算严格控制低档。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "我灵活点开心就好！",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "中等妥协。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏一半计划一半自由？",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "行，同意。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "太棒了！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "就这样。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "期待！",
+        "timestamp": 1700053340
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "大理主要景点游览",
+      "快节奏多景点",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "infp_esfp",
+    "user_mbti": "INFP",
+    "buddy_mbti": "ESFP",
+    "destination": "成都",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 65,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 55,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "成都我觉得好有感觉，我们去。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "超级赞！玩嗨起来！",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "节奏我喜欢慢，慢慢品味。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "我要每天都出去浪！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，平衡下吧。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食全吃辣的夜市！",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "我喜欢安静清淡。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "偶尔清淡行。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算经济，省着体验。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "我想玩就花，中等！",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "中等折中。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏一半一半。",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "我觉得会很美好。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "太棒了！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "嗯。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "走起！",
+        "timestamp": 1700053340
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均2000-3000元",
+    "plan": [
+      "成都主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "esfj_intp",
+    "user_mbti": "ESFJ",
+    "buddy_mbti": "INTP",
+    "destination": "厦门",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 70,
+        "buddy_score": 70,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "厦门大家一起玩，氛围好。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，逻辑上分析下行程。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏要大家开心，适中。",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我喜欢灵活逻辑点，别固定。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "好，美食大家分享海鲜。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "我选理论上好吃的店。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "混着吃吧。",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "预算算清楚，中等。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "我希望大家舒适点。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意中等。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "节奏协调下。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "行，逻辑ok。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "那定了，大家开心！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "好。",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "可以。",
+        "timestamp": 1700053400
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均3000-4000元",
+    "plan": [
+      "厦门主要景点游览",
+      "慢节奏深度游",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "istj_enfj",
+    "user_mbti": "ISTJ",
+    "buddy_mbti": "ENFJ",
+    "destination": "重庆",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 75,
+        "buddy_score": 75,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 80,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "重庆计划我做好了，按部就班。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "哇塞大家一起超棒！",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "节奏稳妥，每天定好。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "我爱热闹组织活动！",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "折中下。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食火锅大家吃！",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "我选卫生店。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "混着来。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算低控。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "中等舒服点。",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "中等吧。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏平衡好。",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，稳。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "太好了！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "同意。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "走起！",
+        "timestamp": 1700053340
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "重庆主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "infp_estj",
+    "user_mbti": "INFP",
+    "buddy_mbti": "ESTJ",
+    "destination": "丽江",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 65,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 65,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "丽江我觉得诗意满满，去吧。",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "我组织好行程，高效执行。",
+        "timestamp": 1700051660
+      },
+      {
+        "speaker": "user",
+        "content": "节奏慢点感受内心。",
+        "timestamp": 1700051780
+      },
+      {
+        "speaker": "buddy",
+        "content": "要高效，每天多点。",
+        "timestamp": 1700051900
+      },
+      {
+        "speaker": "user",
+        "content": "嗯，平衡。",
+        "timestamp": 1700052020
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食正宗本地。",
+        "timestamp": 1700052140
+      },
+      {
+        "speaker": "user",
+        "content": "我喜欢安静清新。",
+        "timestamp": 1700052260
+      },
+      {
+        "speaker": "buddy",
+        "content": "偶尔安静。",
+        "timestamp": 1700052380
+      },
+      {
+        "speaker": "user",
+        "content": "预算省点体验。",
+        "timestamp": 1700052500
+      },
+      {
+        "speaker": "buddy",
+        "content": "我控制但有效。",
+        "timestamp": 1700052620
+      },
+      {
+        "speaker": "user",
+        "content": "中等。",
+        "timestamp": 1700052740
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏计划为主。",
+        "timestamp": 1700052860
+      },
+      {
+        "speaker": "user",
+        "content": "我觉得美好。",
+        "timestamp": 1700052980
+      },
+      {
+        "speaker": "buddy",
+        "content": "定！",
+        "timestamp": 1700053100
+      },
+      {
+        "speaker": "user",
+        "content": "嗯。",
+        "timestamp": 1700053220
+      },
+      {
+        "speaker": "buddy",
+        "content": "好。",
+        "timestamp": 1700053340
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "丽江主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
+  },
+  {
+    "pair_id": "entp_isfp",
+    "user_mbti": "ENTP",
+    "buddy_mbti": "ISFP",
+    "destination": "西安",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 65,
+        "buddy_score": 80,
+        "weight": 0.8
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 85,
+        "buddy_score": 70,
+        "weight": 0.6
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 80,
+        "buddy_score": 75,
+        "weight": 0.5
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 80,
+        "buddy_score": 65,
+        "weight": 0.7
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 75,
+        "buddy_score": 65,
+        "weight": 0.9
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "西安古今结合超有意思，去！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我慢慢感受。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "节奏灵活，想到哪去哪！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "我觉得慢点好。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "折中吧。",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "美食安静本地。",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "我爱夜市冒险！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "偶尔。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "预算经济玩多。",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "中等舒服。",
+        "timestamp": 1700052680
+      },
+      {
+        "speaker": "user",
+        "content": "中等。",
+        "timestamp": 1700052800
+      },
+      {
+        "speaker": "buddy",
+        "content": "节奏平衡。",
+        "timestamp": 1700052920
+      },
+      {
+        "speaker": "user",
+        "content": "成交！",
+        "timestamp": 1700053040
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，还不错。",
+        "timestamp": 1700053160
+      },
+      {
+        "speaker": "user",
+        "content": "完美。",
+        "timestamp": 1700053280
+      },
+      {
+        "speaker": "buddy",
+        "content": "好的。",
+        "timestamp": 1700053400
+      }
+    ],
+    "consensus": true,
+    "dates": "5月10日-5月15日",
+    "budget": "人均4000-5000元",
+    "plan": [
+      "西安主要景点游览",
+      "慢节奏深度游",
+      "品尝当地特色美食",
+      "放松休闲"
+    ]
   }
 ]

@@ -1,6 +1,21 @@
 import { useCallback } from 'react';
 import { negotiate, fetchBuddies, fetchPersona } from '../api/client';
 import { STORAGE_KEYS, type PrecomputedMatch, type Buddy, type NegotiationResult, type OnboardingData, type Persona } from '../types';
+import fallbackNegotiations from '../mocks/negotiations.json';
+
+type FallbackRecord = {
+  pair_id: string;
+  user_mbti: string;
+  buddy_mbti: string;
+  destination: string;
+  radar: NegotiationResult['radar'];
+  red_flags: NegotiationResult['red_flags'];
+  messages: NegotiationResult['messages'];
+  consensus: boolean;
+  dates: string;
+  budget: string;
+  plan: NegotiationResult['plan'];
+};
 
 const MATCH_SCENE_CARDS = [
   { id: 'chengdu', location: '成都' },
@@ -13,29 +28,19 @@ const MATCH_SCENE_CARDS = [
   { id: 'xian', location: '西安' },
 ];
 
-const MOCK_NEGOTIATION: NegotiationResult = {
-  destination: '大理',
-  dates: '5月10日-5月15日',
-  budget: '人均3500元',
-  consensus: true,
-  plan: ['风景优先', '轻徒步', '特色民宿'],
-  matched_buddies: ['小雅', '小鱼'],
-  radar: [
-    { dimension: '行程节奏', user_score: 90, buddy_score: 85, weight: 0.8 },
-    { dimension: '美食偏好', user_score: 85, buddy_score: 80, weight: 0.6 },
-    { dimension: '拍照风格', user_score: 75, buddy_score: 95, weight: 0.5 },
-    { dimension: '预算控制', user_score: 60, buddy_score: 70, weight: 0.7 },
-    { dimension: '冒险精神', user_score: 95, buddy_score: 85, weight: 0.9 },
-    { dimension: '随性程度', user_score: 80, buddy_score: 90, weight: 0.8 },
-  ],
-  red_flags: [],
-  messages: [
-    { speaker: 'user', content: '这次周末去走个线，风景不错，要不要一起？', timestamp: 1700000000 },
-    { speaker: 'buddy', content: '听起来不错！难度大吗？我最近体力还可以，想挑战一下。', timestamp: 1700000010 },
-    { speaker: 'user', content: '爬升有点，但竹海那段很舒服的，准备好越野鞋就行。', timestamp: 1700000020 },
-    { speaker: 'buddy', content: '好！我这就去准备装备。', timestamp: 1700000030 },
-  ],
-};
+// 根据用户 MBTI + 目的地查找降级对话，找不到则随机
+function findFallbackNegotiation(userMbti: string, destination: string): NegotiationResult {
+  const records = fallbackNegotiations as FallbackRecord[];
+  // 精确匹配 user_mbti + destination
+  const exact = records.find(r => r.user_mbti === userMbti && r.destination === destination);
+  if (exact) return { ...exact, matched_buddies: [] } as NegotiationResult;
+  // 按目的地匹配（同一目的地不同 MBTI 的对话）
+  const byDest = records.filter(r => r.destination === destination);
+  if (byDest.length > 0) return { ...byDest[Math.floor(Math.random() * byDest.length)], matched_buddies: [] } as NegotiationResult;
+  // 完全随机
+  const fallback = records[Math.floor(Math.random() * records.length)];
+  return { ...fallback, matched_buddies: [] } as NegotiationResult;
+}
 
 export function usePrecomputedMatch() {
   // 保存预计算结果到 localStorage
@@ -131,7 +136,7 @@ export function usePrecomputedMatch() {
         });
       } catch (negErr) {
         console.error('预计算：协商失败，使用 mock', negErr);
-        negotiationResult = { ...MOCK_NEGOTIATION, destination };
+        negotiationResult = findFallbackNegotiation(obData.mbti || 'ENFP', destination);
       }
 
       // 保存结果

@@ -26,6 +26,11 @@ if sys.platform == "win32":
 import os
 os.environ.setdefault("PYTHONPATH", _repo_root)
 
+# 加载 .env 文件（包含 MINIMAX_API_KEY 等）
+from dotenv import load_dotenv
+_env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(_env_path)
+
 # 启动 uvicorn
 import uvicorn
 

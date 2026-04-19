@@ -1,0 +1,50 @@
+{
+  "destination": "大理",
+  "user_mbti": "ENFP",
+  "buddy_mbti": "ISFP",
+  "overall_score": 0.88,
+  "strengths": ["行程节奏互补", "住宿偏好协调", "美食体验共识", "整体友好氛围"],
+  "challenges": ["早起看日出vs自然醒的平衡", "住宿预算的妥协"],
+  "summary": "ENFP的热情与ISFP的温和完美配合，两人通过互相妥协达成了大理慢节奏旅行的共识，user负责拍照和住宿品质，buddy把控整体预算和行程节奏。",
+  "rounds": [
+    {
+      "topic": "破冰+行程",
+      "topic_label": "行程节奏",
+      "proposer_message": "嗨~我是上次说要一起去大理的！终于有时间聊啦，好激动！😆 你想什么时候去呀？",
+      "evaluator_message": "嗯，是挺漂亮的",
+      "evaluator_score": 0.8,
+      "consensus_reached": false
+    }
+  ],
+  "messages": [
+    {"speaker": "user", "content": "嗨~我是上次说要一起去大理的！终于有时间聊啦，好激动！😆 你想什么时候去呀？", "timestamp": "14:23"},
+    {"speaker": "buddy", "content": "嗨～我看了下月中天气不错，下周三到周五怎么样？", "timestamp": "14:31"},
+    {"speaker": "user", "content": "可以的！周一到周五请三天假就够了！我已经开始看攻略了，大理古城、洱海，双廊、S弯骑行...好多想去的！🌊🏯", "timestamp": "14:32"},
+    {"speaker": "buddy", "content": "嗯，节奏不用太紧吧，大理适合慢下来", "timestamp": "14:34"},
+    {"speaker": "user", "content": "对对对！但是我想早起看日出诶😆 洱海日出超美的！可以第一天下午到，第二天一早去才村码头拍！", "timestamp": "14:35"},
+    {"speaker": "buddy", "content": "...日出的话要几点起", "timestamp": "14:37"},
+    {"speaker": "user", "content": "大概六点！看个日出然后回民宿吃早餐休息一下~ 你能起来吗！🤪", "timestamp": "14:38"},
+    {"speaker": "buddy", "content": "六点...行吧，我可以试试", "timestamp": "14:40"},
+    {"speaker": "user", "content": "哈哈哈太好了！那你到时候帮我拍照吗📸 我想拍那种逆光剪影的！", "timestamp": "14:41"},
+    {"speaker": "buddy", "content": "拍照可以，但我不太会拍那种", "timestamp": "14:43"},
+    {"speaker": "user", "content": "没事没事！我教你！保证出片！到时候你跟着我的pose就行😎", "timestamp": "14:44"},
+    {"speaker": "buddy", "content": "好", "timestamp": "14:45"},
+    {"speaker": "user", "content": "住宿的话我想住洱海边🌅 海景房那种，贵一点没关系~ 你有偏好吗？", "timestamp": "14:47"},
+    {"speaker": "buddy", "content": "洱海边的确实不错...不过双廊那边挺贵的，古城附近性价比高些", "timestamp": "14:50"},
+    {"speaker": "user", "content": "可是海景房体验完全不一样诶！一生可能就去一次大理嘛😭 要不我们各付各的？", "timestamp": "14:51"},
+    {"speaker": "buddy", "content": "那你想住哪里", "timestamp": "14:53"},
+    {"speaker": "user", "content": "双廊！离S弯也近，而且那边拍照超美的！我刷到好多网红民宿🏠", "timestamp": "14:54"},
+    {"speaker": "buddy", "content": "行，那住宿你来选", "timestamp": "14:56"},
+    {"speaker": "user", "content": "真的？！爱你！❤️ 那我找找看人均300左右的！", "timestamp": "14:57"},
+    {"speaker": "buddy", "content": "嗯，别超预算就行。吃饭大概多少", "timestamp": "14:59"},
+    {"speaker": "user", "content": "我想吃当地的菌菇火锅！！还有烤乳扇和饵丝~ 一天200够吗？", "timestamp": "15:01"},
+    {"speaker": "buddy", "content": "差不多，我们那边小吃多，不用每顿都去网红店", "timestamp": "15:03"},
+    {"speaker": "user", "content": "好吧~ 那我们就找当地人多的店！省钱又地道😋 对了，你会骑电动车吗？S弯要租电动车~", "timestamp": "15:05"},
+    {"speaker": "buddy", "content": "会，但洱海边人多，骑慢点", "timestamp": "15:07"},
+    {"speaker": "user", "content": "好嘞！那就这么定了！🎉 行程的话第一天到逛古城，第二天环洱海，第三天上午随便逛逛下午回~", "timestamp": "15:09"},
+    {"speaker": "buddy", "content": "可以，我整理下：大理古城、洱海日出、S弯骑行，双廊拍照。吃住你负责选，我负责方向感😂", "timestamp": "15:12"},
+    {"speaker": "user", "content": "哈哈哈完美互补！等我找到住宿发你看看~", "timestamp": "15:13"},
+    {"speaker": "buddy", "content": "好，你先看看", "timestamp": "15:15"},
+    {"speaker": "user", "content": "好嘞！那我们就这么定啦~ 期待期待！🌸🌸🌸", "timestamp": "15:16"}
+  ]
+}

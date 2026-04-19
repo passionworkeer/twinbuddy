@@ -1,0 +1,38 @@
+{
+  "destination": "哈尔滨",
+  "user_mbti": "ESFP",
+  "buddy_mbti": "INTJ",
+  "overall_score": 0.858,
+  "strengths": [
+    "旅行节奏",
+    "美食偏好",
+    "预算范围"
+  ],
+  "challenges": [],
+  "rounds": [
+    {
+      "topic": "travel_rhythm",
+      "topic_label": "旅行节奏",
+      "proposer_message": "（规则兜底）我对旅行节奏的看法是introvert",
+      "evaluator_message": "（规则兜底）我的偏好是introvert",
+      "evaluator_score": 0.886,
+      "consensus_reached": true
+    },
+    {
+      "topic": "food",
+      "topic_label": "美食偏好",
+      "proposer_message": "（规则兜底）我对美食偏好的看法是casual",
+      "evaluator_message": "（规则兜底）我的偏好是casual",
+      "evaluator_score": 0.846,
+      "consensus_reached": true
+    },
+    {
+      "topic": "budget",
+      "topic_label": "预算范围",
+      "proposer_message": "（规则兜底）我对预算范围的看法是medium",
+      "evaluator_message": "（规则兜底）我的偏好是medium",
+      "evaluator_score": 0.841,
+      "consensus_reached": true
+    }
+  ]
+}

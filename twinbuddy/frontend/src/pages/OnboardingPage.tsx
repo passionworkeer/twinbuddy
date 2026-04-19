@@ -107,6 +107,10 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const [interimText, setInterimText] = useState('');
   const [showBadge, setShowBadge] = useState(false);
 
+  useEffect(() => {
+    if (typeof AudioWorkletNode === 'undefined') setNoSupport(true);
+  }, []);
+
   const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<AudioWorkletNode | null>(null);
@@ -157,7 +161,6 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
 
   // ── Audio + WebSocket STT ────────────────────────────
   const startRecording = useCallback(async () => {
-    setNoSupport(false);
     finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
     setInterimText('');
     setVoiceState('connecting');
@@ -221,6 +224,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         if (msg.type === 'text') {
           finalTextRef.current += msg.content;
           const allFinal = finalTextRef.current.trim();
+          setInterimText(msg.content);
           onChange(allFinal);
           setShowBadge(true);
         } else if (msg.type === 'done') {
@@ -230,7 +234,6 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
           setVoiceState(allFinal ? 'transcribed' : 'idle');
           cleanup();
         } else if (msg.type === 'error') {
-          console.error('STT error:', msg.message);
           isRecordingRef.current = false;
           setVoiceState('error');
           cleanup();
@@ -259,10 +262,17 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         cleanup();
       };
 
-    } catch (err) {
-      console.error('录音启动失败:', err);
+    } catch (err: unknown) {
       isRecordingRef.current = false;
-      setVoiceState('error');
+      if ((err as Error).name === 'NotAllowedError') {
+        setVoiceState('error');
+      } else if ((err as Error).name === 'NotFoundError') {
+        setVoiceState('error');
+      } else if ((err as Error).name === 'NotReadableError') {
+        setVoiceState('error');
+      } else {
+        setVoiceState('error');
+      }
       cleanup();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

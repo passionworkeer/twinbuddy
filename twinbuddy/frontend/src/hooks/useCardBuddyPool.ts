@@ -70,7 +70,7 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
       setIndex(0);
       persistPool(initialPool, 0);
     } catch (err) {
-      console.error('加载搭子池失败:', err);
+      /* silent — pool stays [], UI handles empty gracefully */
     } finally {
       setIsLoading(false);
     }

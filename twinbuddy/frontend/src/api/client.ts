@@ -22,7 +22,7 @@ import type {
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 const ONBOARDING_TIMEOUT_MS = 60_000;
-const NEGOTIATION_TIMEOUT_MS = 60_000;
+const NEGOTIATION_TIMEOUT_MS = 30_000;
 
 function apiUrl(path: string): string {
   return `${API_BASE}${path}`;

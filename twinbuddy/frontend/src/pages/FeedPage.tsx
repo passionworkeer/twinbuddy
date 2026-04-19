@@ -13,8 +13,7 @@ import { negotiate } from '../api/client';
 import { createReportId } from '../utils/reportId';
 import { RotateCcw } from 'lucide-react';
 import MOCK_VIDEOS from '../mocks/videos.json';
-
-const CARD_TRIGGER_INTERVAL = 3;
+import MOCK_NEGOTIATIONS from '../mocks/negotiations.json';
 
 const MOCK_SCENE_CARDS = [
   { id: 'chengdu', location: '成都', title: '成都宽窄巷子茶馆', image: '/images/chengdu.jpg' },
@@ -27,6 +26,8 @@ const MOCK_SCENE_CARDS = [
   { id: 'xian', location: '西安', title: '大唐不夜城夜色', image: '/images/xian.jpg' },
 ] as unknown as VideoItem[];
 
+import { chooseLocationCardTriggerCount } from '../utils/feedFlow';
+
 function shuffleVideos(videos: VideoItem[]): VideoItem[] {
   const next = [...videos];
   for (let i = next.length - 1; i > 0; i--) {
@@ -36,29 +37,33 @@ function shuffleVideos(videos: VideoItem[]): VideoItem[] {
   return next;
 }
 
-const MOCK_NEGOTIATION: NegotiationResult = {
-  destination: '大理',
-  dates: '5月10日-5月15日',
-  budget: '人均3500元',
-  consensus: true,
-  plan: ['风景优先', '轻徒步', '特色民宿'],
-  matched_buddies: ['小雅', '小鱼'],
-  radar: [
-    { dimension: '行程节奏', user_score: 90, buddy_score: 85, weight: 0.8 },
-    { dimension: '美食偏好', user_score: 85, buddy_score: 80, weight: 0.6 },
-    { dimension: '拍照风格', user_score: 75, buddy_score: 95, weight: 0.5 },
-    { dimension: '预算控制', user_score: 60, buddy_score: 70, weight: 0.7 },
-    { dimension: '冒险精神', user_score: 95, buddy_score: 85, weight: 0.9 },
-    { dimension: '随性程度', user_score: 80, buddy_score: 90, weight: 0.8 },
-  ],
-  red_flags: [],
-  messages: [
-    { speaker: 'user', content: '这次周末去走个线，风景不错，要不要一起？', timestamp: 1700000000 },
-    { speaker: 'buddy', content: '听起来不错！难度大吗？我最近体力还可以，想挑战一下。', timestamp: 1700000010 },
-    { speaker: 'user', content: '爬升有点，但竹海那段很舒服的，准备好越野鞋就行。', timestamp: 1700000020 },
-    { speaker: 'buddy', content: '好！我这就去准备装备。', timestamp: 1700000030 },
-  ],
+// 根据用户 MBTI 和目的地查找匹配的 mock 数据
+type MockNegotiationRecord = {
+  pair_id: string;
+  user_mbti: string;
+  buddy_mbti: string;
+  destination: string;
+  radar: NegotiationResult['radar'];
+  red_flags: NegotiationResult['red_flags'];
+  messages: NegotiationResult['messages'];
+  consensus: boolean;
+  dates: string;
+  budget: string;
+  plan: NegotiationResult['plan'];
 };
+
+function findMockNegotiation(userMbti: string, destination: string): NegotiationResult | null {
+  const records = MOCK_NEGOTIATIONS as MockNegotiationRecord[];
+  // 精确匹配
+  const exact = records.find(r => r.user_mbti === userMbti && r.destination === destination);
+  if (exact) return { ...exact, matched_buddies: [] };
+  // 按目的地匹配
+  const byDest = records.filter(r => r.destination === destination);
+  if (byDest.length > 0) return { ...byDest[0], matched_buddies: [] };
+  // 随机
+  if (records.length > 0) return { ...records[Math.floor(Math.random() * records.length)], matched_buddies: [] };
+  return null;
+}
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -71,6 +76,7 @@ export default function FeedPage() {
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [matchBackground, setMatchBackground] = useState<VideoItem | null>(null);
   const [lastTriggerVideoIndex, setLastTriggerVideoIndex] = useState(0);
+  const [nextTriggerInterval, setNextTriggerInterval] = useState(() => chooseLocationCardTriggerCount());
   const [matchedBuddy, setMatchedBuddy] = useState<{
     name: string;
     mbti: string;
@@ -103,6 +109,8 @@ export default function FeedPage() {
   useEffect(() => { cardBuddyPoolRef.current = cardBuddyPool; }, [cardBuddyPool]);
   const lastTriggerRef = useRef(lastTriggerVideoIndex);
   useEffect(() => { lastTriggerRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
+  const nextIntervalRef = useRef(nextTriggerInterval);
+  useEffect(() => { nextIntervalRef.current = nextTriggerInterval; }, [nextTriggerInterval]);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
@@ -142,10 +150,10 @@ export default function FeedPage() {
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      cardBuddyPoolRef.current.length > 0 &&
-      index - lastTriggerRef.current >= CARD_TRIGGER_INTERVAL
+      index - lastTriggerRef.current >= nextIntervalRef.current
     ) {
       setLastTriggerVideoIndex(index);
+      setNextTriggerInterval(chooseLocationCardTriggerCount());
       triggerMatch({ isAuto: true });
     }
   }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
@@ -162,7 +170,7 @@ export default function FeedPage() {
     if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
 
     // 从搭子池取搭子（用 ref 读取最新数据）
-    let buddy = cardBuddyPoolRef.current[cardBuddyIndex];
+    let buddy = cardBuddyPoolRef.current.length > 0 ? cardBuddyPoolRef.current[cardBuddyIndex] : null;
 
     // 1. 优先使用预计算数据中的搭子（onboarding期间预计算好的）
     const precomputed = getPrecomputed();
@@ -257,9 +265,21 @@ export default function FeedPage() {
     } catch (err) {
       console.error('协商 API 调用失败，使用 Mock 数据:', err);
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockResult = {
-        ...MOCK_NEGOTIATION,
-        destination: bgLocation.location
+      // 从 mock 数据中查找匹配的协商结果
+      const mockRecord = findMockNegotiation(
+        onboardingData?.mbti || 'ENFP',
+        bgLocation.location
+      );
+      const mockResult = mockRecord || {
+        destination: bgLocation.location,
+        dates: '待定',
+        budget: '待定',
+        consensus: true,
+        plan: [],
+        matched_buddies: [],
+        radar: [],
+        red_flags: [],
+        messages: [],
       };
       setMatchResult(mockResult);
       if (mockResult.messages && mockResult.messages.length > 0) {

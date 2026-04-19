@@ -288,8 +288,8 @@ async def stt_stream(
                             "audio": base64.b64encode(chunk).decode("utf-8"),
                         }
                     }
-                    await ws.send(json.dumps(frame))
                     await asyncio.sleep(0.040)
+                    await ws.send(json.dumps(frame))
             except StopAsyncIteration:
                 pass
             except websockets.exceptions.ConnectionClosed:

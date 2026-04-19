@@ -39,6 +39,7 @@ export interface CardBuddyPoolState {
   pool: Buddy[];
   index: number;
   isLoading: boolean;
+  poolError: string | null;
   currentBuddy: Buddy | null;
   advanceIndex: () => void;
   initPool: (onboardingData?: OnboardingData | null) => Promise<void>;
@@ -54,6 +55,7 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
     return restored?.index ?? 0;
   });
   const [isLoading, setIsLoading] = useState(() => loadPoolFromStorage() === null);
+  const [poolError, setPoolError] = useState<string | null>(null);
 
   // 初始化：从 API 加载搭子池
   const initPool = useCallback(async (onboardingData?: OnboardingData | null) => {
@@ -70,7 +72,9 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
       setIndex(0);
       persistPool(initialPool, 0);
     } catch (err) {
-      /* silent — pool stays [], UI handles empty gracefully */
+      const msg = err instanceof Error ? err.message : String(err);
+      setPoolError(msg);
+      /* silent — pool stays [], caller handles via poolError state */
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +97,7 @@ export function useCardBuddyPool(_INTERVAL = 5): CardBuddyPoolState {
     pool,
     index,
     isLoading,
+    poolError,
     get currentBuddy() { return pool[index] ?? null; },
     advanceIndex,
     initPool,

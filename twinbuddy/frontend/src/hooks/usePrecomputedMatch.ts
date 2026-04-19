@@ -28,24 +28,20 @@ const MATCH_SCENE_CARDS = [
   { id: 'xian', location: '西安' },
 ];
 
-// 根据用户 MBTI + 目的地查找降级对话，找不到则保留用户选择的目的地
+// 根据目的地查找 mock 对话，MBTI 仅供参考，找不到则生成占位内容
 function findFallbackNegotiation(userMbti: string, destination: string): NegotiationResult {
   const records = fallbackNegotiations as FallbackRecord[];
-  // 精确匹配 user_mbti + destination
+  // 优先精确匹配 user_mbti + destination
   const exact = records.find(r => r.user_mbti === userMbti && r.destination === destination);
   if (exact) return { ...exact, matched_buddies: [] } as NegotiationResult;
-  // 按目的地匹配（同一目的地不同 MBTI 的对话）
+  // 按目的地匹配（目的地最重要，MBTI 只是附加筛选）
   const byDest = records.filter(r => r.destination === destination);
   if (byDest.length > 0) return { ...byDest[Math.floor(Math.random() * byDest.length)], matched_buddies: [] } as NegotiationResult;
-  // 没有匹配数据时，保留用户选择的 destination，只替换其他字段
-  if (records.length > 0) {
-    const fallback = records[Math.floor(Math.random() * records.length)];
-    return {
-      ...fallback,
-      destination, // 保留用户选择的城市
-      matched_buddies: [],
-    } as NegotiationResult;
-  }
+  // 没有该目的地数据时，生成完整占位内容（destination 和消息完全一致）
+  return buildFallbackNegotiation(destination);
+}
+
+function buildFallbackNegotiation(destination: string): NegotiationResult {
   return {
     destination,
     dates: '5月10日-5月15日',
@@ -62,10 +58,10 @@ function findFallbackNegotiation(userMbti: string, destination: string): Negotia
     ],
     red_flags: [],
     messages: [
-      { speaker: 'user', content: '我们周末去旅行吧！', timestamp: 1700000000 },
-      { speaker: 'buddy', content: '听起来不错！我也想出去走走。', timestamp: 1700000010 },
-      { speaker: 'user', content: '那就说定了！', timestamp: 1700000020 },
-      { speaker: 'buddy', content: '好的，期待这次旅行！', timestamp: 1700000030 },
+      { speaker: 'user', content: `我们去${destination}旅行吧！`, timestamp: 1700000000 },
+      { speaker: 'buddy', content: `好呀，${destination}一直是我想去的！`, timestamp: 1700000010 },
+      { speaker: 'user', content: `那就说定了！`, timestamp: 1700000020 },
+      { speaker: 'buddy', content: `太好了，已经迫不及待了！`, timestamp: 1700000030 },
     ],
   };
 }

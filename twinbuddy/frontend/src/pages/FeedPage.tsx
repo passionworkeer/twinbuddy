@@ -183,12 +183,26 @@ export default function FeedPage() {
     const precomputed = getPrecomputed();
 
     // Determine the background/location based on precomputed or user's choice or fallback
-    // 同时用 id（拼音）和 location（中文）匹配
+    // 优先使用 onboardingData.city（用户最新选择），其次 precomputed.destination，最后随机
     let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)];
-    const userLocation = precomputed?.destination || onboardingData?.city;
+    const userLocation = onboardingData?.city || precomputed?.destination;
+
+    console.log('[triggerMatch] 城市匹配调试:', {
+      precomputed,
+      onboardingCity: onboardingData?.city,
+      userLocation,
+    });
+
     if (userLocation) {
       const match = MOCK_SCENE_CARDS.find(c => c.id === userLocation || c.location === userLocation);
-      if (match) bgLocation = match;
+      if (match) {
+        bgLocation = match;
+        console.log('[triggerMatch] 匹配到用户选择:', bgLocation.location);
+      } else {
+        console.log('[triggerMatch] 未找到匹配的卡片，使用随机:', bgLocation.location);
+      }
+    } else {
+      console.log('[triggerMatch] 没有用户选择，使用随机:', bgLocation.location);
     }
 
     setMatchBackground({

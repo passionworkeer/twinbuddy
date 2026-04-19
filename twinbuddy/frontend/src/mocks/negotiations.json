@@ -2611,5 +2611,106 @@
       "品尝当地特色美食",
       "放松休闲"
     ]
+  },
+  {
+    "pair_id": "enfp_chuanxi",
+    "user_mbti": "ENFP",
+    "buddy_mbti": "ISFP",
+    "destination": "川西",
+    "radar": [
+      {
+        "dimension": "行程节奏",
+        "user_score": 88,
+        "buddy_score": 72,
+        "weight": 0.85
+      },
+      {
+        "dimension": "美食偏好",
+        "user_score": 75,
+        "buddy_score": 80,
+        "weight": 0.60
+      },
+      {
+        "dimension": "拍照风格",
+        "user_score": 90,
+        "buddy_score": 85,
+        "weight": 0.70
+      },
+      {
+        "dimension": "预算控制",
+        "user_score": 70,
+        "buddy_score": 75,
+        "weight": 0.65
+      },
+      {
+        "dimension": "冒险精神",
+        "user_score": 92,
+        "buddy_score": 88,
+        "weight": 0.90
+      }
+    ],
+    "red_flags": [],
+    "messages": [
+      {
+        "speaker": "user",
+        "content": "川西自驾！我超级想去！雪山草地太美了！",
+        "timestamp": 1700051600
+      },
+      {
+        "speaker": "buddy",
+        "content": "嗯，我也一直想去看雪山日出，云海太壮观了。",
+        "timestamp": 1700051720
+      },
+      {
+        "speaker": "user",
+        "content": "我们租个SUV，到处跑，多拍点大片！",
+        "timestamp": 1700051840
+      },
+      {
+        "speaker": "buddy",
+        "content": "好是好，不过路况要注意安全，我们慢慢开。",
+        "timestamp": 1700051960
+      },
+      {
+        "speaker": "user",
+        "content": "必须的！听说那边的星空也超美，银河都能看到！",
+        "timestamp": 1700052080
+      },
+      {
+        "speaker": "buddy",
+        "content": "对对对，我就是为了这个！带好相机拍拍拍！",
+        "timestamp": 1700052200
+      },
+      {
+        "speaker": "user",
+        "content": "住宿的话我建议住藏族民宿，体验当地文化！",
+        "timestamp": 1700052320
+      },
+      {
+        "speaker": "buddy",
+        "content": "同意！还能吃到正宗的酥油茶和牦牛肉。",
+        "timestamp": 1700052440
+      },
+      {
+        "speaker": "user",
+        "content": "太棒了！就这么定了，冲冲冲！",
+        "timestamp": 1700052560
+      },
+      {
+        "speaker": "buddy",
+        "content": "好！记得带好防晒和高反药，期待这次旅行！",
+        "timestamp": 1700052680
+      }
+    ],
+    "consensus": true,
+    "dates": "6月1日-6月5日",
+    "budget": "人均3500-4500元",
+    "plan": [
+      "成都出发，沿途经过康定",
+      "新都桥、子梅垭口看贡嘎雪山",
+      "塔公草原、甲居藏寨体验藏族文化",
+      "四姑娘山双桥沟游览",
+      "返回成都"
+    ]
   }
 ]

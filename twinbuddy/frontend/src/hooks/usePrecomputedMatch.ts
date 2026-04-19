@@ -28,7 +28,7 @@ const MATCH_SCENE_CARDS = [
   { id: 'xian', location: '西安' },
 ];
 
-// 根据用户 MBTI + 目的地查找降级对话，找不到则随机
+// 根据用户 MBTI + 目的地查找降级对话，找不到则保留用户选择的目的地
 function findFallbackNegotiation(userMbti: string, destination: string): NegotiationResult {
   const records = fallbackNegotiations as FallbackRecord[];
   // 精确匹配 user_mbti + destination
@@ -37,9 +37,37 @@ function findFallbackNegotiation(userMbti: string, destination: string): Negotia
   // 按目的地匹配（同一目的地不同 MBTI 的对话）
   const byDest = records.filter(r => r.destination === destination);
   if (byDest.length > 0) return { ...byDest[Math.floor(Math.random() * byDest.length)], matched_buddies: [] } as NegotiationResult;
-  // 完全随机
-  const fallback = records[Math.floor(Math.random() * records.length)];
-  return { ...fallback, matched_buddies: [] } as NegotiationResult;
+  // 没有匹配数据时，保留用户选择的 destination，只替换其他字段
+  if (records.length > 0) {
+    const fallback = records[Math.floor(Math.random() * records.length)];
+    return {
+      ...fallback,
+      destination, // 保留用户选择的城市
+      matched_buddies: [],
+    } as NegotiationResult;
+  }
+  return {
+    destination,
+    dates: '5月10日-5月15日',
+    budget: '人均3500元',
+    consensus: true,
+    plan: ['风景优先', '轻徒步', '特色民宿'],
+    matched_buddies: [],
+    radar: [
+      { dimension: '行程节奏', user_score: 85, buddy_score: 80, weight: 0.8 },
+      { dimension: '美食偏好', user_score: 80, buddy_score: 85, weight: 0.6 },
+      { dimension: '拍照风格', user_score: 90, buddy_score: 75, weight: 0.5 },
+      { dimension: '预算控制', user_score: 70, buddy_score: 75, weight: 0.7 },
+      { dimension: '冒险精神', user_score: 85, buddy_score: 90, weight: 0.9 },
+    ],
+    red_flags: [],
+    messages: [
+      { speaker: 'user', content: '我们周末去旅行吧！', timestamp: 1700000000 },
+      { speaker: 'buddy', content: '听起来不错！我也想出去走走。', timestamp: 1700000010 },
+      { speaker: 'user', content: '那就说定了！', timestamp: 1700000020 },
+      { speaker: 'buddy', content: '好的，期待这次旅行！', timestamp: 1700000030 },
+    ],
+  };
 }
 
 export function usePrecomputedMatch() {

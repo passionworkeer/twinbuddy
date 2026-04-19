@@ -60,8 +60,15 @@ function findMockNegotiation(userMbti: string, destination: string): Negotiation
   // 按目的地匹配
   const byDest = records.filter(r => r.destination === destination);
   if (byDest.length > 0) return { ...byDest[0], matched_buddies: [] };
-  // 随机
-  if (records.length > 0) return { ...records[Math.floor(Math.random() * records.length)], matched_buddies: [] };
+  // 没有匹配数据时，保留用户选择的 destination，只替换其他字段
+  if (records.length > 0) {
+    const fallback = records[Math.floor(Math.random() * records.length)];
+    return {
+      ...fallback,
+      destination, // 保留用户选择的城市
+      matched_buddies: [],
+    };
+  }
   return null;
 }
 

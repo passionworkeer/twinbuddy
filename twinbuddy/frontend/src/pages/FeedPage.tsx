@@ -65,7 +65,7 @@ export default function FeedPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedVideos, setFeedVideos] = useState<VideoItem[]>([]);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
-  
+
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchResult, setMatchResult] = useState<NegotiationResult | null>(null);
   const [isNegotiating, setIsNegotiating] = useState(false);
@@ -97,6 +97,12 @@ export default function FeedPage() {
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
   const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
+
+  // 用 ref 存储最新的 pool，避免闭包 stale 问题
+  const cardBuddyPoolRef = useRef(cardBuddyPool);
+  useEffect(() => { cardBuddyPoolRef.current = cardBuddyPool; }, [cardBuddyPool]);
+  const lastTriggerRef = useRef(lastTriggerVideoIndex);
+  useEffect(() => { lastTriggerRef.current = lastTriggerVideoIndex; }, [lastTriggerVideoIndex]);
 
   const handleRestart = useCallback(() => {
     if (confirm('确定要重新测试吗？这将清除当前数据。')) {
@@ -131,17 +137,18 @@ export default function FeedPage() {
     setCurrentIndex(index);
 
     // ── 自动触发判断 ─────────────────────────────────────
+    // 使用 ref 读取最新的 pool 和 lastTrigger，避免闭包 stale
     if (
       !isNegotiating &&
       !showMatchModal &&
       feedVideos.length > 0 &&
-      cardBuddyPool.length > 0 &&
-      index - lastTriggerVideoIndex >= CARD_TRIGGER_INTERVAL
+      cardBuddyPoolRef.current.length > 0 &&
+      index - lastTriggerRef.current >= CARD_TRIGGER_INTERVAL
     ) {
       setLastTriggerVideoIndex(index);
       triggerMatch({ isAuto: true });
     }
-  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length, cardBuddyPool.length, lastTriggerVideoIndex]);
+  }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
 
   useEffect(() => {
     if (isFeedLoading) return;
@@ -154,19 +161,18 @@ export default function FeedPage() {
   const triggerMatch = useCallback(async (options?: { isAuto?: boolean }) => {
     if (isNegotiating || showMatchModal || feedVideos.length === 0) return;
 
-    // 从搭子池取搭子
-    let buddy = cardBuddyPool[cardBuddyIndex];
+    // 从搭子池取搭子（用 ref 读取最新数据）
+    let buddy = cardBuddyPoolRef.current[cardBuddyIndex];
 
     // 1. 优先使用预计算数据中的搭子（onboarding期间预计算好的）
     const precomputed = getPrecomputed();
 
     // Determine the background/location based on precomputed or user's choice or fallback
-    let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)]; // fallback random
-    if (precomputed?.destination) {
-      const match = MOCK_SCENE_CARDS.find(c => c.location === precomputed.destination);
-      if (match) bgLocation = match;
-    } else if (onboardingData?.city) {
-      const match = MOCK_SCENE_CARDS.find(c => c.id === onboardingData.city || c.location === onboardingData.city);
+    // 同时用 id（拼音）和 location（中文）匹配
+    let bgLocation = MOCK_SCENE_CARDS[Math.floor(Math.random() * MOCK_SCENE_CARDS.length)];
+    const userLocation = precomputed?.destination || onboardingData?.city;
+    if (userLocation) {
+      const match = MOCK_SCENE_CARDS.find(c => c.id === userLocation || c.location === userLocation);
       if (match) bgLocation = match;
     }
 
@@ -267,7 +273,7 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     }
-  }, [cardBuddyPool, cardBuddyIndex, advanceIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
+  }, [cardBuddyIndex, feedVideos, isNegotiating, showMatchModal, onboardingData, getPrecomputed]);
 
   // ── mount 时初始化搭子池 ────────────────────────────────
   useEffect(() => {

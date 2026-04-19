@@ -1,8 +1,6 @@
 # 孪生搭子 TwinBuddy
 
 > **你的另一个你，已经替你搞定了。**
->
-> 赛道三 · AI体验 · 抖音 AI 创变者计划 · 深圳大学城站 · Hackathon 2026
 
 ---
 
@@ -92,7 +90,7 @@
 
 | 层级 | 技术选型 |
 |------|---------|
-| 前端 | React + Vite + Tailwind CSS + TypeScript |
+| 前端 | React 18 + Vite + Tailwind CSS + TypeScript + React Router |
 | 后端 | FastAPI + Python |
 | Agent | LangGraph 状态机 |
 | LLM | MiniMax（MiniMax-M2）|
@@ -104,23 +102,33 @@
 ## 项目结构
 
 ```
-agents/
-├── scoring.py              # MING 六维度评分引擎
-├── matching_graph.py       # LangGraph 协商图
-├── buddy_agent.py         # 搭子 Agent
-├── persona_doc.py         # Persona 文档生成（MiniMax LLM）
-└── buddies/               # 100 个搭子人格 JSON
-
-api/
-└── frontend_api.py        # 前端对接 API（FastAPI）
-
-negotiation/
-├── graph.py              # LangGraph 协商流程
-├── llm_nodes.py          # LLM 驱动的协商节点
-├── llm_client.py         # MiniMax LLM 客户端
-└── state.py              # 协商状态定义
-
-frontend/                   # React + Vite
+twinbuddy/
+├── frontend/                    # React + Vite + Tailwind
+│   ├── src/
+│   │   ├── pages/             # FeedPage / OnboardingPage / ResultPage / MatchReportDetailPage
+│   │   ├── components/         # 可复用组件
+│   │   ├── hooks/              # 自定义 Hooks
+│   │   ├── mocks/              # Mock 数据
+│   │   ├── types/              # TypeScript 类型
+│   │   ├── api/                # API 客户端
+│   │   └── __tests__/          # 单元测试
+│   └── e2e/                    # Playwright E2E 测试
+│
+├── backend/                    # FastAPI
+│   ├── main.py                 ← 入口
+│   ├── fusion_engine.py        # 融合引擎
+│   ├── card_engine.py          # 卡片引擎
+│   ├── persona_engine.py       # Persona 引擎
+│   ├── persona_distiller.py    # MING 人格蒸馏
+│   ├── isolation.py            # 隔离决策
+│   ├── agents/                 # Agent 逻辑（scoring / matching / persona_doc）
+│   ├── negotiation/            # LangGraph 协商状态机
+│   └── data/                   # Mock 数据
+│
+├── agents/                     # 根目录 Agent 逻辑（与 backend/agents 同步）
+├── negotiation/                # 根目录协商模块
+├── MING/                       # 人格蒸馏框架
+└── docs/                       # 文档
 ```
 
 ---
@@ -129,7 +137,6 @@ frontend/                   # React + Vite
 
 ```bash
 # 后端
-cd twinbuddy/backend
 pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000
 # → http://localhost:8000/docs
@@ -139,6 +146,32 @@ cd twinbuddy/frontend
 pnpm install && pnpm dev
 # → http://localhost:5173
 ```
+
+---
+
+## 核心模块说明
+
+### card_engine.py
+卡片生成引擎。根据两个用户的 MING 人格数据，生成"懂你卡片"的展示内容（兼容度、行程摘要、red_flags 等）。
+
+### fusion_engine.py
+融合引擎。将用户输入（问卷/行为数据）蒸馏为 MING 四维度 persona JSON。
+
+### persona_engine.py
+Persona 生命周期管理。创建、更新、查询用户数字孪生体。
+
+### agents/scoring.py
+MING 六维度评分引擎。对两个 persona 进行六维度打分，输出 0-100 兼容度。
+
+### agents/matching_graph.py
+LangGraph 匹配图。定义双 Agent 发现→评估→协商的状态转换逻辑。
+
+### negotiation/
+双 Agent 协商模块：
+- `graph.py` — LangGraph 协商流程定义
+- `llm_nodes.py` — LLM 驱动的协商节点（提案/评估/让步）
+- `llm_client.py` — MiniMax LLM 客户端封装
+- `state.py` — 协商状态数据结构
 
 ---
 
@@ -170,4 +203,4 @@ pnpm install && pnpm dev
 
 ---
 
-*最后更新：2026-04-18*
+*最后更新：2026-04-19*

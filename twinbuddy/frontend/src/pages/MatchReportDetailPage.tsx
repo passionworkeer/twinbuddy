@@ -136,7 +136,13 @@ export default function MatchReportDetailPage() {
               'https://v.douyin.com/3lV9tMGO13E/'
             ];
             const randomLink = links[Math.floor(Math.random() * links.length)];
-            window.open(randomLink, '_blank');
+            const a = document.createElement('a');
+            a.href = randomLink;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
           }}
           className="flex-1 py-3.5 bg-[#4ade80]/20 backdrop-blur-xl border border-[#4ade80]/50 rounded-2xl text-[#4ade80] font-bold text-[15px] shadow-[0_4px_24px_rgba(74,222,128,0.1)] hover:bg-[#4ade80]/30 transition-colors"
         >

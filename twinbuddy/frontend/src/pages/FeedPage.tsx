@@ -97,6 +97,7 @@ export default function FeedPage() {
   const { getPrecomputed, clearPrecomputed } = usePrecomputedMatch();
   const { pool: cardBuddyPool, index: cardBuddyIndex, currentBuddy, advanceIndex, initPool } = useCardBuddyPool();
   const feedRef = useRef<HTMLDivElement>(null);
+  const initPoolOnceRef = useRef(false);
 
   // Refs to avoid stale closures in the scroll listener
   const cardBuddyPoolRef = useRef(cardBuddyPool);
@@ -149,7 +150,7 @@ export default function FeedPage() {
       index - lastTriggerVideoIndexRef.current >= CARD_TRIGGER_INTERVAL
     ) {
       setLastTriggerVideoIndex(index);
-      triggerMatchRef.current({ isAuto: true });
+      triggerMatchRef.current?.({ isAuto: true });
     }
   }, [isFeedLoading, isNegotiating, showMatchModal, feedVideos.length]);
 
@@ -226,6 +227,7 @@ export default function FeedPage() {
     // 3. 预计算未完成或失败，实时协商
     setIsNegotiating(true);
 
+    let matchResultSet = false;
     try {
       // 从 localStorage 获取用户 onboarding 数据
       let obData = null;
@@ -248,6 +250,7 @@ export default function FeedPage() {
       });
 
       setMatchResult(result);
+      matchResultSet = true;
       if (result.messages && result.messages.length > 0) {
         setLiveMessages(result.messages);
         const totalDelay = result.messages.length * 800 + 1500;
@@ -259,7 +262,8 @@ export default function FeedPage() {
         setIsNegotiating(false);
       }
     } catch (err) {
-      console.error('协商 API 调用失败，使用 Mock 数据:', err);
+      console.warn('协商 API 调用失败，使用 Mock 数据:', err);
+      if (matchResultSet) return;
       await new Promise(resolve => setTimeout(resolve, 1500));
       const mockResult = {
         ...MOCK_NEGOTIATION,
@@ -283,9 +287,10 @@ export default function FeedPage() {
   const triggerMatchRef = useRef<(options?: { isAuto?: boolean }) => void>();
   useEffect(() => { triggerMatchRef.current = triggerMatch; }, [triggerMatch]);
 
-  // ── mount 时初始化搭子池 ────────────────────────────────
+  // ── mount 时初始化搭子池（仅一次）────────────────────────
   useEffect(() => {
-    if (!isFeedLoading) {
+    if (!isFeedLoading && !initPoolOnceRef.current) {
+      initPoolOnceRef.current = true;
       initPool(onboardingData ?? null);
     }
   }, [isFeedLoading, onboardingData, initPool]);

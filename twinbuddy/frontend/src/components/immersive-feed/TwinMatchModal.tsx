@@ -44,11 +44,21 @@ export const TwinMatchModal: React.FC<TwinMatchModalProps> = ({
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   // ── Greeting + Bubble animation (guide step only) ───────
+  // Reset the animation ref whenever result becomes non-null (fresh modal session).
+  // This handles the case where the component stays mounted across multiple opens:
+  // result transitions null → value = new session → reset guard so animation fires.
   const [showGuideGreeting, setShowGuideGreeting] = useState(false);
   const [showGuideBubble, setShowGuideBubble] = useState(false);
   const guideAnimPlayedRef = useRef(false);
+  const prevResultRef = useRef<NegotiationResult | null>(null);
 
   useEffect(() => {
+    // Detect a fresh session: result went from null (or undefined) → populated
+    if (result && prevResultRef.current === null) {
+      guideAnimPlayedRef.current = false;
+    }
+    prevResultRef.current = result;
+
     if (modalStep === 'guide' && result && !guideAnimPlayedRef.current) {
       guideAnimPlayedRef.current = true;
       // 1s 后弹出小人

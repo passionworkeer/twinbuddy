@@ -525,13 +525,19 @@ def _load_mock_persona(mbti: str) -> Optional[Dict[str, Any]]:
 
 
 def _load_compatibility(a_mbti: str, b_mbti: str) -> Optional[Dict[str, Any]]:
-    """加载两个 MBTI 之间的预生成协商结果"""
+    """加载两个 MBTI 之间的预生成协商结果。可能有多个场景文件，随机选一个增加多样性。"""
     combo = sorted([a_mbti.upper(), b_mbti.upper()])
-    path = _MOCK_DIR / combo[0].lower() / f"compatibility_{combo[0].lower()}_{combo[1].lower()}.json"
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+    dir_path = _MOCK_DIR / combo[0].lower()
+    pattern = f"compatibility_{combo[0].lower()}_{combo[1].lower()}"
+    if not dir_path.exists():
+        return None
+    import random as _random
+    candidates = [f for f in dir_path.iterdir() if f.name.startswith(pattern) and f.suffix == ".json"]
+    if not candidates:
+        return None
+    chosen = _random.choice(candidates)
+    with open(chosen, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _build_buddy(mbti: str, city: str) -> Dict[str, Any]:

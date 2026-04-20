@@ -121,6 +121,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const [noSupport, setNoSupport] = useState(false);
   const [interimText, setInterimText] = useState('');
   const [showBadge, setShowBadge] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (typeof AudioWorkletNode === 'undefined') setNoSupport(true);
@@ -178,6 +179,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
   const startRecording = useCallback(async () => {
     finalTextRef.current = text.trim() ? `${text.trim()} ` : '';
     setInterimText('');
+    setErrorMessage('');
     setVoiceState('connecting');
     isRecordingRef.current = true;
 
@@ -250,6 +252,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
           cleanup();
         } else if (msg.type === 'error') {
           isRecordingRef.current = false;
+          setErrorMessage(msg.message || '语音服务连接失败，请检查网络或重试');
           setVoiceState('error');
           cleanup();
         }
@@ -260,6 +263,7 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
         openTimeoutRef.current = null;
         wsConnectedRef.current = false;
         isRecordingRef.current = false;
+        setErrorMessage('语音服务连接失败，请检查网络或重试');
         setVoiceState('error');
         cleanup();
       };
@@ -280,12 +284,16 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
     } catch (err: unknown) {
       isRecordingRef.current = false;
       if ((err as Error).name === 'NotAllowedError') {
+        setErrorMessage('麦克风权限被拒绝，请在浏览器设置中允许麦克风访问');
         setVoiceState('error');
       } else if ((err as Error).name === 'NotFoundError') {
+        setErrorMessage('未检测到麦克风设备，请确认已连接麦克风');
         setVoiceState('error');
       } else if ((err as Error).name === 'NotReadableError') {
+        setErrorMessage('麦克风被其他应用占用，请关闭后重试');
         setVoiceState('error');
       } else {
+        setErrorMessage('语音识别启动失败，请重试');
         setVoiceState('error');
       }
       cleanup();
@@ -418,6 +426,17 @@ function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) =
               <p className="mt-1 text-xs text-gray-700 flex items-center justify-center gap-1 font-body">
                 <Sparkles className="w-3 h-3 text-primary" />
                 已识别，你可以在上方修改文本
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error message display */}
+        {errorMessage && (
+          <div className="w-full max-w-sm animate-fade-in mt-2">
+            <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+              <p className="text-xs text-red-600 text-center font-body">
+                {errorMessage}
               </p>
             </div>
           </div>

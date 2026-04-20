@@ -39,13 +39,22 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import io
 import json
 import logging
 import os
+import wave
 from datetime import datetime, timezone
 from typing import AsyncGenerator, AsyncIterator, Optional
 
 import websockets
+
+try:
+    import numpy as np
+    from scipy import signal as scipy_signal
+    _HAS_SCIPY = True
+except ImportError:
+    _HAS_SCIPY = False
 
 logger = logging.getLogger("twinbuddy.xfyun_stt")
 
@@ -406,14 +415,59 @@ async def stt_stream_from_bytes(
 # 同步封装（用于 FastAPI 中直接处理 UploadFile）
 # ---------------------------------------------------------------------------
 
+def _auto_resample_to_16k(pcm_bytes: bytes, src_sr: int) -> bytes:
+    """
+    将任意采样率 PCM 重采样到 16kHz，返回新的 PCM bytes。
+    仅在 src_sr != 16000 时进行重采样。
+    """
+    if not _HAS_SCIPY:
+        if src_sr != AUDIO_SAMPLE_RATE:
+            logger.warning(
+                "scipy 不可用，无法重采样 %dHz -> 16kHz，使用原始音频（可能识别失败）",
+                src_sr,
+            )
+        return pcm_bytes
+
+    audio = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+    ratio = AUDIO_SAMPLE_RATE / src_sr
+    n_target = max(1, int(len(audio) * ratio))
+    resampled = scipy_signal.resample(audio, n_target)
+    pcm_16k = (resampled * 32767).clip(-1.0, 1.0).astype(np.int16)
+    logger.debug("重采样 %dHz -> %dHz (%d frames -> %d frames)", src_sr, AUDIO_SAMPLE_RATE, len(audio), len(pcm_16k))
+    return pcm_16k.tobytes()
+
+
+def _detect_sample_rate(audio_bytes: bytes) -> int:
+    """
+    尝试检测音频采样率。
+    支持：wav 文件头 / 原始 PCM（从文件大小估算）。
+    微信语音消息默认 24000Hz，返回 24000Hz 作为默认。
+    """
+    try:
+        with wave.open(io.BytesIO(audio_bytes), "rb") as wf:
+            return wf.getframerate()
+    except Exception:
+        pass
+    # 微信语音消息 24kHz / 16bit / mono
+    # 粗略检测：如果 byte 长度对应约 24kHz，判定为 24kHz
+    n_frames = len(audio_bytes) // 2  # int16 = 2 bytes
+    # 大约 5-30 秒的语音
+    if 48000 <= n_frames <= 1440000:
+        return 24000
+    return AUDIO_SAMPLE_RATE  # 默认 16kHz
+
+
 async def stt_from_upload(audio_bytes: bytes) -> str:
     """
     FastAPI 端点可直接调用的接口。
 
-    接收完整音频字节，返回识别字符串。
-    等价于 stt_stream_from_bytes，但错误处理更完善。
+    自动检测音频采样率并重采样到 16kHz（iFlytek 要求）。
+    支持：微信语音消息（24kHz）、普通录音（16kHz）、wav 文件等。
     """
     try:
+        sr = _detect_sample_rate(audio_bytes)
+        if sr != AUDIO_SAMPLE_RATE:
+            audio_bytes = _auto_resample_to_16k(audio_bytes, sr)
         return await stt_stream_from_bytes(audio_bytes)
     except Exception as exc:
         logger.error("stt_from_upload 失败: %s", exc)

@@ -31,14 +31,14 @@ from typing import Any, Dict, List, Optional, Tuple
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field, field_validator
 
-# 搭子系统（从 JSON 文件加载，fallback 到 MOCK_BUDDIES）
+# 搭子系统（新：真实 persona）
 from agents.buddies import (
     get_all_buddies,
     get_buddy_by_id,
-    get_top_buddies,
     get_compatibility_breakdown as _get_buddy_breakdown,
     get_buddy_public,
 )
+from agents.real_persona_index import get_top_personas
 from agents import persona_doc
 from agents.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
@@ -1370,10 +1370,10 @@ async def get_feed(
             if md_prefs:
                 user_prefs = md_prefs
 
-    # 3. 获取 top-N 搭子（使用 MING 六维度评分）
+    # 3. 获取 top-N 搭子（使用真实 persona + MING 六维度评分）
     top_buddies: List[Dict[str, Any]] = []
     if user_prefs:
-        top_buddies = get_top_buddies(user_prefs, limit=10)
+        top_buddies = get_top_personas(user_prefs, limit=10)
     else:
         # 无用户数据时：加载前3个搭子作为示例
         all_b = get_all_buddies()
@@ -1480,8 +1480,8 @@ async def get_buddies(
         }
         user_prefs = _build_user_prefs(onboarding, user_id or "")
 
-    # 2. 获取 top-N 搭子（使用 MING 六维度评分）
-    top_buddies = get_top_buddies(user_prefs, limit=limit)
+    # 2. 获取 top-N 搭子（使用真实 persona + MING 六维度评分）
+    top_buddies = get_top_personas(user_prefs, limit=limit)
 
     return {
         "success": True,

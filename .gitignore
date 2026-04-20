@@ -35,8 +35,13 @@ __pycache__/
 
 # Server credentials and local docs
 fuwuqi.md
-docs/
-深圳大学城站终极指南.docx
+
+# Docs — only ignore specific temporary/generated subdirectories
+# Track: haibao.md, speech.md, prdv3.md, etc.
+docs/_archive/
+docs/plans/
+# Local-only docs (ignore at any path)
+深圳大学城站终极指南.*
 .playwright-mcp/
 
 twinbuddy/data/

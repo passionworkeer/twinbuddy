@@ -37,12 +37,22 @@ load_dotenv(_env_path)
 
 # 启动 uvicorn
 import uvicorn
+from fastapi import FastAPI
 
 if __name__ == "__main__":
+    # 合并所有路由：frontend_api + STT 语音识别
+    # api/ 在 repo root，_repo_root 已加入 sys.path
+    from api.frontend_api import router as frontend_router
+    from api.stt_api import router as stt_router
+
+    app = FastAPI(title="TwinBuddy API")
+    app.include_router(frontend_router)
+    app.include_router(stt_router)
+
     uvicorn.run(
-        "backend.api.frontend_api:router",
+        app,
         host="0.0.0.0",
         port=8008,
         reload=True,
-        reload_dirs=[_repo_root],
+        reload_dirs=[_repo_root, _twinbuddy_root],
     )

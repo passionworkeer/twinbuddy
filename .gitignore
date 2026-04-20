@@ -46,5 +46,5 @@ docs/plans/
 
 twinbuddy/data/
 twinbuddy/test_negotiation_result.json
-twinbuddy/backend/
+twinbuddy/agents/_archived/
 data/

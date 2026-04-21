@@ -112,8 +112,9 @@ function InterestTags({ values, onToggle }: { values: string[]; onToggle: (i: st
 
 type VoiceState = 'idle' | 'connecting' | 'recording' | 'transcribed' | 'error';
 
-// Vite proxy 不支持 WebSocket，开发环境直连后端端口
-const WS_BASE = import.meta.env.VITE_WS_BASE || 'ws://localhost:8000';
+// VITE_WS_BASE：生产填 wss://xxx.railway.app，本地开发在 .env.local 填 ws://localhost:8008
+// 未配置时 fallback 到相对路径（/api/stt/ws），由 Nginx/Vercel 处理同域代理
+const WS_BASE = import.meta.env.VITE_WS_BASE || '';
 
 function VoiceOrText({ text, onChange }: { text: string; onChange: (t: string) => void }) {
 

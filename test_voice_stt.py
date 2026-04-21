@@ -9,7 +9,7 @@ test_voice_stt.py — 语音文件批量 STT 测试
     python test_voice_stt.py --dir /path/to/voices --limit 5
 
 依赖：
-    pip install scipy numpy websockets
+    pip install scipy numpy websockets python-dotenv
 
 iFlytek 免费额度：每月 500 次请求
 """
@@ -27,6 +27,25 @@ from pathlib import Path
 import numpy as np
 from scipy import signal
 
+# ── 日志（必须在 .env 加载前定义）──────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger("test_stt")
+
+# 加载 .env（支持本地开发）
+try:
+    from dotenv import load_dotenv
+    _ENV_PATH = Path(__file__).parent / "twinbuddy" / ".env"
+    if _ENV_PATH.exists():
+        load_dotenv(_ENV_PATH)
+        logger.info("已加载 .env: %s", _ENV_PATH)
+    else:
+        logger.warning(".env 未找到: %s，将使用系统环境变量", _ENV_PATH)
+except ImportError:
+    logger.warning("python-dotenv 未安装，环境变量需手动配置")
+
 # ── 参数 ──────────────────────────────────────────────────────────────
 
 VOICE_DIR = Path("D:/hyt/voices")
@@ -35,14 +54,6 @@ OUTPUT_FILE = Path("D:/hyt/voices/stt_results.json")
 SR_ORIG = 24000   # 微信语音原始采样率
 SR_TARGET = 16000  # iFlytek 要求采样率
 MAX_DURATION = 60  # 单文件最大秒数（超过跳过）
-
-# ── 日志 ──────────────────────────────────────────────────────────────
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
-logger = logging.getLogger("test_stt")
 
 
 # ── 重采样 ───────────────────────────────────────────────────────────

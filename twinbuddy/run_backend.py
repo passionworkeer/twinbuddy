@@ -49,10 +49,11 @@ if __name__ == "__main__":
     app.include_router(frontend_router)
     app.include_router(stt_router)
 
+    port = int(os.environ.get("PORT", 8008))
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8008,
-        reload=True,
-        reload_dirs=[_repo_root, _twinbuddy_root],
+        port=port,
+        reload=os.environ.get("RAILWAY_ENVIRONMENT") is not None and port == 8008,
+        reload_dirs=[_repo_root, _twinbuddy_root] if port == 8008 else None,
     )

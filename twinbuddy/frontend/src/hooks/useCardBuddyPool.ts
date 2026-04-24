@@ -49,7 +49,7 @@ export function useCardBuddyPool(INTERVAL = 5): CardBuddyPoolState {
       let initialPool: Buddy[] = [];
 
       const buddies = await fetchBuddies(
-        undefined, BUDDY_POOL_SIZE,
+        onboardingData?.user_id, BUDDY_POOL_SIZE,
         onboardingData?.mbti,
         onboardingData?.interests,
         onboardingData?.city,

@@ -133,7 +133,7 @@ export function usePrecomputedMatch() {
       let topBuddy: Buddy | null = null;
       try {
         const buddies = await fetchBuddies(
-          undefined, // user_id (不需要)
+          obData.user_id,
           1,
           obData.mbti,
           obData.interests,

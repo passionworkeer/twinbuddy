@@ -489,8 +489,12 @@ class VideoItemResponse(BaseModel):
 
 class NegotiationRequest(BaseModel):
     """POST /api/negotiate 请求体"""
+    user_id: Optional[str] = None
     user_persona_id: Optional[str] = None
     buddy_mbti: Optional[str] = None
+    mbti: Optional[str] = None
+    interests: Optional[List[str]] = None
+    voice_text: Optional[str] = None
     destination: str = Field(..., description="目的地城市ID")
 
 
@@ -1298,14 +1302,44 @@ async def save_onboarding(req: OnboardingDataRequest) -> Dict[str, Any]:
 
 
 @router.get("/persona")
-async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
+async def get_persona(
+    user_id: Optional[str] = Query(default=None, description="用户ID（可选）"),
+    mbti: Optional[str] = Query(default=None, description="MBTI 类型（如 ENFP），无 user_id 时使用"),
+    interests: Optional[str] = Query(default=None, description="兴趣列表，逗号分隔"),
+    city: Optional[str] = Query(default=None, description="城市ID"),
+    voice_text: Optional[str] = Query(default=None, description="语音转文字内容"),
+) -> Dict[str, Any]:
     """
     GET /api/persona?user_id=xxx
+    或 GET /api/persona?mbti=ENFP&interests=美食,摄影&city=chengdu
 
     获取当前用户的数字孪生人格。
-    读取顺序：1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成
+
+    支持两种模式：
+    1. user_id 模式：读取已存储的用户 persona
+    2. 直接参数模式（游客/预计算）：用 mbti + interests + city 动态生成 persona
+
+    读取顺序（user_id 模式）：
+      1) persona .md 文件  2) 内存 persona_store  3) 从 onboarding 重新生成
     """
-    # 1. 尝试从 .md 文件读取
+    # ── 游客/预计算模式：直接用前端参数生成 persona ──────────────────────
+    if not user_id and mbti:
+        parsed_interests: Optional[List[str]] = None
+        if interests:
+            parsed_interests = [i.strip() for i in interests.split(",") if i.strip()]
+
+        persona = _build_persona_from_onboarding(
+            mbti=mbti,
+            city=city or "",
+            interests=parsed_interests,
+            voice_text=voice_text or "",
+        )
+        return {"success": True, "data": persona}
+
+    # ── user_id 模式：按原有顺序读取 ──────────────────────────────────────
+    if not user_id:
+        raise HTTPException(status_code=422, detail="必须提供 user_id 或 mbti 参数")
+
     md_doc = persona_doc.load_persona_doc(user_id)
     if md_doc:
         fm, body = persona_doc.parse_persona_doc(md_doc)
@@ -1313,11 +1347,9 @@ async def get_persona(user_id: str = Query(...)) -> Dict[str, Any]:
             persona = persona_doc.dict_from_frontmatter(fm, body)
             return {"success": True, "data": persona}
 
-    # 2. 尝试从内存读取
     if user_id in _persona_store:
         return {"success": True, "data": _persona_store[user_id]}
 
-    # 3. 从 onboarding 重新生成
     if user_id in _onboarding_store:
         onboarding = _onboarding_store[user_id]
         persona = _build_persona_from_onboarding(
@@ -1516,10 +1548,21 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
 
     # ── 获取用户 persona（优先 .md 文件，其次内存）────────────────────
     user_persona: Optional[Dict[str, Any]] = None
-    user_mbti = "ENFP"
+    user_mbti = req.mbti.upper() if req.mbti else "ENFP"
     user_name = "你"
 
-    if req.user_persona_id:
+    # 方式1：优先用前端传入的 mbti/interests/voice_text 构造 persona（最新 onboarding 数据）
+    if req.mbti:
+        user_persona = _build_persona_from_onboarding(
+            user_mbti,
+            req.destination,
+            req.interests or [],
+            req.voice_text or "",
+        )
+        logger.info("协商请求使用前端传入参数 | user_mbti=%s | interests=%s", user_mbti, req.interests)
+
+    # 方式2：fallback 到内存/文件（老用户有 persona_id 的情况）
+    elif req.user_persona_id:
         # 方式1：从内存找到后，尝试升级到 .md 文件
         for uid_key, p in _persona_store.items():
             if p.get("persona_id") == req.user_persona_id:

@@ -41,3 +41,9 @@ app.add_middleware(
 # frontend_router 已有 prefix="/api"，stt_router 已有 prefix="/api"
 app.include_router(frontend_router)
 app.include_router(stt_router)
+
+
+@app.get("/api/health")
+def health_check():
+    """健康检查端点"""
+    return {"status": "healthy", "service": "twinbuddy-api"}

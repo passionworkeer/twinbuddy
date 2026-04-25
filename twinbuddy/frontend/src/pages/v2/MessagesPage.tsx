@@ -157,12 +157,12 @@ export default function MessagesPage() {
               placeholder="发条消息，看看当前 MVP 聊天链路"
               value={input}
             />
+            <VoiceInputButton
+              onTranscribed={(text) => setInput((current) => current.trim() ? `${current.trim()}\n${text}` : text)}
+            />
             <button className="btn-icon" onClick={handleSend} type="button">
               <SendHorizonal className="h-4 w-4" />
             </button>
-          </div>
-          <div className="mt-3">
-            <VoiceInputButton onTranscribed={(text) => setInput((current) => current.trim() ? `${current.trim()}\n${text}` : text)} />
           </div>
         </div>
 

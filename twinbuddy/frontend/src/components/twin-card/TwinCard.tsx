@@ -50,7 +50,7 @@ export default function TwinCard({ buddy, onOpen }: Props) {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-[26px] border border-white/8 bg-[rgba(5,12,15,0.34)] p-4 backdrop-blur-2xl">
             <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-text-secondary)]">数字分身摘要</p>
             <div className="mt-3 space-y-3">

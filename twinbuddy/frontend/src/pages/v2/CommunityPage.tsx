@@ -108,7 +108,7 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
+    <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.08fr_0.92fr]">
       <div className="space-y-4">
         <section className="glass-panel-strong p-5 sm:p-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(238,194,36,0.28)] bg-[rgba(238,194,36,0.08)] px-3 py-1 text-xs text-[var(--color-tertiary)]">

@@ -150,7 +150,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.3fr_0.9fr]">
+      <section className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.3fr_0.9fr]">
         <article className="glass-panel p-5">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-[rgba(175,255,251,0.12)] p-2 text-[var(--color-secondary)]">

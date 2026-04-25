@@ -14,7 +14,7 @@ export default defineConfig({
   root: __dirname,
   resolve: {
     alias: {
-      '@': path.resolve(__dirname),
+      '@': 'E:/desktop/hecker/twinbuddy/frontend/src',
     },
   },
   test: {

@@ -2,8 +2,40 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchBuddies } from '../api/client';
 import type { Buddy, OnboardingData } from '../types';
 
-const BUDDY_POOL_LOCAL_KEY = 'twinbuddy_card_buddy_pool';
+export const BUDDY_POOL_LOCAL_KEY = 'twinbuddy_card_buddy_pool';
 const BUDDY_POOL_SIZE = 10;
+
+// ── Standalone utility functions (exported for testing) ─────────────────────
+
+export function advanceBuddyIndex(buddies: Buddy[], index: number): number {
+  if (buddies.length === 0) return 0;
+  return (index + 1) % buddies.length;
+}
+
+export function buildInitialPool(buddies: (Buddy | null | undefined)[]): Buddy[] {
+  return buddies.filter((b): b is Buddy => b != null);
+}
+
+export function persistPool(buddies: Buddy[], index: number): void {
+  try {
+    localStorage.setItem(BUDDY_POOL_LOCAL_KEY, JSON.stringify({ pool: buddies, index }));
+  } catch { /* ignore */ }
+}
+
+export interface StoredPool {
+  pool: Buddy[];
+  index: number;
+}
+
+export function loadPoolFromStorage(): StoredPool | null {
+  try {
+    const raw = localStorage.getItem(BUDDY_POOL_LOCAL_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { pool: unknown; index: unknown };
+    if (!Array.isArray(parsed.pool) || parsed.pool.length === 0) return null;
+    return { pool: parsed.pool as Buddy[], index: parsed.index as number };
+  } catch { return null; }
+}
 
 interface CardBuddyPoolState {
   pool: Buddy[];

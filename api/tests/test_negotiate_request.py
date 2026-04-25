@@ -1,6 +1,7 @@
 # api/tests/test_negotiate_request.py
 """验证 NegotiationRequest 接收前端传来的 mbti/interests/voice_text 字段"""
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from api.frontend_api import router
 from fastapi import FastAPI
@@ -8,6 +9,14 @@ from fastapi import FastAPI
 app = FastAPI()
 app.include_router(router)
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def mock_llm():
+    """Mock LLM HTTP 调用，加速测试"""
+    mock_text = '{"rounds":[{"round_num":1,"proposer_message":"我想去大理！","evaluator_message":"好呀！"}],"consensus_scores":{"行程节奏":0.8,"美食偏好":0.7},"final_report":{"overall_score":0.75,"strengths":["古城民宿2晚"],"challenges":[]}}'
+    with patch("negotiation.llm_client.llm_client.chat", return_value=mock_text):
+        yield
 
 
 def test_negotiate_accepts_mbti_field():

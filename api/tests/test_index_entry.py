@@ -9,9 +9,10 @@ def test_index_app_has_all_routes():
     from api.index import app
 
     routes = [route.path for route in app.routes]
-    assert "/api/feed" in routes, f"缺少 /api/feed，当前路由: {routes}"
     assert "/api/buddies" in routes, f"缺少 /api/buddies，当前路由: {routes}"
+    assert "/api/persona" in routes, f"缺少 /api/persona，当前路由: {routes}"
     assert "/api/negotiate" in routes, f"缺少 /api/negotiate，当前路由: {routes}"
+    assert "/api/health" in routes, f"缺少 /api/health，当前路由: {routes}"
 
 
 def test_stt_routes_registered():

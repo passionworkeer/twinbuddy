@@ -80,6 +80,11 @@ def _call_api(payload: Dict[str, Any], api_key: str) -> Dict[str, Any]:
         resp.raise_for_status()
         # 强制用 utf-8 解码原始字节，防止中文乱码
         data = json.loads(resp.content.decode("utf-8"))
+        # MiniMax API-level error code (base_resp.status_code):
+        # 0 = success, 1000 = success, non-zero = error
+        base_code = data.get("base_resp", {}).get("status_code", 0)
+        if base_code != 0 and base_code != 1000:
+            raise RuntimeError(f"MiniMax API error: base_resp.status_code={base_code} msg={data.get('base_resp',{}).get('status_msg','')}")
         # MiniMax 返回结构：data.choices[0].message.content
         return data
 

@@ -22,14 +22,30 @@ from fastapi import APIRouter
 
 # 子 router 已有 prefix="/api"，合并时不加额外 prefix
 from api.buddies import router as _buddies_router
-from api.persona import router as _persona_router
+from api.buddies_v2 import router as _buddies_v2_router
+from api.blind_game import router as _blind_game_router
+from api.chat import router as _chat_router
+from api.community import router as _community_router
+from api.messages import router as _messages_router
 from api.negotiate import router as _negotiate_router
+from api.persona import router as _persona_router
+from api.profiles import router as _profiles_router
+from api.security import router as _security_router
+from api.trips import router as _trips_router
 
 # 主 router：不设 prefix（子 router 已包含 /api）
 router = APIRouter(tags=["前端对接"])
 router.include_router(_buddies_router)
+router.include_router(_buddies_v2_router)
+router.include_router(_blind_game_router)
+router.include_router(_chat_router)
+router.include_router(_community_router)
+router.include_router(_messages_router)
 router.include_router(_persona_router)
+router.include_router(_profiles_router)
 router.include_router(_negotiate_router)
+router.include_router(_security_router)
+router.include_router(_trips_router)
 
 __all__ = ["router"]
 

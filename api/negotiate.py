@@ -546,7 +546,7 @@ def _build_negotiation_result(city: str, user_mbti: str, buddy_mbti: str) -> Dic
 
 @router.post("/negotiate")
 async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
-    import logging
+    import asyncio, logging
     logger = logging.getLogger("twinbuddy.api")
 
     city = req.destination or "dali"
@@ -617,7 +617,29 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
             pass
 
         compat_breakdown = _get_negotiation_compatibility_breakdown(user_prefs_for_compat, twin_persona)
-        langgraph_result = run_negotiation(active_user_persona, twin_persona, user_compatibility_breakdown=compat_breakdown)
+        try:
+            # Wrap sync run_negotiation in asyncio timeout (10s) so we fail fast
+            # instead of blocking for 60s when MiniMax is unreachable
+            langgraph_result = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(
+                    None, lambda: run_negotiation(active_user_persona, twin_persona, user_compatibility_breakdown=compat_breakdown)
+                ),
+                timeout=10.0,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("LLM 协商超时 (10s)，降级到 Mock")
+            result = _build_negotiation_result(city, user_mbti, buddy_mbti)
+            return {
+                "success": True, "data": result,
+                "meta": {"source": "mock", "llm_error": "协商超时", "user_mbti": user_mbti, "buddy_mbti": buddy_mbti, "destination": city},
+            }
+        except Exception as llm_err:
+            logger.warning("LLM 协商失败 (run_negotiation): %s，降级到 Mock", llm_err)
+            result = _build_negotiation_result(city, user_mbti, buddy_mbti)
+            return {
+                "success": True, "data": result,
+                "meta": {"source": "mock", "llm_error": str(llm_err), "user_mbti": user_mbti, "buddy_mbti": buddy_mbti, "destination": city},
+            }
         rounds = langgraph_result.get("rounds", [])
         consensus_scores = langgraph_result.get("consensus_scores", {})
         final_report = langgraph_result.get("final_report", {})

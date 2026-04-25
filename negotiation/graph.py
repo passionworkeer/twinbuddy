@@ -303,8 +303,8 @@ def negotiate(
         "conflict_topics": conflict_topics,
         "total_rounds": len(rounds),
         "consensus_rounds": sum(1 for r in rounds if r.get("consensus_reached")),
-        "strengths": [TOPIC_LABELS[t] for t, s in consensus_scores.items() if s >= 0.7],
-        "challenges": [TOPIC_LABELS[t] for t, s in consensus_scores.items() if s < 0.6],
+        "strengths": [TOPIC_LABELS.get(t, t) for t, s in consensus_scores.items() if s >= 0.7],
+        "challenges": [TOPIC_LABELS.get(t, t) for t, s in consensus_scores.items() if s < 0.6],
         "recommendation": recommendation,
     }
 

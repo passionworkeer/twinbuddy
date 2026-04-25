@@ -1028,6 +1028,39 @@ def _call_llm_for_persona(
     if not _LLM_AVAILABLE or llm_client is None:
         return None
 
+    # Fast-fail: if no valid keys, skip LLM call entirely
+    from negotiation.llm_client import _KEYS as _PERSONA_LLM_KEYS
+    if not _PERSONA_LLM_KEYS:
+        return None
+
+    # Quick reachability + validity check: make a single httpx call with 5s timeout
+    # to detect unreachable API or invalid keys before spending 60s on chat.
+    # This avoids blocking the negotiate endpoint.
+    import httpx, json as _json, logging as _persona_log
+    _logger = _persona_log.getLogger("twinbuddy.persona")
+    try:
+        api_key = _PERSONA_LLM_KEYS[0]
+        _base = "https://api.minimax.chat"
+        _hdrs = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        _payload = {"model": "MiniMax-Text-01", "messages": [{"role": "user", "content": "hi"}], "temperature": 0.7}
+        with httpx.Client(timeout=5.0) as _probe_client:
+            _resp = _probe_client.post(f"{_base}/v1/text/chatcompletion_v2", headers=_hdrs, json=_payload)
+        _probe_data = _json.loads(_resp.content)
+        _base_code = _probe_data.get("base_resp", {}).get("status_code", 0)
+        if _base_code != 0 and _base_code != 1000:
+            _logger.debug("MiniMax API error %d: %s, using fallback persona", _base_code, _probe_data.get("base_resp", {}).get("status_msg", ""))
+            return None
+    except httpx.TimeoutException:
+        _logger.debug("MiniMax API timeout, using fallback persona")
+        return None
+    except httpx.HTTPStatusError as _e:
+        if _e.response.status_code in (401, 403):
+            _logger.debug("MiniMax key rejected (HTTP %d), using fallback persona", _e.response.status_code)
+            return None
+    except Exception as _e:
+        _logger.debug("MiniMax pre-check failed: %s, using fallback persona", _e)
+        return None
+
     unselected = [t for t in ALL_INTEREST_TAGS if t not in interests]
 
     prompt = PERSONA_INFERENCE_PROMPT.format(

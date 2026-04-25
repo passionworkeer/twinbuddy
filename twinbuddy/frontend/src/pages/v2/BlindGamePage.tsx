@@ -62,17 +62,22 @@ export default function BlindGamePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg-base)] text-white">
-        <LoaderCircle className="h-8 w-8 animate-spin text-[var(--color-primary)]" />
+      <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[var(--color-bg-base)] text-white">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,20,19,0.7),rgba(7,18,15,0.95))]" />
+        <LoaderCircle className="relative z-10 h-8 w-8 animate-spin text-[var(--color-primary)]" />
       </div>
     );
   }
 
   if (report) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-base)] px-4 py-6 text-white">
-        <div className="mx-auto max-w-3xl space-y-6">
-          <button className="btn-ghost px-0" onClick={() => navigate('/buddies')} type="button">
+      <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.25),rgba(6,17,15,0.94)_42%,rgba(7,22,18,1))]" />
+        <div className="absolute left-[-4rem] top-28 h-56 w-56 rounded-full bg-[rgba(111,160,141,0.16)] blur-3xl" />
+        <div className="absolute bottom-24 right-[-3rem] h-72 w-72 rounded-full bg-[rgba(255,120,86,0.12)] blur-3xl" />
+
+        <div className="relative z-10 mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
+          <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">
             <ArrowLeft className="h-4 w-4" />
             返回搭子动态
           </button>
@@ -88,11 +93,32 @@ export default function BlindGamePage() {
               </div>
             </div>
 
-            <p className="text-sm leading-6 text-[var(--color-text-secondary)]">{report.analysis}</p>
+            <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.28)]">
+              <div className="grid gap-4 sm:grid-cols-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/70">阶段</span>
+                  <span className="mt-1 text-sm font-semibold text-white">Layer 3 揭晓</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/70">对象</span>
+                  <span className="mt-1 text-sm font-semibold text-white">{buddyId}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/70">轮次</span>
+                  <span className="mt-1 text-sm font-semibold text-white">{report.per_round_result.length} 轮</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/70">结论</span>
+                  <span className="mt-1 text-sm font-semibold text-white">{report.match_score}%</span>
+                </div>
+              </div>
+              <div className="my-4 h-px w-full bg-white/15" />
+              <p className="text-sm leading-7 text-white/80">{report.analysis}</p>
+            </section>
 
             <div className="grid gap-3">
               {report.per_round_result.map((item, index) => (
-                <div key={item.round_id} className="glass-panel p-4">
+                <div key={item.round_id} className="glass-card rounded-[18px] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm text-[var(--color-text-secondary)]">Round {index + 1}</p>
@@ -126,7 +152,7 @@ export default function BlindGamePage() {
             </div>
 
             {showTripForm ? (
-              <section className="glass-panel p-5">
+              <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.28)]">
                 <h3 className="text-xl font-semibold text-white">行程安全上报</h3>
                 <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
                   正式认识后，建议先上报一个基础行程和紧急联系人。上报完成后再进入私信继续沟通更稳。
@@ -168,21 +194,39 @@ export default function BlindGamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-base)] px-4 py-6 text-white">
-      <div className="mx-auto max-w-2xl space-y-6">
-        <button className="btn-ghost px-0" onClick={() => navigate('/buddies')} type="button">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.2),rgba(6,17,15,0.9)_40%,rgba(7,22,18,1))]" />
+      <div className="absolute -left-10 top-28 h-48 w-48 rounded-full bg-[rgba(111,160,141,0.14)] blur-3xl" />
+      <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(255,120,86,0.12)] blur-3xl" />
+
+      <div className="relative z-10 mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
+        <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">
           <ArrowLeft className="h-4 w-4" />
           返回搭子动态
         </button>
 
-        <section className="glass-panel-strong space-y-5 p-5 sm:p-6">
+        <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.28)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/70">Layer 3 / 6 轮盲选</p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white">{currentRound?.dimension}</h2>
+              <p className="mt-2 text-sm leading-6 text-white/80">
+                双方同时作答，互不知晓，全部结束后再统一揭晓匹配分析。
+              </p>
+            </div>
+            <div className="rounded-[18px] border border-white/15 bg-black/15 px-4 py-3 text-right">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/60">进度</p>
+              <p className="mt-1 text-2xl font-bold text-white">{Math.min(currentIndex + 1, rounds.length)}/{Math.max(rounds.length, 1)}</p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <div className="rounded-3xl bg-[rgba(255,179,182,0.12)] p-3 text-[var(--color-primary)]">
               <Sparkles className="h-6 w-6" />
             </div>
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">6 轮盲选游戏</p>
-              <h2 className="text-3xl font-semibold text-white">{currentRound?.dimension}</h2>
+              <h3 className="text-xl font-semibold text-white">选择更贴近你真实旅行偏好的答案</h3>
             </div>
           </div>
 
@@ -193,7 +237,7 @@ export default function BlindGamePage() {
           {currentRound ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <button
-                className="twin-card-layer1 min-h-48 p-5 text-left"
+                className="glass-card rounded-[20px] min-h-52 p-5 text-left shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 hover:border-white/25"
                 disabled={isAnswering}
                 onClick={() => handleChoice('A')}
                 type="button"
@@ -206,7 +250,7 @@ export default function BlindGamePage() {
               </button>
 
               <button
-                className="twin-card-layer1 min-h-48 p-5 text-left"
+                className="glass-card rounded-[20px] min-h-52 p-5 text-left shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 hover:border-white/25"
                 disabled={isAnswering}
                 onClick={() => handleChoice('B')}
                 type="button"

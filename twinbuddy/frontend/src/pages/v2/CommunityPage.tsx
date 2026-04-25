@@ -7,6 +7,7 @@ import {
   likeTwinBuddyCommunityPost,
   triggerTwinBuddyCommunityTwinChat,
 } from '../../api/client';
+import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { communityShowcases } from '../../mocks/v2Showcase';
@@ -29,51 +30,81 @@ export default function CommunityPage() {
   const [draft, setDraft] = useState('');
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [statusText, setStatusText] = useState('');
+  const [errorText, setErrorText] = useState('');
 
   useEffect(() => {
-    fetchTwinBuddyCommunityFeed(profile.userId).then(setPosts).catch(() => setPosts([]));
+    fetchTwinBuddyCommunityFeed(profile.userId)
+      .then((items) => {
+        setErrorText('');
+        setPosts(items);
+      })
+      .catch(() => {
+        setErrorText('社区动态暂时加载失败，请稍后刷新重试。');
+        setPosts([]);
+      });
   }, [profile.userId]);
 
   const hotTags = useMemo(() => ['深圳', '周末', '美食', '慢节奏', '五一'], []);
 
   const handlePublish = async () => {
     if (!profile.userId || !draft.trim()) return;
-    const created = await createTwinBuddyCommunityPost({
-      userId: profile.userId,
-      content: draft.trim(),
-      location: profile.city || '深圳',
-      tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
-    });
-    setPosts((prev) => [created, ...prev]);
-    setDraft('');
+    try {
+      const created = await createTwinBuddyCommunityPost({
+        userId: profile.userId,
+        content: draft.trim(),
+        location: profile.city || '深圳',
+        tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
+      });
+      setErrorText('');
+      setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
+      setPosts((prev) => [created, ...prev]);
+      setDraft('');
+    } catch {
+      setErrorText('发布失败，请稍后再试。');
+    }
   };
 
   const handleLike = async (postId: string) => {
     if (!profile.userId) return;
-    const result = await likeTwinBuddyCommunityPost(postId, profile.userId);
-    setPosts((prev) => prev.map((post) => (post.id === postId ? { ...post, likes_count: result.likes_count } : post)));
+    try {
+      const result = await likeTwinBuddyCommunityPost(postId, profile.userId);
+      setErrorText('');
+      setPosts((prev) => prev.map((post) => (post.id === postId ? { ...post, likes_count: result.likes_count } : post)));
+    } catch {
+      setErrorText('点赞失败，请稍后重试。');
+    }
   };
 
   const handleComment = async (postId: string) => {
     if (!profile.userId || !commentDrafts[postId]?.trim()) return;
-    const comment = await commentTwinBuddyCommunityPost(postId, {
-      userId: profile.userId,
-      content: commentDrafts[postId].trim(),
-    });
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
-          : post,
-      ),
-    );
-    setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+    try {
+      const comment = await commentTwinBuddyCommunityPost(postId, {
+        userId: profile.userId,
+        content: commentDrafts[postId].trim(),
+      });
+      setErrorText('');
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
+            : post,
+        ),
+      );
+      setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+    } catch {
+      setErrorText('评论发送失败，请稍后再试。');
+    }
   };
 
   const handleTwinChat = async (postId: string) => {
     if (!profile.userId) return;
-    const result = await triggerTwinBuddyCommunityTwinChat(postId, profile.userId);
-    setStatusText(result.summary);
+    try {
+      const result = await triggerTwinBuddyCommunityTwinChat(postId, profile.userId);
+      setErrorText('');
+      setStatusText(result.summary);
+    } catch {
+      setErrorText('代聊发起失败，请稍后再试。');
+    }
   };
 
   return (
@@ -93,6 +124,11 @@ export default function CommunityPage() {
               {statusText}
             </div>
           ) : null}
+          {errorText ? (
+            <div className="mt-4 rounded-2xl border border-[rgba(248,113,113,0.2)] bg-[rgba(93,32,32,0.24)] px-4 py-3 text-sm text-[var(--color-primary-light)]">
+              {errorText}
+            </div>
+          ) : null}
         </section>
 
         <section className="glass-panel p-5">
@@ -106,7 +142,7 @@ export default function CommunityPage() {
             placeholder="发一条旅行计划或偏好动态，比如：五一想去顺德慢慢吃，找一个不赶行程的搭子。"
             value={draft}
           />
-          <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap gap-2">
               {hotTags.map((tag) => (
                 <span key={tag} className="tag">
@@ -114,10 +150,13 @@ export default function CommunityPage() {
                 </span>
               ))}
             </div>
-            <button className="btn-primary" onClick={handlePublish} type="button">
-              <SendHorizonal className="h-4 w-4" />
-              发布动态
-            </button>
+            <div className="flex items-center justify-end gap-3">
+              <VoiceInputButton onTranscribed={(text) => setDraft((current) => current.trim() ? `${current.trim()}\n${text}` : text)} />
+              <button className="btn-primary" onClick={handlePublish} type="button">
+                <SendHorizonal className="h-4 w-4" />
+                发布动态
+              </button>
+            </div>
           </div>
         </section>
 
@@ -187,7 +226,7 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <aside className="glass-panel p-5">
+      <aside className="hidden glass-panel p-5 lg:block">
         <ShowcaseCarousel
           title="轮播展示"
           items={communityShowcases}

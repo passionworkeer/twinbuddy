@@ -37,7 +37,9 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {
-        ...devices['Desktop Chrome'],
+        launchOptions: {
+          executablePath: 'C:\\Users\\wang\\.chromium-browser-snapshots\\chromium\\win64-1616264\\chrome-win\\chrome.exe',
+        },
       },
     },
   ],

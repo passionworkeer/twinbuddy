@@ -1,4 +1,4 @@
-import { ChevronRight, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
   fetchTwinBuddyBuddyCard,
@@ -6,6 +6,7 @@ import {
   fetchTwinBuddySecurityStatus,
   submitTwinBuddyVerification,
 } from '../../api/client';
+import TwinCard from '../../components/twin-card/TwinCard';
 import BuddyDetailModal from '../../components/v2/BuddyDetailModal';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { buddyInbox as fallbackInbox } from '../../mocks/buddyInbox';
@@ -50,6 +51,7 @@ export default function BuddiesPage() {
   const [items, setItems] = useState<TwinBuddyV2BuddyInboxItem[]>([]);
   const [selectedCard, setSelectedCard] = useState<TwinBuddyV2BuddyCard | null>(null);
   const [securityStatus, setSecurityStatus] = useState<TwinBuddySecurityStatus | null>(null);
+  const [errorText, setErrorText] = useState('');
   const [legalName, setLegalName] = useState('');
   const [idNumberTail, setIdNumberTail] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -60,8 +62,12 @@ export default function BuddiesPage() {
       return Promise.resolve();
     }
     return fetchTwinBuddyBuddyInbox(profile.userId)
-      .then(setItems)
+      .then((nextItems) => {
+        setErrorText('');
+        setItems(nextItems);
+      })
       .catch(() => {
+        setErrorText('搭子动态暂时加载失败，已切换到演示数据。');
         setItems(buildFallbackInbox());
       });
   };
@@ -78,10 +84,12 @@ export default function BuddiesPage() {
         if (status.is_verified) {
           return loadInbox();
         }
+        setErrorText('');
         setItems([]);
         return Promise.resolve();
       })
       .catch(() => {
+        setErrorText('实名认证状态读取失败，已切换到演示数据。');
         setItems(buildFallbackInbox());
       });
   }, [profile.userId]);
@@ -89,8 +97,10 @@ export default function BuddiesPage() {
   const openCard = async (buddyId: string, negotiationId: string) => {
     try {
       const card = await fetchTwinBuddyBuddyCard(buddyId, negotiationId);
+      setErrorText('');
       setSelectedCard(card);
     } catch {
+      setErrorText('协商摘要加载失败，请稍后再试。');
       setSelectedCard(null);
     }
   };
@@ -106,6 +116,8 @@ export default function BuddiesPage() {
       });
       setSecurityStatus(nextStatus);
       await loadInbox();
+    } catch {
+      setErrorText('实名认证失败，请确认信息后重试。');
     } finally {
       setIsVerifying(false);
     }
@@ -120,7 +132,7 @@ export default function BuddiesPage() {
                 <Sparkles className="h-3.5 w-3.5" />
                 数字分身汇报
               </div>
-              <h2 className="mt-3 text-2xl font-semibold text-white">今日已完成 3 位候选搭子的预协商</h2>
+              <h2 className="mt-3 text-2xl font-semibold text-white">今日已完成 {items.length || 3} 位候选搭子的预协商</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
                 {securityStatus?.is_verified
                   ? '数字分身已经先替你筛过一轮，下面这些都是更值得继续了解的对象。'
@@ -129,6 +141,12 @@ export default function BuddiesPage() {
             </div>
           </div>
       </section>
+
+      {errorText ? (
+        <section className="rounded-[24px] border border-[rgba(248,113,113,0.2)] bg-[rgba(93,32,32,0.24)] px-4 py-3 text-sm text-[var(--color-primary-light)]">
+          {errorText}
+        </section>
+      ) : null}
 
       {profile.userId && securityStatus && !securityStatus.is_verified ? (
         <section className="glass-panel p-5 sm:p-6">
@@ -148,7 +166,7 @@ export default function BuddiesPage() {
                 <input
                   className="neon-input"
                   inputMode="numeric"
-                  maxLength={6}
+                  maxLength={4}
                   onChange={(event) => setIdNumberTail(event.target.value)}
                   placeholder="身份证后四位"
                   value={idNumberTail}
@@ -176,42 +194,11 @@ export default function BuddiesPage() {
             className="p-5"
           />
           {items.map((buddy) => (
-            <article key={buddy.buddy_id} className="glass-panel p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{buddy.avatar}</span>
-                    <h3 className="text-lg font-semibold text-white">@{buddy.nickname}</h3>
-                    <span className="mbti-badge">{buddy.mbti}</span>
-                    <span className="text-sm text-[var(--color-text-secondary)]">{buddy.city}</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">{buddy.preview}</p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-sm text-[var(--color-text-secondary)]">匹配度</p>
-                  <p className="text-3xl font-semibold text-[var(--color-primary)]">{buddy.match_score}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {buddy.highlights.map((highlight) => (
-                  <span key={highlight} className="tag">
-                    {highlight}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-5 flex items-center justify-between">
-                <span className="rounded-full border border-white/8 bg-white/4 px-3 py-1 text-xs text-[var(--color-text-secondary)]">
-                  {buddy.status}
-                </span>
-                <button className="btn-secondary text-sm" onClick={() => openCard(buddy.buddy_id, buddy.negotiation_id)} type="button">
-                  查看协商摘要
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </article>
+            <TwinCard
+              key={buddy.buddy_id}
+              buddy={buddy}
+              onOpen={() => openCard(buddy.buddy_id, buddy.negotiation_id)}
+            />
           ))}
         </div>
       )}

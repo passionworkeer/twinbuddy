@@ -5,6 +5,7 @@ import {
   fetchTwinBuddyProfile,
   streamTwinBuddyChat,
 } from '../../api/client';
+import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { homeShowcases } from '../../mocks/v2Showcase';
@@ -31,6 +32,10 @@ const prompts = [
   '如果我不想太赶，又希望能吃得好，适合找什么样的搭子？',
   '第一次见面适合去哪种城市短途，不会太尴尬？',
 ];
+
+function appendVoiceText(currentValue: string, nextText: string) {
+  return currentValue.trim() ? `${currentValue.trim()}\n${nextText}` : nextText;
+}
 
 export default function HomePage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
@@ -134,7 +139,7 @@ export default function HomePage() {
                 {profile.city || '你的城市'} 的旅行灵感已经准备好了
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-secondary)]">
-              这里会承接 Tab1 的流式对话、主动探查问题和历史消息。当前先把新版结构搭起来，下一批会接上真实 SSE 对话和偏好提取。
+              这里已经承接了 Tab1 的流式对话、偏好提取和历史消息恢复。你现在可以直接聊路线、节奏、预算，也可以用语音更快把长句子说出来。
               {remoteProfileSummary ? ` 当前画像：${remoteProfileSummary}。` : ''}
             </p>
           </div>
@@ -152,12 +157,12 @@ export default function HomePage() {
               <MessageSquareText className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">开场访谈占位</h3>
-              <p className="text-sm text-[var(--color-text-secondary)]">后续会替换为流式消息列表与输入框。</p>
+              <h3 className="text-lg font-semibold text-white">旅行顾问对话区</h3>
+              <p className="text-sm text-[var(--color-text-secondary)]">支持流式对话、历史恢复和语音补充输入。</p>
             </div>
           </div>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 flex max-h-[46dvh] flex-col gap-3 overflow-y-auto pr-1">
             {messages.length === 0 ? (
               <>
                 <div className="bubble-buddy">
@@ -184,14 +189,20 @@ export default function HomePage() {
               placeholder={placeholderText}
               value={input}
             />
-            <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs text-[var(--color-text-secondary)]">
                 {hint || '每条对话都会更新你的偏好画像。'}
               </div>
-              <button className="btn-primary" disabled={!profile.userId || !input.trim() || isSending} onClick={handleSend} type="button">
-                <SendHorizonal className="h-4 w-4" />
-                {isSending ? '发送中' : '发送'}
-              </button>
+              <div className="flex items-center justify-end gap-3">
+                <VoiceInputButton
+                  disabled={isSending}
+                  onTranscribed={(text) => setInput((current) => appendVoiceText(current, text))}
+                />
+                <button className="btn-primary" disabled={!profile.userId || !input.trim() || isSending} onClick={handleSend} type="button">
+                  <SendHorizonal className="h-4 w-4" />
+                  {isSending ? '发送中' : '发送'}
+                </button>
+              </div>
             </div>
           </div>
         </article>

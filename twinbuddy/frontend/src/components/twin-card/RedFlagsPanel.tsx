@@ -1,0 +1,21 @@
+interface Props {
+  items: string[];
+}
+
+export default function RedFlagsPanel({ items }: Props) {
+  return (
+    <section className="rounded-3xl border border-[rgba(248,113,113,0.18)] bg-[rgba(72,22,28,0.24)] p-4">
+      <div className="flex items-center gap-2">
+        <span className="red-flag-badge">需要留意</span>
+        <p className="text-sm text-[var(--color-text-secondary)]">这些不是一票否决，但建议在见面前说清楚。</p>
+      </div>
+      <ul className="mt-4 space-y-3 text-sm leading-6 text-white">
+        {items.map((item) => (
+          <li key={item} className="rounded-2xl border border-white/8 bg-black/10 px-3 py-2">
+            {item}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

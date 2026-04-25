@@ -19,17 +19,21 @@
                         │ HTTPS (REST API + SSE)
 ┌───────────────────────▼──────────────────────────────────┐
 │                       后端                               │
-│         FastAPI + LangGraph + PostgreSQL                 │
+│         FastAPI + LangGraph                              │
 │              部署：Railway (railway.app)                 │
 │         环境：Review / Production                        │
 └────┬────────────────┬──────────────────────┬───────────┘
      │                │                      │
-┌────▼────┐   ┌───────▼─────┐   ┌──────────▼──────────┐
-│PostgreSQL│   │    Qdrant   │   │    Claude API      │
-│Railway   │   │ Railway容器 │   │  Anthropropic      │
-│内置Postgres│  │  (向量检索)  │   │  (LLM推理)        │
-└──────────┘   └─────────────┘   └───────────────────┘
+┌────▼────────┐ ┌───────▼─────┐   ┌──────────▼──────────┐
+│  Supabase   │ │    Qdrant   │   │    Claude API      │
+│ PostgreSQL  │ │ (向量检索)   │   │   Anthropic        │
+│ (主数据库)   │ │  Cloud/Self │   │   (LLM推理)        │
+└─────────────┘ └─────────────┘   └───────────────────┘
 ```
+
+> **数据库选型变更（v2.1）：** MVP 阶段使用 Supabase（PostgreSQL）替代 Railway 内置 Postgres。
+> 理由：Supabase 提供免费层、内置 Auth、实时订阅（V2 WebSocket 可复用）、Row Level Security，运维更轻量。
+> 当用户量 > 1 万 / 月时评估迁移到专用 PostgreSQL（如 Neon）。
 
 ### 环境隔离策略
 
@@ -148,7 +152,8 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-> Railway 部署时，在 `railway.toml` 的 `startCommand` 中加入 `alembic upgrade head`。
+> Supabase 部署：数据库迁移通过 `DATABASE_URL`（Supabase connection string）连接，CI 中执行 `alembic upgrade head`。
+> Railway 的 `startCommand` 改为：`alembic upgrade head && uvicorn api.main:app --host 0.0.0.0 --port $PORT`。
 
 ---
 
@@ -164,11 +169,11 @@ alembic downgrade -1
 
 > Vercel 每个 PR preview 自动注入 `VITE_APP_ENV=preview`。
 
-### 后端（Railway）
+### 后端（Railway + Supabase）
 
 | 变量名 | 来源 | 说明 |
 |--------|------|------|
-| `DATABASE_URL` | Railway Postgres 内置 | PostgreSQL 连接串 |
+| `DATABASE_URL` | Supabase 连接串 | PostgreSQL（来自 Supabase Dashboard → Settings → Connection String）|
 | `REDIS_URL` | Railway Redis 插件 | 会话存储（盲选游戏状态） |
 | `ANTHROPIC_API_KEY` | Railway Variables | Claude API Key |
 | `QDRANT_URL` | Railway Variables | Qdrant 服务地址 |
@@ -181,12 +186,18 @@ alembic downgrade -1
 
 ```bash
 # api/.env（不上 git）
-DATABASE_URL=postgresql://user:pass@localhost:5432/twinbuddy
+DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+# 或者本地 Supabase CLI：
+# DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 REDIS_URL=redis://localhost:6379
 ANTHROPIC_API_KEY=sk-...
 QDRANT_URL=http://localhost:6333
 JWT_SECRET=dev-secret-change-in-prod
 ALLOWED_ORIGINS=http://localhost:5173,https://*.vercel.app
+# Supabase anon/public key（前端直接读也用这个）
+SUPABASE_ANON_KEY=eyJhbGc...  # 公开，前端 Vercel 环境变量
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...  # 仅后端私密
+```
 
 # twinbuddy/frontend/.env.local（不上 git）
 VITE_API_BASE_URL=http://localhost:8000
@@ -339,6 +350,10 @@ Week:   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16
 ├─ 数据库迁移(Alembic)    ████
 ├─ CI/CD 流水线           ████
 └─ 环境变量规范           ██
+
+Phase 1.5 安全机制 ⚠️
+├─ 实名认证接入           ████
+└─ 行程上报+紧急联系人     ████
 
 后端 - 用户与画像
 ├─ 认证 API (注册/登录)    ██████
@@ -514,7 +529,48 @@ V2 社区 (后续)
 
 ---
 
-### Phase 2：后端 - 搭子匹配与协商（第 4-7 周）
+### Phase 1.5：安全机制 — 上线前提（第 3-4 周，与 Phase 1 并行）
+
+> **重要性：** 这是陌生人见面平台的安全底线，不是功能，是上线前提。
+> 预计工作量：3-4 天，合入 Phase 1 和 Phase 2 之间。
+
+#### TASK-SAFE-001：实名认证接入
+- **文件：** `api/security.py`
+- **接入方案：** 腾讯云身份证 OCR + 人脸核身（`faceid`）或支付宝实名核身 API
+- **逻辑：**
+  - 用户发起搭子匹配之前，检查 `users.is_verified == true`
+  - 未认证用户：跳转实名认证页面，无法进入 Tab2 搭子动态
+  - 认证成功：更新 `users.is_verified = true`，写入 `users.real_name`（加密存储，仅后端可见）
+- **依赖：** TASK-005（认证 API 已有用户模型）
+- **验收：**
+  - 未认证用户调用 `GET /api/buddies/inbox` → 返回 403 + 引导认证提示
+  - 认证流程 UI 完整；认证后状态正确更新
+- **测试：** `pytest api/tests/integration/test_security_flow.py -v`
+
+#### TASK-SAFE-002：行程上报与紧急联系人
+- **文件：** `api/trips.py`
+- **触发时机：** 搭子双方均点击「正式认识TA」后，弹出行程上报表单（前端可跳过，但默认展示）
+- **API：**
+  ```
+  POST /api/trips/report
+    { user_a_id, user_b_id, destination, depart_date, return_date, emergency_contact_name, emergency_contact_phone }
+  → { trip_id, emergency_notification_sent: bool }
+  ```
+- **逻辑：**
+  - 行程上报后，向紧急联系人手机发送通知（腾讯云 SMS 或螺钉短信）
+  - 通知内容：「您的朋友 [姓名] 将于 [日期] 前往 [目的地]，如需帮助请联系。」
+  - 紧急联系人信息加密存储（`emergency_contact` JSONB 字段，加密后写入）
+- **数据存储：** `trip_reports` 表（V1 设计中已有 schema）
+- **依赖：** TASK-SAFE-001
+- **验收：**
+  - 行程上报接口正常工作
+  - 紧急联系人通知发送成功（测试环境可 Mock SMS）
+  - 行程状态可查询（`GET /api/trips/{id}/status`）
+- **测试：** `pytest api/tests/integration/test_trips_flow.py -v`
+
+---
+
+### Phase 2：后端 - 搭子匹配与协商（第 4-7 周，与 Phase 1.5 安全并行）
 
 #### TASK-009：Qdrant 向量检索集成
 - **文件：** `api/matching.py`
@@ -562,23 +618,60 @@ V2 社区 (后续)
 
 #### TASK-013：盲选评分引擎
 - **文件：** `api/blind_game_scoring.py`
-- **逻辑：**
-  - 同选项 → 100% 得分；不同选项 → 0%（题目本身即偏好冲突）
-  - 综合得分 = 一致轮次数 / 6 × 100
-  - LLM 辅助生成分析文本（1-2 句话）
-- **依赖：** TASK-012
-- **验收：** 6/6 一致 → 100%；0/6 一致 → 0%；LLM 分析可读
-- **测试：** `pytest api/tests/unit/test_blind_game_scoring.py -v`
+- **逻辑（带权重的维度评分）：**
 
-#### TASK-014：私信会话管理
+```python
+# 各维度权重（根据旅行搭子核心冲突提炼，后续根据真实数据调参）
+DIMENSION_WEIGHTS = {
+    '作息节奏': 0.25,   # 每天都影响，权重最高
+    '消费态度': 0.25,   # 同上，预算差距是搭子头号杀手
+    '行程风格': 0.20,   # 影响每个决策点
+    '美食追求': 0.15,   # 影响每顿饭
+    '社交强度': 0.10,   # 有影响但可各自为政
+    '拍照态度': 0.05,   # 影响最小，可协调
+}
+
+def calculate_match_score(user_a_choices: dict, user_b_choices: dict) -> float:
+    score = 0.0
+    for dimension, weight in DIMENSION_WEIGHTS.items():
+        if user_a_choices[dimension] == user_b_choices[dimension]:
+            score += weight * 1.0      # 完全一致，得满分
+        else:
+            score += weight * 0.2      # 选不同也给 20%，避免极端
+    return round(score * 100, 1)
+
+# 容错机制
+# 权重得分 ≥ 85% → 高匹配，强推
+# 权重得分 60-85% → 中匹配，展示报告让用户判断
+# 权重得分 < 60% → 低匹配，提示风险
+```
+
+> **设计原则：** 不是所有维度等权重。「拍照风格」不同可以各拍各的；「预算」差距大每顿饭都是矛盾。权重值初期按经验分配，积累真实协商数据后用梯度下降反推最优权重。
+
+- **依赖：** TASK-012
+- **验收：**
+  - 6/6 全一致 → 100.0%
+  - 6/6 全不一致 → 12.0%（0.2 × 6 × 100）
+  - LLM 生成分析文本可读
+  - 各维度权重可配置（不硬编码）
+- **测试：** `pytest api/tests/unit/test_blind_game_scoring.py -v`（覆盖所有 7^6 理论组合的边界用例）
+
+#### TASK-014：私信会话管理（MVP：轮询模式）
 - **文件：** `api/messages.py`
 - **API：** `GET /api/conversations`, `GET /api/messages/{room_id}`, `POST /api/messages`
-- **逻辑：**
-  - 搭子确认后自动创建 conversation
-  - 新消息通过轮询返回（SSE 推送可选 V2）
-  - 未读计数
+
+**MVP 轮询策略（V2 才升级 WebSocket）：**
+```
+前端每 3 秒：GET /api/messages/{room_id}?after={last_message_id}
+后端返回：last_message_id 之后的新消息（空数组 [] 也正常返回）
+```
+
+- 理由：实现最简单，测试容易写，无 WebSocket 复杂度，上限足够支撑 MVP 阶段搭子聊天的消息量
+- V2 升级为 Supabase Realtime（WebSocket）支持双向消息
+
+- **未读计数：** 每条消息写入时更新 `conversations.unread_count`
 - **依赖：** TASK-010
-- **验收：** 搭子确认后可在私信中看到对方；消息持久化
+- **验收：** 搭子确认后可在私信中看到对方；消息持久化；轮询正常工作
 - **测试：** `pytest api/tests/integration/test_messaging_flow.py -v`
 
 ---
@@ -656,9 +749,15 @@ V2 社区 (后续)
 #### TASK-021：Tab4 我的
 - **文件：** `twinbuddy/frontend/src/pages/Tab4Profile/`
 - **组件：** `ProfileHeader.tsx`, `TravelStats.tsx`, `SettingsPanel.tsx`
-- **逻辑：** 展示个人信息 + 数字分身主动程度设置
+- **逻辑：**
+  - 展示个人信息（头像、昵称、MBTI Badge、旅行统计）
+  - 旅行偏好设置（可手动修改，由 AI 助手持续更新）
+  - **不包含**「数字分身主动程度设置」——该功能后端调度器（APScheduler）在 V2 才实现，提前暴露 UI 会给用户假预期
+
+> **设计原则：** 不要给用户暴露一个不起作用的开关。主动程度设置在 V2 Tab3 社区上线后，Tab4 同步更新。
+
 - **依赖：** TASK-015
-- **验收：** 页面展示所有信息；设置修改可保存
+- **验收：** 页面展示所有信息；偏好修改可保存；无未实现功能的 UI
 
 #### TASK-022：Tab5 私信
 - **文件：** `twinbuddy/frontend/src/pages/Tab5Messages/`
@@ -799,10 +898,11 @@ V2 社区 (后续)
 |------|------|---------|
 | Claude API 成本超预期 | 高 | 设置每日配额；接入豆包作为降级方案 |
 | Qdrant 自托管运维成本 | 中 | 先用 Qdrant Cloud（免费层）；量上来后迁移 |
-| Railway PostgreSQL 冷启动慢 | 低 | Railway 插件预置 postgres；连接池复用 |
+| Supabase 连接超时/冷启动 | 中 | Supabase Pro 保障 95% SLA；连接池用 `pgBouncer` 模式 |
 | Vercel + Railway CORS 问题 | 中 | `ALLOWED_ORIGINS` 环境变量统一管理 |
 | 数字人协商质量差 | 高 | 早期大量人工评估；满意度 < 6 分触发告警 |
-| 单人开发进度延期 | 中 | 优先保 MVP；V2 社区大幅后移 |
+| 陌生人见面安全事件 | 极高 | **必须在 TASK-SAFE-001/002 充分验证；未完成实名认证不能进入匹配流程** |
+| 单人开发进度延期 | 中 | 优先保 MVP；V2 社区大幅后移；安全 TASK 不可跳过 |
 | 盲选游戏 Redis 超时丢状态 | 低 | 游戏结果写 PostgreSQL；Redis 仅做会话缓存 |
 
 ---

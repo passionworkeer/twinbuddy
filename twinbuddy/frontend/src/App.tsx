@@ -1,16 +1,34 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import OnboardingPage from './pages/OnboardingPage';
-import FeedPage from './pages/FeedPage';
-import ResultPage from './pages/ResultPage';
-import MatchReportDetailPage from './pages/MatchReportDetailPage';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import AppShell from './components/app-shell/AppShell';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { STORAGE_KEYS, type OnboardingData } from './types';
+import HomePage from './pages/v2/HomePage';
+import BuddiesPage from './pages/v2/BuddiesPage';
+import BlindGamePage from './pages/v2/BlindGamePage';
+import CommunityPage from './pages/v2/CommunityPage';
+import MessagesPage from './pages/v2/MessagesPage';
+import OnboardingV2Page from './pages/v2/OnboardingV2Page';
+import ProfilePage from './pages/v2/ProfilePage';
+import { V2_STORAGE_KEYS, type TwinBuddyV2OnboardingData } from './types';
 
 function HomeRedirect() {
-  const [data] = useLocalStorage<OnboardingData>(STORAGE_KEYS.onboarding, {
-    mbti: '', interests: [], voiceText: '', city: '', completed: false, timestamp: 0,
+  const [data] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, {
+    mbti: '',
+    travelRange: [],
+    budget: '',
+    selfDescription: '',
+    city: '',
+    completed: false,
+    timestamp: 0,
   });
-  return <Navigate to={data.completed ? '/feed' : '/onboarding'} replace />;
+  return <Navigate to={data.completed ? '/home' : '/onboarding'} replace />;
+}
+
+function ShellRoutes() {
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
 }
 
 export default function App() {
@@ -18,10 +36,15 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/feed" element={<FeedPage />} />
-        <Route path="/result" element={<ResultPage />} />
-        <Route path="/result/:reportId/detail" element={<MatchReportDetailPage />} />
+        <Route path="/onboarding" element={<OnboardingV2Page />} />
+        <Route path="/blind-game/:buddyId/:negotiationId" element={<BlindGamePage />} />
+        <Route element={<ShellRoutes />}>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/buddies" element={<BuddiesPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

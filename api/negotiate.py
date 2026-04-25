@@ -598,6 +598,15 @@ async def negotiate(req: NegotiationRequest) -> Dict[str, Any]:
         }
 
     try:
+        from negotiation.llm_client import _LLM_AVAILABLE
+        if not _LLM_AVAILABLE:
+            logger.warning("LLM 不可用，降级到 Mock 协商")
+            result = _build_negotiation_result(city, user_mbti, buddy_mbti)
+            return {
+                "success": True, "data": result,
+                "meta": {"source": "mock", "llm_error": "LLM 未配置", "user_mbti": user_mbti, "buddy_mbti": buddy_mbti, "destination": city},
+            }
+
         from negotiation.graph import run_negotiation
 
         active_user_persona = user_persona or _build_persona_from_onboarding(user_mbti, city, [], "")

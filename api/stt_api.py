@@ -2,9 +2,7 @@
 """
 backend/api/stt_api.py — TwinBuddy 语音转文字 API
 
-提供两个接口：
-  1. POST /api/stt/recognize  — 完整音频上传（非流式）
-  2. WebSocket /api/stt/ws   — 实时流式识别
+提供 WebSocket 实时流式识别接口。
 
 WebSocket 协议：
   客户端 → 服务端（binary）：
@@ -25,80 +23,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import AsyncGenerator, AsyncIterator
+from typing import AsyncIterator
 
 import websockets
-from fastapi import APIRouter, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
-from .xfyun_stt import (
-    FRAME_SIZE_BYTES,
-    stt_from_upload,
-    stt_stream,
-)
+from .xfyun_stt import stt_stream
 
 logger = logging.getLogger("twinbuddy.stt")
 router = APIRouter(prefix="/api/stt", tags=["语音转文字"])
-
-
-# ---------------------------------------------------------------------------
-# 非流式接口（完整音频一次上传）
-# ---------------------------------------------------------------------------
-
-@router.post(
-    "/recognize",
-    summary="语音识别（完整音频）",
-    response_model=dict,
-)
-async def recognize(
-    audio: UploadFile = File(..., description="16kHz / 16bit / mono PCM 音频文件"),
-) -> dict:
-    """
-    接收完整音频文件，返回识别文本。
-
-    适用于短音频（< 60s），如语音消息、录音文件等。
-    长音频或需要实时反馈时请使用 WebSocket 接口。
-
-    音频要求：
-      - 格式：16kHz / 16bit / mono PCM
-      - 编码：raw（无压缩）
-      - 时长：建议 < 60s（iFlytek 单次会话限制）
-
-    Returns:
-        {
-          "success": true,
-          "text": "识别结果文本",
-          "meta": {"size_bytes": N}
-        }
-    """
-    try:
-        audio_bytes = await audio.read()
-        audio_size = len(audio_bytes)
-
-        if audio_size == 0:
-            raise HTTPException(status_code=400, detail="音频文件为空")
-
-        logger.info("STT recognize 请求 | size=%d bytes | filename=%s", audio_size, audio.filename)
-
-        # 调用 iFlytek 识别
-        text = await stt_from_upload(audio_bytes)
-
-        logger.info("STT 识别成功 | text_len=%d", len(text))
-        return {
-            "success": True,
-            "text": text,
-            "meta": {"size_bytes": audio_size},
-        }
-
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.error("STT recognize 失败: %s", exc)
-        return {
-            "success": False,
-            "text": "",
-            "error": str(exc),
-        }
 
 
 # ---------------------------------------------------------------------------

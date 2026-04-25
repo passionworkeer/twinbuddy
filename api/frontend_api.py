@@ -21,17 +21,13 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 # 子 router 已有 prefix="/api"，合并时不加额外 prefix
-from api.feed import router as _feed_router
 from api.buddies import router as _buddies_router
-from api.onboarding import router as _onboarding_router
 from api.persona import router as _persona_router
 from api.negotiate import router as _negotiate_router
 
 # 主 router：不设 prefix（子 router 已包含 /api）
 router = APIRouter(tags=["前端对接"])
-router.include_router(_feed_router)
 router.include_router(_buddies_router)
-router.include_router(_onboarding_router)
 router.include_router(_persona_router)
 router.include_router(_negotiate_router)
 

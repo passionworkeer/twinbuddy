@@ -4,16 +4,10 @@
  * 环境配置：
  *   开发环境 (npm run dev): VITE_API_BASE = "/api"（Vite 代理）
  *   生产环境 (nginx 部署):  同源，无需代理
- *
- * 启动后端:
- *   cd twinbuddy/backend
- *   python -m uvicorn main:app --host 0.0.0.0 --port 8000
  */
 
 import type {
-  OnboardingData,
   Persona,
-  VideoItem,
   NegotiationResult,
   NegotiateParams,
 } from '../types';
@@ -21,8 +15,6 @@ import type {
 // ── 环境配置 ─────────────────────────────────────────
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
-const ONBOARDING_TIMEOUT_MS = 60_000;
-const NEGOTIATION_TIMEOUT_MS = 30_000;
 
 function apiUrl(path: string): string {
   return `${API_BASE}${path}`;
@@ -74,9 +66,8 @@ async function apiPost<T, B = unknown>(
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error(`Request timeout after ${timeoutMs}ms`);
     }
-    // Type guard for Error object to handle TypeError from failed fetch (like connection refused)
     if (error instanceof Error) {
-        throw error;
+      throw error;
     }
     throw new Error(String(error));
   } finally {
@@ -111,25 +102,9 @@ function unwrap<T>(res: ApiResponse<T>): T {
 // ── API 接口 ────────────────────────────────────────
 
 /**
- * POST /api/onboarding
- * 保存用户引导数据（MBTI + 兴趣 + 语音 + 城市）
- */
-export async function saveOnboarding(
-  data: OnboardingData,
-): Promise<{ user_id: string; persona_id: string }> {
-  const res = await apiPost<ApiResponse<{ user_id: string; persona_id: string }>, OnboardingData>(
-    '/onboarding',
-    data,
-    { timeoutMs: ONBOARDING_TIMEOUT_MS },
-  );
-  const d = unwrap(res);
-  return { user_id: d.user_id, persona_id: d.persona_id };
-}
-
-/**
- * GET /api/persona?user_id=xxx
- * 或者 /api/persona?mbti=ENFP&interests=美食,摄影&city=北京
- * 获取当前用户的数字孪生人格
+ * GET /api/persona
+ * 无 user_id 时根据参数构建人格（预计算场景）
+ * 有 user_id 时从后端持久化数据读取
  */
 export async function fetchPersona(params: {
   userId?: string;
@@ -149,30 +124,15 @@ export async function fetchPersona(params: {
 }
 
 /**
- * GET /api/feed?city=xxx&user_id=xxx
- * 获取视频 Feed 列表
- * 第3条开始触发懂你卡片（type: "twin_card"）
- */
-export async function fetchFeed(city?: string, userId?: string): Promise<VideoItem[]> {
-  const params: Record<string, string> = {};
-  if (city) params.city = city;
-  if (userId) params.user_id = userId;
-  const res = await apiGet<ApiResponse<VideoItem[]>>('/feed', params);
-  return unwrap(res);
-}
-
-/**
+ * GET /api/buddies
  * 获取按兼容性评分排序的推荐搭子
- * 支持两种模式：
- * 1. userId 模式：需要先有后端存储的用户数据
- * 2. 直接参数模式：传 mbti/interests/city（本地存储场景）
  */
 export async function fetchBuddies(
   userId?: string,
   limit = 10,
   mbti?: string,
   interests?: string[],
-  city?: string
+  city?: string,
 ) {
   const params: Record<string, string> = { limit: String(limit) };
   if (userId) params.user_id = userId;
@@ -180,8 +140,6 @@ export async function fetchBuddies(
   if (interests && interests.length > 0) params.interests = interests.join(',');
   if (city) params.city = city;
   const res = await apiGet<ApiResponse<unknown[]> & { buddies?: unknown[] }>('/buddies', params);
-  // 后端返回格式是 { success, buddies, ... }，unwrap 取 data 字段
-  // 但 /buddies 返回的是 buddies 字段，所以直接取 res.buddies
   if (Array.isArray((res as any).buddies)) {
     return (res as any).buddies as Record<string, unknown>[];
   }
@@ -190,8 +148,10 @@ export async function fetchBuddies(
 
 /**
  * POST /api/negotiate
- * 双数字人协商，返回预生成协商结果
+ * 双数字人协商，返回协商结果
  */
+const NEGOTIATION_TIMEOUT_MS = 30_000;
+
 export async function negotiate(options: NegotiateParams): Promise<NegotiationResult> {
   const res = await apiPost<ApiResponse<NegotiationResult>, NegotiateParams>(
     '/negotiate',
@@ -199,14 +159,4 @@ export async function negotiate(options: NegotiateParams): Promise<NegotiationRe
     { timeoutMs: NEGOTIATION_TIMEOUT_MS },
   );
   return unwrap(res);
-}
-
-/**
- * GET /health
- * 健康检查
- */
-export async function healthCheck(): Promise<{ status: string; version: string }> {
-  const res = await fetch(apiUrl('/health').replace('/api', ''));
-  if (!res.ok) throw new Error(`Health check failed: ${res.status}`);
-  return res.json() as Promise<{ status: string; version: string }>;
 }

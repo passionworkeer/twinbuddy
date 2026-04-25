@@ -259,3 +259,186 @@ export interface NegotiateParams {
   travel_style?: string;
   destination: string;
 }
+
+// ── TwinBuddy V2 Onboarding ─────────────────────────
+
+export const TRAVEL_RANGE_OPTIONS = [
+  { value: '同城', label: '同城漫游' },
+  { value: '周边城市', label: '周边城市' },
+  { value: '国内', label: '国内目的地' },
+  { value: '国外', label: '国外旅行' },
+] as const;
+
+export const TRAVEL_BUDGET_OPTIONS = [
+  { value: '穷游', label: '穷游', description: '更看重性价比和低成本路线。' },
+  { value: '经济', label: '经济', description: '预算明确，希望舒服但不浪费。' },
+  { value: '舒适', label: '舒适', description: '愿意为节奏和体验支付更多。' },
+  { value: '品质', label: '品质', description: '优先选择确定性和高质量体验。' },
+] as const;
+
+export type TravelRangeOption = typeof TRAVEL_RANGE_OPTIONS[number]['value'];
+export type TravelBudgetOption = typeof TRAVEL_BUDGET_OPTIONS[number]['value'];
+
+export interface TwinBuddyV2OnboardingData {
+  mbti: string;
+  travelRange: TravelRangeOption[];
+  budget: TravelBudgetOption | '';
+  selfDescription: string;
+  city: string;
+  completed: boolean;
+  timestamp: number;
+  userId?: string;
+  styleVector?: Record<string, unknown>;
+}
+
+export const V2_STORAGE_KEYS = {
+  onboarding: 'twinbuddy_v2_onboarding',
+  chatConversation: 'twinbuddy_v2_chat_conversation',
+} as const;
+
+export interface TwinBuddyV2Profile {
+  user_id: string;
+  nickname: string;
+  mbti: string;
+  travel_range: string[];
+  budget: string;
+  self_desc: string;
+  city: string;
+  style_vector: Record<string, unknown>;
+  is_verified: boolean;
+  verification_status: string;
+  verified_at?: number | null;
+  updated_at: number;
+}
+
+export interface TwinBuddySecurityStatus {
+  user_id: string;
+  is_verified: boolean;
+  verification_status: string;
+  real_name_masked: string;
+  id_number_tail: string;
+  verified_at?: number | null;
+}
+
+export interface TwinBuddyV2BuddyInboxItem {
+  buddy_id: string;
+  nickname: string;
+  mbti: string;
+  avatar: string;
+  city: string;
+  match_score: number;
+  negotiation_id: string;
+  status: string;
+  preview: string;
+  highlights: string[];
+  conflicts: string[];
+}
+
+export interface TwinBuddyV2BuddyCard {
+  profile: {
+    buddy_id: string;
+    nickname: string;
+    mbti: string;
+    avatar: string;
+    city: string;
+    summary: string;
+  };
+  negotiation_summary: {
+    negotiation_id: string;
+    match_score: number;
+    consensus: string[];
+    conflicts: string[];
+    report_intro: string;
+  };
+  radar_chart: RadarData[];
+  actions: Array<{ id: string; label: string }>;
+}
+
+export interface TwinBuddyV2ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: number;
+}
+
+export interface TwinBuddyConversationItem {
+  room_id: string;
+  peer_user: {
+    id: string;
+    nickname: string;
+    mbti: string;
+  };
+  last_message: string;
+  unread_count: number;
+}
+
+export interface TwinBuddyRoomMessage {
+  id: string;
+  sender_id: string;
+  content: string;
+  type: string;
+  created_at: number;
+}
+
+export interface BlindGameRound {
+  id: string;
+  dimension: string;
+  option_a: string;
+  option_b: string;
+}
+
+export interface BlindGameReport {
+  user_choices: Record<string, 'A' | 'B'>;
+  buddy_choices: Record<string, 'A' | 'B'>;
+  per_round_result: Array<{
+    round_id: string;
+    dimension: string;
+    user_choice: 'A' | 'B';
+    buddy_choice: 'A' | 'B';
+    user_label: string;
+    buddy_label: string;
+    matched: boolean;
+  }>;
+  match_score: number;
+  analysis: string;
+}
+
+export interface TwinBuddyTripStatus {
+  trip_id: string;
+  status: string;
+  destination: string;
+  depart_date: string;
+  return_date: string;
+  emergency_contact_masked: string;
+  emergency_notification_sent: boolean;
+  created_at: number;
+}
+
+export interface TwinBuddyCommunityComment {
+  id: string;
+  user_id: string;
+  author_nickname: string;
+  content: string;
+  created_at: number;
+}
+
+export interface TwinBuddyCommunityPost {
+  id: string;
+  user_id?: string;
+  author: {
+    nickname: string;
+    mbti: string;
+  };
+  content: string;
+  images: string[];
+  tags: string[];
+  location: string;
+  is_travel_plan?: boolean;
+  trip_date?: string | null;
+  trip_days?: number | null;
+  trip_budget?: string | null;
+  likes_count: number;
+  comments_count: number;
+  comments: TwinBuddyCommunityComment[];
+  created_at: number;
+}

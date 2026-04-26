@@ -739,7 +739,7 @@ def get_all_buddies() -> list[dict]:
     # Defer import to avoid circular dependency at module-load time.
     # The __init__.py will itself fall back here if no JSON files exist.
     try:
-        from agents.buddies import get_all_buddies as _json_loader  # noqa: PLC0415
+        from twinbuddy.agents.buddies import get_all_buddies as _json_loader  # noqa: PLC0415
         result = _json_loader()
         if result:          # non-empty list from JSON files
             return result
@@ -754,7 +754,7 @@ def get_buddy_by_id(buddy_id: str) -> dict | None:
     Falls back to in-memory MOCK_BUDDIES.
     """
     try:
-        from agents.buddies import get_buddy_by_id as _json_get
+        from twinbuddy.agents.buddies import get_buddy_by_id as _json_get
         result = _json_get(buddy_id)
         if result is not None:
             return result

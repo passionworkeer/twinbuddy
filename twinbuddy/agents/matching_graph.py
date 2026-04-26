@@ -27,8 +27,8 @@ from typing import Annotated
 
 
 from buddy_agent import BuddyAgent
-from agents.buddies import get_all_buddies
-from agents.scoring import score_compatibility
+from twinbuddy.agents.buddies import get_all_buddies
+from twinbuddy.agents.scoring import score_compatibility
 
 # ── Schema ───────────────────────────────────────────────────────────────────
 
@@ -316,8 +316,8 @@ def build_matching_graph() -> StateGraph:
         from langgraph.graph import StateGraph, END
         from langgraph.graph import add_messages
     except ImportError:
-        from agents.langgraph_stub.langgraph.graph import StateGraph, END
-        from agents.langgraph_stub.langgraph.graph import add_messages
+        from twinbuddy.agents.langgraph_stub.langgraph.graph import StateGraph, END
+        from twinbuddy.agents.langgraph_stub.langgraph.graph import add_messages
     builder = StateGraph(GraphState)
 
     builder.add_node("input_node", input_node)

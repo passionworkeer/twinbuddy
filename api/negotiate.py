@@ -13,7 +13,7 @@ from fastapi import APIRouter
 from api._constants import BUDDY_CONFIGS, CITY_NAMES, MBTI_EMOJI, MBTI_LABELS
 from api._models import NegotiationRequest
 from api._store import _persona_store
-from agents import persona_doc
+from api import persona_doc
 from api.mock_database import get_compatibility_breakdown as _mock_compat_breakdown
 from persona_generator import generate_persona_from_onboarding
 

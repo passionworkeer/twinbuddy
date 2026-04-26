@@ -6,7 +6,6 @@ digital-life/
 immortal-skill/
 relic.skill/
 yourself-skill/
-MING/
 mock_personas/
 
 # Build outputs
@@ -69,7 +68,3 @@ docs/.archive/
 docs/assets/
 docs/PRD.md
 docs/project-architecture-analysis.md
-
-# Unused API modules
-api/negotiation/
-api/real_persona_index.py

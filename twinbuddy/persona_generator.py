@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional
 def _get_llm_client():
     """延迟导入，避免循环依赖"""
     try:
-        from agents.llm_client import llm_client
+        from api.negotiation.llm_client import llm_client
         return llm_client
     except ImportError:
         return None

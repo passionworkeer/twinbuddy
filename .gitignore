@@ -48,3 +48,13 @@ twinbuddy/data/
 twinbuddy/test_negotiation_result.json
 twinbuddy/agents/_archived/
 data/
+
+# Archived/generate docs
+docs/.archive/
+docs/assets/
+docs/PRD.md
+docs/project-architecture-analysis.md
+
+# Unused API modules
+api/negotiation/
+api/real_persona_index.py

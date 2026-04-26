@@ -1,4 +1,3 @@
-import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
   fetchTwinBuddyBuddyCard,
@@ -128,7 +127,7 @@ export default function BuddiesPage() {
       <section className="glass-panel-strong p-5">
         <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(175,255,251,0.08)] px-3 py-1 text-xs text-[var(--color-secondary)]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(74,222,128,0.12)] px-3 py-1 text-xs text-[var(--color-secondary)]">
                 
                 数字分身汇报
               </div>
@@ -189,7 +188,7 @@ export default function BuddiesPage() {
       ) : (
         <div className="space-y-4">
           <ShowcaseCarousel
-            title="轮播展示"
+            title="推荐搭子"
             items={buddyShowcases}
             className="p-5"
           />

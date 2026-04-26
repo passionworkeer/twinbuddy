@@ -9,9 +9,8 @@ interface Props {
 export default function TwinCard({ buddy, onOpen }: Props) {
   return (
     <article className="twin-card-layer1 twin-glow-ring relative overflow-hidden p-5 sm:p-6">
-      <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(255,255,255,0.08),transparent_30%,rgba(175,255,251,0.05)_60%,rgba(255,179,182,0.08)_100%)]" />
-      <div className="absolute inset-y-5 left-0 w-1 rounded-full bg-[linear-gradient(180deg,var(--color-primary),var(--color-secondary))] shadow-[0_0_18px_rgba(255,179,182,0.45)]" />
-
+      <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(255,255,255,0.08),transparent_30%,rgba(74,222,128,0.05)_60%,rgba(74,222,128,0.08)_100%)]" />
+      
       <div className="relative z-10 space-y-5 pl-2 sm:pl-3">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -30,7 +29,7 @@ export default function TwinCard({ buddy, onOpen }: Props) {
                   <span className="mbti-badge">{buddy.mbti}</span>
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
-                  <MapPin className="h-4 w-4 text-[var(--color-secondary)]" />
+                  <MapPin className="h-4 w-4 text-[var(--color-primary)]" />
                   <span>{buddy.city}</span>
                   <span className="text-white/30">·</span>
                   <span>{buddy.status}</span>
@@ -43,9 +42,9 @@ export default function TwinCard({ buddy, onOpen }: Props) {
             </p>
           </div>
 
-          <div className="min-w-[112px] rounded-[24px] border border-[rgba(255,179,182,0.16)] bg-[rgba(11,19,20,0.34)] px-4 py-3 text-right shadow-[0_10px_26px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+          <div className="min-w-[112px] rounded-[24px] border border-[rgba(74,222,128,0.16)] bg-[rgba(11,19,20,0.34)] px-4 py-3 text-right shadow-[0_10px_26px_rgba(0,0,0,0.28)] backdrop-blur-xl">
             <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--color-text-secondary)]">匹配度</p>
-            <p className="mt-2 text-4xl font-extrabold tracking-tight text-white">{buddy.match_score}</p>
+            <p className="mt-2 text-4xl font-extrabold tracking-tight text-[var(--color-primary)]">{buddy.match_score}</p>
             <p className="mt-1 text-xs text-[var(--color-primary-light)]">适合继续协商</p>
           </div>
         </div>
@@ -79,9 +78,7 @@ export default function TwinCard({ buddy, onOpen }: Props) {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs text-[var(--color-text-secondary)]">
-            Hackathon 风格 TwinCard
-          </span>
+
           <button className="btn-primary w-full sm:w-auto" onClick={onOpen} type="button">
             了解更多
             <ChevronRight className="h-4 w-4" />

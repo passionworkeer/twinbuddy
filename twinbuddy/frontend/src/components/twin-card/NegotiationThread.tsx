@@ -37,7 +37,7 @@ export default function NegotiationThread({ consensus, conflicts }: Props) {
           <p className="text-sm font-semibold text-white">数字分身协商记录</p>
           <p className="mt-1 text-xs text-[var(--color-text-secondary)]">把高概率踩雷点先聊掉，再决定要不要正式认识。</p>
         </div>
-        <span className="rounded-full border border-[rgba(175,255,251,0.2)] bg-[rgba(175,255,251,0.08)] px-3 py-1 text-[11px] text-[var(--color-secondary)]">
+        <span className="rounded-full border border-[rgba(74,222,128,0.2)] bg-[rgba(74,222,128,0.08)] px-3 py-1 text-[11px] text-[var(--color-secondary)]">
           已完成预协商
         </span>
       </div>

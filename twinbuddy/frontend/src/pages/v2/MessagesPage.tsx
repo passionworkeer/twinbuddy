@@ -99,8 +99,8 @@ export default function MessagesPage() {
               key={conversation.room_id}
               className={`w-full rounded-2xl border p-4 text-left transition ${
                 conversation.room_id === activeRoomId
-                  ? 'border-[rgba(255,179,182,0.28)] bg-[rgba(255,179,182,0.08)]'
-                  : 'border-white/8 bg-white/4 hover:border-[rgba(255,179,182,0.28)]'
+                  ? 'border-[rgba(74,222,128,0.28)] bg-[rgba(74,222,128,0.08)]'
+                  : 'border-white/8 bg-white/4 hover:border-[rgba(74,222,128,0.28)]'
               }`}
               onClick={() => {
                 setActiveRoomId(conversation.room_id);

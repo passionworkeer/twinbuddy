@@ -4,7 +4,7 @@ interface Props {
 
 export default function RedFlagsPanel({ items }: Props) {
   return (
-    <section className="rounded-3xl border border-[rgba(248,113,113,0.18)] bg-[rgba(72,22,28,0.24)] p-4">
+    <section className="rounded-3xl border border-[rgba(251,191,36,0.15)] bg-[rgba(30,25,5,0.35)] p-4">
       <div className="flex items-center gap-2">
         <span className="red-flag-badge">需要留意</span>
         <p className="text-sm text-[var(--color-text-secondary)]">这些不是一票否决，但建议在见面前说清楚。</p>

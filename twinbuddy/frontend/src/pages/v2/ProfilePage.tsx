@@ -69,7 +69,7 @@ export default function ProfilePage() {
     <div className="space-y-5">
       <section className="glass-panel-strong p-5">
         <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[rgba(255,179,182,0.12)] text-[var(--color-primary)]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[rgba(74,222,128,0.12)] text-[var(--color-primary)]">
             <UserRound className="h-6 w-6" />
           </div>
           <div className="space-y-2">

@@ -18,6 +18,7 @@ import {
 const initialProfile: TwinBuddyV2OnboardingData = {
   mbti: '',
   travelRange: [],
+  interests: [],
   budget: '',
   selfDescription: '',
   city: '',

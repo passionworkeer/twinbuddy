@@ -40,9 +40,16 @@ describe('OnboardingV2Page', () => {
 
     await user.click(screen.getByRole('button', { name: /ENFP/i }));
     await user.click(screen.getByRole('button', { name: /继续/i }));
-    await user.click(screen.getByRole('button', { name: /同城漫游/i }));
+    // step 1: travel range
+    await user.click(screen.getByRole('button', { name: /国内长途/i }));
     await user.click(screen.getByRole('button', { name: /继续/i }));
-    await user.click(screen.getByRole('button', { name: /经济/i }));
+    // step 2: interests (need ≥ 2)
+    await user.click(screen.getByRole('button', { name: /说走就走/i }));
+    await user.click(screen.getByRole('button', { name: /慢节奏旅行/i }));
+    await user.click(screen.getByRole('button', { name: /继续/i }));
+    // step 3: budget
+    await user.click(screen.getByRole('button', { name: /品质/i }));
+    await user.click(screen.getByRole('button', { name: /继续/i }));
     await user.click(screen.getByRole('button', { name: /继续/i }));
     await user.type(screen.getByPlaceholderText(/比如：能一起做攻略/i), '一起做攻略，也能互相留白');
     await user.click(screen.getByRole('button', { name: /继续/i }));
@@ -57,7 +64,7 @@ describe('OnboardingV2Page', () => {
       budget?: string;
     };
     expect(stored.city).toBe('深圳');
-    expect(stored.budget).toBe('经济');
+    expect(stored.budget).toBe('品质');
     expect(stored.completed).toBe(true);
   });
 });

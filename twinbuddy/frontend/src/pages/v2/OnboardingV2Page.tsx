@@ -8,11 +8,13 @@ import {
   MBTI_TYPES,
   TRAVEL_BUDGET_OPTIONS,
   TRAVEL_RANGE_OPTIONS,
+  INTEREST_TAGS,
 } from '../../types';
 
 const stepTitles = [
   '你的 MBTI 是？',
   '你通常去哪里旅行？',
+  '你的旅行偏好是什么？',
   '你的旅行预算区间？',
   '一句话介绍你和谁旅行最舒服',
   '你的出发城市？',
@@ -22,19 +24,18 @@ function StepHeader({ current }: { current: number }) {
   return (
     <div className="space-y-4">
       <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.28)] bg-[rgba(74,222,128,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
-        
         3 分钟完成数字分身初始化
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm text-[var(--color-text-secondary)]">Step {current + 1} / 5</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">Step {current + 1} / 6</p>
         <h2 className="text-3xl font-semibold text-white">{stepTitles[current]}</h2>
       </div>
 
-      <div className="grid grid-cols-5 gap-2">
-        {stepTitles.map((title, index) => (
+      <div className="grid grid-cols-6 gap-2">
+        {stepTitles.map((_, index) => (
           <div
-            key={title}
+            key={index}
             className={`h-2 rounded-full transition ${
               index <= current ? 'bg-[var(--color-primary)]' : 'bg-white/10'
             }`}
@@ -47,7 +48,7 @@ function StepHeader({ current }: { current: number }) {
 
 export default function OnboardingV2Page() {
   const navigate = useNavigate();
-  const { data, setMbti, toggleTravelRange, setBudget, setSelfDescription, setCity, complete } =
+  const { data, setMbti, toggleTravelRange, toggleInterest, setBudget, setSelfDescription, setCity, complete } =
     useTwinbuddyOnboarding();
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,15 +56,16 @@ export default function OnboardingV2Page() {
   const canAdvance = useMemo(() => {
     if (step === 0) return Boolean(data.mbti);
     if (step === 1) return data.travelRange.length > 0;
-    if (step === 2) return Boolean(data.budget);
-    if (step === 3) return data.selfDescription.trim().length >= 4;
-    if (step === 4) return data.city.trim().length >= 2;
+    if (step === 2) return data.interests.length >= 2;
+    if (step === 3) return Boolean(data.budget);
+    if (step === 4) return data.selfDescription.trim().length >= 4;
+    if (step === 5) return data.city.trim().length >= 2;
     return false;
   }, [data, step]);
 
   const handleNext = async () => {
     if (!canAdvance) return;
-    if (step === 4) {
+    if (step === 5) {
       setIsSubmitting(true);
       try {
         const profile = await createTwinBuddyProfile({
@@ -89,6 +91,12 @@ export default function OnboardingV2Page() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--color-bg-base)] px-4 py-6 text-[var(--color-text-primary)] sm:px-6">
       <div className="pointer-events-none absolute inset-0">
+        <img
+          src="/images/back.jpg"
+          alt=""
+          className="h-full w-full object-cover opacity-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B1C15]/60 via-[#0B1C15]/40 to-[#0B1C15]" />
         <div className="absolute inset-x-0 top-[-8rem] h-80 bg-[radial-gradient(circle_at_top,rgba(74,222,128,0.24),transparent_65%)]" />
         <div className="absolute bottom-10 right-[-5rem] h-52 w-52 rounded-full bg-[rgba(74,222,128,0.1)] blur-3xl" />
       </div>
@@ -134,7 +142,7 @@ export default function OnboardingV2Page() {
                       key={option.value}
                       className={`rounded-full border px-4 py-2 text-sm transition ${
                         selected
-                          ? 'border-[var(--color-secondary)] bg-[rgba(74,222,128,0.12)] text-[var(--color-secondary)]'
+                          ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.12)] text-[var(--color-primary)]'
                           : 'border-white/10 bg-white/4 text-white hover:border-white/20'
                       }`}
                       onClick={() => toggleTravelRange(option.value)}
@@ -149,6 +157,34 @@ export default function OnboardingV2Page() {
           )}
 
           {step === 2 && (
+            <div className="space-y-3">
+              <p className="text-sm text-[var(--color-text-secondary)]">选 2~4 个你的旅行偏好，用于精准匹配搭子风格。</p>
+              <div className="flex flex-wrap gap-2">
+                {INTEREST_TAGS.map((tag) => {
+                  const selected = data.interests.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                        selected
+                          ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.15)] text-[var(--color-primary)]'
+                          : 'border-white/10 bg-white/4 text-white/80 hover:border-white/20'
+                      }`}
+                      onClick={() => toggleInterest(tag)}
+                      type="button"
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-[var(--color-text-secondary)]">
+                已选 {data.interests.length} / 建议至少 2 个
+              </p>
+            </div>
+          )}
+
+          {step === 3 && (
             <div className="space-y-3">
               {TRAVEL_BUDGET_OPTIONS.map((option) => {
                 const selected = data.budget === option.value;
@@ -174,7 +210,7 @@ export default function OnboardingV2Page() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <label className="block space-y-3">
               <span className="text-sm text-[var(--color-text-secondary)]">
                 限 30 字左右，后续会写进你的数字分身提示词。
@@ -192,7 +228,7 @@ export default function OnboardingV2Page() {
             </label>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <label className="block space-y-3">
               <span className="text-sm text-[var(--color-text-secondary)]">
                 出发城市会用于匹配同城搭子和内容排序。
@@ -205,6 +241,18 @@ export default function OnboardingV2Page() {
                   placeholder="例如：深圳"
                   value={data.city}
                 />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {['深圳', '广州', '成都', '重庆', '上海', '北京', '杭州', '武汉'].map((c) => (
+                  <button
+                    key={c}
+                    className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-sm text-white/80 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                    onClick={() => setCity(c)}
+                    type="button"
+                  >
+                    {c}
+                  </button>
+                ))}
               </div>
             </label>
           )}
@@ -225,7 +273,7 @@ export default function OnboardingV2Page() {
             onClick={handleNext}
             type="button"
           >
-            {step === 4 ? (isSubmitting ? '创建画像中...' : '进入 TwinBuddy') : '继续'}
+            {step === 5 ? (isSubmitting ? '创建画像中...' : '进入 TwinBuddy') : '继续'}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

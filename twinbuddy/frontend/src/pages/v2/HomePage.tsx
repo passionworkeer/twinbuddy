@@ -1,4 +1,4 @@
-import { MessageSquareText, SendHorizonal, Sparkles, Stars } from 'lucide-react';
+import { MessageSquareText, SendHorizonal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   fetchTwinBuddyChatHistory,
@@ -128,41 +128,30 @@ export default function HomePage() {
   return (
     <div className="space-y-5">
       <section className="glass-panel-accent p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/6 px-3 py-1 text-xs text-[var(--color-secondary)]">
-              <Sparkles className="h-3.5 w-3.5" />
-              AI 助手
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-white">
-                {profile.city || '你的城市'} 的旅行灵感已经准备好了
-              </h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-secondary)]">
-              这里已经承接了 Tab1 的流式对话、偏好提取和历史消息恢复。你现在可以直接聊路线、节奏、预算，也可以用语音更快把长句子说出来。
-              {remoteProfileSummary ? ` 当前画像：${remoteProfileSummary}。` : ''}
-            </p>
-          </div>
-          </div>
-          <div className="hidden rounded-3xl border border-white/8 bg-black/20 p-4 sm:block">
-            <Stars className="h-8 w-8 text-[var(--color-primary)]" />
-          </div>
+        <div className="space-y-3">
+          <h2 className="text-2xl font-semibold text-white">
+            {profile.city || '你的城市'} 的旅行灵感
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-secondary)]">
+            直接聊路线、节奏、预算，也可以用语音更快把长句子说出来。
+            {remoteProfileSummary ? ` 当前画像：${remoteProfileSummary}。` : ''}
+          </p>
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.3fr_0.9fr]">
         <article className="glass-panel p-5">
-          <div className="flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-3">
             <div className="rounded-2xl bg-[rgba(74,222,128,0.12)] p-2 text-[var(--color-primary)]">
               <MessageSquareText className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">旅行顾问对话区</h3>
-              <p className="text-sm text-[var(--color-text-secondary)]">支持流式对话、历史恢复和语音补充输入。</p>
+              <h3 className="text-lg font-semibold text-white">旅行顾问</h3>
+              <p className="text-sm text-[var(--color-text-secondary)]">流式对话 · 偏好提取 · 历史恢复</p>
             </div>
           </div>
 
-          <div className="mt-5 flex max-h-[46dvh] flex-col gap-3 overflow-y-auto pr-1">
+          <div className="chat-scroll mb-4 min-h-[280px] max-h-[46dvh] overflow-y-auto rounded-2xl border border-white/8 bg-[rgba(0,0,0,0.25)] p-4">
             {messages.length === 0 ? (
               <>
                 <div className="bubble-buddy">
@@ -182,9 +171,9 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="mt-5 rounded-3xl border border-white/8 bg-black/10 p-4">
+          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
             <textarea
-              className="min-h-24 w-full resize-none bg-transparent text-sm text-white outline-none placeholder:text-[var(--color-text-secondary)]"
+              className="min-h-20 w-full resize-none bg-transparent text-sm text-white outline-none placeholder:text-[var(--color-text-secondary)]"
               onChange={(event) => setInput(event.target.value)}
               placeholder={placeholderText}
               value={input}
@@ -209,14 +198,13 @@ export default function HomePage() {
 
         <div className="space-y-4">
           <ShowcaseCarousel
-            title="轮播展示"
+            title="推荐搭子"
             items={homeShowcases}
-            accent={<Stars className="h-5 w-5 text-[var(--color-primary)]" />}
             className="p-5"
           />
 
           <aside className="glass-panel p-5">
-            <h3 className="text-lg font-semibold text-white">建议你先问</h3>
+            <h3 className="text-lg font-semibold text-white">先问问看</h3>
             <div className="mt-4 flex flex-col gap-3">
               {prompts.map((prompt) => (
                 <button

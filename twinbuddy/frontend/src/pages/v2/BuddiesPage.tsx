@@ -129,7 +129,7 @@ export default function BuddiesPage() {
         <div className="flex items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(175,255,251,0.08)] px-3 py-1 text-xs text-[var(--color-secondary)]">
-                <Sparkles className="h-3.5 w-3.5" />
+                
                 数字分身汇报
               </div>
               <h2 className="mt-3 text-2xl font-semibold text-white">今日已完成 {items.length || 3} 位候选搭子的预协商</h2>

@@ -10,21 +10,18 @@ export default function AppShell({ children }: PropsWithChildren) {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[var(--color-bg-base)] text-[var(--color-text-primary)]">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top,rgba(255,179,182,0.22),transparent_68%)]" />
-        <div className="absolute right-[-4rem] top-20 h-56 w-56 rounded-full bg-[rgba(175,255,251,0.08)] blur-3xl" />
-        <div className="absolute bottom-12 left-[-3rem] h-48 w-48 rounded-full bg-[rgba(238,194,36,0.08)] blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_50%_0%,rgba(74,222,128,0.1),transparent_70%)]" />
+        <div className="absolute right-[-4rem] top-20 h-56 w-56 rounded-full bg-[rgba(74,222,128,0.06)] blur-3xl" />
+        <div className="absolute bottom-24 left-[-3rem] h-48 w-48 rounded-full bg-[rgba(34,197,94,0.05)] blur-3xl" />
       </div>
 
-      <header className="relative z-10 shrink-0 border-b border-white/6 bg-[rgba(10,12,26,0.62)] px-5 pb-4 pt-5 backdrop-blur-xl">
+      <header className="relative z-10 shrink-0 border-b border-white/6 bg-[rgba(11,28,21,0.62)] px-5 pb-4 pt-5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-text-secondary)]">
-              TwinBuddy V2
+              TwinBuddy
             </p>
-            <h1 className="mt-1 text-xl font-semibold text-white">旅行搭子数字分身</h1>
-          </div>
-          <div className="rounded-full border border-[rgba(255,179,182,0.28)] bg-[rgba(255,179,182,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
-            {location.pathname === '/community' ? 'V2 Preview' : 'MVP Build'}
+            <h1 className="mt-1 text-xl font-semibold text-white">旅行搭子</h1>
           </div>
         </div>
       </header>

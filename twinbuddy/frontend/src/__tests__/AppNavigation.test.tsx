@@ -24,8 +24,8 @@ describe('App navigation shell', () => {
 
   it('redirects completed users into the new shell', async () => {
     render(<App />);
-    expect(await screen.findByText(/深圳 的旅行灵感已经准备好了/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /搭子动态/i })).toBeInTheDocument();
+    expect(await screen.findByText(/深圳 的旅行灵感/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /搭子/i })).toBeInTheDocument();
   });
 
   it('switches tabs through the bottom navigation', async () => {

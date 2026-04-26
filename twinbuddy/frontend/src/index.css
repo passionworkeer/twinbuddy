@@ -928,3 +928,10 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+  /* Chat scroll container */
+  .chat-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }

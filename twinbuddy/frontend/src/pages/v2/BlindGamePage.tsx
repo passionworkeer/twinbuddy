@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, LoaderCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { answerBlindGame, fetchBlindGameReport, reportTwinBuddyTrip, startBlindGame } from '../../api/client';
@@ -221,9 +221,6 @@ export default function BlindGamePage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-3xl bg-[rgba(255,179,182,0.12)] p-3 text-[var(--color-primary)]">
-              <Sparkles className="h-6 w-6" />
-            </div>
             <div>
               <p className="text-sm text-[var(--color-text-secondary)]">6 轮盲选游戏</p>
               <h3 className="text-xl font-semibold text-white">选择更贴近你真实旅行偏好的答案</h3>

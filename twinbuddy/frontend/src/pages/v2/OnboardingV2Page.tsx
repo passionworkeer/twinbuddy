@@ -1,4 +1,4 @@
-import { ArrowRight, Check, MapPin, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, MapPin } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTwinBuddyProfile } from '../../api/client';
@@ -22,7 +22,7 @@ function StepHeader({ current }: { current: number }) {
   return (
     <div className="space-y-4">
       <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,179,182,0.28)] bg-[rgba(255,179,182,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
-        <Sparkles className="h-3.5 w-3.5" />
+        
         3 分钟完成数字分身初始化
       </div>
 

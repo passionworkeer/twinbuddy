@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Rocket, SendHorizonal, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Rocket, SendHorizonal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   commentTwinBuddyCommunityPost,
@@ -133,7 +133,7 @@ export default function CommunityPage() {
 
         <section className="glass-panel p-5">
           <div className="flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-[var(--color-primary)]" />
+            
             <h3 className="text-lg font-semibold text-white">发布你的旅行信号</h3>
           </div>
           <textarea
@@ -191,7 +191,7 @@ export default function CommunityPage() {
                   {post.likes_count}
                 </button>
                 <button className="btn-secondary" onClick={() => handleTwinChat(post.id)} type="button">
-                  <Sparkles className="h-4 w-4" />
+                  
                   让数字人去聊
                 </button>
               </div>

@@ -1,4 +1,4 @@
-import { ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { ChevronRight, MapPin } from 'lucide-react';
 import type { TwinBuddyV2BuddyInboxItem } from '../../types';
 
 interface Props {
@@ -16,7 +16,7 @@ export default function TwinCard({ buddy, onOpen }: Props) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-secondary)]">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--color-secondary)]" />
+              
               Layer 1 预览卡
             </div>
 

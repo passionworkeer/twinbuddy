@@ -53,7 +53,7 @@ describe('HomePage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/轮播展示/i)).toBeInTheDocument();
+    expect(await screen.findByText(/推荐搭子/i)).toBeInTheDocument();
     expect(screen.getByText(/深圳出发 2 天顺德慢吃线|你最近对“好吃但不赶”的表达更稳定了|你的预算弹性可能比你想象的大/i)).toBeInTheDocument();
 
     const user = userEvent.setup();

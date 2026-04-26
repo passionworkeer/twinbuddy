@@ -1009,7 +1009,7 @@ _MBTI_DESTINATION_PREFERENCES: Dict[str, List[str]] = {
 # ---------------------------------------------------------------------------
 
 try:
-    from negotiation.llm_client import llm_client
+    from api.negotiation.llm_client import llm_client
     _LLM_AVAILABLE = True
 except Exception:
     _LLM_AVAILABLE = False
@@ -1029,7 +1029,7 @@ def _call_llm_for_persona(
         return None
 
     # Fast-fail: if no valid keys, skip LLM call entirely
-    from negotiation.llm_client import _KEYS as _PERSONA_LLM_KEYS
+    from api.negotiation.llm_client import _KEYS as _PERSONA_LLM_KEYS
     if not _PERSONA_LLM_KEYS:
         return None
 

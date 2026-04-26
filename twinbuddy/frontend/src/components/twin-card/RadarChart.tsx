@@ -85,7 +85,7 @@ export function RadarChart({ data, size = 240 }: Props) {
   });
 
   return (
-    <div className="flex flex-col items-center gap-3 relative">
+    <div className="relative flex flex-col items-center gap-3">
       <svg
         width={size}
         height={size}
@@ -169,10 +169,10 @@ export function RadarChart({ data, size = 240 }: Props) {
           className="radar-tooltip"
           style={{ left: tooltip.x, top: tooltip.y }}
         >
-          <div className="font-semibold text-neon-primary">{tooltip.dimension}</div>
+          <div className="font-semibold text-white">{tooltip.dimension}</div>
           <div className="flex gap-3 mt-1">
-            <span className="text-[#818cf8]">你 {tooltip.userScore}%</span>
-            <span className="text-[#34d399]">搭 {tooltip.buddyScore}%</span>
+            <span className="text-[var(--color-primary)]">你 {tooltip.userScore}%</span>
+            <span className="text-white/60">搭 {tooltip.buddyScore}%</span>
           </div>
         </div>
       )}
@@ -188,8 +188,8 @@ export function RadarChart({ data, size = 240 }: Props) {
                 boxShadow: `0 0 4px ${DIMENSION_COLORS[i % DIMENSION_COLORS.length]}`,
               }}
             />
-            <span className="text-neon-text-secondary">{d.dimension}</span>
-            <span className="text-neon-text font-semibold">
+            <span className="text-[var(--color-text-secondary)]">{d.dimension}</span>
+            <span className="text-white font-semibold">
               {Math.round((d.user_score + d.buddy_score) / 2)}%
             </span>
           </div>

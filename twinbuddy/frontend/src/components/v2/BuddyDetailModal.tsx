@@ -33,7 +33,7 @@ export default function BuddyDetailModal({ card, onClose }: Props) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(10,15,16,0.2),rgba(6,17,15,0.84)_38%,rgba(7,22,18,0.96))]" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(31,53,48,0.85),rgba(11,19,21,0.4)_38%,rgba(11,28,21,0.95))]" />
         <div className="absolute -left-12 top-28 h-56 w-56 rounded-full bg-[rgba(116,162,143,0.16)] blur-3xl" />
-        <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(255,120,86,0.12)] blur-3xl" />
+        <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(74,222,128,0.12)] blur-3xl" />
       </div>
 
       <div className="relative z-10 flex h-[100dvh] flex-col">
@@ -109,7 +109,7 @@ export default function BuddyDetailModal({ card, onClose }: Props) {
                         {card.negotiation_summary.match_score}%
                       </p>
                     </div>
-                    <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-xs text-[var(--color-secondary)]">
+                    <span className="rounded-full border border-[rgba(74,222,128,0.3)] bg-black/20 px-3 py-1 text-xs text-[var(--color-secondary)]">
                       适合进入盲选
                     </span>
                   </div>
@@ -131,7 +131,7 @@ export default function BuddyDetailModal({ card, onClose }: Props) {
 
                 <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.25)]">
                   <div className="flex items-center gap-2">
-                    <ShieldAlert className="h-4 w-4 text-[#ff8a6d]" />
+                    <ShieldAlert className="h-4 w-4 text-[#fbbf24]" />
                     <p className="text-sm font-semibold text-white">仍需留意</p>
                   </div>
                   <div className="mt-4">

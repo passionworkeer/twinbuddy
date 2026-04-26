@@ -21,7 +21,7 @@ const stepTitles = [
 function StepHeader({ current }: { current: number }) {
   return (
     <div className="space-y-4">
-      <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,179,182,0.28)] bg-[rgba(255,179,182,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
+      <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.28)] bg-[rgba(74,222,128,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
         
         3 分钟完成数字分身初始化
       </div>
@@ -89,8 +89,8 @@ export default function OnboardingV2Page() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--color-bg-base)] px-4 py-6 text-[var(--color-text-primary)] sm:px-6">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-[-8rem] h-80 bg-[radial-gradient(circle_at_top,rgba(255,179,182,0.24),transparent_65%)]" />
-        <div className="absolute bottom-10 right-[-5rem] h-52 w-52 rounded-full bg-[rgba(175,255,251,0.1)] blur-3xl" />
+        <div className="absolute inset-x-0 top-[-8rem] h-80 bg-[radial-gradient(circle_at_top,rgba(74,222,128,0.24),transparent_65%)]" />
+        <div className="absolute bottom-10 right-[-5rem] h-52 w-52 rounded-full bg-[rgba(74,222,128,0.1)] blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-2xl space-y-6">
@@ -106,7 +106,7 @@ export default function OnboardingV2Page() {
                     key={mbti}
                     className={`rounded-2xl border p-4 text-left transition ${
                       selected
-                        ? 'border-[var(--color-primary)] bg-[rgba(255,179,182,0.12)] shadow-[0_0_20px_rgba(255,179,182,0.12)]'
+                        ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.12)] shadow-[0_0_20px_rgba(74,222,128,0.12)]'
                         : 'border-white/8 bg-white/4 hover:border-white/20 hover:bg-white/6'
                     }`}
                     onClick={() => setMbti(mbti)}
@@ -134,7 +134,7 @@ export default function OnboardingV2Page() {
                       key={option.value}
                       className={`rounded-full border px-4 py-2 text-sm transition ${
                         selected
-                          ? 'border-[var(--color-secondary)] bg-[rgba(175,255,251,0.12)] text-[var(--color-secondary)]'
+                          ? 'border-[var(--color-secondary)] bg-[rgba(74,222,128,0.12)] text-[var(--color-secondary)]'
                           : 'border-white/10 bg-white/4 text-white hover:border-white/20'
                       }`}
                       onClick={() => toggleTravelRange(option.value)}

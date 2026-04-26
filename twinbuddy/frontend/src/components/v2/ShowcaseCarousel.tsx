@@ -14,7 +14,6 @@ export interface ShowcaseItem {
 interface Props {
   title: string;
   items: ShowcaseItem[];
-  accent?: ReactNode;
   className?: string;
   intervalMs?: number;
 }
@@ -22,7 +21,6 @@ interface Props {
 export default function ShowcaseCarousel({
   title,
   items,
-  accent,
   className = '',
   intervalMs = 4800,
 }: Props) {
@@ -37,7 +35,6 @@ export default function ShowcaseCarousel({
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-text-secondary)]">{title}</p>
           <p className="mt-2 text-sm text-[var(--color-secondary)]">{activeItem.eyebrow}</p>
         </div>
-        {accent}
       </div>
 
       <h3 className="mt-4 text-xl font-semibold text-white">{activeItem.title}</h3>

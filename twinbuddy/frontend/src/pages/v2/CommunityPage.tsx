@@ -120,7 +120,7 @@ export default function CommunityPage() {
             这里承接发帖、点赞、评论和“让我的数字人去找 TA 聊”。社区本身也是偏好数据入口，会持续反哺匹配和协商。
           </p>
           {statusText ? (
-            <div className="mt-4 rounded-2xl border border-[rgba(175,255,251,0.18)] bg-[rgba(175,255,251,0.08)] px-4 py-3 text-sm text-[var(--color-secondary)]">
+            <div className="mt-4 rounded-2xl border border-[rgba(74,222,128,0.18)] bg-[rgba(74,222,128,0.08)] px-4 py-3 text-sm text-[var(--color-secondary)]">
               {statusText}
             </div>
           ) : null}
@@ -164,7 +164,7 @@ export default function CommunityPage() {
           {posts.map((post) => (
             <article key={post.id} className="glass-panel p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(255,179,182,0.1)] text-sm font-semibold text-[var(--color-primary)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(74,222,128,0.1)] text-sm font-semibold text-[var(--color-primary)]">
                   {post.author.nickname.slice(0, 1)}
                 </div>
                 <div>

@@ -74,7 +74,7 @@ export default function BlindGamePage() {
       <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.25),rgba(6,17,15,0.94)_42%,rgba(7,22,18,1))]" />
         <div className="absolute left-[-4rem] top-28 h-56 w-56 rounded-full bg-[rgba(111,160,141,0.16)] blur-3xl" />
-        <div className="absolute bottom-24 right-[-3rem] h-72 w-72 rounded-full bg-[rgba(255,120,86,0.12)] blur-3xl" />
+        <div className="absolute bottom-24 right-[-3rem] h-72 w-72 rounded-full bg-[rgba(74,222,128,0.12)] blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
           <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">
@@ -197,7 +197,7 @@ export default function BlindGamePage() {
     <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.2),rgba(6,17,15,0.9)_40%,rgba(7,22,18,1))]" />
       <div className="absolute -left-10 top-28 h-48 w-48 rounded-full bg-[rgba(111,160,141,0.14)] blur-3xl" />
-      <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(255,120,86,0.12)] blur-3xl" />
+      <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(74,222,128,0.12)] blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
         <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">

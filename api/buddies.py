@@ -8,8 +8,8 @@ from fastapi import APIRouter, Query
 
 from api._constants import BUDDY_CONFIGS
 from api._store import _onboarding_store
-from agents.buddies import get_buddy_public
-from agents.real_persona_index import get_top_personas
+from twinbuddy.agents.buddies import get_buddy_public
+from api.real_persona_index import get_top_personas
 
 router = APIRouter(prefix="/api", tags=["Buddies"])
 

@@ -14,6 +14,7 @@ function HomeRedirect() {
   const [data] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, {
     mbti: '',
     travelRange: [],
+    interests: [],
     budget: '',
     selfDescription: '',
     city: '',

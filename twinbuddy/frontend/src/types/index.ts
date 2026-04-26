@@ -208,10 +208,22 @@ export const MBTI_TYPES = [
 export type MBTIType = typeof MBTI_TYPES[number];
 
 export const MBTI_LABELS: Record<string, string> = {
-  ENFP: '热情开拓者', ENFJ: '理想领袖', ENTP: '智多星',    ENTJ: '指挥官',
-  ESFP: '舞台明星',  ESFJ: '主人',     ESTP: '创业者',     ESTJ: '总经理',
-  INFP: '诗意漫游者',INFJ: '引路人',   INTP: '学者',        INTJ: '战略家',
-  ISFP: '艺术家',    ISFJ: '守护者',   ISTP: '工匠',        ISTJ: '审计师',
+  ENFP: '热情探索者 · 点子多、喜欢新鲜感',
+ENFJ: '理想领袖 · 善于协调、重视他人感受',
+ENTP: '智多星 · 爱辩论、思路跳脱、点子达人',
+ENTJ: '指挥官 · 决策果断、喜欢掌控节奏',
+ESFP: '舞台明星 · 爱热闹、自来熟、气氛组',
+ESFJ: '主人 · 热情好客、喜欢照顾同伴',
+ESTP: '创业者 · 爱冒险、行动派、不喜欢拖沓',
+ESTJ: '总经理 · 靠谱务实、喜欢有计划',
+INFP: '诗意漫游者 · 内心丰富、追求意义感',
+INFJ: '引路人 · 有洞察力、安静但有温度',
+INTP: '学者 · 逻辑强、爱研究、喜欢独处思考',
+INTJ: '战略家 · 规划清晰、追求卓越',
+ISFP: '艺术家 · 审美在线、活在当下',
+ISFJ: '守护者 · 细腻贴心、稳定可靠',
+ISTP: '工匠 · 手艺好、动手能力强',
+ISTJ: '审计师 · 靠谱细心、有责任感',
 };
 
 // ── Interest Tags ────────────────────────────────────
@@ -220,12 +232,16 @@ export const MBTI_LABELS: Record<string, string> = {
 // 第3组（美食社交）：重度火锅党、街边小吃探店、预算控制党、各自行动派、爱拍照分享、早起党
 
 export const INTEREST_TAGS = [
-  // 第1组：旅行节奏
-  '说走就走', '慢节奏旅行', '详细打卡', '深度慢游', '自驾自由', '夜猫子旅行',
-  // 第2组：风景活动
-  '爱看山川湖海', '古镇人文', '摄影打卡', '徒步登山', '露营野趣', '城市夜游',
-  // 第3组：美食社交
-  '重度火锅党', '街边小吃探店', '预算控制党', '各自行动派', '爱拍照分享', '早起党',
+  // 节奏偏好
+  '说走就走', '慢节奏旅行', '详细打卡', '深度慢游', '自驾自由', '特种兵式', '早起看日出',
+  // 风景活动
+  '山川湖海', '古镇人文', '摄影打卡', '徒步登山', '露营野趣', '城市夜游', '海岛度假', '滑雪潜水',
+  // 美食偏好
+  '重度火锅党', '街边小吃探店', '美食优先', '自己做饭', '预算控制', '品质餐厅',
+  // 旅行风格
+  '爱做攻略', '随性漫游', '社交搭子', '独自旅行', '拍照分享', '不带手机放空',
+  // 住宿偏好
+  '酒店舒适', '青旅社交', '民宿体验', '露营野外',
 ] as const;
 
 export type InterestTag = typeof INTEREST_TAGS[number];
@@ -263,10 +279,14 @@ export interface NegotiateParams {
 // ── TwinBuddy V2 Onboarding ─────────────────────────
 
 export const TRAVEL_RANGE_OPTIONS = [
-  { value: '同城', label: '同城漫游' },
+  { value: '同城', label: '同城周边' },
   { value: '周边城市', label: '周边城市' },
-  { value: '国内', label: '国内目的地' },
-  { value: '国外', label: '国外旅行' },
+  { value: '周末短途', label: '周末短途' },
+  { value: '小长假', label: '小长假出行' },
+  { value: '国内', label: '国内长途' },
+  { value: '出境短线', label: '出境短线（日韩/东南亚）' },
+  { value: '出境长线', label: '出境长线（欧美澳新）' },
+  { value: '说走就走', label: '说走就走' },
 ] as const;
 
 export const TRAVEL_BUDGET_OPTIONS = [
@@ -282,6 +302,7 @@ export type TravelBudgetOption = typeof TRAVEL_BUDGET_OPTIONS[number]['value'];
 export interface TwinBuddyV2OnboardingData {
   mbti: string;
   travelRange: TravelRangeOption[];
+  interests: string[];
   budget: TravelBudgetOption | '';
   selfDescription: string;
   city: string;

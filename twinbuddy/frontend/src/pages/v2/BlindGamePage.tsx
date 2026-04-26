@@ -9,6 +9,7 @@ import { V2_STORAGE_KEYS } from '../../types';
 const initialProfile: TwinBuddyV2OnboardingData = {
   mbti: '',
   travelRange: [],
+  interests: [],
   budget: '',
   selfDescription: '',
   city: '',

@@ -25,6 +25,16 @@ project-architecture-analysis.md
 frontend/e2e/*.spec.ts
 frontend/e2e/*.spec.js
 
+# UI reference materials (large images, keep out of repo)
+ui_reference/
+
+# Docs (all generated/archived docs)
+api/negotiation/
+docs/.archive/
+docs/assets/
+docs/PRD.md
+docs/project-architecture-analysis.md
+
 # Playwright artifacts
 frontend/playwright-report/
 frontend/test-results/

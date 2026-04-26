@@ -13,6 +13,17 @@ agents/persona_doc.py
 docs/期末大作业展示方案.md
 !docs/
 期末大作业展示方案.docx
+docs/PRD.md
+docs/_archived/
+docs/api-backend.md
+docs/api-frontend.md
+docs/DEPLOY.md
+docs/TwinBuddy-V2-Issues-Report.md
+project-architecture-analysis.md
+
+# E2E scripts (we use .cjs scripts directly, not playwright spec files)
+frontend/e2e/*.spec.ts
+frontend/e2e/*.spec.js
 
 # Playwright artifacts
 frontend/playwright-report/

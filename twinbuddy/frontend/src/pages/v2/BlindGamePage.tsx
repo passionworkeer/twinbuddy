@@ -84,7 +84,7 @@ export default function BlindGamePage() {
 
           <section className="twin-card-layer3 space-y-5 p-5 sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-3xl bg-[rgba(175,255,251,0.14)] p-3 text-[var(--color-secondary)]">
+              <div className="rounded-3xl bg-[rgba(74,222,128,0.14)] p-3 text-[var(--color-primary)]">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <div>

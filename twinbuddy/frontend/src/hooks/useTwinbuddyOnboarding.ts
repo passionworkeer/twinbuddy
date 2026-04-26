@@ -9,6 +9,7 @@ import {
 const initialData: TwinBuddyV2OnboardingData = {
   mbti: '',
   travelRange: [],
+  interests: [],
   budget: '',
   selfDescription: '',
   city: '',
@@ -25,10 +26,11 @@ export function useTwinbuddyOnboarding() {
   const step = useMemo(() => {
     if (!data.mbti) return 0;
     if (data.travelRange.length === 0) return 1;
-    if (!data.budget) return 2;
-    if (!data.selfDescription.trim()) return 3;
-    if (!data.city.trim()) return 4;
-    return 5;
+    if (data.interests.length === 0) return 2;
+    if (!data.budget) return 3;
+    if (!data.selfDescription.trim()) return 4;
+    if (!data.city.trim()) return 5;
+    return 6;
   }, [data]);
 
   const setMbti = useCallback((mbti: string) => {
@@ -43,6 +45,18 @@ export function useTwinbuddyOnboarding() {
         travelRange: exists
           ? prev.travelRange.filter((item) => item !== range)
           : [...prev.travelRange, range],
+      };
+    });
+  }, [setData]);
+
+  const toggleInterest = useCallback((interest: string) => {
+    setData((prev) => {
+      const exists = prev.interests.includes(interest);
+      return {
+        ...prev,
+        interests: exists
+          ? prev.interests.filter((item) => item !== interest)
+          : [...prev.interests, interest],
       };
     });
   }, [setData]);
@@ -89,6 +103,7 @@ export function useTwinbuddyOnboarding() {
     step,
     setMbti,
     toggleTravelRange,
+    toggleInterest,
     setBudget,
     setSelfDescription,
     setCity,

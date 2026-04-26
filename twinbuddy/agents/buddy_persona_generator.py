@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional
 
 def _get_llm_client():
     try:
-        from agents.llm_client import llm_client
+        from api.negotiation.llm_client import llm_client
         return llm_client
     except ImportError:
         return None

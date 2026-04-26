@@ -28,10 +28,23 @@ Thumbs.db
 # Python
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.venv/
+.deepeval/
+test-results/
 
-# Temporary files
-*.tmp
+# Build / run logs
 *.log
+.playwright-cli/
+build_output.log
+build_run.log
+npm_build.log
+onboarding_test.log
+test_run.log
+test_run_dot.log
+server_out.log
+test_negotiation_result.json
+test_onboarding.json
 
 # Server credentials and local docs
 fuwuqi.md

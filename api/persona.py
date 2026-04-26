@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from api._store import _persona_store
-from agents import persona_doc
+from api.persona_doc import load_persona_doc, parse_persona_doc, dict_from_frontmatter
 
 router = APIRouter(prefix="/api", tags=["Persona"])
 
@@ -36,11 +36,11 @@ async def get_persona(
     """
     # 有 user_id：从持久化数据读取
     if user_id:
-        md_doc = persona_doc.load_persona_doc(user_id)
+        md_doc = load_persona_doc(user_id)
         if md_doc:
-            fm, body = persona_doc.parse_persona_doc(md_doc)
+            fm, body = parse_persona_doc(md_doc)
             if fm:
-                persona = persona_doc.dict_from_frontmatter(fm, body)
+                persona = dict_from_frontmatter(fm, body)
                 persona["user_id"] = user_id
                 return {"success": True, "data": persona}
 

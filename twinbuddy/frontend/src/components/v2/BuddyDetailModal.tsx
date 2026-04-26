@@ -91,9 +91,9 @@ export default function BuddyDetailModal({ card, onClose }: Props) {
                 </div>
                 <div className="hidden w-24 opacity-70 sm:block">
                   <svg fill="none" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 22 Q 15 10, 30 16 T 60 8 T 100 12" stroke="#ff7856" strokeLinecap="round" strokeWidth="2" />
-                    <circle cx="0" cy="22" fill="#ff7856" r="3" />
-                    <circle cx="100" cy="12" fill="#ff7856" r="3" />
+                    <path d="M0 22 Q 15 10, 30 16 T 60 8 T 100 12" stroke="#4ade80" strokeLinecap="round" strokeWidth="2" />
+                    <circle cx="0" cy="22" fill="#4ade80" r="3" />
+                    <circle cx="100" cy="12" fill="#4ade80" r="3" />
                   </svg>
                 </div>
               </div>

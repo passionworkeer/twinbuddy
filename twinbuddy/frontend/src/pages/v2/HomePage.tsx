@@ -153,7 +153,7 @@ export default function HomePage() {
       <section className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.3fr_0.9fr]">
         <article className="glass-panel p-5">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-[rgba(175,255,251,0.12)] p-2 text-[var(--color-secondary)]">
+            <div className="rounded-2xl bg-[rgba(74,222,128,0.12)] p-2 text-[var(--color-primary)]">
               <MessageSquareText className="h-5 w-5" />
             </div>
             <div>
@@ -221,7 +221,7 @@ export default function HomePage() {
               {prompts.map((prompt) => (
                 <button
                   key={prompt}
-                  className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] transition hover:border-[rgba(255,179,182,0.28)] hover:text-white"
+                  className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-left text-sm text-[var(--color-text-secondary)] transition hover:border-[rgba(74,222,128,0.28)] hover:text-white"
                   onClick={() => setInput(prompt)}
                   type="button"
                 >

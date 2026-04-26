@@ -7,11 +7,11 @@ interface Props {
 }
 
 const DIMENSION_COLORS = [
-  '#ffb3b6', // primary pink
-  '#affffb', // secondary cyan
-  '#eec224', // tertiary gold
+  '#4ade80', // primary green
+  '#6ee7a0', // green light
+  '#fbbf24', // amber
   '#a78bfa', // purple
-  '#34d399', // emerald
+  '#22c55e', // green dark
 ];
 
 interface TooltipState {
@@ -113,7 +113,7 @@ export function RadarChart({ data, size = 240 }: Props) {
             cy={p.my}
             r="4"
             fill={DIMENSION_COLORS[i % DIMENSION_COLORS.length]}
-            stroke="#11131e"
+            stroke="#0B1C15"
             strokeWidth="2"
             className="radar-point"
             style={{ filter: `drop-shadow(0 0 6px ${DIMENSION_COLORS[i % DIMENSION_COLORS.length]})` }}
@@ -150,7 +150,7 @@ export function RadarChart({ data, size = 240 }: Props) {
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize="11"
-              fill="#a0a0b8"
+              fill="#9ca3af"
               fontFamily="Inter, sans-serif"
             >
               {data[i].dimension}
@@ -159,8 +159,8 @@ export function RadarChart({ data, size = 240 }: Props) {
         })}
 
         {/* Center dot */}
-        <circle cx={cx} cy={cy} r="4" fill="rgba(255,179,182,0.2)" stroke="rgba(255,179,182,0.4)" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r="2" fill="rgba(255,179,182,0.6)" />
+        <circle cx={cx} cy={cy} r="4" fill="rgba(74,222,128,0.2)" stroke="rgba(74,222,128,0.4)" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r="2" fill="rgba(74,222,128,0.6)" />
       </svg>
 
       {/* Tooltip */}

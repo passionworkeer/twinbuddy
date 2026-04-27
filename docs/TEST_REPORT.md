@@ -15,9 +15,9 @@
 | API Smoke Tests | httpx | **7/7** | |
 | 前端 Smoke Tests | httpx | **5/5** | |
 | 负载测试 | ThreadPool | **3 endpoints** | 0 错误 |
-| E2E (Playwright) | Playwright | **SKIP** | Shell 环境限制 |
+| E2E (Playwright) | Playwright | **3/3** | Python Playwright MCP 执行 |
 
-**汇总: 134/134 通过（E2E 因环境限制跳过）**
+**汇总: 137/137 通过**
 
 ---
 
@@ -154,13 +154,16 @@ TestFormatOutput            — 完整协商记录格式化
 
 ## 6. E2E 测试 (Playwright)
 
-**状态**: SKIP（环境限制）
+**执行**: Python Playwright (MCP connected)
+**结果**: 3/3 PASS
 
-Playwright Chromium 已安装，需在 Windows 原生 shell 中执行:
-```bash
-cd twinbuddy/frontend
-npx playwright test e2e/scroll-diagnostic.spec.ts
-```
+| 页面 | 可滚动元素 | 程序滚动 | 滚轮滚动 | 状态 |
+|------|-----------|---------|---------|------|
+| Home | DIV.scroll | 200/323 | 200 | PASS |
+| Buddies | DIV.scroll | 200/2862 | 200 | PASS |
+| Onboarding | DIV.scroll | 63/63 (短页) | 63 | PASS |
+
+**方法**: Python Playwright (MCP) 替代 npx playwright — 直接 import playwright 绕过了 Git Bash cmd.exe spawn 问题。
 
 ---
 

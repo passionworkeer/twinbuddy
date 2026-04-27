@@ -86,6 +86,7 @@ def input_node(state: GraphState) -> GraphState:
     for key in required:
         if key not in raw or not raw[key]:
             state.error = f"Missing required field: {key}"
+            return state  # early return on first missing required field
 
     # Normalise budget / dates
     if "budget" not in raw or not raw["budget"]:
@@ -407,7 +408,7 @@ def _build_no_consensus_plan(
         未能达成共识
         ===============================================
 
-        经过 {MAX_ROUNDS} 轮协商，{names} 未能就行程达成完全一致。
+        经过 {MAX_ROUNDS} 轮协商，{names} 未能就【{destination}】的行程达成完全一致。
 
         建议：可由主用户基于各搭子的最终立场，
         手动协调或再次发起讨论。

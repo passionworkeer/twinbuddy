@@ -10,6 +10,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        synapse: {
+          surface: '#f9f9f9',
+          'surface-dim': '#dadada',
+          'surface-bright': '#f9f9f9',
+          primary: '#000000',
+          'on-primary': '#ffffff',
+          secondary: '#A3E6D6',
+          'on-secondary': '#00201b',
+          tertiary: '#FFB5D3',
+          'on-tertiary': '#370922',
+          background: '#f9f9f9',
+          'on-background': '#1b1b1b',
+        },
         neon: {
           bg:               '#11131e',
           surface:          '#1a1b2e',
@@ -94,11 +107,12 @@ export default {
         'shimmer':          'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        orbitron: ['Orbitron', 'Inter', 'sans-serif'],
-        headline: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
-        body: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
-        label: ['Plus Jakarta Sans', 'Noto Sans SC', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'sans-serif'],
+        display: ['"Space Grotesk"', 'sans-serif'],
+        serif: ['Newsreader', 'serif'],
+        headline: ['"Space Grotesk"', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        label: ['"Space Grotesk"', 'sans-serif'],
       },
       borderRadius: {
         "DEFAULT": "1rem",

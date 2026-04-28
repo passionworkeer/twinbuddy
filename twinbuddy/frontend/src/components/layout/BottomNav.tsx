@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
 interface NavItem {
   path: string;
@@ -27,14 +26,13 @@ export function BottomNav() {
           <Link
             key={item.path}
             to={item.path}
-            className={cn(
-               "flex flex-col items-center justify-center transition-all active:scale-90 duration-150 px-4 py-2",
-               isActive 
+            className={`flex flex-col items-center justify-center transition-all active:scale-90 duration-150 px-4 py-2 ${
+              isActive
                 ? "bg-indigo-600 text-white rounded-full ring-2 ring-black dark:ring-white hover:opacity-100"
                 : "text-black dark:text-white opacity-60 hover:opacity-100"
-            )}
+            }`}
           >
-            <span className={cn("material-symbols-outlined mb-1", isActive && "fill")}>
+            <span className={`material-symbols-outlined mb-1${isActive ? ' fill' : ''}`}>
                {item.icon}
             </span>
             <span className="font-h1 text-[10px] font-bold uppercase tracking-widest mt-1">

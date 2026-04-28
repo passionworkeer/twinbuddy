@@ -1,11 +1,27 @@
 import { RefreshCcw, Handshake, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { fetchTwinBuddyBlindGameResult, postTwinBuddyBlindGameAction } from '../../api/client';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import type { TwinBuddyV2BlindGameResult, TwinBuddyV2OnboardingData } from '../../types';
 import { V2_STORAGE_KEYS } from '../../types';
+import type { TwinBuddyV2OnboardingData } from '../../types';
 
-const mockDailyResult: TwinBuddyV2BlindGameResult = {
+interface BlindGameResult {
+  isAvailable: boolean;
+  dailyMatches?: number;
+  remainingMatches?: number;
+  matchedProfile?: {
+    id: string;
+    age: number;
+    gender: string;
+    interests: string[];
+    mbti: string;
+    traits: string[];
+    commonTags: string[];
+    blindDescription: string;
+  };
+  icebreakerQuestions?: string[];
+}
+
+const mockDailyResult: BlindGameResult = {
   isAvailable: true,
   dailyMatches: 3,
   remainingMatches: 3,
@@ -38,7 +54,7 @@ const initialProfile: TwinBuddyV2OnboardingData = {
 
 export default function BlindGamePage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [result, setResult] = useState<TwinBuddyV2BlindGameResult | null>(null);
+  const [result, setResult] = useState<BlindGameResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorText, setErrorText] = useState('');
   const [actionStatus, setActionStatus] = useState<string>('');
@@ -49,29 +65,10 @@ export default function BlindGamePage() {
     setLoading(true);
 
     const loadData = async () => {
-      if (!profile.userId) {
-        if (mounted) {
-          setResult(mockDailyResult);
-          setLoading(false);
-          setErrorText('当前未登录，展示演示数据。');
-        }
-        return;
-      }
-      try {
-        const res = await fetchTwinBuddyBlindGameResult(profile.userId);
-        if (mounted) {
-          setResult({ ...res, isAvailable: true });
-          setErrorText('');
-        }
-      } catch (err) {
-        if (mounted) {
-          setResult(mockDailyResult);
-          setErrorText('盲盒数据加载失败，已切换到演示模式。');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      // Always use mock data since backend API doesn't exist yet
+      if (mounted) {
+        setResult(mockDailyResult);
+        setLoading(false);
       }
     };
 
@@ -81,24 +78,16 @@ export default function BlindGamePage() {
     };
   }, [profile.userId]);
 
-  const handleAction = async (actionType: 'accept' | 'reject') => {
-    if (!profile.userId || !result?.matchedProfile) return;
-    setActionStatus(actionType === 'accept' ? 'sending' : 'rejecting');
-    try {
-      await postTwinBuddyBlindGameAction(profile.userId, result.matchedProfile.id, actionType);
-      if (actionType === 'accept') {
-        setActionStatus('accepted');
-        setShowQuestions(true);
-      } else {
-        setActionStatus('rejected');
-        // reload for next
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      }
-    } catch {
-      setErrorText('操作失败，请重试');
-      setActionStatus('');
+  const handleAction = (actionType: 'accept' | 'reject') => {
+    if (!result?.matchedProfile) return;
+    if (actionType === 'accept') {
+      setActionStatus('accepted');
+      setShowQuestions(true);
+    } else {
+      setActionStatus('rejected');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     }
   };
 
@@ -231,7 +220,7 @@ export default function BlindGamePage() {
                  破冰问题参考
                </h3>
                <ul className="flex flex-col gap-3 font-body-md text-sm">
-                 {result.icebreakerQuestions.map((q, i) => (
+                 {result.icebreakerQuestions.map((q: string, i: number) => (
                    <li key={i} className="bg-surface-container-lowest p-3 rounded-lg border border-outline border-opacity-50">
                      {q}
                    </li>

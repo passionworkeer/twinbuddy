@@ -125,12 +125,12 @@ export default function BuddiesPage() {
   };
 
   return (
-    <div className="relative flex flex-col flex-1 overflow-y-auto">
+    <div className="relative flex flex-col">
       {/* Background Decor */}
       <div className="fixed top-1/4 -right-20 w-80 h-80 bg-primary-fixed blur-[100px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 px-container-padding pt-8 pb-[100px]">
+      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
         <header className="mb-2">
         <div className="flex items-center gap-3 mb-2">
           <Navigation className="h-8 w-8 text-primary" />

@@ -138,7 +138,7 @@ export default function HomePage() {
       <div className="fixed top-20 -right-10 w-64 h-64 bg-secondary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 px-container-padding pt-8 pb-[100px]">
+      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
         {/* Header */}
         <section className="relative">
           <h1 className="font-h1 text-h1 text-on-background leading-tight mb-2">

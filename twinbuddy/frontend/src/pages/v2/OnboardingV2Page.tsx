@@ -23,13 +23,13 @@ const stepTitles = [
 function StepHeader({ current }: { current: number }) {
   return (
     <div className="space-y-4">
-      <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.28)] bg-[rgba(74,222,128,0.08)] px-3 py-1 text-xs text-[var(--color-primary-light)]">
+      <div className="inline-flex items-center gap-2 rounded-full border-2 border-outline bg-tertiary-container text-on-tertiary-container px-3 py-1 text-xs">
         3 分钟完成数字分身初始化
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm text-[var(--color-text-secondary)]">Step {current + 1} / 6</p>
-        <h2 className="text-3xl font-semibold text-white">{stepTitles[current]}</h2>
+        <p className="text-sm text-on-surface-variant">Step {current + 1} / 6</p>
+        <h2 className="text-3xl font-semibold text-on-background">{stepTitles[current]}</h2>
       </div>
 
       <div className="grid grid-cols-6 gap-2">
@@ -37,7 +37,7 @@ function StepHeader({ current }: { current: number }) {
           <div
             key={index}
             className={`h-2 rounded-full transition ${
-              index <= current ? 'bg-[var(--color-primary)]' : 'bg-white/10'
+              index <= current ? 'bg-primary' : 'bg-surface-variant'
             }`}
           />
         ))}
@@ -89,22 +89,16 @@ export default function OnboardingV2Page() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--color-bg-base)] px-4 py-6 text-[var(--color-text-primary)] sm:px-6">
-      <div className="pointer-events-none absolute inset-0">
-        <img
-          src="/images/back.jpg"
-          alt=""
-          className="h-full w-full object-cover opacity-40"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0B1C15]/60 via-[#0B1C15]/40 to-[#0B1C15]" />
-        <div className="absolute inset-x-0 top-[-8rem] h-80 bg-[radial-gradient(circle_at_top,rgba(74,222,128,0.24),transparent_65%)]" />
-        <div className="absolute bottom-10 right-[-5rem] h-52 w-52 rounded-full bg-[rgba(74,222,128,0.1)] blur-3xl" />
-      </div>
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* Background blobs */}
+      <div className="fixed -top-20 -left-20 w-80 h-80 bg-tertiary-fixed blur-[80px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
+      <div className="fixed top-1/4 right-[-8rem] w-80 h-80 bg-secondary-fixed blur-[80px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
+      <div className="fixed bottom-10 right-[-5rem] w-52 h-52 bg-primary-fixed-dim blur-[60px] opacity-40 -z-10 rounded-full"></div>
 
-      <div className="relative mx-auto max-w-2xl space-y-6">
+      <div className="relative mx-auto max-w-2xl space-y-6 px-4 py-6 sm:px-6">
         <StepHeader current={step} />
 
-        <section className="glass-panel-strong space-y-5 p-5 sm:p-6">
+        <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline space-y-5 p-5 sm:p-6">
           {step === 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {MBTI_TYPES.map((mbti) => {
@@ -112,19 +106,19 @@ export default function OnboardingV2Page() {
                 return (
                   <button
                     key={mbti}
-                    className={`rounded-2xl border p-4 text-left transition ${
+                    className={`rounded-DEFAULT border-2 p-4 text-left transition ${
                       selected
-                        ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.12)] shadow-[0_0_20px_rgba(74,222,128,0.12)]'
-                        : 'border-white/8 bg-white/4 hover:border-white/20 hover:bg-white/6'
+                        ? 'border-primary bg-surface-container shadow-[4px_4px_0_0_#000]'
+                        : 'border-outline-variant bg-surface-container hover:border-primary'
                     }`}
                     onClick={() => setMbti(mbti)}
                     type="button"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-semibold text-white">{mbti}</span>
-                      {selected ? <Check className="h-4 w-4 text-[var(--color-primary)]" /> : null}
+                      <span className="text-lg font-semibold text-on-surface">{mbti}</span>
+                      {selected ? <Check className="h-4 w-4 text-primary" /> : null}
                     </div>
-                    <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{MBTI_LABELS[mbti]}</p>
+                    <p className="mt-2 text-sm text-on-surface-variant">{MBTI_LABELS[mbti]}</p>
                   </button>
                 );
               })}
@@ -133,17 +127,17 @@ export default function OnboardingV2Page() {
 
           {step === 1 && (
             <div className="space-y-3">
-              <p className="text-sm text-[var(--color-text-secondary)]">多选，后续会影响匹配范围和动态推荐。</p>
+              <p className="text-sm text-on-surface-variant">多选，后续会影响匹配范围和动态推荐。</p>
               <div className="flex flex-wrap gap-3">
                 {TRAVEL_RANGE_OPTIONS.map((option) => {
                   const selected = data.travelRange.includes(option.value);
                   return (
                     <button
                       key={option.value}
-                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                      className={`rounded-full border-2 px-4 py-2 text-sm transition ${
                         selected
-                          ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.12)] text-[var(--color-primary)]'
-                          : 'border-white/10 bg-white/4 text-white hover:border-white/20'
+                          ? 'border-primary bg-secondary text-on-secondary'
+                          : 'border-outline bg-surface-container text-on-surface hover:border-primary'
                       }`}
                       onClick={() => toggleTravelRange(option.value)}
                       type="button"
@@ -158,17 +152,17 @@ export default function OnboardingV2Page() {
 
           {step === 2 && (
             <div className="space-y-3">
-              <p className="text-sm text-[var(--color-text-secondary)]">选 2~4 个你的旅行偏好，用于精准匹配搭子风格。</p>
+              <p className="text-sm text-on-surface-variant">选 2~4 个你的旅行偏好，用于精准匹配搭子风格。</p>
               <div className="flex flex-wrap gap-2">
                 {INTEREST_TAGS.map((tag) => {
                   const selected = data.interests.includes(tag);
                   return (
                     <button
                       key={tag}
-                      className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                      className={`rounded-full border-2 px-3 py-1.5 text-sm transition ${
                         selected
-                          ? 'border-[var(--color-primary)] bg-[rgba(74,222,128,0.15)] text-[var(--color-primary)]'
-                          : 'border-white/10 bg-white/4 text-white/80 hover:border-white/20'
+                          ? 'border-primary bg-secondary-fixed text-on-secondary-fixed'
+                          : 'border-outline bg-surface-container text-on-surface hover:border-primary'
                       }`}
                       onClick={() => toggleInterest(tag)}
                       type="button"
@@ -178,7 +172,7 @@ export default function OnboardingV2Page() {
                   );
                 })}
               </div>
-              <p className="text-xs text-[var(--color-text-secondary)]">
+              <p className="text-xs text-on-surface-variant">
                 已选 {data.interests.length} / 建议至少 2 个
               </p>
             </div>
@@ -191,19 +185,19 @@ export default function OnboardingV2Page() {
                 return (
                   <button
                     key={option.value}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${
+                    className={`w-full rounded-DEFAULT border-2 p-4 text-left transition ${
                       selected
-                        ? 'border-[var(--color-tertiary)] bg-[rgba(238,194,36,0.12)]'
-                        : 'border-white/8 bg-white/4 hover:border-white/20'
+                        ? 'border-primary bg-surface-container shadow-[4px_4px_0_0_#000]'
+                        : 'border-outline hover:border-primary'
                     }`}
                     onClick={() => setBudget(option.value)}
                     type="button"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-medium text-white">{option.label}</span>
-                      {selected ? <Check className="h-4 w-4 text-[var(--color-tertiary)]" /> : null}
+                      <span className="text-base font-medium text-on-surface">{option.label}</span>
+                      {selected ? <Check className="h-4 w-4 text-primary" /> : null}
                     </div>
-                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{option.description}</p>
+                    <p className="mt-1 text-sm text-on-surface-variant">{option.description}</p>
                   </button>
                 );
               })}
@@ -212,17 +206,17 @@ export default function OnboardingV2Page() {
 
           {step === 4 && (
             <label className="block space-y-3">
-              <span className="text-sm text-[var(--color-text-secondary)]">
+              <span className="text-sm text-on-surface-variant">
                 限 30 字左右，后续会写进你的数字分身提示词。
               </span>
               <textarea
-                className="neon-input min-h-32 resize-none"
+                className="w-full border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all min-h-32 resize-none font-body-md"
                 maxLength={40}
                 onChange={(event) => setSelfDescription(event.target.value)}
                 placeholder="比如：能一起做攻略，也能给彼此留白。"
                 value={data.selfDescription}
               />
-              <div className="text-right text-xs text-[var(--color-text-secondary)]">
+              <div className="text-right text-xs text-on-surface-variant">
                 {data.selfDescription.length} / 40
               </div>
             </label>
@@ -230,13 +224,13 @@ export default function OnboardingV2Page() {
 
           {step === 5 && (
             <label className="block space-y-3">
-              <span className="text-sm text-[var(--color-text-secondary)]">
+              <span className="text-sm text-on-surface-variant">
                 出发城市会用于匹配同城搭子和内容排序。
               </span>
               <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
+                <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
                 <input
-                  className="neon-input pl-11"
+                  className="w-full border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background pl-11 pr-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md"
                   onChange={(event) => setCity(event.target.value)}
                   placeholder="例如：深圳"
                   value={data.city}
@@ -246,7 +240,11 @@ export default function OnboardingV2Page() {
                 {['深圳', '广州', '成都', '重庆', '上海', '北京', '杭州', '武汉'].map((c) => (
                   <button
                     key={c}
-                    className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-sm text-white/80 transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                    className={`rounded-full border-2 px-3 py-1 text-sm transition ${
+                      data.city === c
+                        ? 'border-primary bg-secondary text-on-secondary'
+                        : 'border-outline bg-surface-container text-on-surface hover:border-primary'
+                    }`}
                     onClick={() => setCity(c)}
                     type="button"
                   >
@@ -258,9 +256,10 @@ export default function OnboardingV2Page() {
           )}
         </section>
 
+        {/* Bottom nav */}
         <div className="flex items-center justify-between gap-3">
           <button
-            className="btn-ghost px-0 text-sm"
+            className="text-sm text-on-surface-variant hover:text-primary transition-colors"
             onClick={() => (step === 0 ? navigate('/') : setStep((prev) => prev - 1))}
             type="button"
           >
@@ -268,7 +267,7 @@ export default function OnboardingV2Page() {
           </button>
 
           <button
-            className="btn-primary min-w-36"
+            className="bg-primary text-on-primary font-body-md px-6 py-3 rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
             disabled={!canAdvance || isSubmitting}
             onClick={handleNext}
             type="button"

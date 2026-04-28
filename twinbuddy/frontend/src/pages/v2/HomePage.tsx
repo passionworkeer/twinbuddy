@@ -132,7 +132,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative flex flex-col overflow-y-auto h-screen">
+    <div className="relative flex flex-col h-screen overflow-y-auto">
       {/* Background Decor */}
       <div className="fixed -top-10 -left-10 w-64 h-64 bg-tertiary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
       <div className="fixed top-20 -right-10 w-64 h-64 bg-secondary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>

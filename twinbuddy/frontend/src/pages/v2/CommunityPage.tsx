@@ -109,6 +109,7 @@ export default function CommunityPage() {
   };
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.08fr_0.92fr]">
       <div className="space-y-4">
         <section className="bg-surface-container-lowest brutalist-card-active rounded-DEFAULT border-2 border-outline p-5 sm:p-6">
@@ -279,6 +280,7 @@ export default function CommunityPage() {
           </ul>
         </div>
       </aside>
+    </div>
     </div>
   );
 }

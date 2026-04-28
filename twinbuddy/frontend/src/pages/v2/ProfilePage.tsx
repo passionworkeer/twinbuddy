@@ -66,7 +66,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="relative flex flex-col">
+    <div className="flex-1 px-container-padding pt-16 pb-[100px]">
     <div className="flex flex-col gap-section-margin pt-8 px-container-padding pb-8">
       {/* Header: Avatar + Identity */}
       <section className="flex flex-col items-center text-center">
@@ -234,6 +235,7 @@ export default function ProfilePage() {
         className="p-container-padding"
         intervalMs={5600}
       />
+    </div>
     </div>
     </div>
   );

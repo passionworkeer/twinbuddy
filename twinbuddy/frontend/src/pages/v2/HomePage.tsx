@@ -213,21 +213,28 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="flex overflow-x-auto gap-card-gap snap-x snap-mandatory hide-scrollbar pb-4 -mx-container-padding px-container-padding mt-4">
-          {homeShowcases.slice(0, 3).map((buddy, idx) => (
+          {homeShowcases.slice(0, 3).map((item, idx) => (
             <article key={idx} className="flex-shrink-0 w-[240px] snap-center bg-surface-container-lowest rounded-xl border-2 border-primary shadow-[4px_4px_0px_0px_#000000] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
               <div className="h-[200px] w-full relative border-b-2 border-primary">
-                <img 
-                  src={buddy.avatarUrl} 
-                  alt={buddy.nickname} 
-                  className="w-full h-full object-cover" 
-                />
-                <div className="absolute top-base right-base bg-tertiary-container text-on-tertiary-container font-label-caps text-label-caps px-3 py-1.5 rounded-full border-2 border-primary shadow-[2px_2px_0px_#000]">
-                  {Math.floor(Math.random() * 20 + 80)}% 匹配
+                <div className="w-full h-full bg-secondary-fixed flex items-center justify-center">
+                  <span className="material-symbols-outlined text-6xl text-on-secondary-fixed opacity-30">explore</span>
+                </div>
+                <div className="absolute top-base right-base bg-secondary text-on-secondary font-label-caps text-label-caps px-3 py-1.5 rounded-full border-2 border-primary shadow-[2px_2px_0px_#000]">
+                  {item.metricValue}
                 </div>
               </div>
               <div className="p-4 flex flex-col gap-1 bg-surface-container-lowest">
-                <h3 className="font-h2 text-[20px] leading-tight text-on-background">{buddy.nickname}</h3>
-                <p className="font-body-md text-sm text-on-surface-variant line-clamp-1">{buddy.city}</p>
+                <p className="font-label-caps text-[10px] text-outline uppercase tracking-wider">{item.eyebrow}</p>
+                <h3 className="font-h2 text-[20px] leading-tight text-on-background">{item.title}</h3>
+                {item.tags && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {item.tags.slice(0, 2).map(tag => (
+                      <span key={tag} className="text-[10px] bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full border border-outline">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </article>
           ))}

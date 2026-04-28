@@ -67,12 +67,12 @@ export default {
         "sans": ["Inter", "sans-serif"]
       },
       fontSize: {
-        "h1": ["48px", { "lineHeight": "1.1" }],
-        "h2": ["32px", { "lineHeight": "1.2" }],
+        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
         "question-serif": ["28px", { "lineHeight": "1.4" }],
         "body-lg": ["18px", { "lineHeight": "1.6" }],
         "body-md": ["16px", { "lineHeight": "1.5" }],
-        "label-caps": ["12px", { "lineHeight": "1.0" }]
+        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }]
       },
       spacing: {
         "base": "8px",

@@ -32,7 +32,7 @@ const prompts = [
 ];
 
 function appendVoiceText(currentValue: string, nextText: string) {
-  return currentValue.trim() ? \\\n\\ : nextText;
+  return currentValue.trim() ? '\n' : nextText;
 }
 
 export default function HomePage() {
@@ -50,7 +50,7 @@ export default function HomePage() {
     if (!profile.userId) return;
     fetchTwinBuddyProfile(profile.userId)
       .then((data) => {
-        setRemoteProfileSummary(\\ · \ · \\);
+        setRemoteProfileSummary('· · ');
       })
       .catch(() => {
         setRemoteProfileSummary('');
@@ -76,7 +76,7 @@ export default function HomePage() {
 
   const placeholderText = useMemo(() => {
     if (profile.city) {
-      return \\出发的心愿...\;
+      return "出发的心愿...";
     }
     return '聊聊你的想法...';
   }, [profile.city]);
@@ -85,12 +85,12 @@ export default function HomePage() {
     if (!profile.userId || !input.trim() || isSending) return;
     const text = input.trim();
     const userMessage: TwinBuddyV2ChatMessage = {
-      id: \local-user-\\,
+      id: "local-user-",
       role: 'user',
       content: text,
       created_at: Date.now(),
     };
-    const assistantId = \local-assistant-\\;
+    const assistantId = "local-assistant-";
     setMessages((prev) => [
       ...prev,
       userMessage,
@@ -108,7 +108,7 @@ export default function HomePage() {
           onMessage: (chunk) => {
             setMessages((prev) =>
               prev.map((item) =>
-                item.id === assistantId ? { ...item, content: \\\\ } : item,
+                item.id === assistantId ? { ...item, content: chunk } : item,
               ),
             );
           },
@@ -143,7 +143,7 @@ export default function HomePage() {
           嘿 {profile.userId ? profile.city || '旅行者' : '旅行者'}!<br />今天想去哪儿？
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-[85%]">
-          {remoteProfileSummary ? \\\ : '发现与你频率一致的旅行搭子，开启新冒险。'}
+          {remoteProfileSummary ? remoteProfileSummary : '发现与你频率一致的旅行搭子，开启新冒险。'}
         </p>
 
         <div className="flex gap-4 mt-6">
@@ -174,7 +174,7 @@ export default function HomePage() {
             messages.map((message) => (
               <div 
                 key={message.id} 
-                className={\order-2 border-primary p-4 rounded-2xl shadow-[2px_2px_0px_0px_#000000] max-w-[85%] \\}
+                className={'self-end border-2 border-primary p-4 rounded-2xl shadow-[2px_2px_0px_0px_#000000] max-w-[85%]'}
               >
                 <div className="font-label-caps text-[10px] opacity-60 mb-1 uppercase tracking-wider">
                   {message.role === 'user' ? 'You' : 'TwinBuddy AI'}

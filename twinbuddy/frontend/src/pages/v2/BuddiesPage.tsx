@@ -39,8 +39,7 @@ function buildFallbackInbox(): TwinBuddyV2BuddyInboxItem[] {
     avatar: '✨',
     city: item.city,
     match_score: item.matchScore,
-    negotiation_id: \
-eg-\\,
+    negotiation_id: "eg-\\",
     status: item.status,
     preview: item.summary,
     highlights: item.highlights,

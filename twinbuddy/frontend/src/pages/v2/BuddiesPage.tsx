@@ -125,12 +125,13 @@ export default function BuddiesPage() {
   };
 
   return (
-    <div className="px-container-padding flex flex-col gap-section-margin relative h-full pt-8 pb-[100px]">
-      
+    <div className="relative flex flex-col overflow-y-auto h-screen">
       {/* Background Decor */}
       <div className="fixed top-1/4 -right-20 w-80 h-80 bg-primary-fixed blur-[100px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
 
-      <header className="mb-2">
+      {/* Scrollable Content */}
+      <div className="flex-1 px-container-padding pt-8 pb-[100px]">
+        <header className="mb-2">
         <div className="flex items-center gap-3 mb-2">
           <Navigation className="h-8 w-8 text-primary" />
           <h1 className="font-h1 text-h1 text-on-background leading-none">探索搭子</h1>
@@ -237,6 +238,8 @@ export default function BuddiesPage() {
           </div>
         </section>
       )}
+
+      </div>
 
       {selectedCard ? <BuddyDetailModal card={selectedCard} onClose={() => setSelectedCard(null)} /> : null}
     </div>

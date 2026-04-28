@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ShieldCheck, ShieldAlert, Sparkles, Navigation } from 'lucide-react';
 import {
   fetchTwinBuddyBuddyCard,
   fetchTwinBuddyBuddyInbox,
@@ -38,7 +39,8 @@ function buildFallbackInbox(): TwinBuddyV2BuddyInboxItem[] {
     avatar: '✨',
     city: item.city,
     match_score: item.matchScore,
-    negotiation_id: `neg-${item.id}`,
+    negotiation_id: \
+eg-\\,
     status: item.status,
     preview: item.summary,
     highlights: item.highlights,
@@ -124,83 +126,117 @@ export default function BuddiesPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <section className="glass-panel-strong p-5">
-        <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(74,222,128,0.12)] px-3 py-1 text-xs text-[var(--color-secondary)]">
-                
-                数字分身汇报
-              </div>
-              <h2 className="mt-3 text-2xl font-semibold text-white">今日已完成 {items.length || 3} 位候选搭子的预协商</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-                {securityStatus?.is_verified
-                  ? '数字分身已经先替你筛过一轮，下面这些都是更值得继续了解的对象。'
-                  : '上线前的安全底线是实名认证。认证通过后，Tab2 才会解锁真正的搭子动态和预协商结果。'}
-              </p>
-            </div>
-          </div>
-      </section>
+    <div className="px-container-padding flex flex-col gap-section-margin relative h-full pt-8 pb-[100px]">
+      
+      {/* Background Decor */}
+      <div className="fixed top-1/4 -right-20 w-80 h-80 bg-primary-fixed blur-[100px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
 
-      {errorText ? (
-        <section className="rounded-[24px] border border-[rgba(248,113,113,0.2)] bg-[rgba(93,32,32,0.24)] px-4 py-3 text-sm text-[var(--color-primary-light)]">
-          {errorText}
-        </section>
-      ) : null}
-
-      {profile.userId && securityStatus && !securityStatus.is_verified ? (
-        <section className="glass-panel p-5 sm:p-6">
-          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-            <div>
-              <h3 className="text-xl font-semibold text-white">完成实名认证后解锁搭子动态</h3>
-              <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-                这是陌生人见面产品的上线前提。认证后你才能查看预协商结果、开始盲选，并在正式认识后上报行程。
-              </p>
-              <div className="mt-5 grid gap-3">
-                <input
-                  className="neon-input"
-                  onChange={(event) => setLegalName(event.target.value)}
-                  placeholder="真实姓名"
-                  value={legalName}
-                />
-                <input
-                  className="neon-input"
-                  inputMode="numeric"
-                  maxLength={4}
-                  onChange={(event) => setIdNumberTail(event.target.value)}
-                  placeholder="身份证后四位"
-                  value={idNumberTail}
-                />
-                <button className="btn-primary w-full sm:w-auto" disabled={isVerifying} onClick={handleVerify} type="button">
-                  {isVerifying ? '认证中' : '完成认证并解锁搭子'}
-                </button>
-              </div>
-            </div>
-            <aside className="rounded-[28px] border border-white/8 bg-black/10 p-5">
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-text-secondary)]">安全说明</p>
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-                <li>未认证用户无法进入真正的搭子推荐与盲选流程。</li>
-                <li>认证后会同步解锁行程上报和紧急联系人能力。</li>
-                <li>前端只展示脱敏状态，敏感信息不会在页面回显。</li>
-              </ul>
-            </aside>
-          </div>
-        </section>
-      ) : (
-        <div className="space-y-4">
-          <ShowcaseCarousel
-            title="推荐搭子"
-            items={buddyShowcases}
-            className="p-5"
-          />
-          {items.map((buddy) => (
-            <TwinCard
-              key={buddy.buddy_id}
-              buddy={buddy}
-              onOpen={() => openCard(buddy.buddy_id, buddy.negotiation_id)}
-            />
-          ))}
+      <header className="mb-2">
+        <div className="flex items-center gap-3 mb-2">
+          <Navigation className="h-8 w-8 text-primary" />
+          <h1 className="font-h1 text-h1 text-on-background leading-none">探索搭子</h1>
         </div>
+        <p className="font-body-md text-base text-on-surface-variant max-w-[85%]">
+           {securityStatus?.is_verified
+            ? '数字分身已经替你评估了所有潜在匹配，下面是最符合你偏好的对象。'
+            : '完成实名认证安全底线，解锁正式搭子协商。'}
+        </p>
+      </header>
+
+      {/* Security Intro Banner (Neo-Brutalist) */}
+      {!securityStatus?.is_verified && (
+        <section className="bg-tertiary-fixed border-2 border-primary rounded-2xl p-5 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-start gap-4">
+            <div className="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center border-2 border-primary shrink-0 shadow-[2px_2px_0px_#000]">
+              <ShieldAlert className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="font-h2 text-[22px] text-on-background leading-tight mb-1">实名认证</h2>
+              <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
+                这是陌生人见面产品的核心安全底线。实名后，你才能开启真正的匹配与协商。
+              </p>
+            </div>
+          </div>
+
+          {/* Form */}
+          <div className="mt-5 flex flex-col gap-3">
+             <input
+               className="w-full bg-surface-container-lowest border-2 border-primary rounded-xl px-4 py-3 font-body-md text-on-background focus:outline-none focus:shadow-[2px_2px_0px_#000] focus:-translate-y-0.5 transition-all outline-none"
+               onChange={(event) => setLegalName(event.target.value)}
+               placeholder="真实姓名"
+               value={legalName}
+             />
+             <input
+               className="w-full bg-surface-container-lowest border-2 border-primary rounded-xl px-4 py-3 font-body-md text-on-background focus:outline-none focus:shadow-[2px_2px_0px_#000] focus:-translate-y-0.5 transition-all outline-none"
+               inputMode="numeric"
+               maxLength={4}
+               onChange={(event) => setIdNumberTail(event.target.value)}
+               placeholder="身份证后四位"
+               value={idNumberTail}
+             />
+             <button 
+               className="mt-2 w-full bg-primary text-on-primary font-label-caps text-label-caps py-4 rounded-xl border-2 border-primary shadow-[4px_4px_0px_#000] hover:bg-surface-tint hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] active:translate-y-0 active:shadow-[0_0_0_#000] transition-all uppercase"
+               disabled={isVerifying} 
+               onClick={handleVerify} 
+               type="button"
+             >
+               {isVerifying ? '认证中...' : '提交认证并解锁'}
+             </button>
+          </div>
+        </section>
+      )}
+
+      {errorText && (
+        <div className="bg-error text-on-error font-body-md p-4 rounded-xl border-2 border-primary shadow-[4px_4px_0px_#000] mt-4">
+          <p className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5" />
+            {errorText}
+          </p>
+        </div>
+      )}
+
+      {/* The Map / List */}
+      {(securityStatus?.is_verified || !profile.userId) && (
+        <section className="flex flex-col gap-4 mt-2">
+          
+          <div className="flex items-center justify-between">
+            <h2 className="font-h2 text-[24px] text-on-background">已预协商 {items.length || 0} 人</h2>
+            <div className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-label-caps uppercase border border-primary">
+              Live
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 mt-2">
+            {items.map((buddy) => (
+              <div 
+                key={buddy.buddy_id} 
+                onClick={() => openCard(buddy.buddy_id, buddy.negotiation_id)}
+                className="bg-surface-container-lowest border-2 border-primary rounded-xl p-5 shadow-[4px_4px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] transition-all cursor-pointer group"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full border-2 border-primary bg-secondary-fixed flex items-center justify-center text-xl overflow-hidden shadow-[2px_2px_0px_#000]">
+                      {buddy.avatar.length > 5 ? <img src={buddy.avatar} alt="avatar" className="w-full h-full object-cover" /> : buddy.avatar}
+                    </div>
+                    <div>
+                      <h3 className="font-h2 text-xl text-on-background group-hover:text-primary transition-colors">{buddy.nickname}</h3>
+                      <p className="font-body-md text-sm text-on-surface-variant flex items-center gap-1">
+                        {buddy.city} • <span className="font-label-caps bg-tertiary-fixed text-[10px] px-1.5 py-0.5 rounded-sm">{buddy.mbti}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-primary text-on-primary font-label-caps text-lg px-3 py-1.5 rounded-full border-2 border-primary shadow-[2px_2px_0px_#000]">
+                    {buddy.match_score}%
+                  </div>
+                </div>
+
+                <div className="font-body-md text-sm text-on-surface-variant line-clamp-2 bg-surface-container p-3 rounded-lg border border-outline-variant group-hover:border-primary transition-colors">
+                  {buddy.preview}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {selectedCard ? <BuddyDetailModal card={selectedCard} onClose={() => setSelectedCard(null)} /> : null}

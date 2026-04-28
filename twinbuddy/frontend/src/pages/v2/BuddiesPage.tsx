@@ -125,7 +125,7 @@ export default function BuddiesPage() {
   };
 
   return (
-    <div className="relative flex flex-col overflow-y-auto h-screen">
+    <div className="relative flex flex-col flex-1 overflow-y-auto">
       {/* Background Decor */}
       <div className="fixed top-1/4 -right-20 w-80 h-80 bg-primary-fixed blur-[100px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
 

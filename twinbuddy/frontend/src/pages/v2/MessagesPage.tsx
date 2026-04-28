@@ -41,6 +41,7 @@ export default function MessagesPage() {
   }, [profile.userId]);
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="pt-8 px-container-padding max-w-3xl mx-auto flex flex-col gap-section-margin">
       <header className="flex items-center justify-between">
         <h1 className="font-h1 text-h1 text-primary">消息</h1>
@@ -114,6 +115,7 @@ export default function MessagesPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

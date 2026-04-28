@@ -163,65 +163,102 @@ export default function CommunityPage() {
 
         <div className="space-y-4">
           {posts.map((post) => (
-            <article key={post.id} className="bg-surface-container-lowest brutalist-card-inactive rounded-DEFAULT border-2 border-outline transition-all duration-300 p-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-high text-sm font-semibold text-primary font-body-md">
-                  {post.author.nickname.slice(0, 1)}
+            <article key={post.id} className="bg-surface-container-lowest rounded-lg border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 transition-transform duration-300">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-gutter">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-outline">
+                    <div className="w-full h-full bg-secondary-fixed flex items-center justify-center text-xl font-bold text-on-secondary-fixed">
+                      {post.author.nickname.slice(0, 1)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-body-md text-base font-semibold text-on-surface">{post.author.nickname}</span>
+                      <span className="bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps px-2 py-1 rounded-full uppercase border border-outline-variant">
+                        {post.author.mbti}
+                      </span>
+                    </div>
+                    <span className="font-body-md text-[13px] text-on-surface-variant">{post.location}</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-semibold text-on-background font-h1 placeholder:text-on-surface-variant">@{post.author.nickname}</h3>
-                  <p className="text-sm text-on-surface-variant font-body-md">
-                    {post.location} · {post.author.mbti}
-                  </p>
-                </div>
-              </div>
-
-              <p className="mt-4 text-sm leading-6 text-on-background font-h1 placeholder:text-on-surface-variant">{post.content}</p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span key={tag} className="font-label-caps text-label-caps px-3 py-1 rounded-full uppercase border-2 border-outline bg-surface-variant text-on-surface-variant">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <button className="bg-secondary text-on-secondary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-outline hover:bg-secondary-container hover:text-on-secondary-container transition-all" onClick={() => handleLike(post.id)} type="button">
-                  <Heart className="h-4 w-4" />
-                  {post.likes_count}
-                </button>
-                <button className="bg-secondary text-on-secondary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-outline hover:bg-secondary-container hover:text-on-secondary-container transition-all" onClick={() => handleTwinChat(post.id)} type="button">
-                  
-                  让数字人去聊
+                <button className="text-on-surface-variant hover:text-on-surface transition-colors">
+                  <span className="material-symbols-outlined">more_horiz</span>
                 </button>
               </div>
 
-              <div className="mt-5 rounded-[24px] border border-outline bg-surface-container p-4">
-                <div className="flex items-center gap-2 text-sm text-on-surface-variant font-body-md">
-                  <MessageCircle className="h-4 w-4" />
-                  评论 {post.comments_count}
-                </div>
-                <div className="mt-3 space-y-3">
-                  {post.comments.slice(-2).map((comment) => (
-                    <div key={comment.id} className="rounded-2xl border border-outline bg-surface-container-high border-[1px] px-3 py-2">
-                      <p className="text-xs text-on-surface-variant font-body-md">@{comment.author_nickname}</p>
-                      <p className="mt-1 text-sm text-on-background font-h1 placeholder:text-on-surface-variant">{comment.content}</p>
+              {/* Content */}
+              <p className="font-body-md text-base text-on-surface mb-gutter line-clamp-3">
+                {post.content}
+              </p>
+
+              {/* Image Grid */}
+              {post.images && post.images.length > 0 && (
+                <div className={`grid gap-2 rounded-lg overflow-hidden border-2 border-outline mb-gutter ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2 aspect-square'}`}>
+                  {post.images.slice(0, 4).map((img, i) => (
+                    <div key={i} className="aspect-square bg-surface-container">
+                      <img src={img} alt="Post image" className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 flex gap-3">
-                  <input
-                    className="border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all flex-1"
-                    onChange={(event) => setCommentDrafts((prev) => ({ ...prev, [post.id]: event.target.value }))}
-                    placeholder="补一句你的偏好，帮助数字分身理解你"
-                    value={commentDrafts[post.id] ?? ''}
-                  />
-                  <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={() => handleComment(post.id)} type="button">
-                    回复
-                  </button>
-                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center gap-6 text-on-surface-variant">
+                <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" onClick={() => handleLike(post.id)} type="button">
+                  <Heart className={`h-4 w-4 group-hover:scale-110 transition-transform ${posts.find(p => p.id === post.id) ? 'fill-current' : ''}`} />
+                  <span className="font-body-md text-[14px]">{post.likes_count}</span>
+                </button>
+                <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" type="button">
+                  <span className="material-symbols-outlined group-hover:scale-110 transition-transform">chat_bubble</span>
+                  <span className="font-body-md text-[14px]">{post.comments_count}</span>
+                </button>
+                <button className="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto" type="button">
+                  <span className="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
+                </button>
               </div>
+
+              {/* Comments */}
+              {post.comments_count > 0 && (
+                <div className="mt-5 rounded-xl border border-outline bg-surface-container p-4">
+                  <div className="flex items-center gap-2 text-sm text-on-surface-variant font-body-md">
+                    <MessageCircle className="h-4 w-4" />
+                    评论 {post.comments_count}
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    {post.comments.slice(-2).map((comment) => (
+                      <div key={comment.id} className="rounded-xl border border-outline bg-surface-container-high border-[1px] px-3 py-2">
+                        <p className="text-xs text-on-surface-variant font-body-md">@{comment.author_nickname}</p>
+                        <p className="mt-1 text-sm text-on-background">{comment.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Comment Input */}
+              <div className="mt-4 flex gap-3">
+                <input
+                  className="border-2 border-outline rounded-lg bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all flex-1"
+                  onChange={(event) => setCommentDrafts((prev) => ({ ...prev, [post.id]: event.target.value }))}
+                  placeholder="补一句你的偏好，帮助数字分身理解你"
+                  value={commentDrafts[post.id] ?? ''}
+                />
+                <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-lg border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={() => handleComment(post.id)} type="button">
+                  回复
+                </button>
+              </div>
+
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span key={tag} className="font-label-caps text-label-caps px-3 py-1 rounded-full uppercase border-2 border-outline bg-surface-variant text-on-surface-variant">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </article>
           ))}
         </div>

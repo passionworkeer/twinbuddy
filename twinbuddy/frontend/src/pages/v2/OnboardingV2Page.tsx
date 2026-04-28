@@ -89,7 +89,7 @@ export default function OnboardingV2Page() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-y-auto h-screen bg-background">
       {/* Background blobs */}
       <div className="fixed -top-20 -left-20 w-80 h-80 bg-tertiary-fixed blur-[80px] opacity-30 -z-10 rounded-full pointer-events-none"></div>
       <div className="fixed top-1/4 right-[-8rem] w-80 h-80 bg-secondary-fixed blur-[80px] opacity-30 -z-10 rounded-full pointer-events-none"></div>

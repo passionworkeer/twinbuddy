@@ -111,34 +111,34 @@ export default function CommunityPage() {
   return (
     <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.08fr_0.92fr]">
       <div className="space-y-4">
-        <section className="glass-panel-strong p-5 sm:p-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(238,194,36,0.28)] bg-[rgba(238,194,36,0.08)] px-3 py-1 text-xs text-[var(--color-tertiary)]">
+        <section className="bg-surface-container-lowest brutalist-card-active rounded-DEFAULT border-2 border-outline p-5 sm:p-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-outline bg-tertiary-container text-on-tertiary-container border-2 border-outline px-3 py-1 text-xs text-[var(--color-tertiary)]">
             <Rocket className="h-3.5 w-3.5" />
             社区广场
           </div>
-          <h2 className="mt-4 text-2xl font-semibold text-white">把旅行计划、偏好和找搭子意图公开出来</h2>
-          <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
+          <h2 className="mt-4 text-2xl font-semibold text-on-background font-h1 placeholder:text-on-surface-variant">把旅行计划、偏好和找搭子意图公开出来</h2>
+          <p className="mt-3 text-sm leading-6 text-on-surface-variant font-body-md">
             这里承接发帖、点赞、评论和“让我的数字人去找 TA 聊”。社区本身也是偏好数据入口，会持续反哺匹配和协商。
           </p>
           {statusText ? (
-            <div className="mt-4 rounded-2xl border border-[rgba(74,222,128,0.18)] bg-[rgba(74,222,128,0.08)] px-4 py-3 text-sm text-[var(--color-secondary)]">
+            <div className="mt-4 rounded-2xl border border-outline bg-secondary-container px-4 py-3 text-sm text-primary font-body-md">
               {statusText}
             </div>
           ) : null}
           {errorText ? (
-            <div className="mt-4 rounded-2xl border border-[rgba(248,113,113,0.2)] bg-[rgba(93,32,32,0.24)] px-4 py-3 text-sm text-[var(--color-primary-light)]">
+            <div className="mt-4 rounded-2xl border border-error bg-error-container text-on-error-container border-2 border-error px-4 py-3 text-sm text-error font-body-md">
               {errorText}
             </div>
           ) : null}
         </section>
 
-        <section className="glass-panel p-5">
+        <section className="bg-surface-container-lowest brutalist-card-inactive rounded-DEFAULT border-2 border-outline transition-all duration-300 p-5">
           <div className="flex items-center gap-3">
             
-            <h3 className="text-lg font-semibold text-white">发布你的旅行信号</h3>
+            <h3 className="text-lg font-semibold text-on-background font-h1 placeholder:text-on-surface-variant">发布你的旅行信号</h3>
           </div>
           <textarea
-            className="neon-input mt-4 min-h-28 resize-none"
+            className="border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all mt-4 min-h-28 resize-none"
             onChange={(event) => setDraft(event.target.value)}
             placeholder="发一条旅行计划或偏好动态，比如：五一想去顺德慢慢吃，找一个不赶行程的搭子。"
             value={draft}
@@ -146,14 +146,14 @@ export default function CommunityPage() {
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap gap-2">
               {hotTags.map((tag) => (
-                <span key={tag} className="tag">
+                <span key={tag} className="font-label-caps text-label-caps px-3 py-1 rounded-full uppercase border-2 border-outline bg-surface-variant text-on-surface-variant">
                   #{tag}
                 </span>
               ))}
             </div>
             <div className="flex items-center justify-end gap-3">
               <VoiceInputButton onTranscribed={(text) => setDraft((current) => current.trim() ? `${current.trim()}\n${text}` : text)} />
-              <button className="btn-primary" onClick={handlePublish} type="button">
+              <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={handlePublish} type="button">
                 <SendHorizonal className="h-4 w-4" />
                 发布动态
               </button>
@@ -163,61 +163,61 @@ export default function CommunityPage() {
 
         <div className="space-y-4">
           {posts.map((post) => (
-            <article key={post.id} className="glass-panel p-5">
+            <article key={post.id} className="bg-surface-container-lowest brutalist-card-inactive rounded-DEFAULT border-2 border-outline transition-all duration-300 p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(74,222,128,0.1)] text-sm font-semibold text-[var(--color-primary)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-high text-sm font-semibold text-primary font-body-md">
                   {post.author.nickname.slice(0, 1)}
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-white">@{post.author.nickname}</h3>
-                  <p className="text-sm text-[var(--color-text-secondary)]">
+                  <h3 className="text-base font-semibold text-on-background font-h1 placeholder:text-on-surface-variant">@{post.author.nickname}</h3>
+                  <p className="text-sm text-on-surface-variant font-body-md">
                     {post.location} · {post.author.mbti}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-4 text-sm leading-6 text-white">{post.content}</p>
+              <p className="mt-4 text-sm leading-6 text-on-background font-h1 placeholder:text-on-surface-variant">{post.content}</p>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
-                  <span key={tag} className="tag">
+                  <span key={tag} className="font-label-caps text-label-caps px-3 py-1 rounded-full uppercase border-2 border-outline bg-surface-variant text-on-surface-variant">
                     #{tag}
                   </span>
                 ))}
               </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
-                <button className="btn-secondary" onClick={() => handleLike(post.id)} type="button">
+                <button className="bg-secondary text-on-secondary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-outline hover:bg-secondary-container hover:text-on-secondary-container transition-all" onClick={() => handleLike(post.id)} type="button">
                   <Heart className="h-4 w-4" />
                   {post.likes_count}
                 </button>
-                <button className="btn-secondary" onClick={() => handleTwinChat(post.id)} type="button">
+                <button className="bg-secondary text-on-secondary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-outline hover:bg-secondary-container hover:text-on-secondary-container transition-all" onClick={() => handleTwinChat(post.id)} type="button">
                   
                   让数字人去聊
                 </button>
               </div>
 
-              <div className="mt-5 rounded-[24px] border border-white/8 bg-black/10 p-4">
-                <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+              <div className="mt-5 rounded-[24px] border border-outline bg-surface-container p-4">
+                <div className="flex items-center gap-2 text-sm text-on-surface-variant font-body-md">
                   <MessageCircle className="h-4 w-4" />
                   评论 {post.comments_count}
                 </div>
                 <div className="mt-3 space-y-3">
                   {post.comments.slice(-2).map((comment) => (
-                    <div key={comment.id} className="rounded-2xl border border-white/8 bg-white/4 px-3 py-2">
-                      <p className="text-xs text-[var(--color-text-secondary)]">@{comment.author_nickname}</p>
-                      <p className="mt-1 text-sm text-white">{comment.content}</p>
+                    <div key={comment.id} className="rounded-2xl border border-outline bg-surface-container-high border-[1px] px-3 py-2">
+                      <p className="text-xs text-on-surface-variant font-body-md">@{comment.author_nickname}</p>
+                      <p className="mt-1 text-sm text-on-background font-h1 placeholder:text-on-surface-variant">{comment.content}</p>
                     </div>
                   ))}
                 </div>
                 <div className="mt-3 flex gap-3">
                   <input
-                    className="neon-input flex-1"
+                    className="border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all flex-1"
                     onChange={(event) => setCommentDrafts((prev) => ({ ...prev, [post.id]: event.target.value }))}
                     placeholder="补一句你的偏好，帮助数字分身理解你"
                     value={commentDrafts[post.id] ?? ''}
                   />
-                  <button className="btn-primary" onClick={() => handleComment(post.id)} type="button">
+                  <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={() => handleComment(post.id)} type="button">
                     回复
                   </button>
                 </div>
@@ -227,15 +227,15 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <aside className="hidden glass-panel p-5 lg:block">
+      <aside className="hidden bg-surface-container-lowest brutalist-card-inactive rounded-DEFAULT border-2 border-outline transition-all duration-300 p-5 lg:block">
         <ShowcaseCarousel
           title="轮播展示"
           items={communityShowcases}
           className="p-0 border-none bg-transparent shadow-none"
         />
-        <div className="rounded-3xl border border-dashed border-white/12 bg-black/10 p-5">
-          <h3 className="text-lg font-semibold text-white">社区数据怎么反哺匹配</h3>
-          <ul className="mt-4 space-y-3 text-sm text-[var(--color-text-secondary)]">
+        <div className="rounded-3xl border border-dashed border-outline bg-surface-container p-5">
+          <h3 className="text-lg font-semibold text-on-background font-h1 placeholder:text-on-surface-variant">社区数据怎么反哺匹配</h3>
+          <ul className="mt-4 space-y-3 text-sm text-on-surface-variant font-body-md">
             <li>发帖内容会更新目的地偏好、预算和旅行风格信号。</li>
             <li>点赞与评论会补足兴趣相似度，帮助 Tab2 更早筛出候选搭子。</li>
             <li>代聊入口会把帖子里的显性意图传给数字分身协商引擎。</li>

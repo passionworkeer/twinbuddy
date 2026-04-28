@@ -1,10 +1,29 @@
-import { ArrowLeft, CheckCircle2, LoaderCircle } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { answerBlindGame, fetchBlindGameReport, reportTwinBuddyTrip, startBlindGame } from '../../api/client';
+import { RefreshCcw, Handshake, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { fetchTwinBuddyBlindGameResult, postTwinBuddyBlindGameAction } from '../../api/client';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import type { BlindGameReport, BlindGameRound, TwinBuddyV2OnboardingData } from '../../types';
+import type { TwinBuddyV2BlindGameResult, TwinBuddyV2OnboardingData } from '../../types';
 import { V2_STORAGE_KEYS } from '../../types';
+
+const mockDailyResult: TwinBuddyV2BlindGameResult = {
+  isAvailable: true,
+  dailyMatches: 3,
+  remainingMatches: 3,
+  matchedProfile: {
+    id: 'mock-1',
+    age: 24,
+    gender: 'female',
+    interests: ['独立摄影', '咖啡探店', '城市漫步'],
+    mbti: 'INFP',
+    traits: ['细节控', '随性', '喜欢记录'],
+    commonTags: ['周末短途', '摄影'],
+    blindDescription: '一位喜欢在城市角落寻找光影的 INFPs，期待一个能一起挥霍周末午后时光的搭子。',
+  },
+  icebreakerQuestions: [
+    '如果你可以拥有一种超能力去旅行，你希望是什么？',
+    '去过的地方里，哪个城市的咖啡最让你难忘？',
+  ],
+};
 
 const initialProfile: TwinBuddyV2OnboardingData = {
   mbti: '',
@@ -18,251 +37,221 @@ const initialProfile: TwinBuddyV2OnboardingData = {
 };
 
 export default function BlindGamePage() {
-  const { buddyId, negotiationId } = useParams<{ buddyId: string; negotiationId: string }>();
-  const navigate = useNavigate();
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [gameId, setGameId] = useState('');
-  const [rounds, setRounds] = useState<BlindGameRound[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [report, setReport] = useState<BlindGameReport | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAnswering, setIsAnswering] = useState(false);
-  const [showTripForm, setShowTripForm] = useState(false);
-  const [tripDestination, setTripDestination] = useState(profile.city || '深圳周边');
-  const [departDate, setDepartDate] = useState('2026-05-01');
-  const [returnDate, setReturnDate] = useState('2026-05-03');
-  const [contactName, setContactName] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [tripStatusText, setTripStatusText] = useState('');
+  const [result, setResult] = useState<TwinBuddyV2BlindGameResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorText, setErrorText] = useState('');
+  const [actionStatus, setActionStatus] = useState<string>('');
+  const [showQuestions, setShowQuestions] = useState(false);
 
   useEffect(() => {
-    if (!profile.userId || !negotiationId) return;
-    startBlindGame({ userId: profile.userId, negotiationId })
-      .then((data) => {
-        setGameId(data.game_id);
-        setRounds(data.rounds);
-      })
-      .finally(() => setIsLoading(false));
-  }, [negotiationId, profile.userId]);
+    let mounted = true;
+    setLoading(true);
 
-  const currentRound = rounds[currentIndex];
-  const progress = useMemo(() => ((currentIndex + (report ? rounds.length : 0)) / Math.max(rounds.length, 1)) * 100, [currentIndex, report, rounds.length]);
+    const loadData = async () => {
+      if (!profile.userId) {
+        if (mounted) {
+          setResult(mockDailyResult);
+          setLoading(false);
+          setErrorText('当前未登录，展示演示数据。');
+        }
+        return;
+      }
+      try {
+        const res = await fetchTwinBuddyBlindGameResult(profile.userId);
+        if (mounted) {
+          setResult({ ...res, isAvailable: true });
+          setErrorText('');
+        }
+      } catch (err) {
+        if (mounted) {
+          setResult(mockDailyResult);
+          setErrorText('盲盒数据加载失败，已切换到演示模式。');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  const handleChoice = async (choice: 'A' | 'B') => {
-    if (!gameId || !currentRound || isAnswering) return;
-    setIsAnswering(true);
-    const result = await answerBlindGame({ gameId, roundId: currentRound.id, choice });
-    if (result.done) {
-      const nextReport = await fetchBlindGameReport(gameId);
-      setReport(nextReport);
-    } else {
-      setCurrentIndex((prev) => prev + 1);
+    loadData();
+    return () => {
+      mounted = false;
+    };
+  }, [profile.userId]);
+
+  const handleAction = async (actionType: 'accept' | 'reject') => {
+    if (!profile.userId || !result?.matchedProfile) return;
+    setActionStatus(actionType === 'accept' ? 'sending' : 'rejecting');
+    try {
+      await postTwinBuddyBlindGameAction(profile.userId, result.matchedProfile.id, actionType);
+      if (actionType === 'accept') {
+        setActionStatus('accepted');
+        setShowQuestions(true);
+      } else {
+        setActionStatus('rejected');
+        // reload for next
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
+    } catch {
+      setErrorText('操作失败，请重试');
+      setActionStatus('');
     }
-    setIsAnswering(false);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[var(--color-bg-base)] text-white">
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,20,19,0.7),rgba(7,18,15,0.95))]" />
-        <LoaderCircle className="relative z-10 h-8 w-8 animate-spin text-[var(--color-primary)]" />
-      </div>
-    );
-  }
-
-  if (report) {
-    return (
-      <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.25),rgba(6,17,15,0.94)_42%,rgba(7,22,18,1))]" />
-        <div className="absolute left-[-4rem] top-28 h-56 w-56 rounded-full bg-[rgba(111,160,141,0.16)] blur-3xl" />
-        <div className="absolute bottom-24 right-[-3rem] h-72 w-72 rounded-full bg-[rgba(74,222,128,0.12)] blur-3xl" />
-
-        <div className="relative z-10 mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
-          <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">
-            <ArrowLeft className="h-4 w-4" />
-            返回搭子动态
-          </button>
-
-          <section className="twin-card-layer3 space-y-5 p-5 sm:p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-3xl bg-[rgba(74,222,128,0.14)] p-3 text-[var(--color-primary)]">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--color-text-secondary)]">盲选已完成</p>
-                <h2 className="text-3xl font-semibold text-white">你和 {buddyId} 的匹配度是 {report.match_score}%</h2>
-              </div>
-            </div>
-
-            <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.28)]">
-              <div className="grid gap-4 sm:grid-cols-4">
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/70">阶段</span>
-                  <span className="mt-1 text-sm font-semibold text-white">Layer 3 揭晓</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/70">对象</span>
-                  <span className="mt-1 text-sm font-semibold text-white">{buddyId}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/70">轮次</span>
-                  <span className="mt-1 text-sm font-semibold text-white">{report.per_round_result.length} 轮</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/70">结论</span>
-                  <span className="mt-1 text-sm font-semibold text-white">{report.match_score}%</span>
-                </div>
-              </div>
-              <div className="my-4 h-px w-full bg-white/15" />
-              <p className="text-sm leading-7 text-white/80">{report.analysis}</p>
-            </section>
-
-            <div className="grid gap-3">
-              {report.per_round_result.map((item, index) => (
-                <div key={item.round_id} className="glass-card rounded-[18px] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm text-[var(--color-text-secondary)]">Round {index + 1}</p>
-                      <h3 className="mt-1 text-lg font-semibold text-white">{item.dimension}</h3>
-                    </div>
-                    <span className={item.matched ? 'tag selected' : 'red-flag-badge'}>
-                      {item.matched ? '一致' : '差异'}
-                    </span>
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-black/10 p-3">
-                      <p className="text-xs text-[var(--color-text-secondary)]">你的选择</p>
-                      <p className="mt-2 text-sm text-white">{item.user_label}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/10 p-3">
-                      <p className="text-xs text-[var(--color-text-secondary)]">TA 的选择</p>
-                      <p className="mt-2 text-sm text-white">{item.buddy_label}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button className="btn-secondary w-full" onClick={() => setShowTripForm((prev) => !prev)} type="button">
-                正式认识 TA
-              </button>
-              <button className="btn-primary w-full" onClick={() => navigate('/buddies')} type="button">
-                再看其他搭子
-              </button>
-            </div>
-
-            {showTripForm ? (
-              <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.28)]">
-                <h3 className="text-xl font-semibold text-white">行程安全上报</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-                  正式认识后，建议先上报一个基础行程和紧急联系人。上报完成后再进入私信继续沟通更稳。
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <input className="neon-input" onChange={(event) => setTripDestination(event.target.value)} placeholder="目的地" value={tripDestination} />
-                  <input className="neon-input" onChange={(event) => setDepartDate(event.target.value)} placeholder="出发日期" value={departDate} />
-                  <input className="neon-input" onChange={(event) => setReturnDate(event.target.value)} placeholder="返程日期" value={returnDate} />
-                  <input className="neon-input" onChange={(event) => setContactName(event.target.value)} placeholder="紧急联系人姓名" value={contactName} />
-                  <input className="neon-input sm:col-span-2" onChange={(event) => setContactPhone(event.target.value)} placeholder="紧急联系人手机号" value={contactPhone} />
-                </div>
-                {tripStatusText ? <p className="mt-4 text-sm text-[var(--color-secondary)]">{tripStatusText}</p> : null}
-                <button
-                  className="btn-primary mt-4 w-full"
-                  onClick={async () => {
-                    if (!profile.userId) return;
-                    const result = await reportTwinBuddyTrip({
-                      userAId: profile.userId,
-                      userBId: buddyId || 'buddy-001',
-                      destination: tripDestination,
-                      departDate,
-                      returnDate,
-                      emergencyContactName: contactName,
-                      emergencyContactPhone: contactPhone,
-                    });
-                    setTripStatusText(`安全上报已完成，紧急联系人已脱敏存档（${result.emergency_contact_masked}）。`);
-                    navigate('/messages');
-                  }}
-                  type="button"
-                >
-                  完成上报并进入私信
-                </button>
-              </section>
-            ) : null}
-          </section>
-        </div>
+      <div className="flex h-full items-center justify-center pt-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-bg-base)] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,rgba(17,24,24,0.2),rgba(6,17,15,0.9)_40%,rgba(7,22,18,1))]" />
-      <div className="absolute -left-10 top-28 h-48 w-48 rounded-full bg-[rgba(111,160,141,0.14)] blur-3xl" />
-      <div className="absolute bottom-20 right-[-2rem] h-64 w-64 rounded-full bg-[rgba(74,222,128,0.12)] blur-3xl" />
+    <div className="px-container-padding flex flex-col gap-section-margin relative h-full pt-8 pb-[100px]">
+      
+      <div className="fixed top-20 -left-10 w-72 h-72 bg-secondary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
 
-      <div className="relative z-10 mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
-        <button className="btn-ghost px-0 text-white/80" onClick={() => navigate('/buddies')} type="button">
-          <ArrowLeft className="h-4 w-4" />
-          返回搭子动态
-        </button>
+      <header className="mb-2 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container text-primary mb-4 border-2 border-primary shadow-[2px_2px_0px_#000]">
+          <RefreshCcw className="h-8 w-8" />
+        </div>
+        <h1 className="font-h1 text-[32px] text-on-background leading-none mb-2">盲盒匹配</h1>
+        <p className="font-body-md text-base text-on-surface-variant max-w-[80%] mx-auto">
+          每天 3 次心跳盲选机会。隐藏照片和具体信息，仅凭数字分身的灵魂速写相遇。
+        </p>
+        <div className="mt-4 inline-block bg-surface-container border-2 border-outline rounded-full px-4 py-1.5 font-label-caps text-xs uppercase tracking-wider text-on-surface">
+          今日剩余机会: <span className="font-bold text-primary">{result?.remainingMatches ?? 0}</span> / {result?.dailyMatches ?? 3}
+        </div>
+      </header>
 
-        <section className="glass-card rounded-[20px] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.28)]">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-white/70">Layer 3 / 6 轮盲选</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white">{currentRound?.dimension}</h2>
-              <p className="mt-2 text-sm leading-6 text-white/80">
-                双方同时作答，互不知晓，全部结束后再统一揭晓匹配分析。
+      {errorText && (
+        <div className="bg-error-container text-on-error-container font-body-md p-3 rounded-xl border border-error text-center text-sm">
+          {errorText}
+        </div>
+      )}
+
+      {result?.isAvailable && result.matchedProfile ? (
+        <section className="max-w-md mx-auto w-full relative">
+          
+          {/* Card */}
+          <div className="bg-surface-container-lowest border-2 border-primary rounded-[24px] overflow-hidden shadow-[8px_8px_0px_#000] transition-all relative z-10 p-6 flex flex-col items-center text-center">
+            
+            <div className="w-24 h-24 rounded-full border-4 border-outline-variant bg-surface-variant flex items-center justify-center mb-6 overflow-hidden relative">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-outline-variant to-surface-container-high opacity-50"></div>
+              <span className="text-4xl relative z-10">🤔</span>
+            </div>
+
+            <h2 className="font-h2 text-[28px] text-on-background mb-4">神秘搭子</h2>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+              {result.matchedProfile.mbti && (
+                 <span className="bg-primary-container text-on-primary-container border-2 border-primary px-3 py-1 rounded-full font-label-caps text-[10px] uppercase shadow-[2px_2px_0px_#000]">
+                   {result.matchedProfile.mbti}
+                 </span>
+              )}
+              {result.matchedProfile.age && (
+                 <span className="bg-secondary-container text-on-secondary-container border-2 border-outline px-3 py-1 rounded-full font-label-caps text-[10px] uppercase shadow-[2px_2px_0px_#000]">
+                   {result.matchedProfile.age} 岁
+                 </span>
+              )}
+            </div>
+
+            <div className="bg-surface-container p-4 rounded-xl border border-outline-variant w-full mb-6">
+              <p className="font-body-lg text-on-surface text-left italic">
+                "{result.matchedProfile.blindDescription}"
               </p>
             </div>
-            <div className="rounded-[18px] border border-white/15 bg-black/15 px-4 py-3 text-right">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/60">进度</p>
-              <p className="mt-1 text-2xl font-bold text-white">{Math.min(currentIndex + 1, rounds.length)}/{Math.max(rounds.length, 1)}</p>
+
+            <div className="w-full">
+              <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">他们说...</h4>
+              <div className="flex flex-wrap gap-2">
+                {result.matchedProfile.traits?.map((t: string) => (
+                  <span key={t} className="bg-surface-container-highest text-on-surface text-xs font-body-md px-2 py-1 rounded border border-outline-variant">
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
+
+            <div className="w-full mt-4">
+              <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">共同点</h4>
+              <div className="flex flex-wrap gap-2">
+                {result.matchedProfile.commonTags?.map((tag: string) => (
+                  <span key={tag} className="bg-tertiary-container text-on-tertiary-container text-xs font-body-md px-2 py-1 rounded border border-tertiary shadow-[1px_1px_0px_#000]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
           </div>
 
-          <div className="flex items-center gap-3">
-            <div>
-              <p className="text-sm text-[var(--color-text-secondary)]">6 轮盲选游戏</p>
-              <h3 className="text-xl font-semibold text-white">选择更贴近你真实旅行偏好的答案</h3>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex gap-4 mt-8 justify-center relative z-20">
+            {actionStatus === 'accepted' ? (
+              <div className="bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0px_#000] px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
+                <CheckCircle2 className="h-6 w-6" />
+                已打招呼
+              </div>
+            ) : actionStatus === 'rejected' ? (
+              <div className="bg-surface-variant text-on-surface-variant border-2 border-outline px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
+                寻找下一个
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleAction('reject')}
+                  disabled={!!actionStatus}
+                  className="flex-1 bg-surface-container-lowest text-on-surface border-2 border-outline shadow-[4px_4px_0px_#000] rounded-full py-4 font-label-caps text-base hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] active:translate-y-0 active:shadow-[0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw className="h-5 w-5" />
+                  不太合适
+                </button>
+                <button
+                  onClick={() => handleAction('accept')}
+                  disabled={!!actionStatus}
+                  className="flex-1 bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0px_#000] rounded-full py-4 font-label-caps text-base hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] active:translate-y-0 active:shadow-[0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                >
+                  <Handshake className="h-5 w-5" />
+                  打个招呼
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-white/8">
-            <div className="h-full rounded-full bg-[var(--color-primary)] transition-all" style={{ width: `${Math.min(progress, 100)}%` }} />
-          </div>
+          {/* Icebreaker Questions Slide Down */}
+          {showQuestions && result.icebreakerQuestions && (
+             <div className="absolute top-full left-0 right-0 mt-4 bg-tertiary-container text-on-tertiary-container border-2 border-tertiary rounded-2xl p-5 shadow-[4px_4px_0px_#000] animate-in fade-in slide-in-from-top-4 duration-300">
+               <h3 className="font-label-caps text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                 <span className="material-symbols-outlined text-base">chat_bubble</span>
+                 破冰问题参考
+               </h3>
+               <ul className="flex flex-col gap-3 font-body-md text-sm">
+                 {result.icebreakerQuestions.map((q, i) => (
+                   <li key={i} className="bg-surface-container-lowest p-3 rounded-lg border border-outline border-opacity-50">
+                     {q}
+                   </li>
+                 ))}
+               </ul>
+             </div>
+          )}
 
-          {currentRound ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <button
-                className="glass-card rounded-[20px] min-h-52 p-5 text-left shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 hover:border-white/25"
-                disabled={isAnswering}
-                onClick={() => handleChoice('A')}
-                type="button"
-              >
-                <p className="text-sm text-[var(--color-text-secondary)]">选项 A</p>
-                <h3 className="mt-4 text-2xl font-semibold text-white">{currentRound.option_a}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-                  选择更贴近你真实旅行偏好的答案，不需要迎合对方。
-                </p>
-              </button>
-
-              <button
-                className="glass-card rounded-[20px] min-h-52 p-5 text-left shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 hover:border-white/25"
-                disabled={isAnswering}
-                onClick={() => handleChoice('B')}
-                type="button"
-              >
-                <p className="text-sm text-[var(--color-text-secondary)]">选项 B</p>
-                <h3 className="mt-4 text-2xl font-semibold text-white">{currentRound.option_b}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-                  系统会在全部答完后统一揭晓双方答案和匹配分析。
-                </p>
-              </button>
-            </div>
-          ) : null}
         </section>
-      </div>
+      ) : (
+        <section className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-20 h-20 bg-surface-container rounded-full border-2 border-outline flex items-center justify-center mb-4">
+            <span className="material-symbols-outlined text-4xl text-outline-variant">hourglass_empty</span>
+          </div>
+          <h2 className="font-h2 text-2xl text-on-surface mb-2">今日盲盒已售罄</h2>
+          <p className="font-body-md text-on-surface-variant max-w-xs">
+            明天再来抽取新的隐秘搭档吧。
+          </p>
+        </section>
+      )}
     </div>
   );
 }

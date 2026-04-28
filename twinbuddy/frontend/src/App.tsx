@@ -1,5 +1,5 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import AppShell from './components/app-shell/AppShell';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AppLayout } from './components/layout/AppLayout';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import HomePage from './pages/v2/HomePage';
 import BuddiesPage from './pages/v2/BuddiesPage';
@@ -24,14 +24,6 @@ function HomeRedirect() {
   return <Navigate to={data.completed ? '/home' : '/onboarding'} replace />;
 }
 
-function ShellRoutes() {
-  return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
-  );
-}
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -39,7 +31,7 @@ export default function App() {
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/onboarding" element={<OnboardingV2Page />} />
         <Route path="/blind-game/:buddyId/:negotiationId" element={<BlindGamePage />} />
-        <Route element={<ShellRoutes />}>
+        <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/buddies" element={<BuddiesPage />} />
           <Route path="/community" element={<CommunityPage />} />

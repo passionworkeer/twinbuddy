@@ -1,5 +1,6 @@
-import { RefreshCcw, Handshake, CheckCircle2 } from 'lucide-react';
+import { RefreshCcw, Handshake, CheckCircle2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { V2_STORAGE_KEYS } from '../../types';
 import type { TwinBuddyV2OnboardingData } from '../../types';
@@ -33,7 +34,7 @@ const mockDailyResult: BlindGameResult = {
     mbti: 'INFP',
     traits: ['细节控', '随性', '喜欢记录'],
     commonTags: ['周末短途', '摄影'],
-    blindDescription: '一位喜欢在城市角落寻找光影的 INFPs，期待一个能一起挥霍周末午后时光的搭子。',
+    blindDescription: '一位喜欢在城市角落寻找光影的 INFP，期待一个能一起挥霍周末午后时光的搭子。',
   },
   icebreakerQuestions: [
     '如果你可以拥有一种超能力去旅行，你希望是什么？',
@@ -53,29 +54,25 @@ const initialProfile: TwinBuddyV2OnboardingData = {
 };
 
 export default function BlindGamePage() {
+  const navigate = useNavigate();
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
   const [result, setResult] = useState<BlindGameResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [errorText, setErrorText] = useState('');
+  const [errorText] = useState('');
   const [actionStatus, setActionStatus] = useState<string>('');
   const [showQuestions, setShowQuestions] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-
     const loadData = async () => {
-      // Always use mock data since backend API doesn't exist yet
       if (mounted) {
         setResult(mockDailyResult);
         setLoading(false);
       }
     };
-
     loadData();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [profile.userId]);
 
   const handleAction = (actionType: 'accept' | 'reject') => {
@@ -85,125 +82,181 @@ export default function BlindGamePage() {
       setShowQuestions(true);
     } else {
       setActionStatus('rejected');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1500);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center pt-20">
+      <div className="flex h-full items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="px-container-padding flex flex-col gap-section-margin relative h-full pt-8 pb-[100px]">
-      
-      <div className="fixed top-20 -left-10 w-72 h-72 bg-secondary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
+    <div className="bg-background fixed inset-0 z-50 flex flex-col overflow-hidden">
+      {/* Background blobs */}
+      <div className="fixed top-10 right-10 w-64 h-64 bg-primary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
+      <div className="fixed bottom-20 left-10 w-80 h-80 bg-secondary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
 
-      <header className="mb-2 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container text-primary mb-4 border-2 border-primary shadow-[2px_2px_0px_#000]">
-          <RefreshCcw className="h-8 w-8" />
+      {/* Game Header */}
+      <header className="px-container-padding pt-8 pb-4 flex flex-col gap-6 z-10 relative">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-12 h-12 rounded-full border-2 border-outline-variant flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors active:scale-95"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <div className="flex items-center gap-3 bg-surface-container rounded-full pr-5 pl-1.5 py-1.5 border border-outline-variant">
+            <div className="w-10 h-10 rounded-full border-2 border-surface-container-lowest bg-secondary-fixed flex items-center justify-center">
+              <span className="font-h2 text-h2 text-on-secondary-fixed">?</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest text-[10px]">神秘搭子</span>
+              <span className="font-body-md text-sm font-semibold text-on-surface leading-none mt-1">Blind Match</span>
+            </div>
+          </div>
+
+          <div className="w-12 h-12"></div>
         </div>
-        <h1 className="font-h1 text-[32px] text-on-background leading-none mb-2">盲盒匹配</h1>
-        <p className="font-body-md text-base text-on-surface-variant max-w-[80%] mx-auto">
-          每天 3 次心跳盲选机会。隐藏照片和具体信息，仅凭数字分身的灵魂速写相遇。
-        </p>
-        <div className="mt-4 inline-block bg-surface-container border-2 border-outline rounded-full px-4 py-1.5 font-label-caps text-xs uppercase tracking-wider text-on-surface">
-          今日剩余机会: <span className="font-bold text-primary">{result?.remainingMatches ?? 0}</span> / {result?.dailyMatches ?? 3}
+
+        {/* Remaining matches */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-end">
+            <span className="font-label-caps text-label-caps text-primary uppercase">
+              今日剩余 {result?.remainingMatches ?? 0} / {result?.dailyMatches ?? 3}
+            </span>
+            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase">盲选机会</span>
+          </div>
+          <div className="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden relative border border-outline-variant">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${((result?.remainingMatches ?? 0) / (result?.dailyMatches ?? 3)) * 100}%` }}
+            ></div>
+          </div>
         </div>
       </header>
 
-      {errorText && (
-        <div className="bg-error-container text-on-error-container font-body-md p-3 rounded-xl border border-error text-center text-sm">
-          {errorText}
-        </div>
-      )}
-
-      {result?.isAvailable && result.matchedProfile ? (
-        <section className="max-w-md mx-auto w-full relative">
-          
-          {/* Card */}
-          <div className="bg-surface-container-lowest border-2 border-primary rounded-[24px] overflow-hidden shadow-[8px_8px_0px_#000] transition-all relative z-10 p-6 flex flex-col items-center text-center">
-            
-            <div className="w-24 h-24 rounded-full border-4 border-outline-variant bg-surface-variant flex items-center justify-center mb-6 overflow-hidden relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-outline-variant to-surface-container-high opacity-50"></div>
-              <span className="text-4xl relative z-10">🤔</span>
-            </div>
-
-            <h2 className="font-h2 text-[28px] text-on-background mb-4">神秘搭子</h2>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-              {result.matchedProfile.mbti && (
-                 <span className="bg-primary-container text-on-primary-container border-2 border-primary px-3 py-1 rounded-full font-label-caps text-[10px] uppercase shadow-[2px_2px_0px_#000]">
-                   {result.matchedProfile.mbti}
-                 </span>
-              )}
-              {result.matchedProfile.age && (
-                 <span className="bg-secondary-container text-on-secondary-container border-2 border-outline px-3 py-1 rounded-full font-label-caps text-[10px] uppercase shadow-[2px_2px_0px_#000]">
-                   {result.matchedProfile.age} 岁
-                 </span>
-              )}
-            </div>
-
-            <div className="bg-surface-container p-4 rounded-xl border border-outline-variant w-full mb-6">
-              <p className="font-body-lg text-on-surface text-left italic">
-                "{result.matchedProfile.blindDescription}"
-              </p>
-            </div>
-
-            <div className="w-full">
-              <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">他们说...</h4>
-              <div className="flex flex-wrap gap-2">
-                {result.matchedProfile.traits?.map((t: string) => (
-                  <span key={t} className="bg-surface-container-highest text-on-surface text-xs font-body-md px-2 py-1 rounded border border-outline-variant">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="w-full mt-4">
-              <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">共同点</h4>
-              <div className="flex flex-wrap gap-2">
-                {result.matchedProfile.commonTags?.map((tag: string) => (
-                  <span key={tag} className="bg-tertiary-container text-on-tertiary-container text-xs font-body-md px-2 py-1 rounded border border-tertiary shadow-[1px_1px_0px_#000]">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
+      {/* Card Content */}
+      <div className="flex-grow flex flex-col px-container-padding pb-8 z-10">
+        {errorText && (
+          <div className="bg-error-container text-on-error-container font-body-md p-3 rounded-xl border border-error text-center text-sm">
+            {errorText}
           </div>
+        )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 mt-8 justify-center relative z-20">
+        {result?.isAvailable && result.matchedProfile ? (
+          <div className="flex flex-col items-center gap-6 flex-grow">
+            {/* Mystery Avatar */}
+            <div className="w-40 h-40 rounded-full border-4 border-primary shadow-[8px_8px_0_0_#000] bg-secondary-fixed flex items-center justify-center mt-8">
+              <span className="text-7xl font-bold text-on-secondary-fixed opacity-50">?</span>
+            </div>
+
+            {/* Name + Tags */}
+            <div className="text-center">
+              <h2 className="font-question-serif text-[32px] text-on-surface mb-4 leading-snug">
+                {result.matchedProfile.blindDescription}
+              </h2>
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+                {result.matchedProfile.mbti && (
+                  <span className="bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps px-3 py-1 rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                    {result.matchedProfile.mbti}
+                  </span>
+                )}
+                {result.matchedProfile.age && (
+                  <span className="bg-surface-container text-on-surface font-label-caps text-label-caps px-3 py-1 rounded-full border-2 border-outline">
+                    {result.matchedProfile.age} 岁
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Traits */}
+            {result.matchedProfile.traits && result.matchedProfile.traits.length > 0 && (
+              <div className="w-full max-w-sm">
+                <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">他们说...</h4>
+                <div className="flex flex-wrap gap-2">
+                  {result.matchedProfile.traits.map((t: string) => (
+                    <span key={t} className="bg-surface-container text-on-surface text-xs font-body-md px-2 py-1 rounded border border-outline-variant">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Common Tags */}
+            {result.matchedProfile.commonTags && result.matchedProfile.commonTags.length > 0 && (
+              <div className="w-full max-w-sm">
+                <h4 className="font-label-caps text-xs text-outline mb-2 text-left uppercase">共同点</h4>
+                <div className="flex flex-wrap gap-2">
+                  {result.matchedProfile.commonTags.map((tag: string) => (
+                    <span key={tag} className="bg-secondary-container text-on-secondary-container text-xs font-body-md px-2 py-1 rounded border border-outline">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Icebreaker Questions */}
+            {showQuestions && result.icebreakerQuestions && (
+              <div className="w-full max-w-sm bg-tertiary-container text-on-tertiary-container border-2 border-primary rounded-DEFAULT p-container-padding shadow-[4px_4px_0_0_#000]">
+                <h3 className="font-label-caps text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base">chat_bubble</span>
+                  破冰问题参考
+                </h3>
+                <ul className="flex flex-col gap-3 font-body-md text-sm">
+                  {result.icebreakerQuestions.map((q: string, i: number) => (
+                    <li key={i} className="bg-surface-container-lowest p-3 rounded-lg border border-outline text-on-surface">
+                      {q}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center flex-grow text-center">
+            <div className="w-20 h-20 bg-surface-container rounded-full border-2 border-outline flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-4xl text-outline-variant">hourglass_empty</span>
+            </div>
+            <h2 className="font-h2 text-2xl text-on-surface mb-2">今日盲盒已售罄</h2>
+            <p className="font-body-md text-on-surface-variant max-w-xs">明天再来抽取新的隐秘搭档吧。</p>
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      {result?.isAvailable && result.matchedProfile && (
+        <div className="px-container-padding pb-8 z-20">
+          <div className="flex gap-4 justify-center">
             {actionStatus === 'accepted' ? (
-              <div className="bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0px_#000] px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
+              <div className="bg-secondary text-on-secondary border-2 border-primary shadow-[4px_4px_0_0_#000] px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
                 <CheckCircle2 className="h-6 w-6" />
                 已打招呼
               </div>
             ) : actionStatus === 'rejected' ? (
-              <div className="bg-surface-variant text-on-surface-variant border-2 border-outline px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
-                寻找下一个
+              <div className="bg-surface-container text-on-surface border-2 border-outline px-6 py-4 rounded-full font-label-caps text-lg">
+                寻找下一个...
               </div>
             ) : (
               <>
                 <button
                   onClick={() => handleAction('reject')}
                   disabled={!!actionStatus}
-                  className="flex-1 bg-surface-container-lowest text-on-surface border-2 border-outline shadow-[4px_4px_0px_#000] rounded-full py-4 font-label-caps text-base hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] active:translate-y-0 active:shadow-[0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                  className="flex-1 max-w-[200px] bg-surface-container-lowest text-on-surface border-2 border-outline shadow-[4px_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[0_0_0_0_#000] transition-all flex items-center justify-center gap-2"
                 >
                   <RefreshCcw className="h-5 w-5" />
-                  不太合适
+                  不合适
                 </button>
                 <button
                   onClick={() => handleAction('accept')}
                   disabled={!!actionStatus}
-                  className="flex-1 bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0px_#000] rounded-full py-4 font-label-caps text-base hover:-translate-y-1 hover:shadow-[6px_6px_0px_#000] active:translate-y-0 active:shadow-[0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                  className="flex-1 max-w-[200px] bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[0_0_0_0_#000] transition-all flex items-center justify-center gap-2"
                 >
                   <Handshake className="h-5 w-5" />
                   打个招呼
@@ -211,35 +264,7 @@ export default function BlindGamePage() {
               </>
             )}
           </div>
-
-          {/* Icebreaker Questions Slide Down */}
-          {showQuestions && result.icebreakerQuestions && (
-             <div className="absolute top-full left-0 right-0 mt-4 bg-tertiary-container text-on-tertiary-container border-2 border-tertiary rounded-2xl p-5 shadow-[4px_4px_0px_#000] animate-in fade-in slide-in-from-top-4 duration-300">
-               <h3 className="font-label-caps text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-                 <span className="material-symbols-outlined text-base">chat_bubble</span>
-                 破冰问题参考
-               </h3>
-               <ul className="flex flex-col gap-3 font-body-md text-sm">
-                 {result.icebreakerQuestions.map((q: string, i: number) => (
-                   <li key={i} className="bg-surface-container-lowest p-3 rounded-lg border border-outline border-opacity-50">
-                     {q}
-                   </li>
-                 ))}
-               </ul>
-             </div>
-          )}
-
-        </section>
-      ) : (
-        <section className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-20 h-20 bg-surface-container rounded-full border-2 border-outline flex items-center justify-center mb-4">
-            <span className="material-symbols-outlined text-4xl text-outline-variant">hourglass_empty</span>
-          </div>
-          <h2 className="font-h2 text-2xl text-on-surface mb-2">今日盲盒已售罄</h2>
-          <p className="font-body-md text-on-surface-variant max-w-xs">
-            明天再来抽取新的隐秘搭档吧。
-          </p>
-        </section>
+        </div>
       )}
     </div>
   );

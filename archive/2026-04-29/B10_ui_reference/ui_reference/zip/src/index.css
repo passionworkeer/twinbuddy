@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  
+  --color-on-surface: #1b1b1b;
+  --color-on-surface-variant: #4c4546;
+  --color-inverse-surface: #303030;
+  --color-inverse-on-surface: #f1f1f1;
+  --color-outline: #7e7576;
+  --color-outline-variant: #cfc4c5;
+  --color-surface-tint: #5e5e5e;
+  
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1b1b1b;
+  --color-on-primary-container: #848484;
+  --color-inverse-primary: #c6c6c6;
+  
+  --color-secondary: #24695c;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #acf0df;
+  --color-on-secondary-container: #2c6f62;
+  
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #370922;
+  --color-on-tertiary-container: #b1718c;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  
+  --color-primary-fixed: #e2e2e2;
+  --color-primary-fixed-dim: #c6c6c6;
+  --color-on-primary-fixed: #1b1b1b;
+  --color-on-primary-fixed-variant: #474747;
+  
+  --color-secondary-fixed: #acf0df;
+  --color-secondary-fixed-dim: #91d3c4;
+  --color-on-secondary-fixed: #00201b;
+  --color-on-secondary-fixed-variant: #005045;
+  
+  --color-tertiary-fixed: #ffd8e6;
+  --color-tertiary-fixed-dim: #fbb1cf;
+  --color-on-tertiary-fixed: #370922;
+  --color-on-tertiary-fixed-variant: #6b354e;
+  
+  --color-background: #f9f9f9;
+  --color-on-background: #1b1b1b;
+  --color-surface-variant: #e2e2e2;
+
+  --font-h1: "Space Grotesk", sans-serif;
+  --font-h2: "Space Grotesk", sans-serif;
+  --font-question-serif: "Newsreader", serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-caps: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  --text-h1: 48px;
+  --text-h1--line-height: 1.1;
+  --text-h2: 32px;
+  --text-h2--line-height: 1.2;
+  --text-question-serif: 28px;
+  --text-question-serif--line-height: 1.4;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.5;
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 1.0;
+
+  --spacing-base: 8px;
+  --spacing-gutter: 16px;
+  --spacing-card-gap: 20px;
+  --spacing-container-padding: 24px;
+  --spacing-section-margin: 48px;
+}
+
+@layer utilities {
+  .brutalist-card-active {
+    box-shadow: 4px 4px 0px 0px #000000;
+    transform: translate(-2px, -2px);
+  }
+  .brutalist-card-inactive:hover {
+    box-shadow: 4px 4px 0px 0px #000000;
+    transform: translate(-2px, -2px);
+    border-color: #000000;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .material-symbols-outlined.fill {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}

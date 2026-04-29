@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TwinBuddy - 社区动态</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Newsreader:wght@400;500&amp;family=Space+Grotesk:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#370922",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#fbb1cf",
+                        "surface-container": "#eeeeee",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#5e5e5e",
+                        "primary-fixed": "#e2e2e2",
+                        "on-tertiary-container": "#b1718c",
+                        "on-surface-variant": "#4c4546",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-container": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "on-surface": "#1b1b1b",
+                        "on-primary": "#ffffff",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary-container": "#848484",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-container": "#acf0df",
+                        "on-secondary-container": "#2c6f62",
+                        "on-tertiary-fixed-variant": "#6b354e",
+                        "on-background": "#1b1b1b",
+                        "secondary": "#24695c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-fixed": "#1b1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "secondary-fixed-dim": "#91d3c4",
+                        "surface": "#f9f9f9",
+                        "on-secondary-fixed-variant": "#005045",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline": "#7e7576",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed": "#acf0df",
+                        "on-tertiary-fixed": "#370922",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed": "#ffd8e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-margin": "48px",
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "card-gap": "20px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Space Grotesk"],
+                        "question-serif": ["Newsreader"]
+                    },
+                    "fontSize": {
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "question-serif": ["28px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b-2 border-black dark:border-white fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 shadow-none">
+<button aria-label="Explore" class="flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95 duration-200 text-black dark:text-white">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+</button>
+<div class="flex items-center gap-8">
+<h1 class="font-['Space_Grotesk'] font-bold tracking-tighter uppercase text-2xl font-black text-black dark:text-white tracking-tighter">TWINBUDDY</h1>
+<!-- Desktop Nav Cluster -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-black dark:text-white opacity-60 hover:opacity-100 transition-all font-label-caps text-label-caps uppercase flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">home</span> Home
+                </a>
+<a class="text-black dark:text-white opacity-60 hover:opacity-100 transition-all font-label-caps text-label-caps uppercase flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">travel_explore</span> Buddies
+                </a>
+<a class="text-black dark:text-white opacity-60 hover:opacity-100 transition-all font-label-caps text-label-caps uppercase flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span> Messages
+                </a>
+<a class="text-indigo-600 dark:text-indigo-400 font-label-caps text-label-caps uppercase flex items-center gap-2 font-bold border-b-2 border-indigo-600 pb-1" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">groups</span> Community
+                </a>
+<a class="text-black dark:text-white opacity-60 hover:opacity-100 transition-all font-label-caps text-label-caps uppercase flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[18px]">person</span> Profile
+                </a>
+</nav>
+</div>
+<button aria-label="Notifications" class="flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95 duration-200 text-black dark:text-white">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[90px] pb-[120px] md:pb-12 max-w-2xl mx-auto px-container-padding flex flex-col gap-card-gap">
+<!-- Post Card 1 -->
+<article class="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 transition-transform duration-300">
+<!-- Header -->
+<div class="flex items-center justify-between mb-gutter">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-outline">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="portrait of a young woman smiling brightly outdoors in natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNIWPbiSJnJ6er53TXOfdIqOKLU0W3jDLnPGDgFVwnZ85-HZCQA9qzuQYe0Db0uOpppdtsfvlLfTiDmaDAEdifLW25F4KLyu9NaCNHSWuXfQpG8DZPq9hBVkA5e_bGCwoTIoZvaRJf5PslJ2HbhgETBABqKYPBffsBUyuDEPe0jOs2CEAhb2QgHiB87g6Jgqu2Obxm0wN0MWOx-akQyBzesWNSAAetHmQM7MWXerUtL1rGaoFi-av6SymbsZWeMTV6PslIw32ks6YR"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-semibold text-on-surface">林晓月</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps px-2 py-1 rounded-full uppercase border border-outline-variant">ENFP</span>
+</div>
+<span class="font-body-md text-[13px] text-on-surface-variant">2小时前</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<!-- Content -->
+<p class="font-body-md text-body-md text-on-surface mb-gutter line-clamp-3">
+                刚刚结束了在京都的三天两夜，秋天的红叶真的太美了！强烈推荐大家去清水寺看日落，沿着小路一直走，两边的古建筑配上漫山遍野的红色，简直是一场视觉盛宴。下次一定要带上好朋友一起来体验这绝美的风景，太治愈了！🍂✨
+            </p>
+<!-- Image Grid (Bento style) -->
+<div class="grid grid-cols-2 gap-2 rounded-DEFAULT overflow-hidden border-2 border-outline mb-gutter">
+<div class="aspect-square bg-surface-container">
+<img alt="Kyoto autumn" class="w-full h-full object-cover" data-alt="traditional japanese temple in kyoto surrounded by vibrant red autumn maple leaves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGxb6X0e-Ii2f0yYlAU28EeGeKjGRzR11LJiHNsmduun9OQ703zjhI5PYiBKuaXGNXFb6tAyH-4vA6xoTO3lNH6pIdg6tb3ml0qki2-wFv_PT7m-zQg9H8_Dk5a4ezRXvPT8yW6bzRCVcRE6GtLHh-mkWOzgspXn0x36p8M01mmkiEwOSJfYra-Hk-9e9SsCQYOOHeyaf0a33YrwZf3E32arBpb7tJyBsiVPmxIv8gkfDBUqjpqmO5v0YK_-fykQJBId4fSSfsFKyz"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Kyoto streets" class="w-full h-full object-cover" data-alt="narrow stone paved street in kyoto at dusk with warm glowing paper lanterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl5IeBBoO5p5y8ypmi_HTOTybFulplt55HPv9rAFZNQqx6tEq_4oefmaAYdm18XZnzzvEBrpN35qRDQ78mGkNHOLdSZd0yCHFOfk0XfItRTN-YnJlgW5PQFxPgLbasxC-AMz0rcg1viasaPtvSqmw0Y5vR3Oov9in_rPVpjWM5_W1HK7vK3xpg-tMZSr-IW-b0Xs2rYnJL6L7PaLc8mzl4hdH_6k4xZw51lvDEEmE12IuyPmyogpahph-PYTlWFvE3ZdorOEhR6O9G"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Matcha" class="w-full h-full object-cover" data-alt="traditional japanese matcha tea set on a wooden table with soft window light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn3r2A_o0pYz1SpADvcGbzD_kDZRZ6icU7ekSXA_11ojJgSngjoxHj_vGhKCP0IMOJlxvNc5CfuEHQjMk98rzQFQvyKQ5wTHpgNopbjs-vb2wMj3yOKwfMPBCuWg-q90bBdDMFPT08l9NviE0jYV7FZ1ds5SDcif-JyI4hQopcfwcabts8zl1ZTivt58mZQ8VjOhBcCBt23SzOKBXd6OILPDJG_ZtvpwRjmd-BYvKwaQwFYFmrAjVnPGFp1GexhxHxSMXKwNHp-2Zl"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Kyoto temple" class="w-full h-full object-cover" data-alt="close up of red maple leaves against a clear blue sky in japan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMi1AIwbVb0HFxwtMWCUKQoRaTBhb352ubfkmthg8dT04dHe_6rvugoyGXZ3Yg-_rWJtYBCa-DYELy966LndePJLk3RRjGtQSqz6RfEasjo101UxOwl8fK3q2wufnjifTrztdB1o26bsNb4WvKiO_QEr8U-cYoxC_qUXFCZd1u-CThEZWhNc6HbBTSQ6ednNUyl1fp5hg4v6Ffs3F80HrtXhPRcLImmX3cmNBJD_7f5YlDJAX0TYY8hohlJv3lG2skgHGHaA1BPpD3"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-6 text-on-surface-variant">
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">favorite</span>
+<span class="font-body-md text-[14px]">128</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">chat_bubble</span>
+<span class="font-body-md text-[14px]">45</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
+</button>
+</div>
+</article>
+<!-- Post Card 2 -->
+<article class="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 transition-transform duration-300">
+<!-- Header -->
+<div class="flex items-center justify-between mb-gutter">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-outline">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="portrait of a young man with short hair wearing a casual grey t-shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLkfkLondP8rZevW8R_dfhy-LpT_P5BLmcs7O7k59IkDu61Y_jGe7Ex6kANvopyT6B0EDMY8UGBiw035KxpGaNlprdPuvZM5lt6TL6mbOQ1gFm3_Ww7UBiMS09jj1DAxPR0o7lTWcE6on-BcSzFHJPpJY7_bU7NW4f0Nbp_TiUfGEOd-xVVrimHMlT4O7mZLIXxv7-EoXHQjeuYnftwJnzHGCXVl5x9SlL3gSVHrnobAuQOQDirKUxuL1oBRPNfDvzTbJt6o-6epqE"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Alex_Traveler</span>
+<span class="bg-primary-fixed text-on-primary-fixed font-label-caps text-label-caps px-2 py-1 rounded-full uppercase border border-outline-variant">INTJ</span>
+</div>
+<span class="font-body-md text-[13px] text-on-surface-variant">5小时前</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<!-- Content -->
+<p class="font-body-md text-body-md text-on-surface mb-gutter line-clamp-3">
+                周末去了冰岛的黑沙滩，阴郁的天气反而给这里增添了一丝神秘感。海浪拍打着玄武岩柱，风很大，但站在那里感觉整个世界都很安静。大自然的鬼斧神工总是能让人感到敬畏。这是一次非常适合独自思考的旅行。
+            </p>
+<!-- Image Grid (Bento style) -->
+<div class="grid grid-cols-2 gap-2 rounded-DEFAULT overflow-hidden border-2 border-outline mb-gutter">
+<div class="aspect-square bg-surface-container">
+<img alt="Iceland black sand" class="w-full h-full object-cover" data-alt="dramatic black sand beach in iceland with crashing white waves under a moody grey sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJJ3aaaHGOA4j6sniC887snaJGtJED8nA13OCB4EYrScI0f2j9R0V83mMf2WV_w8u4ThAFbK4FSgTJyDdcB-zC_J-CN_rrL3uz7cr96M_xfiK70fGU0-bRpPANF5fvWYotpSHaD_BMcAjZlAlXzWoF0jjOP1tcOYmjSwaCKQkpQJh0fYE-g1J_xrGAGmgRsC9ftLIPiDGvf5w2MYVNmoRgfN1rLcuTyNONTqGcH6ywVnfO7TaMGTqJ_VctfwqrMpyhYzC2aHDI1jYe"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Basalt columns" class="w-full h-full object-cover" data-alt="geometric basalt rock columns rising from a black sand beach in iceland" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOlM3ub4sokjHHoaSBeyAbF_eGNZmETDRTxImUKP7SaCkmBlhVS0TM1l_Pls4inTchLdY1ZItLKTcgUXIxWc3TVNUYCt7ZK7_abEYBkkKxkXvzCyGoGiLRc-6Hx_D6m_6Ce5P6X7s7AI8ZMaN1EqtSiG9w_VMvs208QRHc02YCrvV8kBhlMJod6sr1GmquRVVgLgE7RK80QznjQblMU--xBB7B9hAC6cG6EjCuyWYr4bVHsPu2NUOWLoSero621aBlwHlEDal8QcTk"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Iceland road" class="w-full h-full object-cover" data-alt="empty straight road stretching into the distance through a barren volcanic landscape in iceland" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA15LnxAkGhwKgzQxk0GDB-lyo1diRyZS4TAHd8-RYUw2VCSjekpRzxli9VcRFyHPx_W5Hfn3GySWqI6CNH5ppumIaqaBzLnhN2kX-cNhjFtgfSrT0vfPxXIdWjyAMyMUvWnUkpJ2YhBWIGsZWSrmg9cbjw2-bc-f75wY72NBy3VSsOKii4mPobvrAO9dI35xSz2nFofH71p1TDcqSyUsYwaNxhpdzYilJTca7PEsGn-Goln3w49WLlmV0aQ084oiwAH_XmDXtzEhtE"/>
+</div>
+<div class="aspect-square bg-surface-container">
+<img alt="Waterfall" class="w-full h-full object-cover" data-alt="powerful waterfall cascading down a rocky cliff in iceland with lush green moss" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcUjHY1YexJXQbbBienaIpLP7i0ebobcYKTHn42BrEQL7KFp6fluFiSNuWUXMsgzHHVvmsfzY1IxYr3jw9_IhqfH8fkbnVjJ6bgI9inqSdoy3VlNtzTXXJa2cstLq9-2lpJr4hugjt6YESnvHoJzSiWCm-xwjCPVMhk7eHojh7aQEc2AQ9OGMjpzJAFRx3WxZjDew3BPVRKUxPD8PVJaunaSvNSFpIKYQ1iQfYIGvs7qL0Rxv6NmojitCYS6pZpOQSZ-v2qukV0I8y"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-6 text-on-surface-variant">
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">favorite</span>
+<span class="font-body-md text-[14px]">89</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">chat_bubble</span>
+<span class="font-body-md text-[14px]">12</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
+</button>
+</div>
+</article>
+<!-- Loading Indicator for Infinite Scroll -->
+<div class="flex justify-center items-center py-8">
+<span class="material-symbols-outlined animate-spin text-outline">refresh</span>
+</div>
+</main>
+<!-- Floating Action Button (FAB) -->
+<button class="fixed bottom-[100px] right-6 md:bottom-10 md:right-10 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all z-40 border-2 border-transparent">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t-2 border-black dark:border-white shadow-[0_-8px_30px_rgba(0,0,0,0.04)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe">
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="travel_explore">travel_explore</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Buddies</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Messages</span>
+</button>
+<!-- Active Tab: Community -->
+<button class="flex flex-col items-center justify-center bg-indigo-600 text-white rounded-full px-4 py-2 ring-2 ring-black dark:ring-white hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="groups" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest text-white">Community</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Profile</span>
+</button>
+</nav>
+</body></html>

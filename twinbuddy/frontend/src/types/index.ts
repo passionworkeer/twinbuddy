@@ -321,6 +321,7 @@ export interface TwinBuddyV2Profile {
   user_id: string;
   nickname: string;
   mbti: string;
+  avatar_url?: string;
   travel_range: string[];
   budget: string;
   self_desc: string;

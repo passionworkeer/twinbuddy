@@ -90,7 +90,7 @@ export default function MessagesPage() {
                   {chat.peer_user.nickname}
                 </h3>
                 {chat.unread_count > 0 && (
-                  <span className="bg-secondary text-on-secondary rounded-full px-2 py-0.5 border-2 border-primary font-label-caps text-label-caps shrink-0 ml-2">
+                  <span className="bg-secondary text-on-secondary rounded-full px-2 py-0.5 border-2 border-outline font-label-caps text-label-caps shrink-0 ml-2">
                     {chat.unread_count}
                   </span>
                 )}

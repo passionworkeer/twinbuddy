@@ -30,6 +30,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/onboarding" element={<OnboardingV2Page />} />
+        <Route path="/blind-game" element={<BlindGamePage />} />
         <Route path="/blind-game/:buddyId/:negotiationId" element={<BlindGamePage />} />
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />

@@ -1,14 +1,10 @@
 import { MessageSquareText, SendHorizonal } from 'lucide-react';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  fetchTwinBuddyChatHistory,
-  fetchTwinBuddyProfile,
-  streamTwinBuddyChat,
-} from '../../api/client';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { homeShowcases } from '../../mocks/v2Showcase';
+import { mockChatHistory } from '../../mocks/v2ApiMock';
 import {
   V2_STORAGE_KEYS,
   type TwinBuddyV2ChatMessage,
@@ -16,14 +12,15 @@ import {
 } from '../../types';
 
 const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: '',
-  travelRange: [],
-  interests: [],
-  budget: '',
-  selfDescription: '',
-  city: '',
-  completed: false,
-  timestamp: 0,
+  mbti: 'INTJ',
+  travelRange: ['周末短途', '周边城市'],
+  interests: ['美食', '城市漫步', '摄影'],
+  budget: '舒适',
+  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
+  city: '深圳',
+  completed: true,
+  userId: 'user_77e92a9e',
+  timestamp: Date.now(),
 };
 
 const prompts = [
@@ -37,36 +34,12 @@ function appendVoiceText(currentValue: string, nextText: string) {
 
 export default function HomePage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [conversationId, setConversationId] = useLocalStorage<string>(V2_STORAGE_KEYS.chatConversation, '');
-  const [remoteProfileSummary, setRemoteProfileSummary] = useState('');
-  const [messages, setMessages] = useState<TwinBuddyV2ChatMessage[]>([]);
+  const [messages, setMessages] = useState<TwinBuddyV2ChatMessage[]>(mockChatHistory.items);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [hint, setHint] = useState('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!profile.userId) return;
-    fetchTwinBuddyProfile(profile.userId)
-      .then((data) => {
-        setRemoteProfileSummary('· · ');
-      })
-      .catch(() => {
-        setRemoteProfileSummary('');
-      });
-  }, [profile.userId]);
-
-  useEffect(() => {
-    if (!conversationId) return;
-    fetchTwinBuddyChatHistory(conversationId)
-      .then((history) => {
-        setMessages(history.items);
-      })
-      .catch(() => {
-        setMessages([]);
-      });
-  }, [conversationId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -75,162 +48,223 @@ export default function HomePage() {
   }, [messages]);
 
   const placeholderText = useMemo(() => {
-    if (profile.city) {
-      return "出发的心愿...";
-    }
-    return '聊聊你的想法...';
+    return profile.city ? '出发的心愿...' : '聊聊你的想法...';
   }, [profile.city]);
 
   const handleSend = async () => {
     if (!profile.userId || !input.trim() || isSending) return;
     const text = input.trim();
     const userMessage: TwinBuddyV2ChatMessage = {
-      id: "local-user-",
+      id: `local-user-${Date.now()}`,
       role: 'user',
       content: text,
       created_at: Date.now(),
     };
-    const assistantId = "local-assistant-";
+    const assistantId = `local-assistant-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
       userMessage,
       { id: assistantId, role: 'assistant', content: '', created_at: Date.now() + 1 },
     ]);
     setInput('');
-    setHint('');
     setIsSending(true);
 
-    try {
-      const result = await streamTwinBuddyChat(
-        { userId: profile.userId, message: text, conversationId: conversationId || undefined },
-        {
-          onMeta: (nextConversationId) => setConversationId(nextConversationId),
-          onMessage: (chunk) => {
-            setMessages((prev) =>
-              prev.map((item) =>
-                item.id === assistantId ? { ...item, content: chunk } : item,
-              ),
-            );
-          },
-          onPreferenceHint: (nextHint) => setHint(nextHint),
-        },
-      );
-      if (result.conversationId) {
-        setConversationId(result.conversationId);
-      }
-    } catch {
+    setTimeout(() => {
       setMessages((prev) =>
         prev.map((item) =>
           item.id === assistantId
-            ? { ...item, content: '当前聊天服务暂时不可用，稍后我再继续。' }
+            ? { ...item, content: '好的，我帮你记下了。你的旅行偏好我会同步给数字分身，后续匹配搭子时会重点参考这个方向。' }
             : item,
         ),
       );
-    } finally {
       setIsSending(false);
-    }
+    }, 1500);
   };
 
   return (
-    <div className="relative flex flex-col h-screen overflow-y-auto">
-      {/* Background Decor */}
-      <div className="fixed -top-10 -left-10 w-64 h-64 bg-tertiary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
-      <div className="fixed top-20 -right-10 w-64 h-64 bg-secondary-fixed blur-[80px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
+    <div className="relative flex flex-col" style={{ minHeight: '100dvh' }}>
+      {/* Page background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-secondary-fixed opacity-20 blur-[100px]" />
+        <div className="absolute bottom-32 left-0 w-60 h-60 rounded-full bg-tertiary-fixed opacity-15 blur-[80px]" />
+      </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
-        {/* Header */}
-        <section className="relative">
-          <h1 className="font-h1 text-h1 text-on-background leading-tight mb-2">
-            嘿 {profile.userId ? profile.city || '旅行者' : '旅行者'}!<br />今天想去哪儿？
+      {/* Scrollable content */}
+      <div className="flex-1 px-container-padding pt-16 pb-[110px]">
+
+        {/* ── Hero Section ── */}
+        <section className="mb-10">
+          {/* Greeting — clean, spacious */}
+          <div className="mb-1">
+            <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">
+              {new Date().getHours() < 12 ? '早安' : new Date().getHours() < 18 ? '下午好' : '晚上好'}
+            </span>
+          </div>
+          <h1 className="font-h1 text-[36px] text-on-background leading-[1.15] tracking-[-0.03em]">
+            嘿，{profile.city || '旅行者'}
           </h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-[85%]">
-            {remoteProfileSummary ? remoteProfileSummary : '发现与你频率一致的旅行搭子，开启新冒险。'}
+          <p className="font-h2 text-h2 text-secondary leading-tight mt-1">
+            今天想去哪儿？
           </p>
 
-          <div className="flex gap-4 mt-6">
-            <Link to="/onboarding" className="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-full hover:bg-surface-tint transition-colors uppercase border-2 border-primary">
+          {/* Quick stats bar */}
+          <div className="flex items-center gap-4 mt-5 mb-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline">
+              <span className="material-symbols-outlined text-sm text-secondary">psychology</span>
+              <span className="font-label-caps text-label-caps text-on-surface">{profile.mbti}</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline">
+              <span className="material-symbols-outlined text-sm text-secondary">location_on</span>
+              <span className="font-label-caps text-label-caps text-on-surface">{profile.city}</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full border border-secondary">
+              <span className="material-symbols-outlined text-sm">verified</span>
+              <span className="font-label-caps text-label-caps">已认证</span>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex gap-3">
+            <Link
+              to="/onboarding"
+              className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-caps text-label-caps px-5 py-2.5 rounded-full border-2 border-primary shadow-[0_4px_0_0_#000] hover:-translate-y-0.5 hover:shadow-[0_2px_0_0_#000] active:translate-y-1 active:shadow-none transition-all uppercase"
+            >
+              <span className="material-symbols-outlined text-base">psychology_alt</span>
               测试 MBTI
             </Link>
-            <button onClick={() => setInput('适合第一次见面的路线？')} className="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-6 py-3 rounded-full hover:brightness-95 transition-colors uppercase border-2 border-secondary">
+            <button
+              onClick={() => setInput('适合第一次见面的路线？')}
+              className="inline-flex items-center gap-2 bg-surface-container-low text-on-surface font-label-caps text-label-caps px-5 py-2.5 rounded-full border-2 border-outline shadow-[0_4px_0_0_#000] hover:-translate-y-0.5 hover:shadow-[0_2px_0_0_#000] active:translate-y-1 active:shadow-none transition-all uppercase"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-base">explore</span>
               推荐路线
             </button>
           </div>
         </section>
 
-        {/* Chat History */}
-        <section className="flex flex-col gap-4 mt-8">
-          <div className="flex items-center gap-2">
-            <MessageSquareText className="h-6 w-6 text-primary" />
-            <h2 className="font-h2 text-[26px] text-on-background leading-none">行程沟通</h2>
+        {/* ── Divider ── */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-outline-variant" />
+          <div className="flex items-center gap-2 text-on-surface-variant">
+            <MessageSquareText className="h-4 w-4" />
+            <span className="font-label-caps text-label-caps uppercase text-[10px] tracking-widest">行程沟通</span>
           </div>
+          <div className="flex-1 h-px bg-outline-variant" />
+        </div>
 
-          <div ref={chatContainerRef} className="flex flex-col gap-4 min-h-[120px] max-h-[50dvh] overflow-y-auto hide-scrollbar pb-4">
-            {messages.length === 0 ? (
-              <div className="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] self-start max-w-[90%]">
-                <p className="font-body-md text-base text-on-background">
-                  你好呀，我是你的专属探索助手。你可以把你的周末计划抛给我，或者告诉我你不想干嘛，我们会自动更新匹配条件。
-                </p>
-              </div>
-            ) : (
-              messages.map((message) => (
+        {/* ── Chat Section ── */}
+        <section className="flex flex-col gap-4 mb-10">
+          <div
+            ref={chatContainerRef}
+            className="flex flex-col gap-3 max-h-[45dvh] overflow-y-auto hide-scrollbar"
+          >
+            {messages.map((message) => {
+              const isUser = message.role === 'user';
+              return (
                 <div
                   key={message.id}
-                  className="self-end border-2 border-outline-variant bg-surface-container-lowest p-4 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] max-w-[85%]"
+                  className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className="font-label-caps text-[10px] opacity-60 mb-1 uppercase tracking-wider text-on-surface-variant">
-                    {message.role === 'user' ? 'You' : 'TwinBuddy AI'}
-                  </div>
-                  <p className="font-body-md text-base whitespace-pre-wrap text-on-background">
-                    {message.content || (message.role === 'assistant' ? '...' : '')}
-                  </p>
-                </div>
-              ))
-            )}
-
-            {messages.length === 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {prompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    className="bg-surface-container border-2 border-outline-variant px-4 py-2 rounded-full font-body-md text-sm text-on-surface-variant hover:border-primary hover:text-primary transition-colors text-left"
-                    onClick={() => setInput(prompt)}
-                    type="button"
+                  <div
+                    className={`max-w-[85%] px-4 py-3 rounded-2xl border-2 ${
+                      isUser
+                        ? 'bg-primary text-on-primary border-primary rounded-tr-sm shadow-[0_4px_0_0_rgba(0,0,0,0.15)]'
+                        : 'bg-surface-container-lowest text-on-background border-outline-variant rounded-tl-sm shadow-[0_4px_0_0_rgba(0,0,0,0.06)]'
+                    }`}
                   >
-                    {prompt}
-                  </button>
-                ))}
+                    <div className={`font-label-caps text-[10px] mb-1 uppercase tracking-wider ${
+                      isUser ? 'text-on-primary/60' : 'text-on-surface-variant'
+                    }`}>
+                      {isUser ? '你' : 'TwinBuddy AI'}
+                    </div>
+                    <p className="font-body-md text-[15px] whitespace-pre-wrap leading-relaxed">
+                      {message.content || (isUser ? '' : '...')}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+
+            {isSending && (
+              <div className="flex justify-start">
+                <div className="px-4 py-3 bg-surface-container-lowest border-2 border-outline-variant rounded-2xl rounded-tl-sm">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
               </div>
             )}
+          </div>
+
+          {/* Prompt chips */}
+          <div className="flex flex-col gap-2">
+            <span className="font-label-caps text-label-caps text-[10px] text-outline uppercase tracking-widest">试试问</span>
+            <div className="flex flex-wrap gap-2">
+              {prompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  className="text-left bg-surface-container border-2 border-outline px-4 py-2.5 rounded-full hover:border-secondary hover:text-on-background transition-colors"
+                  onClick={() => setInput(prompt)}
+                  type="button"
+                >
+                  <span className="font-body-md text-sm text-on-surface-variant">{prompt}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Recommended Carousel */}
-        <section className="flex flex-col gap-gutter mt-4 mb-24">
-          <div className="flex items-end justify-between">
-            <h2 className="font-h2 text-[26px] text-on-background leading-none">推荐搭子</h2>
-            <Link to="/buddies" className="font-label-caps text-label-caps text-primary hover:text-surface-tint uppercase transition-colors">
+        {/* ── Divider ── */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-outline-variant" />
+          <div className="flex items-center gap-2 text-on-surface-variant">
+            <span className="material-symbols-outlined text-sm">explore</span>
+            <span className="font-label-caps text-label-caps uppercase text-[10px] tracking-widest">为你匹配</span>
+          </div>
+          <div className="flex-1 h-px bg-outline-variant" />
+        </div>
+
+        {/* ── Carousel ── */}
+        <section className="mb-8">
+          <div className="flex items-end justify-between mb-4">
+            <h2 className="font-h2 text-h2 text-on-background">推荐搭子</h2>
+            <Link
+              to="/buddies"
+              className="flex items-center gap-1 font-label-caps text-label-caps text-secondary hover:text-on-background transition-colors"
+            >
               查看全部
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
             </Link>
           </div>
-          <div className="flex overflow-x-auto gap-card-gap snap-x snap-mandatory hide-scrollbar pb-4 -mx-container-padding px-container-padding mt-4">
-            {homeShowcases.slice(0, 3).map((item, idx) => (
-              <article key={idx} className="flex-shrink-0 w-[240px] snap-center bg-surface-container-lowest rounded-xl border-2 border-outline-variant shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
-                <div className="h-[320px] w-full relative border-b-2 border-outline-variant">
-                  <div className="w-full h-full bg-secondary-fixed flex items-center justify-center">
-                    <span className="material-symbols-outlined text-6xl text-on-secondary-fixed opacity-30">explore</span>
+
+          <div className="flex overflow-x-auto gap-4 snap-x snap-mandatory hide-scrollbar pb-2 -mx-container-padding px-container-padding">
+            {homeShowcases.map((item, idx) => (
+              <article
+                key={idx}
+                className="flex-shrink-0 w-[200px] snap-center bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+              >
+                {/* Image area */}
+                <div className="relative h-[160px] bg-secondary-fixed overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-7xl text-on-secondary-fixed opacity-20">terrain</span>
                   </div>
-                  <div className="absolute top-base right-base bg-primary-container text-on-primary-container font-label-caps text-label-caps px-3 py-1.5 rounded-full border-2 border-outline shadow-[2px_2px_0px_#000]">
+                  {/* Metric badge */}
+                  <div className="absolute top-3 right-3 bg-on-background text-background font-label-caps text-label-caps px-2.5 py-1 rounded-full border-2 border-on-background shadow-[2px_2px_0_0_rgba(0,0,0,0.2)]">
                     {item.metricValue}
                   </div>
                 </div>
-                <div className="p-4 flex flex-col gap-1 bg-surface-container-lowest">
-                  <p className="font-label-caps text-[10px] text-outline uppercase tracking-wider">{item.eyebrow}</p>
-                  <h3 className="font-h2 text-[20px] leading-tight text-on-background">{item.title}</h3>
+
+                {/* Content */}
+                <div className="p-3.5">
+                  <p className="font-label-caps text-label-caps text-[10px] text-outline uppercase tracking-widest mb-1">{item.eyebrow}</p>
+                  <h3 className="font-h2 text-[16px] leading-snug text-on-background line-clamp-2">{item.title}</h3>
                   {item.tags && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {item.tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed px-2 py-0.5 rounded-full border border-outline">
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {item.tags.slice(0, 2).map((tag) => (
+                        <span key={tag} className="font-label-caps text-label-caps text-[9px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed border border-outline">
                           {tag}
                         </span>
                       ))}
@@ -243,15 +277,17 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* Floating Input Bar */}
-      <div className="fixed bottom-[88px] left-0 right-0 px-container-padding z-40 md:hidden pointer-events-none">
+      {/* ── Floating Input Bar ── */}
+      <div className="fixed bottom-[88px] left-0 right-0 px-container-padding z-40 md:bottom-[88px] pointer-events-none">
         <div className="max-w-screen-md mx-auto pointer-events-auto">
           {hint && (
-             <div className="w-full text-center font-label-caps text-[10px] text-primary bg-secondary-fixed border-2 border-secondary px-3 py-1 rounded-t-xl mx-auto mb-[-2px] inline-block w-auto">
-               {hint}
-             </div>
+            <div className="mb-1 text-center">
+              <span className="inline-block font-label-caps text-label-caps text-[10px] text-on-secondary-container bg-secondary-container border-2 border-secondary px-3 py-1 rounded-full">
+                {hint}
+              </span>
+            </div>
           )}
-          <div className="bg-surface-container-lowest rounded-full border-2 border-outline shadow-[0_4px_0_0_#000] flex items-center p-2 transition-all focus-within:shadow-[0_2px_0_0_#000] focus-within:translate-y-[2px]">
+          <div className="bg-surface-container-lowest rounded-full border-2 border-outline shadow-[0_4px_0_0_#000] flex items-center px-1.5 py-1.5 gap-1 transition-all focus-within:shadow-[0_2px_0_0_#000] focus-within:-translate-y-0.5">
             <VoiceInputButton
               disabled={isSending}
               onTranscribed={(text) => setInput((current) => appendVoiceText(current, text))}
@@ -265,11 +301,11 @@ export default function HomePage() {
               className="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-base text-on-background placeholder:text-outline py-2 px-2 outline-none"
             />
             <button
-              disabled={!profile.userId || !input.trim() || isSending}
+              disabled={!input.trim() || isSending}
               onClick={handleSend}
-              className="bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors active:scale-95 shrink-0 disabled:opacity-50"
+              className="bg-primary text-on-primary w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors active:scale-95 shrink-0 disabled:opacity-30"
             >
-              <SendHorizonal className="h-5 w-5" />
+              <SendHorizonal className="h-4 w-4" />
             </button>
           </div>
         </div>

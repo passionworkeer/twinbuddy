@@ -5,7 +5,7 @@ import RedFlagsPanel from '@/components/twin-card/RedFlagsPanel';
 describe('RedFlagsPanel', () => {
   it('renders the panel heading and description', () => {
     render(<RedFlagsPanel items={[]} />);
-    expect(screen.getByText(/需要留意/i)).toBeInTheDocument();
+    expect(screen.getByText(/仍需留意/i)).toBeInTheDocument();
     expect(screen.getByText(/这些不是一票否决/i)).toBeInTheDocument();
   });
 
@@ -25,8 +25,9 @@ describe('RedFlagsPanel', () => {
   });
 
   it('handles empty items gracefully with section still rendered', () => {
-    render(<RedFlagsPanel items={[]} />);
-    expect(screen.getByText(/这些不是一票否决/i)).toBeInTheDocument();
-    expect(screen.queryByRole('list')).toBeInTheDocument();
+    const { container } = render(<RedFlagsPanel items={[]} />);
+    // Section still rendered; ul/list is replaced by success div for empty items
+    const section = container.querySelectorAll('[class*="rounded-"]');
+    expect(section.length).toBeGreaterThanOrEqual(1);
   });
 });

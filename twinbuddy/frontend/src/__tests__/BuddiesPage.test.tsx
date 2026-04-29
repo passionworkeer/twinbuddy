@@ -70,10 +70,8 @@ describe('BuddiesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('@小满')).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByText('88')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('小满')).toBeInTheDocument();
+    expect(await screen.findByText(/88%/)).toBeInTheDocument();
   });
 
   it('shows verification gate and unlocks inbox after submit', async () => {
@@ -135,12 +133,12 @@ describe('BuddiesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/完成实名认证后解锁搭子动态/i)).toBeInTheDocument();
+    expect(await screen.findByText(/解锁正式搭子协商/i)).toBeInTheDocument();
     await user.type(screen.getByPlaceholderText(/真实姓名/i), '王小明');
     await user.type(screen.getByPlaceholderText(/身份证后四位/i), '1234');
-    await user.click(screen.getByRole('button', { name: /完成认证并解锁搭子/i }));
+    await user.click(screen.getByRole('button', { name: /提交认证并解锁/i }));
 
-    expect(await screen.findByText('@小满')).toBeInTheDocument();
+    expect(await screen.findByText('小满')).toBeInTheDocument();
   });
 
   it('opens the buddy detail modal and can continue into blind game', async () => {
@@ -221,7 +219,7 @@ describe('BuddiesPage', () => {
       </MemoryRouter>,
     );
 
-    await user.click(await screen.findByRole('button', { name: /了解更多/i }));
+    await user.click(await screen.findByText(/小满/));
     expect(await screen.findByText(/与 @小满 的预协商已经完成/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /开始 6 轮盲选/i }));
@@ -278,7 +276,7 @@ describe('BuddiesPage', () => {
       </MemoryRouter>,
     );
 
-    await user.click(await screen.findByRole('button', { name: /了解更多/i }));
+    await user.click(await screen.findByText(/小满/));
     expect(await screen.findByText(/协商摘要加载失败/i)).toBeInTheDocument();
   });
 });

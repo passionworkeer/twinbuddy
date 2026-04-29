@@ -24,18 +24,18 @@ describe('App navigation shell', () => {
 
   it('redirects completed users into the new shell', async () => {
     render(<App />);
-    expect(await screen.findByText(/深圳 的旅行灵感/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /搭子/i })).toBeInTheDocument();
+    expect(await screen.findByText(/今天想去哪儿/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Buddies/i })).toBeInTheDocument();
   });
 
   it('switches tabs through the bottom navigation', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole('link', { name: /我的/i }));
-    expect(await screen.findByText(/个人摘要/i)).toBeInTheDocument();
+    await user.click(await screen.findByRole('link', { name: /Profile$/i }));
+    expect(await screen.findByText(/Style Vector/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: /^私信$/i }));
-    expect(await screen.findByText(/聊天窗口/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: /Messages$/i }));
+    expect(await screen.findByText(/暂无私信/i)).toBeInTheDocument();
   });
 });

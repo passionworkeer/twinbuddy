@@ -191,7 +191,7 @@ export default function ProfilePage() {
       <section className="flex flex-col gap-4">
         <h2 className="font-h2 text-h2 text-primary">旅行偏好</h2>
         <div className="flex flex-wrap gap-3">
-          {profile.interests.length > 0
+          {(profile.interests ?? []).length > 0
             ? profile.interests.map((tag) => (
                 <div key={tag} className="px-6 py-3 bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm">label</span>

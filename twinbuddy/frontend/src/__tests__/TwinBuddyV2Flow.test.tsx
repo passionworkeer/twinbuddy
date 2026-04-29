@@ -135,16 +135,16 @@ describe('TwinBuddy V2 flow', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    expect(await screen.findByText(/完成实名认证后解锁搭子动态/i)).toBeInTheDocument();
+    expect(await screen.findByText(/解锁正式搭子协商/i)).toBeInTheDocument();
     await user.type(screen.getByPlaceholderText(/真实姓名/i), '王小明');
     await user.type(screen.getByPlaceholderText(/身份证后四位/i), '1234');
-    await user.click(screen.getByRole('button', { name: /完成认证并解锁搭子/i }));
-    expect(await screen.findByText('@小满')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /提交认证并解锁/i }));
+    expect(await screen.findByText('小满')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: /^社区$/i }));
+    await user.click(screen.getByRole('link', { name: /Community/i }));
     expect(await screen.findByText(/周末想在深圳周边走走吃吃/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: /^私信$/i }));
-    expect((await screen.findAllByText(/这周末如果去顺德，你更想吃还是拍？/i)).length).toBeGreaterThan(0);
+    await user.click(screen.getByRole('link', { name: /Messages$/i }));
+    expect((await screen.findAllByText(/这周末如果去顺德，你更想吃还是拍/i)).length).toBeGreaterThan(0);
   });
 });

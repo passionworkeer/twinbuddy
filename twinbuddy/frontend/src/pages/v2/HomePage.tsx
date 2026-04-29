@@ -1,4 +1,4 @@
-import { MessageSquareText, SendHorizonal, Mic } from 'lucide-react';
+import { MessageSquareText, SendHorizonal } from 'lucide-react';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -149,10 +149,10 @@ export default function HomePage() {
           </p>
 
           <div className="flex gap-4 mt-6">
-            <Link to="/onboarding" className="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-full hover:bg-surface-tint transition-colors uppercase border-2 border-primary brutalist-card-inactive shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+            <Link to="/onboarding" className="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-full hover:bg-surface-tint transition-colors uppercase border-2 border-primary">
               测试 MBTI
             </Link>
-            <button onClick={() => setInput('适合第一次见面的路线？')} className="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-6 py-3 rounded-full hover:brightness-95 transition-colors uppercase border-2 border-primary brutalist-card-inactive shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+            <button onClick={() => setInput('适合第一次见面的路线？')} className="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-6 py-3 rounded-full hover:brightness-95 transition-colors uppercase border-2 border-secondary">
               推荐路线
             </button>
           </div>
@@ -167,7 +167,7 @@ export default function HomePage() {
 
           <div ref={chatContainerRef} className="flex flex-col gap-4 min-h-[120px] max-h-[50dvh] overflow-y-auto hide-scrollbar pb-4">
             {messages.length === 0 ? (
-              <div className="bg-surface-container-lowest border-2 border-primary rounded-xl p-5 shadow-[4px_4px_0px_0px_#000000] self-start max-w-[90%]">
+              <div className="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] self-start max-w-[90%]">
                 <p className="font-body-md text-base text-on-background">
                   你好呀，我是你的专属探索助手。你可以把你的周末计划抛给我，或者告诉我你不想干嘛，我们会自动更新匹配条件。
                 </p>
@@ -176,12 +176,12 @@ export default function HomePage() {
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className="self-end border-2 border-primary p-4 rounded-2xl shadow-[2px_2px_0px_0px_#000000] max-w-[85%]"
+                  className="self-end border-2 border-outline-variant bg-surface-container-lowest p-4 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] max-w-[85%]"
                 >
-                  <div className="font-label-caps text-[10px] opacity-60 mb-1 uppercase tracking-wider">
+                  <div className="font-label-caps text-[10px] opacity-60 mb-1 uppercase tracking-wider text-on-surface-variant">
                     {message.role === 'user' ? 'You' : 'TwinBuddy AI'}
                   </div>
-                  <p className="font-body-md text-base whitespace-pre-wrap">
+                  <p className="font-body-md text-base whitespace-pre-wrap text-on-background">
                     {message.content || (message.role === 'assistant' ? '...' : '')}
                   </p>
                 </div>
@@ -215,12 +215,12 @@ export default function HomePage() {
           </div>
           <div className="flex overflow-x-auto gap-card-gap snap-x snap-mandatory hide-scrollbar pb-4 -mx-container-padding px-container-padding mt-4">
             {homeShowcases.slice(0, 3).map((item, idx) => (
-              <article key={idx} className="flex-shrink-0 w-[240px] snap-center bg-surface-container-lowest rounded-xl border-2 border-primary shadow-[4px_4px_0px_0px_#000000] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
-                <div className="h-[320px] w-full relative border-b-2 border-primary">
+              <article key={idx} className="flex-shrink-0 w-[240px] snap-center bg-surface-container-lowest rounded-xl border-2 border-outline-variant shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
+                <div className="h-[320px] w-full relative border-b-2 border-outline-variant">
                   <div className="w-full h-full bg-secondary-fixed flex items-center justify-center">
                     <span className="material-symbols-outlined text-6xl text-on-secondary-fixed opacity-30">explore</span>
                   </div>
-                  <div className="absolute top-base right-base bg-secondary text-on-secondary font-label-caps text-label-caps px-3 py-1.5 rounded-full border-2 border-primary shadow-[2px_2px_0px_#000]">
+                  <div className="absolute top-base right-base bg-primary-container text-on-primary-container font-label-caps text-label-caps px-3 py-1.5 rounded-full border-2 border-outline shadow-[2px_2px_0px_#000]">
                     {item.metricValue}
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export default function HomePage() {
                   {item.tags && (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {item.tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[10px] bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full border border-outline">
+                        <span key={tag} className="text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed px-2 py-0.5 rounded-full border border-outline">
                           {tag}
                         </span>
                       ))}
@@ -247,11 +247,11 @@ export default function HomePage() {
       <div className="fixed bottom-[88px] left-0 right-0 px-container-padding z-40 md:hidden pointer-events-none">
         <div className="max-w-screen-md mx-auto pointer-events-auto">
           {hint && (
-             <div className="w-full text-center font-label-caps text-[10px] text-primary bg-secondary-fixed border-2 border-primary px-3 py-1 rounded-t-xl mx-auto mb-[-2px] inline-block w-auto shadow-[2px_0px_0px_0px_#000]">
+             <div className="w-full text-center font-label-caps text-[10px] text-primary bg-secondary-fixed border-2 border-secondary px-3 py-1 rounded-t-xl mx-auto mb-[-2px] inline-block w-auto">
                {hint}
              </div>
           )}
-          <div className="bg-surface-container-lowest rounded-full border-2 border-primary shadow-[4px_4px_0px_0px_#000000] flex items-center p-2 backdrop-blur-xl bg-opacity-90 transition-all focus-within:shadow-[6px_6px_0px_0px_#000000] focus-within:-translate-y-1">
+          <div className="bg-surface-container-lowest rounded-full border-2 border-outline shadow-[0_4px_0_0_#000] flex items-center p-2 transition-all focus-within:shadow-[0_2px_0_0_#000] focus-within:translate-y-[2px]">
             <VoiceInputButton
               disabled={isSending}
               onTranscribed={(text) => setInput((current) => appendVoiceText(current, text))}

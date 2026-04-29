@@ -105,7 +105,7 @@ export default function BlindGamePage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="w-12 h-12 rounded-full border-2 border-outline-variant flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors active:scale-95"
+            className="w-12 h-12 rounded-full border-2 border-outline flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors active:scale-95"
           >
             <X className="h-5 w-5" />
           </button>
@@ -151,7 +151,7 @@ export default function BlindGamePage() {
         {result?.isAvailable && result.matchedProfile ? (
           <div className="flex flex-col items-center gap-6 flex-grow">
             {/* Mystery Avatar */}
-            <div className="w-40 h-40 rounded-full border-4 border-primary shadow-[8px_8px_0_0_#000] bg-secondary-fixed flex items-center justify-center mt-8">
+            <div className="w-40 h-40 rounded-full border-4 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] bg-secondary-fixed flex items-center justify-center mt-8">
               <span className="text-7xl font-bold text-on-secondary-fixed opacity-50">?</span>
             </div>
 
@@ -162,7 +162,7 @@ export default function BlindGamePage() {
               </h2>
               <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
                 {result.matchedProfile.mbti && (
-                  <span className="bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps px-3 py-1 rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span className="bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps px-3 py-1 rounded-full border-2 border-outline">
                     {result.matchedProfile.mbti}
                   </span>
                 )}
@@ -204,7 +204,7 @@ export default function BlindGamePage() {
 
             {/* Icebreaker Questions */}
             {showQuestions && result.icebreakerQuestions && (
-              <div className="w-full max-w-sm bg-tertiary-container text-on-tertiary-container border-2 border-primary rounded-DEFAULT p-container-padding shadow-[4px_4px_0_0_#000]">
+              <div className="w-full max-w-sm bg-surface-container-lowest text-on-surface border-2 border-outline rounded-DEFAULT p-container-padding shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <h3 className="font-label-caps text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">chat_bubble</span>
                   破冰问题参考
@@ -235,7 +235,7 @@ export default function BlindGamePage() {
         <div className="px-container-padding pb-8 z-20">
           <div className="flex gap-4 justify-center">
             {actionStatus === 'accepted' ? (
-              <div className="bg-secondary text-on-secondary border-2 border-primary shadow-[4px_4px_0_0_#000] px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
+              <div className="bg-secondary text-on-secondary border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] px-6 py-4 rounded-full font-label-caps flex items-center gap-2 text-lg">
                 <CheckCircle2 className="h-6 w-6" />
                 已打招呼
               </div>

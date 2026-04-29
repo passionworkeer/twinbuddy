@@ -83,7 +83,7 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        <h1 className="font-h1 text-[48px] font-bold text-primary leading-[1.1] tracking-[-0.04em]">
+        <h1 className="font-h1 text-[48px] font-bold text-on-background leading-[1.1] tracking-[-0.04em]">
           {remoteProfile?.city || profile.city || 'TwinBuddy 用户'}
         </h1>
         <p className="font-body-lg text-[18px] text-on-surface-variant mt-2">
@@ -104,8 +104,8 @@ export default function ProfilePage() {
       <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-primary p-container-padding shadow-[4px_4px_0_0_#000] relative overflow-hidden">
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary-container rounded-full blur-3xl opacity-50 pointer-events-none"></div>
         <div className="flex items-center justify-between mb-8 relative z-10">
-          <h2 className="font-h2 text-h2 text-primary">MING 4D 认知模型</h2>
-          <span className="material-symbols-outlined text-primary text-3xl">psychology</span>
+          <h2 className="font-h2 text-h2 text-on-background">MING 4D 认知模型</h2>
+          <span className="material-symbols-outlined text-secondary text-3xl">psychology</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter relative z-10">
           {[
@@ -189,7 +189,7 @@ export default function ProfilePage() {
 
       {/* Travel Preferences */}
       <section className="flex flex-col gap-4">
-        <h2 className="font-h2 text-h2 text-primary">旅行偏好</h2>
+        <h2 className="font-h2 text-h2 text-on-background">旅行偏好</h2>
         <div className="flex flex-wrap gap-3">
           {(profile.interests ?? []).length > 0
             ? profile.interests.map((tag) => (

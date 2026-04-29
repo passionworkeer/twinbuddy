@@ -108,8 +108,8 @@ export default function OnboardingV2Page() {
                     key={mbti}
                     className={`rounded-DEFAULT border-2 p-4 text-left transition ${
                       selected
-                        ? 'border-primary bg-surface-container shadow-[4px_4px_0_0_#000]'
-                        : 'border-outline-variant bg-surface-container hover:border-primary'
+                        ? 'border-2 border-primary shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
+                        : 'border-2 border-outline-variant bg-surface-container hover:border-primary'
                     }`}
                     onClick={() => setMbti(mbti)}
                     type="button"
@@ -187,8 +187,8 @@ export default function OnboardingV2Page() {
                     key={option.value}
                     className={`w-full rounded-DEFAULT border-2 p-4 text-left transition ${
                       selected
-                        ? 'border-primary bg-surface-container shadow-[4px_4px_0_0_#000]'
-                        : 'border-outline hover:border-primary'
+                        ? 'border-2 border-primary shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
+                        : 'border-2 border-outline hover:border-primary'
                     }`}
                     onClick={() => setBudget(option.value)}
                     type="button"

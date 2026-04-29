@@ -16,7 +16,7 @@ describe('ProfilePage', () => {
         mbti: 'ENFP',
         travelRange: ['周边城市'],
         budget: '经济',
-        selfDescription: '旧描述',
+        selfDescription: '喜欢会做攻略的搭子',
         city: '深圳',
         completed: true,
         timestamp: Date.now(),

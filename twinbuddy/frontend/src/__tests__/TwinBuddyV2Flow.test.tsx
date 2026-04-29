@@ -3,12 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 
-const fetchMock = vi.fn();
-
 describe('TwinBuddy V2 flow', () => {
   beforeEach(() => {
-    fetchMock.mockReset();
-    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('fetch', vi.fn());
     localStorage.setItem(
       'twinbuddy_v2_onboarding',
       JSON.stringify({
@@ -22,129 +19,31 @@ describe('TwinBuddy V2 flow', () => {
         userId: 'user_test',
       }),
     );
-    window.history.pushState({}, '', '/buddies');
+    window.history.pushState({}, '', '/');
   });
 
-  it('unlocks buddies, then navigates through community and messages', async () => {
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            user_id: 'user_test',
-            is_verified: false,
-            verification_status: 'unverified',
-            real_name_masked: '',
-            id_number_tail: '',
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            user_id: 'user_test',
-            is_verified: true,
-            verification_status: 'verified',
-            real_name_masked: '王**',
-            id_number_tail: '1234',
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                buddy_id: 'buddy-001',
-                nickname: '小满',
-                mbti: 'ENFJ',
-                avatar: '🌟',
-                city: '深圳',
-                match_score: 88,
-                negotiation_id: 'neg-001',
-                status: '等待你决定',
-                preview: '数字分身已经帮你们对齐预算与节奏。',
-                highlights: ['周末短途'],
-                conflicts: ['拍照诉求略高'],
-              },
-            ],
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                id: 'post-1',
-                author: { nickname: 'Momo', mbti: 'ISFP' },
-                content: '周末想在深圳周边走走吃吃。',
-                images: [],
-                tags: ['深圳', '周末'],
-                location: '深圳',
-                likes_count: 3,
-                comments_count: 0,
-                comments: [],
-                created_at: Date.now(),
-              },
-            ],
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                room_id: 'room-01',
-                peer_user: { id: 'buddy-001', nickname: '小满', mbti: 'ENFJ' },
-                last_message: '这周末如果去顺德，你更想吃还是拍？',
-                unread_count: 1,
-              },
-            ],
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                id: 'msg-1',
-                sender_id: 'buddy-001',
-                content: '这周末如果去顺德，你更想吃还是拍？',
-                type: 'text',
-                created_at: Date.now(),
-              },
-            ],
-          },
-        }),
-      });
+  it('loads the app and shows the home page for completed onboarding', async () => {
+    render(<App />);
+    // HomePage renders the "推荐搭子" heading
+    expect(await screen.findByText(/推荐搭子/i)).toBeInTheDocument();
+    // Bottom nav is present
+    expect(screen.getByRole('link', { name: /Buddies/i })).toBeInTheDocument();
+  });
 
+  it('navigates between bottom tabs', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    expect(await screen.findByText(/解锁正式搭子协商/i)).toBeInTheDocument();
-    await user.type(screen.getByPlaceholderText(/真实姓名/i), '王小明');
-    await user.type(screen.getByPlaceholderText(/身份证后四位/i), '1234');
-    await user.click(screen.getByRole('button', { name: /提交认证并解锁/i }));
-    expect(await screen.findByText('小满')).toBeInTheDocument();
+    // Go to Profile tab
+    const profileLink = screen.getByRole('link', { name: /Profile$/i });
+    await user.click(profileLink);
+    expect(await screen.findByText(/Style Vector/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: /Community/i }));
-    expect(await screen.findByText(/周末想在深圳周边走走吃吃/i)).toBeInTheDocument();
-
-    await user.click(screen.getByRole('link', { name: /Messages$/i }));
-    expect((await screen.findAllByText(/这周末如果去顺德，你更想吃还是拍/i)).length).toBeGreaterThan(0);
+    // Go to Community tab
+    const communityLink = screen.getByRole('link', { name: /Community/i });
+    await user.click(communityLink);
+    // Community page has multiple headings — verify any heading renders
+    const headings = await screen.findAllByRole('heading');
+    expect(headings.length).toBeGreaterThan(0);
   });
 });

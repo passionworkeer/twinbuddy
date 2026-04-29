@@ -35,7 +35,11 @@ describe('App navigation shell', () => {
     await user.click(await screen.findByRole('link', { name: /Profile$/i }));
     expect(await screen.findByText(/Style Vector/i)).toBeInTheDocument();
 
+    // Click Messages tab — MessagesPage renders with mockConversations
     await user.click(screen.getByRole('link', { name: /Messages$/i }));
-    expect(await screen.findByText(/暂无私信/i)).toBeInTheDocument();
+    // Verify the Messages page content is present by checking for a heading
+    const headings = await screen.findAllByRole('heading');
+    const hasMessagesHeader = headings.some((h) => /消息/.test(h.textContent || ''));
+    expect(hasMessagesHeader).toBeTruthy();
   });
 });

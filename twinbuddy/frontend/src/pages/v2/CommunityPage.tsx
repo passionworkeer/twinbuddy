@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Rocket, SendHorizonal, RefreshCw } from 'lucide-react';
+import { Heart, MessageCircle, Rocket, SendHorizonal, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
@@ -26,7 +26,10 @@ export default function CommunityPage() {
   const [draft, setDraft] = useState('');
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [statusText, setStatusText] = useState('');
+  const [publishSuccess, setPublishSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [twinChatTarget, setTwinChatTarget] = useState<string | null>(null);
+  const [twinChatStatus, setTwinChatStatus] = useState<'idle' | 'confirming' | 'sending' | 'done'>('idle');
 
   const hotTags = useMemo(() => ['深圳', '周末', '美食', '慢节奏', '五一'], []);
 
@@ -53,9 +56,10 @@ export default function CommunityPage() {
       created_at: Date.now(),
     };
     setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
+    setPublishSuccess(true);
     setPosts((prev) => [newPost, ...prev]);
     setDraft('');
-    setTimeout(() => setStatusText(''), 3000);
+    setTimeout(() => { setStatusText(''); setPublishSuccess(false); }, 3000);
   };
 
   const handleLike = (postId: string) => {
@@ -83,9 +87,25 @@ export default function CommunityPage() {
     setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
   };
 
-  const handleTwinChat = (postId: string) => {
-    setStatusText('代聊已发起，数字分身正在分析对方偏好并发起协商...');
-    setTimeout(() => setStatusText(''), 3000);
+  const handleTwinChat = (postId: string, authorNickname: string) => {
+    setTwinChatTarget(authorNickname);
+    setTwinChatStatus('confirming');
+  };
+
+  const handleTwinChatConfirm = () => {
+    setTwinChatStatus('sending');
+    setTimeout(() => {
+      setTwinChatStatus('done');
+      setTimeout(() => {
+        setTwinChatTarget(null);
+        setTwinChatStatus('idle');
+      }, 4000);
+    }, 2000);
+  };
+
+  const handleTwinChatCancel = () => {
+    setTwinChatTarget(null);
+    setTwinChatStatus('idle');
   };
 
   return (
@@ -115,6 +135,12 @@ export default function CommunityPage() {
               {statusText ? (
                 <div className="mt-4 rounded-DEFAULT border-2 border-outline bg-secondary-container px-4 py-3 font-body-md text-on-secondary-container">
                   {statusText}
+                  {publishSuccess && (
+                    <span className="ml-2 inline-flex items-center gap-1 text-sm text-on-tertiary">
+                      <CheckCircle2 className="h-4 w-4" />
+                      已成功
+                    </span>
+                  )}
                 </div>
               ) : null}
             </section>
@@ -147,7 +173,7 @@ export default function CommunityPage() {
 
             <div className="space-y-4">
               {posts.map((post) => (
-                <article key={post.id} className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 transition-transform duration-300">
+                <article key={post.id} className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 hover:shadow-[0_4px_0_0_#000] transition-all duration-300">
                   {/* Header */}
                   <div className="flex items-center justify-between mb-gutter">
                     <div className="flex items-center gap-4">
@@ -180,8 +206,8 @@ export default function CommunityPage() {
                   {post.images && post.images.length > 0 && (
                     <div className={`grid gap-2 rounded-DEFAULT overflow-hidden border-2 border-outline mb-gutter ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                       {post.images.slice(0, 4).map((img, i) => (
-                        <div key={i} className="aspect-square bg-surface-container">
-                          <img src={img} alt="Post image" className="w-full h-full object-cover" />
+                        <div key={i} className="aspect-square bg-surface-container overflow-hidden">
+                          <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
                         </div>
                       ))}
                     </div>
@@ -197,8 +223,9 @@ export default function CommunityPage() {
                       <span className="material-symbols-outlined group-hover:scale-110 transition-transform">chat_bubble</span>
                       <span className="font-body-md text-[14px]">{post.comments_count}</span>
                     </button>
-                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto" onClick={() => handleTwinChat(post.id)} type="button">
-                      <span className="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
+                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto" onClick={() => handleTwinChat(post.id, post.author.nickname)} type="button">
+                      <span className="material-symbols-outlined group-hover:scale-110 transition-transform">smart_toy</span>
+                      <span className="font-body-md text-[14px]">代聊</span>
                     </button>
                   </div>
 
@@ -265,6 +292,54 @@ export default function CommunityPage() {
           </aside>
         </div>
       </div>
+
+      {/* TwinChat Modal */}
+      {twinChatTarget && twinChatStatus !== 'idle' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-6 w-full max-w-sm shadow-[4px_4px_0_0_#000]">
+            {twinChatStatus === 'confirming' && (
+              <>
+                <p className="font-body-md text-base text-on-surface">
+                  让数字分身去和 <span className="font-semibold text-primary">@{twinChatTarget}</span> 聊聊？
+                </p>
+                <p className="mt-2 text-sm text-on-surface-variant">
+                  数字分身会自动分析对方的旅行偏好并发起协商。
+                </p>
+                <div className="mt-6 flex gap-3 justify-end">
+                  <button
+                    className="px-4 py-2 text-sm border-2 border-outline rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors"
+                    onClick={handleTwinChatCancel}
+                    type="button"
+                  >
+                    取消
+                  </button>
+                  <button
+                    className="px-4 py-2 text-sm bg-primary text-on-primary rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all"
+                    onClick={handleTwinChatConfirm}
+                    type="button"
+                  >
+                    确认出发
+                  </button>
+                </div>
+              </>
+            )}
+            {twinChatStatus === 'sending' && (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="font-body-md text-on-surface-variant">数字分身已出发...</p>
+              </div>
+            )}
+            {twinChatStatus === 'done' && (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <CheckCircle2 className="h-10 w-10 text-tertiary" />
+                <p className="font-body-md text-on-surface text-center">
+                  代聊已发起，对方将在24小时内收到数字分身协商请求。
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

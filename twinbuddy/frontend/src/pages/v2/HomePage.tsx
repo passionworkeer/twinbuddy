@@ -94,7 +94,6 @@ export default function HomePage() {
 
         {/* ── Hero Section ── */}
         <section className="mb-10">
-          {/* Greeting — clean, spacious */}
           <div className="mb-1">
             <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">
               {new Date().getHours() < 12 ? '早安' : new Date().getHours() < 18 ? '下午好' : '晚上好'}
@@ -227,7 +226,7 @@ export default function HomePage() {
           <div className="flex-1 h-px bg-outline-variant" />
         </div>
 
-        {/* ── Carousel ── */}
+        {/* ── Horizontal Scroll Carousel ── */}
         <section className="mb-8">
           <div className="flex items-end justify-between mb-4">
             <h2 className="font-h2 text-h2 text-on-background">推荐搭子</h2>
@@ -241,30 +240,40 @@ export default function HomePage() {
           </div>
 
           <div className="flex overflow-x-auto gap-4 snap-x snap-mandatory hide-scrollbar pb-2 -mx-container-padding px-container-padding">
-            {homeShowcases.map((item, idx) => (
+            {homeShowcases.map((item) => (
               <article
-                key={idx}
+                key={item.id}
                 className="flex-shrink-0 w-[200px] snap-center bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
               >
-                {/* Image area */}
-                <div className="relative h-[160px] bg-secondary-fixed overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-7xl text-on-secondary-fixed opacity-20">terrain</span>
-                  </div>
-                  {/* Metric badge */}
-                  <div className="absolute top-3 right-3 bg-on-background text-background font-label-caps text-label-caps px-2.5 py-1 rounded-full border-2 border-on-background shadow-[2px_2px_0_0_rgba(0,0,0,0.2)]">
-                    {item.metricValue}
-                  </div>
+                {/* Image */}
+                <div className="relative aspect-video bg-secondary-fixed overflow-hidden">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-5xl text-on-secondary-fixed opacity-20">terrain</span>
+                    </div>
+                  )}
+                  {item.metricValue && (
+                    <div className="absolute top-2 right-2 bg-primary text-on-primary font-label-caps text-label-caps text-[10px] px-2.5 py-1 rounded-full border-2 border-outline shadow-[2px_2px_0_0_rgba(0,0,0,0.15)]">
+                      {item.metricValue}
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
-                <div className="p-3.5">
-                  <p className="font-label-caps text-label-caps text-[10px] text-outline uppercase tracking-widest mb-1">{item.eyebrow}</p>
-                  <h3 className="font-h2 text-[16px] leading-snug text-on-background line-clamp-2">{item.title}</h3>
-                  {item.tags && (
+                <div className="p-3">
+                  <p className="font-label-caps text-label-caps text-[9px] text-secondary uppercase tracking-widest mb-0.5">{item.eyebrow}</p>
+                  <h3 className="font-h2 text-[14px] leading-snug text-on-background line-clamp-2">{item.title}</h3>
+                  {item.tags && item.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {item.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="font-label-caps text-label-caps text-[9px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed border border-outline">
+                        <span key={tag} className="font-label-caps text-label-caps text-[8px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed border border-outline">
                           {tag}
                         </span>
                       ))}

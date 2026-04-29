@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { ShieldCheck, ShieldAlert, Navigation } from 'lucide-react';
-import TwinCard from '../../components/twin-card/TwinCard';
+import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import BuddyDetailModal from '../../components/v2/BuddyDetailModal';
-import { buddyInbox as fallbackInbox } from '../../mocks/buddyInbox';
 import { buddyShowcases } from '../../mocks/v2Showcase';
 import { mockBuddyCard, mockBuddyInbox, mockSecurityStatus } from '../../mocks/v2ApiMock';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -26,22 +25,6 @@ const initialProfile: TwinBuddyV2OnboardingData = {
   timestamp: Date.now(),
 };
 
-function buildFallbackInbox(): TwinBuddyV2BuddyInboxItem[] {
-  return fallbackInbox.map((item) => ({
-    buddy_id: item.id,
-    nickname: item.nickname,
-    mbti: item.mbti,
-    avatar: '✨',
-    city: item.city,
-    match_score: item.matchScore,
-    negotiation_id: "neg_fallback",
-    status: item.status,
-    preview: item.summary,
-    highlights: item.highlights,
-    conflicts: [],
-  }));
-}
-
 export default function BuddiesPage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
   const [items] = useState<TwinBuddyV2BuddyInboxItem[]>(mockBuddyInbox);
@@ -52,7 +35,7 @@ export default function BuddiesPage() {
   const [idNumberTail, setIdNumberTail] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const openCard = (buddyId: string) => {
+  const openCard = (_buddyId: string) => {
     setSelectedCard(mockBuddyCard);
   };
 
@@ -135,7 +118,7 @@ export default function BuddiesPage() {
           </div>
         )}
 
-        {/* The Map / List */}
+        {/* Buddy List */}
         <section className="flex flex-col gap-4 mt-2">
           <div className="flex items-center justify-between">
             <h2 className="font-h2 text-h2 text-on-background">已预协商 {items.length} 人</h2>
@@ -154,7 +137,11 @@ export default function BuddiesPage() {
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full border-2 border-outline bg-secondary-fixed flex items-center justify-center text-xl overflow-hidden">
-                      {buddy.avatar.length > 5 ? <img src={buddy.avatar} alt="avatar" className="w-full h-full object-cover" /> : buddy.avatar}
+                      {buddy.avatar && buddy.avatar.length > 5 ? (
+                        <img src={buddy.avatar} alt={buddy.nickname} className="w-full h-full object-cover" />
+                      ) : (
+                        buddy.avatar
+                      )}
                     </div>
                     <div>
                       <h3 className="font-h2 text-xl text-on-background group-hover:text-secondary transition-colors">{buddy.nickname}</h3>
@@ -174,6 +161,16 @@ export default function BuddiesPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Showcase Carousel */}
+        <section className="mt-6">
+          <ShowcaseCarousel
+            title="盲选洞察"
+            items={buddyShowcases}
+            className="p-container-padding"
+            intervalMs={5600}
+          />
         </section>
       </div>
 

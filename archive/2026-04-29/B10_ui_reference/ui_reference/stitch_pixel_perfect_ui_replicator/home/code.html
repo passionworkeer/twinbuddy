@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TwinBuddy - Home</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,500;1,400&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for horizontal scroll areas */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-secondary": "#ffffff",
+                            "tertiary-container": "#370922",
+                            "tertiary": "#000000",
+                            "on-error": "#ffffff",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-fixed-dim": "#fbb1cf",
+                            "surface-container": "#eeeeee",
+                            "error": "#ba1a1a",
+                            "background": "#f9f9f9",
+                            "inverse-surface": "#303030",
+                            "surface-tint": "#5e5e5e",
+                            "primary-fixed": "#e2e2e2",
+                            "on-tertiary-container": "#b1718c",
+                            "on-surface-variant": "#4c4546",
+                            "inverse-on-surface": "#f1f1f1",
+                            "primary-container": "#1b1b1b",
+                            "surface-dim": "#dadada",
+                            "on-surface": "#1b1b1b",
+                            "on-primary": "#ffffff",
+                            "primary": "#000000",
+                            "on-secondary-fixed": "#00201b",
+                            "surface-container-high": "#e8e8e8",
+                            "on-primary-container": "#848484",
+                            "on-error-container": "#93000a",
+                            "inverse-primary": "#c6c6c6",
+                            "secondary-container": "#acf0df",
+                            "on-secondary-container": "#2c6f62",
+                            "on-tertiary-fixed-variant": "#6b354e",
+                            "on-background": "#1b1b1b",
+                            "secondary": "#24695c",
+                            "surface-container-lowest": "#ffffff",
+                            "on-primary-fixed-variant": "#474747",
+                            "on-primary-fixed": "#1b1b1b",
+                            "error-container": "#ffdad6",
+                            "surface-container-highest": "#e2e2e2",
+                            "secondary-fixed-dim": "#91d3c4",
+                            "surface": "#f9f9f9",
+                            "on-secondary-fixed-variant": "#005045",
+                            "surface-bright": "#f9f9f9",
+                            "primary-fixed-dim": "#c6c6c6",
+                            "outline": "#7e7576",
+                            "surface-variant": "#e2e2e2",
+                            "secondary-fixed": "#acf0df",
+                            "on-tertiary-fixed": "#370922",
+                            "surface-container-low": "#f3f3f3",
+                            "outline-variant": "#cfc4c5",
+                            "tertiary-fixed": "#ffd8e6"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "1rem",
+                            "lg": "2rem",
+                            "xl": "3rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "section-margin": "48px",
+                            "container-padding": "24px",
+                            "gutter": "16px",
+                            "card-gap": "20px",
+                            "base": "8px"
+                    },
+                    "fontFamily": {
+                            "h1": ["Space Grotesk"],
+                            "body-md": ["Inter"],
+                            "label-caps": ["Space Grotesk"],
+                            "body-lg": ["Inter"],
+                            "h2": ["Space Grotesk"],
+                            "question-serif": ["Newsreader"]
+                    },
+                    "fontSize": {
+                            "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                            "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                            "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                            "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                            "question-serif": ["28px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen text-on-background antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar (Shared Component JSON injected) -->
+<header class="fixed top-0 w-full border-b-2 border-black dark:border-white shadow-none bg-white/80 dark:bg-black/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 z-50 md:hidden">
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">explore</span>
+</button>
+<span class="font-['Space_Grotesk'] font-bold tracking-tighter uppercase text-2xl text-black dark:text-white">TWINBUDDY</span>
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[80px] pb-[160px] px-container-padding flex flex-col gap-section-margin max-w-screen-md mx-auto relative">
+<!-- Greeting Section with Vibrant Mesh Hint -->
+<section class="relative mt-4">
+<div class="absolute -top-10 -left-10 w-48 h-48 bg-tertiary-fixed blur-[60px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
+<div class="absolute top-10 -right-10 w-48 h-48 bg-secondary-fixed blur-[60px] opacity-40 -z-10 rounded-full pointer-events-none"></div>
+<h1 class="font-h1 text-h1 text-on-background mb-gutter leading-tight">
+                嘿 Alex!<br/>今天想去哪儿?
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[80%]">
+                发现与你频率一致的旅行搭子，开启新冒险。
+            </p>
+</section>
+<!-- Recommendation Carousel (Bento-style Cards) -->
+<section class="flex flex-col gap-gutter">
+<div class="flex items-end justify-between">
+<h2 class="font-h2 text-h2 text-on-background">推荐搭子</h2>
+<a class="font-label-caps text-label-caps text-primary hover:text-surface-tint uppercase transition-colors" href="#">查看全部</a>
+</div>
+<div class="flex overflow-x-auto gap-card-gap snap-x snap-mandatory hide-scrollbar pb-4 -mx-container-padding px-container-padding">
+<!-- Card 1 -->
+<article class="flex-shrink-0 w-[260px] snap-center bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
+<div class="h-[280px] w-full relative">
+<img alt="Travel Buddy" class="w-full h-full object-cover" data-alt="young asian woman smiling warmly at the camera with a subtle city skyline at sunset in the background, soft golden hour lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRl1gY3gskhHXkZikH96EYt8YQtdfY5lKo6SLbFgmhUU1dGUHhGgxqaO8KVpQoDLn_mL3s77NZB1H9_f8nY5MojExLzH7Pf-WexlqYxz0d7Zq_qMdTdX-jGcWfNNAYaS37K6XIxCqGYXFp3zR_KDpiQpAdn3-YRgN8TutzjG_6VBJgEVLCel-jb6mGZ8SdeTxFSUGit6knO0EkzrtiNGfy78VQ3yWPxEXfJNSQArY8g3cEyRn3NZVTBI1hDmSQpwmEDTXEErb0Dko2"/>
+<div class="absolute top-base right-base bg-primary-container text-on-primary font-label-caps text-label-caps px-3 py-1.5 rounded-full backdrop-blur-md bg-opacity-90">
+                            98% 匹配
+                        </div>
+</div>
+<div class="p-container-padding flex flex-col gap-base bg-surface-container-lowest">
+<h3 class="font-h2 text-[24px] leading-tight text-on-background">Sarah, 24</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">独立摄影师 / 咖啡爱好者</p>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="font-label-caps text-[10px] text-on-secondary-container bg-secondary-container px-2 py-1 rounded-sm uppercase tracking-wider">东京计划</span>
+<span class="font-label-caps text-[10px] text-on-tertiary-container bg-tertiary-fixed px-2 py-1 rounded-sm uppercase tracking-wider">美术馆</span>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="flex-shrink-0 w-[260px] snap-center bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
+<div class="h-[280px] w-full relative">
+<img alt="Travel Buddy" class="w-full h-full object-cover" data-alt="young athletic man in hiking gear standing on a rocky outcrop overlooking a misty mountain valley, vibrant natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUaJX_Ri2CatVqHIleZZJOOhud_xqlopeR3Jy2tehAHrwv3y3bjpi4R_WpTulbcj7bOe6pyAEuYwu9lboKvInLJGgJYj5dnvTp2Ogl4jUc_9eUatW7SDFkDfp2bR2F8PagfakJ1pH8YrPNA5g_bMwA0xvt0Mtt-MHwuIs_7Utifbx5X-AIrV9i2sbw_XAXiB_wp82jk7KJF8DaGEx4ubdudDvIqB3xeSR8_l-QIO3qgVbdppf_97F7JzJLYpcBPMkBP96SFF6k_3sF"/>
+<div class="absolute top-base right-base bg-primary-container text-on-primary font-label-caps text-label-caps px-3 py-1.5 rounded-full backdrop-blur-md bg-opacity-90">
+                            92% 匹配
+                        </div>
+</div>
+<div class="p-container-padding flex flex-col gap-base bg-surface-container-lowest">
+<h3 class="font-h2 text-[24px] leading-tight text-on-background">David, 27</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">户外探险 / 极限运动</p>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="font-label-caps text-[10px] text-on-secondary-container bg-secondary-container px-2 py-1 rounded-sm uppercase tracking-wider">周末徒步</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant bg-surface-variant px-2 py-1 rounded-sm uppercase tracking-wider">露营</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="flex-shrink-0 w-[260px] snap-center bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-transform hover:-translate-y-1 duration-300">
+<div class="h-[280px] w-full relative">
+<img alt="Travel Buddy" class="w-full h-full object-cover" data-alt="close-up portrait of a young woman with short dark hair in a vibrant local market, colorful background with soft bokeh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN1jRYL1sBSwa6aIyqnNDwVTfjWSRv8jjzzZ9NwWyRwP-T8YTgNPBYFTUyQUjl6lLCZZaGmVW-Sz1C_qn3m9RXINZE7L4XDv6rMenavfmpXq-Ku2eomQUkbsEB_0spcgrY6zRSP3lTsOM_OIFjOYfuY3grvy8QzzuZzH6vRqMHhWnMPpUYdcTXJd3ETRQRDfc4J_7K_biyAJT3umytjXSbEqCBYnrB-YpbTsEhXyP6yW-uPJOLg4r4841AZRLlBnOo48pteuV-sw-U"/>
+<div class="absolute top-base right-base bg-primary-container text-on-primary font-label-caps text-label-caps px-3 py-1.5 rounded-full backdrop-blur-md bg-opacity-90">
+                            88% 匹配
+                        </div>
+</div>
+<div class="p-container-padding flex flex-col gap-base bg-surface-container-lowest">
+<h3 class="font-h2 text-[24px] leading-tight text-on-background">Chloe, 22</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">美食寻觅者 / 城市漫游</p>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="font-label-caps text-[10px] text-on-secondary-container bg-secondary-container px-2 py-1 rounded-sm uppercase tracking-wider">曼谷夜市</span>
+<span class="font-label-caps text-[10px] text-on-tertiary-container bg-tertiary-fixed px-2 py-1 rounded-sm uppercase tracking-wider">探店</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- AI Chat Input Bar (Floating above bottom nav) -->
+<div class="fixed bottom-[88px] left-0 w-full px-container-padding z-40 md:hidden">
+<div class="max-w-screen-md mx-auto">
+<div class="bg-surface-container-lowest rounded-full border-2 border-primary shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center p-2 backdrop-blur-xl bg-opacity-90">
+<span class="material-symbols-outlined text-primary ml-4 mr-2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">robot_2</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-body-md text-on-background placeholder:text-outline py-2 px-2 outline-none" placeholder="AI 旅行顾问：想找什么样的搭子？" type="text"/>
+<button class="bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BottomNavBar (Shared Component JSON injected) -->
+<!-- Applying exact active state to "Home" based on intent -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe border-t-2 border-black dark:border-white bg-white/90 dark:bg-black/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.04)] md:hidden">
+<!-- Active: Home -->
+<button class="flex flex-col items-center justify-center bg-indigo-600 text-white rounded-full px-4 py-2 ring-2 ring-black dark:ring-white hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</button>
+<!-- Inactive: Buddies -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="travel_explore">travel_explore</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Buddies</span>
+</button>
+<!-- Inactive: Messages -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Messages</span>
+</button>
+<!-- Inactive: Community -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Community</span>
+</button>
+<!-- Inactive: Profile -->
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

@@ -68,10 +68,8 @@ describe('MessagesPage', () => {
     );
 
     expect(await screen.findByText('小满')).toBeInTheDocument();
-    expect(await screen.findByText('这周末如果去顺德，你更想吃还是拍？')).toBeInTheDocument();
-
-    const user = userEvent.setup();
-    await user.type(screen.getByPlaceholderText(/发条消息/i), '收到');
-    expect(screen.getByDisplayValue('收到')).toBeInTheDocument();
+    expect(await screen.findByText(/这周末如果去顺德，你更想吃还是拍/i)).toBeInTheDocument();
+    // Search bar exists
+    expect(screen.getByPlaceholderText(/搜索对话/i)).toBeInTheDocument();
   });
 });

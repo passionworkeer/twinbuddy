@@ -26,23 +26,38 @@ describe('ProfilePage', () => {
   });
 
   it('loads remote profile and allows editing draft text', async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          user_id: 'user_test',
-          nickname: '深圳热情开拓者',
-          mbti: 'ENFP',
-          travel_range: ['周边城市'],
-          budget: '经济',
-          self_desc: '喜欢会做攻略的搭子',
-          city: '深圳',
-          style_vector: { decision_style: 'flexible' },
-          updated_at: Date.now(),
-        },
-      }),
-    });
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            user_id: 'user_test',
+            nickname: '深圳热情开拓者',
+            mbti: 'ENFP',
+            travel_range: ['周边城市'],
+            budget: '经济',
+            self_desc: '喜欢会做攻略的搭子',
+            city: '深圳',
+            style_vector: { decision_style: 'flexible' },
+            interests: ['摄影', '美食'],
+            updated_at: Date.now(),
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            user_id: 'user_test',
+            is_verified: false,
+            verification_status: 'unverified',
+            real_name_masked: '',
+            id_number_tail: '',
+          },
+        }),
+      });
 
     render(
       <MemoryRouter>

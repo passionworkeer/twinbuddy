@@ -54,10 +54,12 @@ describe('HomePage', () => {
     );
 
     expect(await screen.findByText(/推荐搭子/i)).toBeInTheDocument();
-    expect(screen.getByText(/深圳出发 2 天顺德慢吃线|你最近对“好吃但不赶”的表达更稳定了|你的预算弹性可能比你想象的大/i)).toBeInTheDocument();
+    // Use first() to handle multiple cards with similar titles
+    expect(screen.getAllByText(/深圳出发 2 天顺德慢吃线|你最近对“好吃但不赶”的表达更稳定了|你的预算弹性可能比你想象的大/i)[0]).toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: /预算 2000 左右，推荐 3 天目的地/i }));
-    expect(screen.getByDisplayValue(/预算 2000 左右，推荐 3 天目的地/i)).toBeInTheDocument();
+    // Click the first prompt button to fill the input
+    await user.click(screen.getByRole('button', { name: /如果我不想太赶，又希望能吃得好/i }));
+    expect(screen.getByDisplayValue(/如果我不想太赶，又希望能吃得好/i)).toBeInTheDocument();
   });
 });

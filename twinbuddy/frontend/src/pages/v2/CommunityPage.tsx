@@ -1,119 +1,91 @@
 import { Heart, MessageCircle, Rocket, SendHorizonal, RefreshCw } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  commentTwinBuddyCommunityPost,
-  createTwinBuddyCommunityPost,
-  fetchTwinBuddyCommunityFeed,
-  likeTwinBuddyCommunityPost,
-  triggerTwinBuddyCommunityTwinChat,
-} from '../../api/client';
+import { useMemo, useState } from 'react';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { communityShowcases } from '../../mocks/v2Showcase';
+import { mockCommunityPosts } from '../../mocks/v2ApiMock';
 import type { TwinBuddyCommunityPost, TwinBuddyV2OnboardingData } from '../../types';
 import { V2_STORAGE_KEYS } from '../../types';
 
 const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: '',
-  travelRange: [],
-  interests: [],
-  budget: '',
-  selfDescription: '',
-  city: '',
-  completed: false,
-  timestamp: 0,
+  mbti: 'INTJ',
+  travelRange: ['周末短途', '周边城市'],
+  interests: ['美食', '城市漫步', '摄影'],
+  budget: '舒适',
+  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
+  city: '深圳',
+  completed: true,
+  userId: 'user_77e92a9e',
+  timestamp: Date.now(),
 };
 
 export default function CommunityPage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [posts, setPosts] = useState<TwinBuddyCommunityPost[]>([]);
+  const [posts, setPosts] = useState<TwinBuddyCommunityPost[]>(mockCommunityPosts);
   const [draft, setDraft] = useState('');
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [statusText, setStatusText] = useState('');
-  const [errorText, setErrorText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const hotTags = useMemo(() => ['深圳', '周末', '美食', '慢节奏', '五一'], []);
 
   const loadFeed = () => {
-    if (!profile.userId) return;
     setIsLoading(true);
-    fetchTwinBuddyCommunityFeed(profile.userId)
-      .then((items) => {
-        setErrorText('');
-        setPosts(items);
-      })
-      .catch(() => {
-        setErrorText('社区动态暂时加载失败，请稍后刷新重试。');
-        setPosts([]);
-      })
-      .finally(() => setIsLoading(false));
+    setTimeout(() => {
+      setPosts(mockCommunityPosts);
+      setIsLoading(false);
+    }, 500);
   };
 
-  useEffect(() => {
-    loadFeed();
-  }, [profile.userId]);
-
-  const handlePublish = async () => {
-    if (!profile.userId || !draft.trim()) return;
-    try {
-      const created = await createTwinBuddyCommunityPost({
-        userId: profile.userId,
-        content: draft.trim(),
-        location: profile.city || '深圳',
-        tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
-      });
-      setErrorText('');
-      setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
-      setPosts((prev) => [created, ...prev]);
-      setDraft('');
-    } catch {
-      setErrorText('发布失败，请稍后再试。');
-    }
+  const handlePublish = () => {
+    if (!draft.trim()) return;
+    const newPost: TwinBuddyCommunityPost = {
+      id: `post_${Date.now()}`,
+      author: { nickname: '你', mbti: profile.mbti || 'INTJ' },
+      content: draft.trim(),
+      location: profile.city || '深圳',
+      likes_count: 0,
+      comments_count: 0,
+      comments: [],
+      tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
+      images: [],
+      created_at: Date.now(),
+    };
+    setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
+    setPosts((prev) => [newPost, ...prev]);
+    setDraft('');
+    setTimeout(() => setStatusText(''), 3000);
   };
 
-  const handleLike = async (postId: string) => {
-    if (!profile.userId) return;
-    try {
-      const result = await likeTwinBuddyCommunityPost(postId, profile.userId);
-      setErrorText('');
-      setPosts((prev) => prev.map((post) => (post.id === postId ? { ...post, likes_count: result.likes_count } : post)));
-    } catch {
-      setErrorText('点赞失败，请稍后重试。');
-    }
+  const handleLike = (postId: string) => {
+    setPosts((prev) => prev.map((post) =>
+      post.id === postId ? { ...post, likes_count: post.likes_count + 1 } : post,
+    ));
   };
 
-  const handleComment = async (postId: string) => {
-    if (!profile.userId || !commentDrafts[postId]?.trim()) return;
-    try {
-      const comment = await commentTwinBuddyCommunityPost(postId, {
-        userId: profile.userId,
-        content: commentDrafts[postId].trim(),
-      });
-      setErrorText('');
-      setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
-            : post,
-        ),
-      );
-      setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
-    } catch {
-      setErrorText('评论发送失败，请稍后重试。');
-    }
+  const handleComment = (postId: string) => {
+    if (!commentDrafts[postId]?.trim()) return;
+    const comment = {
+      id: `c_${Date.now()}`,
+      user_id: profile.userId!,
+      author_nickname: '你',
+      content: commentDrafts[postId].trim(),
+      created_at: Date.now(),
+    };
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
+          : post,
+      ),
+    );
+    setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
   };
 
-  const handleTwinChat = async (postId: string) => {
-    if (!profile.userId) return;
-    try {
-      const result = await triggerTwinBuddyCommunityTwinChat(postId, profile.userId);
-      setErrorText('');
-      setStatusText(result.summary);
-    } catch {
-      setErrorText('代聊发起失败，请稍后重试。');
-    }
+  const handleTwinChat = (postId: string) => {
+    setStatusText('代聊已发起，数字分身正在分析对方偏好并发起协商...');
+    setTimeout(() => setStatusText(''), 3000);
   };
 
   return (
@@ -143,11 +115,6 @@ export default function CommunityPage() {
               {statusText ? (
                 <div className="mt-4 rounded-DEFAULT border-2 border-outline bg-secondary-container px-4 py-3 font-body-md text-on-secondary-container">
                   {statusText}
-                </div>
-              ) : null}
-              {errorText ? (
-                <div className="mt-4 rounded-DEFAULT border-2 border-error bg-error-container px-4 py-3 font-body-md text-on-error-container">
-                  {errorText}
                 </div>
               ) : null}
             </section>
@@ -223,14 +190,14 @@ export default function CommunityPage() {
                   {/* Actions */}
                   <div className="flex items-center gap-6 text-on-surface-variant">
                     <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" onClick={() => handleLike(post.id)} type="button">
-                      <Heart className={`h-4 w-4 group-hover:scale-110 transition-transform ${posts.find(p => p.id === post.id) ? 'fill-current' : ''}`} />
+                      <Heart className="h-4 w-4 group-hover:scale-110 transition-transform" />
                       <span className="font-body-md text-[14px]">{post.likes_count}</span>
                     </button>
                     <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" type="button">
                       <span className="material-symbols-outlined group-hover:scale-110 transition-transform">chat_bubble</span>
                       <span className="font-body-md text-[14px]">{post.comments_count}</span>
                     </button>
-                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto" type="button">
+                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group ml-auto" onClick={() => handleTwinChat(post.id)} type="button">
                       <span className="material-symbols-outlined group-hover:scale-110 transition-transform">share</span>
                     </button>
                   </div>

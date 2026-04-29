@@ -5,6 +5,18 @@ import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { V2_STORAGE_KEYS } from '../../types';
 import type { TwinBuddyV2OnboardingData } from '../../types';
 
+const initialProfile: TwinBuddyV2OnboardingData = {
+  mbti: '',
+  travelRange: [],
+  interests: [],
+  budget: '',
+  selfDescription: '',
+  city: '',
+  completed: false,
+  userId: 'user_77e92a9e',
+  timestamp: 0,
+};
+
 interface BlindGameResult {
   isAvailable: boolean;
   dailyMatches?: number;
@@ -42,23 +54,11 @@ const mockDailyResult: BlindGameResult = {
   ],
 };
 
-const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: '',
-  travelRange: [],
-  interests: [],
-  budget: '',
-  selfDescription: '',
-  city: '',
-  completed: false,
-  timestamp: 0,
-};
-
 export default function BlindGamePage() {
   const navigate = useNavigate();
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
   const [result, setResult] = useState<BlindGameResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [errorText] = useState('');
   const [actionStatus, setActionStatus] = useState<string>('');
   const [showQuestions, setShowQuestions] = useState(false);
 
@@ -142,12 +142,6 @@ export default function BlindGamePage() {
 
       {/* Card Content */}
       <div className="flex-grow flex flex-col px-container-padding pb-8 z-10">
-        {errorText && (
-          <div className="bg-error-container text-on-error-container font-body-md p-3 rounded-xl border border-error text-center text-sm">
-            {errorText}
-          </div>
-        )}
-
         {result?.isAvailable && result.matchedProfile ? (
           <div className="flex flex-col items-center gap-6 flex-grow">
             {/* Mystery Avatar */}
@@ -248,7 +242,7 @@ export default function BlindGamePage() {
                 <button
                   onClick={() => handleAction('reject')}
                   disabled={!!actionStatus}
-                  className="flex-1 max-w-[200px] bg-surface-container-lowest text-on-surface border-2 border-outline shadow-[4px_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[0_0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                  className="flex-1 max-w-[200px] bg-surface-container-lowest text-on-surface border-2 border-outline shadow-[0_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[0_2px_0_0_#000] active:translate-y-0 active:shadow-none transition-all flex items-center justify-center gap-2"
                 >
                   <RefreshCcw className="h-5 w-5" />
                   不合适
@@ -256,7 +250,7 @@ export default function BlindGamePage() {
                 <button
                   onClick={() => handleAction('accept')}
                   disabled={!!actionStatus}
-                  className="flex-1 max-w-[200px] bg-primary text-on-primary border-2 border-primary shadow-[4px_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[0_0_0_0_#000] transition-all flex items-center justify-center gap-2"
+                  className="flex-1 max-w-[200px] bg-primary text-on-primary border-2 border-primary shadow-[0_4px_0_0_#000] rounded-full py-4 font-label-caps hover:-translate-y-1 hover:shadow-[0_2px_0_0_#000] active:translate-y-0 active:shadow-none transition-all flex items-center justify-center gap-2"
                 >
                   <Handshake className="h-5 w-5" />
                   打个招呼

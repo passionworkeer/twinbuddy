@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { RadarData } from '../../types';
 
 interface Props {
@@ -6,53 +5,30 @@ interface Props {
   size?: number;
 }
 
-const DIMENSION_COLORS = [
-  '#4ade80', // primary green
-  '#6ee7a0', // green light
-  '#fbbf24', // amber
-  '#a78bfa', // purple
-  '#22c55e', // green dark
-];
-
-interface TooltipState {
-  visible: boolean;
-  x: number;
-  y: number;
-  dimension: string;
-  userScore: number;
-  buddyScore: number;
-}
-
 export function RadarChart({ data, size = 240 }: Props) {
   if (!data || data.length === 0) return null;
-
-  const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false, x: 0, y: 0, dimension: '', userScore: 0, buddyScore: 0,
-  });
 
   const cx = size / 2;
   const cy = size / 2;
   const maxRadius = (size / 2) * 0.78;
   const n = data.length;
 
-  // Compute vertex positions
   const points = data.map((d, i) => {
     const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    const mid = (d.user_score + d.buddy_score) / 2 / 100;
     return {
       x: cx + Math.cos(angle) * maxRadius,
       y: cy + Math.sin(angle) * maxRadius,
-      // Midpoint on the axis (average of user and buddy scores)
-      mx: cx + Math.cos(angle) * (maxRadius * ((d.user_score + d.buddy_score) / 2 / 100)),
-      my: cy + Math.sin(angle) * (maxRadius * ((d.user_score + d.buddy_score) / 2 / 100)),
+      mx: cx + Math.cos(angle) * maxRadius * mid,
+      my: cy + Math.sin(angle) * maxRadius * mid,
     };
   });
 
-  // Build the polygon path string (closing back to first point)
-  const polygonPath = points
-    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.mx.toFixed(1)},${p.my.toFixed(1)}`)
-    .join(' ') + ' Z';
+  const polygonPath =
+    points
+      .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.mx.toFixed(1)},${p.my.toFixed(1)}`)
+      .join(' ') + ' Z';
 
-  // Grid rings at 25%, 50%, 75%, 100%
   const rings = [0.25, 0.5, 0.75, 1.0].map((scale) => {
     const r = maxRadius * scale;
     return (
@@ -62,13 +38,13 @@ export function RadarChart({ data, size = 240 }: Props) {
           const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
           return `${(cx + Math.cos(angle) * r).toFixed(1)},${(cy + Math.sin(angle) * r).toFixed(1)}`;
         }).join(' ')}
-        className="radar-grid-line"
+        stroke="var(--color-outline-variant)"
         strokeWidth="1"
+        fill="none"
       />
     );
   });
 
-  // Axis lines from center
   const axes = data.map((_, i) => {
     const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
     return (
@@ -78,14 +54,14 @@ export function RadarChart({ data, size = 240 }: Props) {
         y1={cy}
         x2={(cx + Math.cos(angle) * maxRadius).toFixed(1)}
         y2={(cy + Math.sin(angle) * maxRadius).toFixed(1)}
-        className="radar-axis"
+        stroke="var(--color-outline)"
         strokeWidth="1"
       />
     );
   });
 
   return (
-    <div className="relative flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3">
       <svg
         width={size}
         height={size}
@@ -93,16 +69,16 @@ export function RadarChart({ data, size = 240 }: Props) {
         className="overflow-visible"
         aria-label="兼容性雷达图"
       >
-        {/* Grid */}
         {rings}
-
-        {/* Axes */}
         {axes}
 
-        {/* Data polygon */}
+        {/* Data area */}
         <path
           d={polygonPath}
-          className="radar-area-fill"
+          stroke="var(--color-primary)"
+          strokeWidth="2"
+          fill="var(--color-primary)"
+          fillOpacity="0.15"
         />
 
         {/* Data points */}
@@ -112,32 +88,17 @@ export function RadarChart({ data, size = 240 }: Props) {
             cx={p.mx}
             cy={p.my}
             r="4"
-            fill={DIMENSION_COLORS[i % DIMENSION_COLORS.length]}
-            stroke="#0B1C15"
+            fill="var(--color-primary)"
+            stroke="var(--color-surface-container-lowest)"
             strokeWidth="2"
-            className="radar-point"
-            style={{ filter: `drop-shadow(0 0 6px ${DIMENSION_COLORS[i % DIMENSION_COLORS.length]})` }}
-            onMouseEnter={(e) => {
-              const rect = (e.target as SVGCircleElement).ownerSVGElement!.getBoundingClientRect();
-              const svgX = (e.target as SVGCircleElement).cx.baseVal.value;
-              const svgY = (e.target as SVGCircleElement).cy.baseVal.value;
-              const scaleX = rect.width / size;
-              const scaleY = rect.height / size;
-              setTooltip({
-                visible: true,
-                x: svgX * scaleX + 12,
-                y: svgY * scaleY - 8,
-                dimension: data[i].dimension,
-                userScore: data[i].user_score,
-                buddyScore: data[i].buddy_score,
-              });
-            }}
-            onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
           />
         ))}
 
+        {/* Center dot */}
+        <circle cx={cx} cy={cy} r="3" fill="var(--color-primary)" />
+
         {/* Axis labels */}
-        {points.map((p, i) => {
+        {points.map((_, i) => {
           const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
           const labelRadius = maxRadius + 20;
           const lx = cx + Math.cos(angle) * labelRadius;
@@ -150,46 +111,27 @@ export function RadarChart({ data, size = 240 }: Props) {
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize="11"
-              fill="#9ca3af"
+              fill="var(--color-on-surface-variant)"
               fontFamily="Inter, sans-serif"
             >
               {data[i].dimension}
             </text>
           );
         })}
-
-        {/* Center dot */}
-        <circle cx={cx} cy={cy} r="4" fill="rgba(74,222,128,0.2)" stroke="rgba(74,222,128,0.4)" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r="2" fill="rgba(74,222,128,0.6)" />
       </svg>
 
-      {/* Tooltip */}
-      {tooltip.visible && (
-        <div
-          className="radar-tooltip"
-          style={{ left: tooltip.x, top: tooltip.y }}
-        >
-          <div className="font-semibold text-white">{tooltip.dimension}</div>
-          <div className="flex gap-3 mt-1">
-            <span className="text-[var(--color-primary)]">你 {tooltip.userScore}%</span>
-            <span className="text-white/60">搭 {tooltip.buddyScore}%</span>
-          </div>
-        </div>
-      )}
-
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 justify-center text-xs">
-        {data.map((d, i) => (
-          <div key={d.dimension} className="flex items-center gap-1.5">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{
-                background: DIMENSION_COLORS[i % DIMENSION_COLORS.length],
-                boxShadow: `0 0 4px ${DIMENSION_COLORS[i % DIMENSION_COLORS.length]}`,
-              }}
-            />
-            <span className="text-[var(--color-text-secondary)]">{d.dimension}</span>
-            <span className="text-white font-semibold">
+      {/* Neo-Brutalist legend pills */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {data.map((d) => (
+          <div
+            key={d.dimension}
+            className="flex items-center gap-1.5 rounded-full border-2 border-outline bg-surface-container px-3 py-1.5"
+          >
+            <div className="h-2 w-2 rounded-full bg-primary" />
+            <span className="font-label-caps text-label-caps text-on-surface-variant text-[10px]">
+              {d.dimension}
+            </span>
+            <span className="font-h2 text-on-surface text-[11px] font-semibold">
               {Math.round((d.user_score + d.buddy_score) / 2)}%
             </span>
           </div>

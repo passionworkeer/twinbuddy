@@ -1,227 +1,121 @@
-/**
- * Mock persona data — 3 vivid, realistic persona profiles (ENFP / ISTJ / INFP).
- * Each persona has rich, specific details that make them feel like a real person.
- */
+import type { Persona } from '../types';
 
-import type { Persona } from '../../types/persona';
-
-// ── Helper ───────────────────────────────────────────────────────────────────
-
-function uuid(segment: string): string {
-  // Deterministic pseudo-UUID from a string segment
-  let h = 0;
-  for (let i = 0; i < segment.length; i++) {
-    h = (Math.imul(31, h) + segment.charCodeAt(i)) | 0;
-  }
-  return `${Math.abs(h).toString(16).padStart(8, '0')}-${Math.abs((h >>> 16) * 0xffff).toString(16).padStart(4, '0')}-4a00-0100-0000${Math.abs(h).toString(16).padStart(12, '0')}`;
-}
-
-// ── Persona 1: ENFP · 蔓妮 ───────────────────────────────────────────────────
-
-const ENFP_MANNI: Persona = {
-  persona_id: uuid('enfp-manni'),
-  name: '蔓妮',
-  avatar_prompt: '一个26岁的ENFP女生，微烫锁骨发，戴夸张的金属圈耳环，手腕上串满了各种市集淘来的彩色手链，表情夸张地笑着，眼神明亮，手机壳是拼贴风格',
-
-  layer0_hard_rules: [
-    '早上9点前不出门，别安排早活动',
-    '每天必须有 spontaneity（突发奇想的自由时间）',
-    '不要在公共场合直接批评她，会当场炸毛',
-  ],
-
+// ========== ENFP ==========
+const MANNI: Persona = {
+  persona_id: 'manni-enfp-001',
+  name: 'MANNI',
+  avatar_emoji: '🌈',
+  avatar_prompt: 'enthusiastic woman, short curly hair, warm smile',
+  layer0_hard_rules: ['never decide for me', 'no public criticism'],
   identity: {
-    emoji: '🌈',
-    title: '热情过载的旅行捕手',
-    content:
-      '蔓妮从广告公司裸辞半年了，目前靠接 freelance 文案养活自己——说白了就是有钱时吃好点、没钱时螺蛳粉管够那种。旅行对她来说不是景点打卡，是"我要在路上偶遇一些乱七八糟的人然后听他们讲故事"。上次在大理青旅，她跟一个卖手冲咖啡的大哥聊了三个小时人生，第二天直接睡到下午两点把行程全废了，但她觉得那三个小时比去任何景点都值。她对"有用"这件事有自己奇怪的定义：聊天有用，发呆有用，看云有用，但被时间表追着跑最没用。',
+    emoji: '🧭',
+    title: 'Identity',
+    content: 'Former advertising creative, now freelance writer and diarist.',
   },
-
   speaking_style: {
     emoji: '💬',
-    title: '感叹号狂魔 + 表情包轰炸机',
-    content:
-      '蔓妮发消息是成堆的，20秒能来8条，每条平均3-5个感叹号。她打字飞快，经常打错别字然后用括号纠正（"成都真的太好吃了！！！（不是）"）。语音条偶尔发，但每次都拖得很长而且说到一半会被别的事情打断。她讨厌收到"好的"这种回复，觉得像被打了一拳，喜欢对方也给点情绪反应，哪怕是一个表情包。她说话时很爱用"那你觉得呢"来延续话题，但有时候太过热情反而让人有压力。',
-    typical_phrases: [
-      '这个可以有！！！',
-      '等等等等，我突然想到一个超棒的 idea！',
-      '啊？？不会吧！',
-      '哈哈哈哈哈救命',
-      '感觉不太行诶……有没有另一种可能？',
-      '那我们去……！（眼睛亮了）',
-      '我不想做攻略了，我们到了再说好不好！',
-      '你怎么这么懂我呜呜呜',
-    ],
-    chat_tone: '高能量，高密度，情绪饱满，会被对方热情点燃，也容易被冷淡浇灭',
+    title: 'Style',
+    content: 'Fast talker, lots of exclamation marks!',
+    typical_phrases: ['Lets do this!', 'This is amazing!', 'Wait let me feel it first'],
+    chat_tone: 'high energy, emotionally expressive',
   },
-
   emotion_decision: {
-    emoji: '🧭',
-    title: '冲动型决策者，跟着心情走',
-    content:
-      '蔓妮做决定几乎不用脑子，用肚子——"这个地方让我心跳加速吗？兴奋吗？有画面感吗？"是她的核心决策三连。上周本来计划去桂林，到了高铁站看到去贵阳的余票，犹豫了三秒就改签了，理由是"贵阳听起来更陌生更好玩"。她不是不考虑后果，而是觉得后果都是可以补救的——订错酒店可以退，人还在就什么都好说。她情绪来时说话会变快，眼睛会放光，这时候千万别试图理性分析，否则她会不高兴。但她消气也快，一杯奶茶或一个好笑的视频就能满血复活。',
-    stress_response: '嘴上说"没事没事"但开始刷手机逃避，然后突然爆发说"算了不去了"，冷静后又悄悄把票重新订回来',
-    decision_style: '直觉优先，分析滞后；决定快，改变也快',
+    emoji: '🧠',
+    title: 'Decision',
+    content: 'I need to feel it first before I want to go somewhere.',
+    stress_response: 'needs to vent and be understood',
+    decision_style: 'intuition-driven, easily moved by sensory experiences',
   },
-
   social_behavior: {
     emoji: '🤝',
-    title: '社交发电机，主动破冰但三分钟热度',
-    content:
-      '蔓妮在陌生场合会主动搭话的那种人，青旅公共区坐五分钟就能跟旁边的人聊上。她有个特点：跟谁都能聊，但跟谁都不会太深。她的友谊是广度型的，认识很多"聊过天的人"，但固定朋友不多。她特别受不了那种全程低头玩手机不参与的人，觉得是"在场缺席"，但对内向慢热的人反而有耐心——她能感觉到对方是紧张还是单纯不想聊，前者她会主动靠近，后者她会识相撤退。跟蔓妮一起旅行的好处是永远不会无聊，坏处是每天的计划都是薛定谔的。',
-    social_style: '热情发起者，负责点燃气氛，但深度连接后反而容易因为太了解而失去新鲜感',
+    title: 'Social',
+    content: 'Slow to warm up, but very affectionate once close.',
+    social_style: 'empathetic, relationship-oriented, needs independence',
   },
-
-  travel_style:
-    '白天随缘游荡，晚上出没于夜市/酒吧/街头表演。最理想的旅行日：睡到自然醒 → 随便吃点东西 → 偶遇什么算什么 → 晚餐时认识新朋友 → 继续跟他们去下一个地方。讨厌早起、讨厌精确行程表、讨厌热门景点排队。',
-
-  mbti_influence:
-    'ENFP 的 Ne（外倾直觉）让她总能看到别人看不到的可能性，但 Ni（内倾直觉）的缺乏意味着她很难把可能性落地成具体计划。她适合有创意、有弹性的路线，需要一个能帮她收拾烂摊子的旅伴来兜底。',
-
-  soul_fingerprint: '在路上遇见的人，才是目的地本身。',
-
-  confidence_score: 0.82,
-
-  data_sources_used: ['chat_logs', 'bio_text'],
+  travel_style: 'spontaneous, resists strict schedules',
+  mbti_influence: 'ENFP: curious, values authenticity over efficiency',
+  soul_fingerprint: 'seeking the surprise moment of discovery',
+  confidence_score: 0.87,
+  data_sources_used: ['mbti'],
 };
 
-// ── Persona 2: ISTJ · 老姜 ───────────────────────────────────────────────────
-
-const ISTJ_LAOJIANG: Persona = {
-  persona_id: uuid('istj-laosheng'),
-  name: '老姜',
-  avatar_prompt: '一个34岁的ISTJ男生，金属框眼镜，头发短而整齐，穿深色休闲西装风格衬衫，背一个黑色双肩电脑包，表情沉稳淡定，手腕戴一块银白色机械表',
-
-  layer0_hard_rules: [
-    '每天出发时间误差不超过15分钟',
-    '行程计划除非不可抗力否则不变动',
-    '不喜欢临时换地方，更不喜欢"到了再说"',
-  ],
-
+// ========== ISTJ ==========
+const LAOJIANG: Persona = {
+  persona_id: 'laojiang-istj-002',
+  name: 'LAOJIANG',
+  avatar_emoji: '📐',
+  avatar_prompt: 'steady man, glasses, business casual',
+  layer0_hard_rules: ['need plan B', 'no last-minute changes'],
   identity: {
-    emoji: '🗺️',
-    title: '精确到分钟的行程管家',
-    content:
-      '老姜是深圳一家芯片公司的项目经理，年薪可观但年假有限，所以他对待每一次旅行的态度是"每一分钱和时间都要花在刀刃上"。他提前两个月就开始做攻略，用 Notion 建表格，把每天的景点开门时间、门票价格、最佳游览时段、周边餐饮全都列好。他不是不懂放松，而是他的放松方式就是把一切都安排妥当之后，真正地放松——而不是在放松中还要焦虑下一步。他有一点点完美主义，出门会带常备药和充电宝，会把护照和钱包放在同一个收纳包里。他的旅行照片不多，但每张都构图严谨、曝光准确，不像是在旅行，更像在执行任务。',
-  },
-
-  speaking_style: {
-    emoji: '📋',
-    title: '言简意赅，数据驱动型表达者',
-    content:
-      '老姜发消息惜字如金，每条不超过三行。他很少用感叹号，几乎不用emoji，句式工整得像在写报告——"预计15:30到达，凭短信二维码入园，无需排队。"他收到对方大段语音会先转文字，文字超过300字会等有空再细看。他不是冷漠，是对信息效率有洁癖。他有次跟蔓妮（ENFP）一起旅行，被问到"你觉得这个地方怎么样"，他说"还行，评分4.2，值得一来"，然后就没有然后了——蔓妮当时就窒息了，觉得他像在写大众点评。但他对自己认可的事情会多说两句，不过那也意味着"多说两句"可能是三条消息。',
-    typical_phrases: [
-      '我查过了，周一闭馆。',
-      '按原计划走，不变了。',
-      '嗯，合理的。',
-      '我整理了一份文档，晚点发你。',
-      '好的，我记下了。',
-      '提前45分钟出发，宁可等也不赶。',
-      '这个地方值得专门来一次。',
-      '那我们走，我带路。',
-    ],
-    chat_tone: '冷静克制，信息密度高，讨厌废话，但偶尔会冷不丁冒出一个真实的个人感受',
-  },
-
-  emotion_decision: {
     emoji: '🧭',
-    title: '逻辑优先，情感靠边站',
-    content:
-      '老姜做决定靠的是排除法：A方案的优点是什么、缺点是什么，B方案呢，C方案呢，列清楚之后选最不差的那个。他不擅长"感觉对"这种事，所以他干脆不信感觉。他规划旅行时会提前想好备选方案：下雨怎么办、排队太长怎么办、某个餐厅关门怎么办——他都有一到两个备案。他的问题是：当他做完所有分析之后，选出来的方案往往是最安全的，但也是最没有惊喜的。他自己也知道这一点，所以他愿意偶尔跟着别人的直觉走一次，但事后如果出了问题，他会忍不住说"当时我说什么来着"。',
-    stress_response: '沉默，快速启动预案，想好下一步才开口，如果局面完全失控会直接说"我来处理"然后把事情扛下来',
-    decision_style: '充分调研 → 列出方案 → 选最优 → 执行 → 复盘',
+    title: 'Identity',
+    content: 'Experienced project manager, 8 years in operations.',
   },
-
+  speaking_style: {
+    emoji: '💬',
+    title: 'Style',
+    content: 'Economical with words, data-driven communicator.',
+    typical_phrases: ['I already checked', 'Follow the plan', 'Confirm first'],
+    chat_tone: 'precise, information-dense, efficient',
+  },
+  emotion_decision: {
+    emoji: '🧠',
+    title: 'Decision',
+    content: 'I need to see enough information before deciding.',
+    stress_response: 'needs more time to think, seeks internal certainty',
+    decision_style: 'risk-aware, longer decision cycle, firm once decided',
+  },
   social_behavior: {
     emoji: '🤝',
-    title: '低社交需求，深度陪伴型',
-    content:
-      '老姜不是不会社交，而是不需要那么多社交。在公司他是项目核心，跟客户汇报时气场全开，但在陌生社交场合他会先观察十分钟再决定要不要开口。他对"泛泛之交"没有需求，宁可和一个朋友深度玩透，也不愿意每次旅行认识十个新人。他跟熟人相处时其实是很有温度的，会记得对方的喜好（上次你说胃不好，早餐我订了粥），只是表达方式很含蓄。他不喜欢冲突，如果旅伴提出他不认可的方案，他会先问"理由是什么"，然后根据理由决定是否接受——不是因为怕吵架，而是因为他讲道理，如果对方理由充分，他真的会让步。',
-    social_style: '少言寡语但关键时刻靠谱，不主动社交但一旦参与就很投入，对无效社交有天然的抵触',
+    title: 'Social',
+    content: 'Not great at small talk, but always keeps promises.',
+    social_style: 'promise-keeper, trust built on action, detail-oriented',
   },
-
-  travel_style:
-    '行前充分规划，行中严格执行。典型的一天：6:30起床 → 7:00早餐 → 8:00第一个景点（人最少） → 12:30附近评分最高午市餐厅（提前订位） → 14:00第二个景点 → 17:00回酒店休整 → 19:00品质晚餐 → 21:00散步或当地体验。不喜欢暴走（"累了一天什么都没记住"），也不喜欢无所事事（"时间成本太高"）。',
-
-  mbti_influence:
-    'ISTJ 的 Si（内倾感觉）让他对过去的旅行经验有精准的记忆库，能类比"这个寺庙的氛围跟上次去普陀山的很像，值得细看"。Te（外倾思考）则确保他的行程高效运转，每一个决定都以客观效果为标准。他是完美的旅行管家，但需要接受一点计划外的空间作为呼吸阀。',
-
-  soul_fingerprint: '好的旅行，是回来后觉得时间花得值得，而不是时间花得刺激。',
-
+  travel_style: 'minute-by-minute planning, always has backup plans',
+  mbti_influence: 'ISTJ: relies on past experience, pursues efficiency',
+  soul_fingerprint: 'a good trip means being able to clearly describe each day',
   confidence_score: 0.91,
-
-  data_sources_used: ['mbti_txt', 'chat_logs', 'bio_text'],
+  data_sources_used: ['mbti'],
 };
 
-// ── Persona 3: INFP · 苏晚 ───────────────────────────────────────────────────
-
-const INFP_SUWAN: Persona = {
-  persona_id: uuid('infp-suwan'),
-  name: '苏晚',
-  avatar_prompt: '一个29岁的INFP女生，长发及腰，戴细细的银质耳骨链，穿棉麻色系长裙和帆布鞋，背一个米白色帆布包，手里拿一本旧书，眼神温柔而略带忧郁，像刚从一场漫长的梦里醒来',
-
-  layer0_hard_rules: [
-    '不接受暴走赶景点式的旅行方式',
-    '不喜欢人太多太嘈杂的环境，会直接说"我们走吧"然后沉默',
-    '如果有独处需求，请不要追问',
-  ],
-
+// ========== INFP ==========
+const SUWAN: Persona = {
+  persona_id: 'suwan-infp-003',
+  name: 'SUWAN',
+  avatar_emoji: '🌙',
+  avatar_prompt: 'gentle quiet woman, soft eyes, linen clothing',
+  layer0_hard_rules: ['do not rush my decisions', 'do not compare me to others'],
   identity: {
-    emoji: '🌙',
-    title: '与城市私密对话的灵魂旅人',
-    content:
-      '苏晚是一名独立杂志编辑，在上海租了一个老公房的小单间，房间里堆满了从各地旧书店淘来的杂志和书籍。她旅行不是为了看景点，而是为了"和这座城市建立一种私人关系"。她会在一座城市的某条老街上走很久，看晾衣服的阿婆、听邻居吵架、闻别人家炒菜的味道。她去重庆不是为了洪崖洞，而是想看看那些藏在居民楼里的小面馆；她去京都不是为了清水寺，而是想找到一间没有人知道的老茶室。她会因为一首歌里提到的某个地名而专程前往，也会因为 Lonely Planet 上的一句描写而坐三十小时绿皮火车。她对"网红打卡"这件事有本能的反感，觉得那是一种集体的表演性朝圣。',
-  },
-
-  speaking_style: {
-    emoji: '📖',
-    title: '温柔有留白的对话者',
-    content:
-      '苏晚说话语速慢，像是在一边说一边想，经常说完一句会停顿很久再接下一句。她不太主动发起话题，但如果聊到她有感受的东西，会突然变得很长、很投入。她形容事情的方式很诗意，比如说雨后的街道，她会说"像有人给这座城市敷了一层面膜"，而不说"路面很湿滑"。她不喜欢辩论，如果对方观点她不认可，她会选择沉默或者轻声说"嗯……但我可能会有点不一样的感受"，而不是正面反驳。她是那种你跟她说三句话就能感觉到她内心有很深的湖的人，但湖水很深，一般人得划船进去。她用微信很少发语音，因为觉得自己的声音"说出来太犹豫了，不好意思"。',
-    typical_phrases: [
-      '嗯……我也不知道该怎么说，就是感觉……',
-      '我很喜欢这里，说不上为什么。',
-      '你有没有闻到一股……好像小时候的味道？',
-      '我们可以在这里坐一会儿吗？不做什么。',
-      '这个地方让我想起以前读的一本书……',
-      '其实我不太确定我想不想去……让我想想。',
-      '你有没有那种，就是，突然被什么打到了的感觉？',
-      '谢谢，你说的这个我记住了。',
-    ],
-    chat_tone: '低密度，留白多，真诚但不急于表达，对感兴趣的话题会突然深聊，对不感兴趣的话题温和地绕开',
-  },
-
-  emotion_decision: {
     emoji: '🧭',
-    title: '价值观先行的感受型决策者',
-    content:
-      '苏晚做决定的逻辑跟大多数人不太一样。她不是问"哪个选项更好"，而是问"哪个选项让我觉得更诚实"。如果一个旅行目的地让她感觉"我在表演一个喜欢旅行的人"，她会立刻放弃，哪怕那个地方所有人都说好。她会因为一个很小的细节而喜欢上一个地方（比如一张旧海报、一棵歪脖子树），也会因为一个很小的细节而拒绝（比如太商业、太多游客、服务员的假笑）。她的拒绝常常让同行者困惑——"为什么不去？大家都说很好啊？"她的回答往往是"我也不知道，就是感觉不对"——这不是敷衍，是真的感受。她对自己诚实，也对自己感受诚实。',
-    stress_response: '向内收缩，减少说话，开始写东西或者翻书，用独处消化情绪，很少向外求助，但如果对方是信任的人会轻轻说"我有点累了"',
-    decision_style: '感受先行，逻辑验证；容易说"不"，一旦说"好"就是真心的',
+    title: 'Identity',
+    content: 'Lifestyle magazine editor who loves places with stories.',
   },
-
+  speaking_style: {
+    emoji: '💬',
+    title: 'Style',
+    content: 'Speaks slowly, uses metaphors, rarely gives black-and-white judgments.',
+    typical_phrases: ['I have a strange feeling', 'Can you understand', 'This is hard to describe'],
+    chat_tone: 'poetic expression, rich in metaphor,细腻情感',
+  },
+  emotion_decision: {
+    emoji: '🧠',
+    title: 'Decision',
+    content: 'I make decisions slowly, imagining myself in different scenarios.',
+    stress_response: 'needs solitude and quiet space for reflection',
+    decision_style: 'introverted reflection, value-driven',
+  },
   social_behavior: {
     emoji: '🤝',
-    title: '深度连接的孤岛型社交',
-    content:
-      '苏晚朋友圈不大，但每个朋友她都记得很清楚——他们说过的话、经历的事、正在烦恼的事情。她不是不关心人，是关心得很细，细到有时候对方都忘了自己说过什么，她还记得。她在一群陌生人里通常是最安静的那个，不是因为紧张，而是因为她需要先感受这个场域，确认自己可以在这里真实存在，才会慢慢打开。她不喜欢人多嘈杂的旅行团，也不喜欢那种"大家都是朋友"的强行破冰——她需要关系是自然生长出来的，而不是被设计出来的。她和一个人建立信任可能需要很长时间，但一旦建立，会非常稳定。她很难说拒绝的话，所以有时候宁愿自己吃亏也不想让对方不高兴，但这让她有时很累。',
-    social_style: '慢热，低社交频率，高情感深度，对浅层社交感到疲惫，对深层连接极度珍视',
+    title: 'Social',
+    content: 'Prefers 2-3 person trips, needs comfort period with new people.',
+    social_style: 'deep connection type, needs solitude time',
   },
-
-  travel_style:
-    '慢走漫行，随缘而至。典型的一天：睡到自然醒 → 找一家看起来没人知道的早餐店 → 毫无目的地地走，看见有意思的就停下来 → 下午找到一家咖啡馆或书店看书 → 傍晚去人少的地方看日落 → 晚上写东西或者给朋友发很长很长的消息。旅行对她来说是"一场漫长的自我对话"，而不是景点收集。',
-
-  mbti_influence:
-    'INFP 的 Fi（内倾情感）让她以自我价值观为判断核心，外界标准很难真正影响她。Ne（外倾直觉）则让她在漫游中总能发现意外的联系和可能性——那张旧海报和这杯咖啡之间，其实有一个故事。她的短板是：当现实需要快速决策时，她会卡住，因为她需要感受上"对了"才能动。',
-
-  soul_fingerprint: '我想看到的不是风景，是风景在告诉我什么。',
-
-  confidence_score: 0.78,
-
-  data_sources_used: ['chat_logs', 'bio_text'],
+  travel_style: 'slow wandering, only goes to places that feel right',
+  mbti_influence: 'INFP: inner values drive all judgments, open to possibilities',
+  soul_fingerprint: 'go to a place, be still, wait for it to tell me who it is',
+  confidence_score: 0.84,
+  data_sources_used: ['mbti'],
 };
 
-// ── Exports ──────────────────────────────────────────────────────────────────
-
-export const PERSONA_MOCK_DATA: Persona = ENFP_MANNI;
-
-export const PERSONA_EXAMPLES: Persona[] = [ENFP_MANNI, ISTJ_LAOJIANG, INFP_SUWAN];
+export const PERSONA_MOCK_DATA = MANNI;
+export const PERSONA_EXAMPLES: Persona[] = [MANNI, LAOJIANG, SUWAN];

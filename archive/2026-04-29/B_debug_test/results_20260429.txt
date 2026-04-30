@@ -1,0 +1,67 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mE:/desktop/hecker/twinbuddy/frontend[39m
+
+ [32m✓[39m src/__tests__/MessagesPage.test.tsx[2m > [22mMessagesPage[2m > [22mloads conversations and room messages
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mrenders buddy nickname, city, and match score
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mrenders preview text and highlights
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mrenders MBTI badge
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22madvanceBuddyIndex — circular[2m > [22mstarts at 0 for empty pool
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22madvanceBuddyIndex — circular[2m > [22madvances by 1
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22madvanceBuddyIndex — circular[2m > [22mwraps from last back to 0
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22madvanceBuddyIndex — circular[2m > [22mcircular full cycle
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mbuildInitialPool[2m > [22mfilters null/undefined entries
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mbuildInitialPool[2m > [22mreturns empty array for all null
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mpersists and loads pool with index
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mreturns null when storage is empty
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mreturns null for corrupted JSON
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mreturns null for empty pool in storage
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mreturns null for missing pool field
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mlocalStorage round-trip[2m > [22mwraps index modulo pool length on restore
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mfull cycle: advance → persist → load[2m > [22mpersists updated index after each advance
+ [32m✓[39m src/__tests__/useCardBuddyPool.test.ts[2m > [22mfull cycle: advance → persist → load[2m > [22msurvives page refresh (simulated via localStorage)
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mcalls onOpen when the action button is clicked[33m 318[2mms[22m[39m
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mrenders avatar emoji
+ [32m✓[39m src/__tests__/TwinCard.test.tsx[2m > [22mTwinCard[2m > [22mrenders layer-1 preview card label
+ [32m✓[39m src/__tests__/BlindGamePage.test.tsx[2m > [22mBlindGamePage[2m > [22mloads the blind match card and shows profile details
+ [32m✓[39m src/__tests__/BlindGamePage.test.tsx[2m > [22mBlindGamePage[2m > [22mshows accept and reject action buttons[33m 309[2mms[22m[39m
+ [32m✓[39m src/__tests__/HomePage.test.tsx[2m > [22mHomePage[2m > [22mrenders rotating showcase and lets prompt buttons fill the composer[33m 500[2mms[22m[39m
+ [32m✓[39m src/__tests__/BlindGamePage.test.tsx[2m > [22mBlindGamePage[2m > [22mreveals icebreaker questions after accepting
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mrenders Layer 2 label and buddy nickname
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mrenders match score and city
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mrenders consensus tags
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mrenders radar chart with dimension labels
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mrenders three action buttons
+ [32m✓[39m src/__tests__/BuddyDetailModal.test.tsx[2m > [22mBuddyDetailModal[2m > [22mcalls onClose when close button is clicked
+ [32m✓[39m src/__tests__/OnboardingV2Page.test.tsx[2m > [22mOnboardingV2Page[2m > [22mrequires each step before continuing[33m 601[2mms[22m[39m
+ [32m✓[39m src/__tests__/BuddiesPage.test.tsx[2m > [22mBuddiesPage[2m > [22mloads buddy inbox from API
+ [32m✓[39m src/__tests__/OnboardingV2Page.test.tsx[2m > [22mOnboardingV2Page[2m > [22mcompletes the five-step flow and redirects home[33m 1665[2mms[22m[39m
+ [32m✓[39m src/__tests__/BuddiesPage.test.tsx[2m > [22mBuddiesPage[2m > [22mshows verification gate and unlocks inbox after submit[33m 937[2mms[22m[39m
+ [32m✓[39m src/__tests__/ProfilePage.test.tsx[2m > [22mProfilePage[2m > [22mloads remote profile and allows editing draft text[33m 737[2mms[22m[39m
+ [32m✓[39m src/__tests__/TwinBuddyV2Flow.test.tsx[2m > [22mTwinBuddy V2 flow[2m > [22munlocks buddies, then navigates through community and messages[33m 1045[2mms[22m[39m
+ [32m✓[39m src/__tests__/BuddiesPage.test.tsx[2m > [22mBuddiesPage[2m > [22mopens the buddy detail modal and can continue into blind game[33m 352[2mms[22m[39m
+ [32m✓[39m src/__tests__/CommunityPage.test.tsx[2m > [22mCommunityPage[2m > [22mloads feed and supports publishing a new post[33m 1256[2mms[22m[39m
+ [32m✓[39m src/__tests__/BuddiesPage.test.tsx[2m > [22mBuddiesPage[2m > [22mshows a visible error when buddy detail loading fails
+ [32m✓[39m src/__tests__/NegotiationThread.test.tsx[2m > [22mNegotiationThread[2m > [22mrenders section heading and badge
+ [32m✓[39m src/__tests__/NegotiationThread.test.tsx[2m > [22mNegotiationThread[2m > [22mrenders three messages (buddy, user, buddy) from consensus and conflicts
+ [32m✓[39m src/__tests__/NegotiationThread.test.tsx[2m > [22mNegotiationThread[2m > [22mincludes first consensus item in first message
+ [32m✓[39m src/__tests__/NegotiationThread.test.tsx[2m > [22mNegotiationThread[2m > [22mrenders a subtitle describing the purpose
+ [32m✓[39m src/__tests__/NegotiationThread.test.tsx[2m > [22mNegotiationThread[2m > [22mhandles empty consensus and conflicts gracefully
+ [32m✓[39m src/__tests__/RadarChart.test.tsx[2m > [22mRadarChart[2m > [22mrenders SVG and legend when data is provided
+ [32m✓[39m src/__tests__/RadarChart.test.tsx[2m > [22mRadarChart[2m > [22mrenders computed average score in legend
+ [32m✓[39m src/__tests__/RadarChart.test.tsx[2m > [22mRadarChart[2m > [22mrenders data point circles for each dimension
+ [32m✓[39m src/__tests__/RadarChart.test.tsx[2m > [22mRadarChart[2m > [22mreturns null when data is empty
+ [32m✓[39m src/__tests__/RadarChart.test.tsx[2m > [22mRadarChart[2m > [22mreturns null when data is undefined
+ [32m✓[39m src/__tests__/VoiceInputButton.test.tsx[2m > [22mVoiceInputButton[2m > [22muses speech recognition results to fill text
+ [32m✓[39m src/__tests__/VoiceInputButton.test.tsx[2m > [22mVoiceInputButton[2m > [22mshows unsupported state when speech recognition is unavailable
+ [32m✓[39m src/__tests__/AppNavigation.test.tsx[2m > [22mApp navigation shell[2m > [22mredirects completed users into the new shell
+ [32m✓[39m src/__tests__/AppNavigation.test.tsx[2m > [22mApp navigation shell[2m > [22mswitches tabs through the bottom navigation
+ [32m✓[39m src/__tests__/RedFlagsPanel.test.tsx[2m > [22mRedFlagsPanel[2m > [22mrenders the panel heading and description
+ [32m✓[39m src/__tests__/RedFlagsPanel.test.tsx[2m > [22mRedFlagsPanel[2m > [22mrenders all conflict items as list entries
+ [32m✓[39m src/__tests__/RedFlagsPanel.test.tsx[2m > [22mRedFlagsPanel[2m > [22mrenders each item inside a bordered card
+ [32m✓[39m src/__tests__/RedFlagsPanel.test.tsx[2m > [22mRedFlagsPanel[2m > [22mhandles empty items gracefully with section still rendered
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m58 passed[39m[22m[90m (58)[39m
+[2m   Start at [22m 08:38:09
+[2m   Duration [22m 11.37s[2m (transform 6.85s, setup 7.06s, collect 23.22s, tests 10.64s, environment 50.92s, prepare 6.98s)[22m
+

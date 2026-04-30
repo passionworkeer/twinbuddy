@@ -1,0 +1,204 @@
+# -*- coding: utf-8 -*-
+"""
+backend/api/stt_api.py — TwinBuddy 语音转文字 API
+
+提供 WebSocket 实时流式识别接口。
+
+WebSocket 协议：
+  客户端 → 服务端（binary）：
+    - PCM 音频块（16kHz / 16bit / mono，建议 1280 字节 = 40ms）
+    - 空 binary 消息：标记音频结束
+  服务端 → 客户端（text，JSON）：
+    - {"type": "text", "content": "识别文本"}
+    - {"type": "done", "text": "完整拼接文本"}
+    - {"type": "error", "message": "错误描述"}
+
+环境变量（启动前必须配置）：
+  XFYUN_APP_ID      — iFlytek 应用 ID
+  XFYUN_API_KEY     — iFlytek API Key
+  XFYUN_API_SECRET  — iFlytek API Secret
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+from typing import AsyncIterator
+
+import websockets
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+
+from .xfyun_stt import stt_stream
+
+logger = logging.getLogger("twinbuddy.stt")
+router = APIRouter(prefix="/api/stt", tags=["语音转文字"])
+
+
+# ---------------------------------------------------------------------------
+# 流式 WebSocket 接口
+# ---------------------------------------------------------------------------
+
+@router.websocket(
+    "/ws",
+    name="stt_websocket",
+)
+async def stt_websocket(websocket: WebSocket) -> None:
+    """
+    WebSocket 实时语音识别接口。
+
+    建立连接后：
+      1. 客户端持续发送二进制 PCM 音频块（建议 1280 字节 / 40ms）
+      2. 服务端实时解析并推送识别结果
+      3. 客户端发送空 binary 消息表示音频结束
+      4. 服务端推送 {"type": "done"} 后关闭连接
+
+    音频参数：
+      - 采样率：16000 Hz
+      - 位深：16 bit
+      - 声道：mono
+      - 推荐帧大小：1280 字节（约 40ms）
+
+    错误处理：
+      - 认证失败：发送 {"type": "error", "message": "..."} 后关闭
+      - 超时（10s 无数据）：自动关闭连接
+      - iFlytek 服务异常：转发错误消息后关闭
+    """
+    await websocket.accept()
+
+    logger.debug("STT WebSocket 连接已建立 | client=%s", websocket.client)
+
+    # CORS note: FastAPI's CORSMiddleware handles the HTTP upgrade handshake.
+    # Binary PCM frames do not require additional CORS headers.
+
+    _WS_TIMEOUT = 10.0  # seconds — frontend signals end via empty binary frame
+
+    class ChunkStream(AsyncIterator[bytes]):
+        """
+        将 FastAPI WebSocket 转换为 AsyncIterator[bytes]，
+        供 stt_stream 消费。
+
+        客户端发送：
+          - 非空 binary → 音频数据
+          - 空 binary   → 结束标记
+        """
+
+        __slots__ = ("_ws", "_ended")
+
+        def __init__(self, ws: WebSocket) -> None:
+            self._ws = ws
+            self._ended = False
+
+        def __aiter__(self) -> "ChunkStream":
+            return self
+
+        async def __anext__(self) -> bytes:
+            if self._ended:
+                raise StopAsyncIteration
+
+            try:
+                data = await asyncio.wait_for(
+                    self._ws.receive_bytes(),
+                    timeout=_WS_TIMEOUT,
+                )
+                # 空消息 = 音频结束信号
+                if len(data) == 0:
+                    self._ended = True
+                    logger.debug("收到空帧，音频流结束")
+                    raise StopAsyncIteration
+                return data
+
+            except asyncio.TimeoutError:
+                logger.warning("WebSocket 接收超时（%.0fs），自动关闭", _WS_TIMEOUT)
+                self._ended = True
+                raise StopAsyncIteration
+            except (websockets.exceptions.ConnectionClosed, websockets.exceptions.ConnectionClosedOK):
+                logger.debug("WebSocket 连接关闭")
+                self._ended = True
+                raise StopAsyncIteration
+
+    # 累积文本，处理 iFlytek pgs="rpl" 替换模式
+    accumulated: list[str] = []
+
+    try:
+        stream = ChunkStream(websocket)
+
+        # stt_stream yields (text, is_replace)
+        async for text, is_replace in stt_stream(stream):
+            if not text:
+                continue
+            if is_replace:
+                accumulated.clear()
+                logger.debug("iFlytek 替换模式，清除旧结果")
+            accumulated.append(text)
+            await websocket.send_json({
+                "type": "text",
+                "content": text,
+            })
+            logger.debug("推送识别片段 | len=%d | is_replace=%s", len(text), is_replace)
+
+    except WebSocketDisconnect:
+        logger.debug("客户端主动断开 WebSocket")
+
+    except Exception as exc:
+        logger.error("STT WebSocket 异常: %s", exc)
+        try:
+            await websocket.send_json({
+                "type": "error",
+                "message": str(exc),
+            })
+        except Exception:
+            pass  # 连接可能已断开
+
+    finally:
+        # 始终发送 done 帧，保证前端总能收到结束信号
+        final_text = "".join(accumulated)
+        try:
+            await websocket.send_json({
+                "type": "done",
+                "text": final_text,
+            })
+            logger.info("STT WebSocket 完成 | total_chars=%d", len(final_text))
+        except Exception:
+            logger.debug("done 帧未发送（连接已关闭）")
+
+
+# ---------------------------------------------------------------------------
+# 健康检查（开发调试用）
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/health",
+    summary="STT 服务健康检查",
+    response_model=dict,
+)
+async def stt_health() -> dict:
+    """
+    检查 iFlytek 凭证是否配置正确（不实际调用 API）。
+
+    Returns:
+        {
+          "status": "configured" | "missing_env",
+          "has_app_id": bool,
+          "has_api_key": bool,
+        }
+    """
+    import os
+
+    has_app_id = bool(os.environ.get("XFYUN_APP_ID"))
+    has_api_key = bool(os.environ.get("XFYUN_API_KEY"))
+    has_secret = bool(os.environ.get("XFYUN_API_SECRET"))
+
+    if has_app_id and has_api_key and has_secret:
+        return {
+            "status": "configured",
+            "has_app_id": True,
+            "has_api_key": True,
+            "has_api_secret": True,
+        }
+    return {
+        "status": "missing_env",
+        "has_app_id": has_app_id,
+        "has_api_key": has_api_key,
+        "has_api_secret": has_secret,
+        "required_env": ["XFYUN_APP_ID", "XFYUN_API_KEY", "XFYUN_API_SECRET"],
+    }

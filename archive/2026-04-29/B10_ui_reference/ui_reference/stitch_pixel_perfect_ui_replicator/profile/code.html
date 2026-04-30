@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TwinBuddy - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,500;1,400&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#370922",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#fbb1cf",
+                        "surface-container": "#eeeeee",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#5e5e5e",
+                        "primary-fixed": "#e2e2e2",
+                        "on-tertiary-container": "#b1718c",
+                        "on-surface-variant": "#4c4546",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-container": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "on-surface": "#1b1b1b",
+                        "on-primary": "#ffffff",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary-container": "#848484",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-container": "#acf0df",
+                        "on-secondary-container": "#2c6f62",
+                        "on-tertiary-fixed-variant": "#6b354e",
+                        "on-background": "#1b1b1b",
+                        "secondary": "#24695c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-fixed": "#1b1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "secondary-fixed-dim": "#91d3c4",
+                        "surface": "#f9f9f9",
+                        "on-secondary-fixed-variant": "#005045",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline": "#7e7576",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed": "#acf0df",
+                        "on-tertiary-fixed": "#370922",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed": "#ffd8e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-margin": "48px",
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "card-gap": "20px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Space Grotesk"],
+                        "question-serif": ["Newsreader"]
+                    },
+                    "fontSize": {
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "question-serif": ["28px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neo-brutal-card {
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .neo-brutal-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px rgba(0,0,0,1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md text-body-md pb-32 pt-20">
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 w-full border-b-2 border-black dark:border-white shadow-none z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl flex justify-between items-center px-6 h-16">
+<button class="active:scale-95 duration-200 hover:opacity-80 transition-opacity text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+</button>
+<span class="font-['Space_Grotesk'] font-bold tracking-tighter uppercase text-2xl font-black text-black dark:text-white tracking-tighter">TWINBUDDY</span>
+<button class="active:scale-95 duration-200 hover:opacity-80 transition-opacity text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+</header>
+<main class="max-w-3xl mx-auto px-container-padding flex flex-col gap-section-margin mt-8">
+<!-- Header Section: Avatar & Identity -->
+<section class="flex flex-col items-center text-center">
+<div class="relative mb-6">
+<div class="w-32 h-32 rounded-full border-4 border-primary overflow-hidden neo-brutal-card bg-surface-variant">
+<img alt="Profile Avatar" class="w-full h-full object-cover" data-alt="portrait of a confident young woman with warm natural lighting, vibrant colors, clean minimal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBfCXtlry8DvWg6p2tZ95E6lycjVmwkofpliEaebSUTDk5FZ4YkfeG17I9hYoeTXSxcx6uxDWV3LsGjEa2pngBCFTvN-PKY8Wbc-EOrYJ5DN90-Uqem7eJzt_4zucrGmCXYFafoJOgE8OIJo_XS4A4pPucFpfJZ9SlILzQUpq8CnU-NEvW8lzjMdNWYsKrYZpw5xAXEf6rLniztTH-bXTjHqW9p4w9aO84RrpOgjaK8h1YehgGjQLeemtIhXiZeN1TgP2hX9owRCN7"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-on-secondary font-label-caps text-label-caps px-4 py-2 rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase">
+                    ENFP
+                </div>
+</div>
+<h1 class="font-h1 text-h1 text-primary">Kylia_Z</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">数字游民 / 独立设计师</p>
+</section>
+<!-- Middle Section: MING 4D Radar (Bento Grid interpretation) -->
+<section class="bg-surface-container-lowest rounded-lg border-2 border-primary p-container-padding neo-brutal-card relative overflow-hidden">
+<!-- Decorative Accent -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-secondary-container rounded-full blur-3xl opacity-50"></div>
+<div class="flex items-center justify-between mb-8 relative z-10">
+<h2 class="font-h2 text-h2 text-primary">MING 4D 认知模型</h2>
+<span class="material-symbols-outlined text-primary text-3xl">psychology</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter relative z-10">
+<!-- Cognitive -->
+<div class="bg-surface-container p-4 rounded-DEFAULT border-2 border-outline-variant hover:border-primary transition-colors">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-primary uppercase">认知 (Cognitive)</span>
+<span class="font-body-md font-bold text-primary">85%</span>
+</div>
+<div class="h-3 w-full bg-surface-variant rounded-full overflow-hidden border border-outline">
+<div class="h-full bg-primary w-[85%] rounded-r-full"></div>
+</div>
+</div>
+<!-- Expression -->
+<div class="bg-surface-container p-4 rounded-DEFAULT border-2 border-outline-variant hover:border-primary transition-colors">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-primary uppercase">表达 (Expression)</span>
+<span class="font-body-md font-bold text-primary">92%</span>
+</div>
+<div class="h-3 w-full bg-surface-variant rounded-full overflow-hidden border border-outline">
+<div class="h-full bg-tertiary-container w-[92%] rounded-r-full"></div>
+</div>
+</div>
+<!-- Behavior -->
+<div class="bg-surface-container p-4 rounded-DEFAULT border-2 border-outline-variant hover:border-primary transition-colors">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-primary uppercase">行为 (Behavior)</span>
+<span class="font-body-md font-bold text-primary">78%</span>
+</div>
+<div class="h-3 w-full bg-surface-variant rounded-full overflow-hidden border border-outline">
+<div class="h-full bg-secondary w-[78%] rounded-r-full"></div>
+</div>
+</div>
+<!-- Emotion -->
+<div class="bg-surface-container p-4 rounded-DEFAULT border-2 border-outline-variant hover:border-primary transition-colors">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-primary uppercase">情绪 (Emotion)</span>
+<span class="font-body-md font-bold text-primary">88%</span>
+</div>
+<div class="h-3 w-full bg-surface-variant rounded-full overflow-hidden border border-outline">
+<div class="h-full bg-on-tertiary-container w-[88%] rounded-r-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Travel Preferences -->
+<section class="flex flex-col gap-6">
+<h2 class="font-h2 text-h2 text-primary">旅行偏好</h2>
+<div class="flex flex-wrap gap-3">
+<div class="px-6 py-3 bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">landscape</span>
+                    自然风光
+                </div>
+<div class="px-6 py-3 bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">museum</span>
+                    深度人文
+                </div>
+<div class="px-6 py-3 bg-primary-fixed text-on-primary-fixed font-label-caps text-label-caps rounded-full border-2 border-primary shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">restaurant</span>
+                    地道美食
+                </div>
+<div class="px-6 py-3 bg-surface-container text-on-surface font-label-caps text-label-caps rounded-full border-2 border-outline flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">photo_camera</span>
+                    摄影打卡
+                </div>
+<div class="px-6 py-3 bg-surface-container text-on-surface font-label-caps text-label-caps rounded-full border-2 border-outline flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">nightlife</span>
+                    夜生活
+                </div>
+</div>
+</section>
+<!-- Logout Action -->
+<div class="mt-8 mb-12 flex justify-center">
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-full w-full max-w-sm uppercase hover:bg-inverse-surface transition-colors active:scale-95">
+                退出登录
+            </button>
+</div>
+</main>
+<!-- Shared Component: BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t-2 border-black dark:border-white shadow-[0_-8px_30px_rgba(0,0,0,0.04)] hidden md:hidden">
+<a class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">travel_explore</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Buddies</span>
+</a>
+<a class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-indigo-600 text-white rounded-full px-4 py-2 ring-2 ring-black dark:ring-white hover:opacity-100 transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+<!-- Display Bottom Nav on mobile, but keep structure clean -->
+<style>
+        @media (max-width: 768px) {
+            nav { display: flex !important; }
+        }
+    </style>
+</body></html>

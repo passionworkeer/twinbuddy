@@ -53,7 +53,7 @@ export default function ProfilePage() {
 
   return (
     <div className="relative flex flex-col">
-      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
+      <div className="flex-1 px-container-padding pt-14 pb-[100px]">
         <div className="flex flex-col gap-section-margin pt-8 px-container-padding pb-8">
 
           {/* Header: Avatar + Identity */}

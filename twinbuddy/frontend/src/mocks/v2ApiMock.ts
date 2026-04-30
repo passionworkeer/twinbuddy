@@ -215,9 +215,9 @@ export const mockCommunityPosts: TwinBuddyCommunityPost[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Mock buddy inbox
+// Mock buddy inbox — expanded pool (shuffle on page load)
 // ---------------------------------------------------------------------------
-export const mockBuddyInbox: TwinBuddyV2BuddyInboxItem[] = [
+const _rawBuddyInbox: TwinBuddyV2BuddyInboxItem[] = [
   {
     buddy_id: 'buddy_001',
     nickname: '小满',
@@ -296,7 +296,89 @@ export const mockBuddyInbox: TwinBuddyV2BuddyInboxItem[] = [
     highlights: ['计划周全', '细腻贴心', '兴趣高度重合'],
     conflicts: [],
   },
+  {
+    buddy_id: 'buddy_007',
+    nickname: '叶子',
+    mbti: 'ISFP',
+    avatar: 'https://picsum.photos/seed/buddy-yezi/200/200',
+    city: '顺德',
+    match_score: 83,
+    negotiation_id: 'neg_007',
+    status: 'pending',
+    preview: 'ISFP 型搭子，艺术家气质，审美在线，喜欢安静有美感的地方，适合慢慢逛、深度体验。',
+    highlights: ['审美好', '安静', '深度游'],
+    conflicts: [],
+  },
+  {
+    buddy_id: 'buddy_008',
+    nickname: '小飞',
+    mbti: 'INTJ',
+    avatar: 'https://picsum.photos/seed/buddy-xiaofei/200/200',
+    city: '深圳',
+    match_score: 69,
+    negotiation_id: 'neg_008',
+    status: 'pending',
+    preview: 'INTJ 型搭子，规划能力强，做攻略比大多数人都细致，适合计划型旅行者。',
+    highlights: ['规划力强', '攻略细致', '理性'],
+    conflicts: ['高社交能量需求 vs 你的安静偏好'],
+  },
+  {
+    buddy_id: 'buddy_009',
+    nickname: '阿杰',
+    mbti: 'ISTJ',
+    avatar: 'https://picsum.photos/seed/buddy-ajie/200/200',
+    city: '广州',
+    match_score: 78,
+    negotiation_id: 'neg_009',
+    status: 'pending',
+    preview: 'ISTJ 型搭子，务实可靠，说到做到，时间观念强，适合需要确定性行程的搭子。',
+    highlights: ['准时', '务实', '广州'],
+    conflicts: [],
+  },
+  {
+    buddy_id: 'buddy_010',
+    nickname: '阿瑶',
+    mbti: 'ENFJ',
+    avatar: 'https://picsum.photos/seed/buddy-ayao/200/200',
+    city: '深圳',
+    match_score: 85,
+    negotiation_id: 'neg_010',
+    status: 'pending',
+    preview: 'ENFJ 型搭子，天生的协调者，共情能力强，会照顾同行的感受，旅行体验温馨。',
+    highlights: ['共情强', '照顾人', '深圳'],
+    conflicts: [],
+  },
+  {
+    buddy_id: 'buddy_011',
+    nickname: '老周',
+    mbti: 'INFJ',
+    avatar: 'https://picsum.photos/seed/buddy-laozhou/200/200',
+    city: '珠海',
+    match_score: 92,
+    negotiation_id: 'neg_011',
+    status: 'pending',
+    preview: 'INFJ 型搭子，理想主义者，旅行有深度，会被有故事的地方吸引，行程中会有意外的精神收获。',
+    highlights: ['深度游', '人文', '珠海'],
+    conflicts: [],
+  },
+  {
+    buddy_id: 'buddy_012',
+    nickname: '小北',
+    mbti: 'ENTJ',
+    avatar: 'https://picsum.photos/seed/buddy-xiaobei/200/200',
+    city: '东莞',
+    match_score: 65,
+    negotiation_id: 'neg_012',
+    status: 'pending',
+    preview: 'ENTJ 型搭子，执行力强，行程推进快，适合喜欢高效完成计划的人，但对你可能稍快。',
+    highlights: ['执行力强', '高效', '东莞'],
+    conflicts: ['行程推进速度比你偏好的慢节奏快很多'],
+  },
 ];
+
+// Exported shuffled so each page load gives a different order
+import { shuffleArray } from '../utils/shuffle';
+export const mockBuddyInbox: TwinBuddyV2BuddyInboxItem[] = shuffleArray(_rawBuddyInbox);
 
 // ---------------------------------------------------------------------------
 // Mock buddy card

@@ -120,7 +120,7 @@ export default function CommunityPage() {
         <RefreshCw className={`h-5 w-5 text-on-surface-variant ${isLoading ? 'animate-spin' : ''}`} />
       </button>
 
-      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
+      <div className="flex-1 px-container-padding pt-14 pb-[100px]">
         <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="space-y-4">
             <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">

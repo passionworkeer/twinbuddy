@@ -90,7 +90,7 @@ export default function HomePage() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 px-container-padding pt-16 pb-[110px]">
+      <div className="flex-1 px-container-padding pt-14 pb-[110px] overflow-y-auto">
 
         {/* ── Hero Section ── */}
         <section className="mb-10">
@@ -287,7 +287,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Floating Input Bar ── */}
-      <div className="fixed bottom-[88px] left-0 right-0 px-container-padding z-40 md:bottom-[88px] pointer-events-none">
+      <div className="fixed bottom-[70px] left-0 right-0 px-container-padding z-40 md:bottom-[70px] pointer-events-none">
         <div className="max-w-screen-md mx-auto pointer-events-auto">
           {hint && (
             <div className="mb-1 text-center">

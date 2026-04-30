@@ -1,8 +1,8 @@
+import { shuffleArray } from '../utils/shuffle';
 import type { ShowcaseItem } from '../components/v2/ShowcaseCarousel';
-
 const picsum = (seed: string) => `https://picsum.photos/seed/${seed}/800/450`;
 
-export const homeShowcases: ShowcaseItem[] = [
+const _homeShowcases: ShowcaseItem[] = [
   {
     id: 'home-1',
     eyebrow: '今日高匹配路线',
@@ -65,7 +65,7 @@ export const homeShowcases: ShowcaseItem[] = [
   },
 ];
 
-export const buddyShowcases: ShowcaseItem[] = [
+const _buddyShowcases: ShowcaseItem[] = [
   {
     id: 'buddy-hero-1',
     eyebrow: '今日预协商速报',
@@ -89,7 +89,7 @@ export const buddyShowcases: ShowcaseItem[] = [
   {
     id: 'buddy-hero-3',
     eyebrow: '系统提醒',
-    title: 'Momo 的出片诉求偏强',
+    title: '阿瑶的出片诉求偏强',
     body: '你们在吃和逛上是对齐的，但若你不想被照片节奏打断，建议先在盲选里验证拍照态度。',
     metricLabel: '照片冲突提示',
     metricValue: '72%',
@@ -119,8 +119,8 @@ export const buddyShowcases: ShowcaseItem[] = [
   {
     id: 'buddy-hero-6',
     eyebrow: '高弹性搭子',
-    title: '小雅的城市弹性很强，协商空间大',
-    body: '小雅发帖从不预设具体地点，偏好"到时候再说"。好处是灵活，坏处是需要你主动推动行程落地。',
+    title: '叶子的城市弹性很强，协商空间大',
+    body: '叶子发帖从不预设具体地点，偏好"到时候再说"。好处是灵活，坏处是需要你主动推动行程落地。',
     metricLabel: '协商灵活度',
     metricValue: '84%',
     tags: ['弹性高', '好商量', '随性'],
@@ -128,7 +128,7 @@ export const buddyShowcases: ShowcaseItem[] = [
   },
 ];
 
-export const communityShowcases: ShowcaseItem[] = [
+const _communityShowcases: ShowcaseItem[] = [
   {
     id: 'community-1',
     eyebrow: '广场热门标签',
@@ -191,7 +191,7 @@ export const communityShowcases: ShowcaseItem[] = [
   },
 ];
 
-export const profileShowcases: ShowcaseItem[] = [
+const _profileShowcases: ShowcaseItem[] = [
   {
     id: 'profile-1',
     eyebrow: '人格快照',
@@ -253,3 +253,9 @@ export const profileShowcases: ShowcaseItem[] = [
     imageUrl: picsum('community-score'),
   },
 ];
+
+// Shuffle on import — each page load has a different carousel order
+export const homeShowcases: ShowcaseItem[] = shuffleArray(_homeShowcases);
+export const buddyShowcases: ShowcaseItem[] = shuffleArray(_buddyShowcases);
+export const communityShowcases: ShowcaseItem[] = shuffleArray(_communityShowcases);
+export const profileShowcases: ShowcaseItem[] = shuffleArray(_profileShowcases);

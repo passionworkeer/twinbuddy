@@ -138,7 +138,7 @@ export default function MessagesPage() {
       <div className="fixed top-10 right-10 w-64 h-64 bg-primary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
       <div className="fixed bottom-20 left-10 w-80 h-80 bg-secondary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
 
-      <div className="flex-1 px-container-padding pt-16 pb-[100px]">
+      <div className="flex-1 px-container-padding pt-14 pb-[100px]">
         <div className="max-w-3xl mx-auto flex flex-col gap-section-margin">
           <header className="flex items-center justify-between">
             <h1 className="font-h1 text-h1 text-primary">消息</h1>

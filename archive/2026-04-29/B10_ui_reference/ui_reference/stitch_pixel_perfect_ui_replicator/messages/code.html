@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TwinBuddy - 消息</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#370922",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#fbb1cf",
+                        "surface-container": "#eeeeee",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#5e5e5e",
+                        "primary-fixed": "#e2e2e2",
+                        "on-tertiary-container": "#b1718c",
+                        "on-surface-variant": "#4c4546",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-container": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "on-surface": "#1b1b1b",
+                        "on-primary": "#ffffff",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary-container": "#848484",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-container": "#acf0df",
+                        "on-secondary-container": "#2c6f62",
+                        "on-tertiary-fixed-variant": "#6b354e",
+                        "on-background": "#1b1b1b",
+                        "secondary": "#24695c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-fixed": "#1b1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "secondary-fixed-dim": "#91d3c4",
+                        "surface": "#f9f9f9",
+                        "on-secondary-fixed-variant": "#005045",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline": "#7e7576",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed": "#acf0df",
+                        "on-tertiary-fixed": "#370922",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed": "#ffd8e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-margin": "48px",
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "card-gap": "20px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Space Grotesk"],
+                        "question-serif": ["Newsreader"]
+                    },
+                    "fontSize": {
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "question-serif": ["28px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b-2 border-black dark:border-white shadow-none flex justify-between items-center px-6 h-16 z-50">
+<button class="text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[24px]">explore</span>
+</button>
+<span class="font-['Space_Grotesk'] font-bold tracking-tighter uppercase text-2xl text-black dark:text-white">TWINBUDDY</span>
+<button class="text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="pt-[96px] pb-[120px] px-container-padding max-w-3xl mx-auto min-h-screen">
+<header class="mb-gutter flex items-center justify-between">
+<h1 class="font-h1 text-h1 text-primary">消息</h1>
+</header>
+<!-- Search Bar (Neo-Brutalist) -->
+<div class="relative mb-section-margin group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full bg-surface-container-lowest border-2 border-primary rounded-full py-4 pl-12 pr-4 font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-4 focus:ring-secondary-container transition-shadow shadow-[0_4px_0_0_#000] focus:shadow-[0_2px_0_0_#000] focus:translate-y-[2px]" placeholder="搜索对话..." type="text"/>
+</div>
+<!-- Messages List -->
+<div class="flex flex-col gap-card-gap">
+<!-- Message Item 1 (Unread) -->
+<button class="w-full flex items-center gap-4 p-4 rounded-xl bg-surface-container-lowest border-2 border-primary shadow-[0_4px_0_0_#000] hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#000] transition-all text-left group">
+<div class="relative shrink-0">
+<img alt="Avatar" class="w-16 h-16 rounded-full border-2 border-primary object-cover group-hover:scale-105 transition-transform" data-alt="close up portrait of young asian woman with bright natural lighting, soft background blur, wearing a mustard yellow sweater" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiP3i7U77QoXxE4S-fblUTyU7mPXcw0EwWnoXXmbERYXIxDOAqh4l6FwE6SE4MqSdEGjk9ofFjLQMypT5wxj0oBFGqhA1CG1xVWqH98kP44WO3aiB4dLpkHfZK4ltGScYDl4qiF19iakLl_uVUnGcpWOS78P_Sz8hQ0qrnVezzLxS1dj0B0CQMvfTXT4KIQ7zWV9KVp0pdDE-rKU-zBBxpSbeDJr-z5DL5Kqx1r1lwbryoyc6mqneKjmkWc3M86C1qT5YvhsZD80hB"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-secondary border-2 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-body-lg text-body-lg font-bold text-primary truncate">李华 (Li Hua)</h3>
+<span class="font-label-caps text-label-caps text-secondary shrink-0 ml-2">10:30 AM</span>
+</div>
+<p class="font-body-md text-body-md text-primary font-medium truncate">我们这周末去复习高级生物学吧？我已经整理好了前三章的知识点。</p>
+</div>
+<div class="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-caps text-label-caps border-2 border-primary">
+                    2
+                </div>
+</button>
+<!-- Message Item 2 (Unread) -->
+<button class="w-full flex items-center gap-4 p-4 rounded-xl bg-surface-container-lowest border-2 border-primary shadow-[0_4px_0_0_#000] hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#000] transition-all text-left group">
+<div class="relative shrink-0">
+<img alt="Avatar" class="w-16 h-16 rounded-full border-2 border-primary object-cover group-hover:scale-105 transition-transform" data-alt="portrait of a young asian man with glasses looking slightly off camera, wearing a dark blue denim jacket, neutral grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVMe7z2hcNRf6p486Ik0tlc_FQbD8zfG_8Iqf2hzJnLsnB9Z6e5rNtbNWOn4c_WCYKwpkfIKPM7v71ZTC2vEViC7mP6wQh0hfJ4BboePdnSOM3gqBAe1FHMSo1TR4o0gscnEZimyYNyMgRazrrgtzVMr2_DDagF0fkHNJLiUmIgAWNXWH8PM73ROAbGNikEPjfDVmbUrmvHC1omheRPr9SviUYB67uE8bANXSjUvZ-uoB0tIEAuEx15XdvbceUlxP3JWu136iN5D74"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-body-lg text-body-lg font-bold text-primary truncate">张伟 (Zhang Wei)</h3>
+<span class="font-label-caps text-label-caps text-secondary shrink-0 ml-2">昨天</span>
+</div>
+<p class="font-body-md text-body-md text-primary font-medium truncate">昨天的微积分讲义你发我一份可以吗？</p>
+</div>
+<div class="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-caps text-label-caps border-2 border-primary">
+                    1
+                </div>
+</button>
+<!-- Message Item 3 (Read) -->
+<button class="w-full flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-lowest transition-all text-left group">
+<div class="relative shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+<img alt="Avatar" class="w-16 h-16 rounded-full border-2 border-outline-variant object-cover" data-alt="headshot of a smiling asian woman with short hair outdoors, warm golden hour lighting, wearing a light grey top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUM7xYAThH0g2Ygi7g4IZCGGcLiVGsi-QGbxHtoYNPdieXttLEEDFCy9nuTBOoRxefDvE2dWV-4OmctMdsFccPoxgED7DnYCubhsg_d_IQ-lgSFEsl4TFDUCKw5cwTSI1Kl21auWeiTz9-DiX_CNTtorGQyJePsNcyHwUhq7AQGXB72Wk311zYWJwwlLnkbb1UafwjMJpDl1j6xAvCHStIG6Mbxw0-91EQx_JgSxNyntKVC2jpVeLTaaBgFQhO8E00VCVKQ_RF95vK"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">王芳 (Wang Fang)</h3>
+<span class="font-label-caps text-label-caps text-outline shrink-0 ml-2">星期二</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant truncate">好的，那我们图书馆见！</p>
+</div>
+</button>
+<!-- Message Item 4 (Read) -->
+<button class="w-full flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-lowest transition-all text-left group">
+<div class="relative shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-full border-2 border-outline-variant bg-tertiary-fixed-dim flex items-center justify-center">
+<span class="font-h2 text-h2 text-on-tertiary-fixed-variant">Z</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface truncate">赵雷 (Zhao Lei)</h3>
+<span class="font-label-caps text-label-caps text-outline shrink-0 ml-2">星期一</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant truncate">谢谢你上次的帮忙，下次换我请客。</p>
+</div>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t-2 border-black dark:border-white shadow-[0_-8px_30px_rgba(0,0,0,0.04)] md:hidden">
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-1 transition-transform">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-1 transition-transform">travel_explore</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Buddies</span>
+</button>
+<!-- Active Tab: Messages -->
+<button class="flex flex-col items-center justify-center bg-indigo-600 text-white rounded-full px-4 py-2 ring-2 ring-black dark:ring-white active:scale-90 duration-150">
+<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Messages</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-1 transition-transform">groups</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Community</span>
+</button>
+<button class="flex flex-col items-center justify-center text-black dark:text-white opacity-60 px-4 py-2 hover:opacity-100 transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-1 transition-transform">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest">Profile</span>
+</button>
+</nav>
+</body></html>

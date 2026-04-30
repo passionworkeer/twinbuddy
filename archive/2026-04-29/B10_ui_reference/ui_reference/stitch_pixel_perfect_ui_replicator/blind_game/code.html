@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TwinBuddy Blind Game</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Newsreader:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#370922",
+                        "tertiary": "#000000",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#fbb1cf",
+                        "surface-container": "#eeeeee",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#5e5e5e",
+                        "primary-fixed": "#e2e2e2",
+                        "on-tertiary-container": "#b1718c",
+                        "on-surface-variant": "#4c4546",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-container": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "on-surface": "#1b1b1b",
+                        "on-primary": "#ffffff",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary-container": "#848484",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-container": "#acf0df",
+                        "on-secondary-container": "#2c6f62",
+                        "on-tertiary-fixed-variant": "#6b354e",
+                        "on-background": "#1b1b1b",
+                        "secondary": "#24695c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-fixed": "#1b1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "secondary-fixed-dim": "#91d3c4",
+                        "surface": "#f9f9f9",
+                        "on-secondary-fixed-variant": "#005045",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline": "#7e7576",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed": "#acf0df",
+                        "on-tertiary-fixed": "#370922",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed": "#ffd8e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-margin": "48px",
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "card-gap": "20px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Space Grotesk"],
+                        "question-serif": ["Newsreader"]
+                    },
+                    "fontSize": {
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "question-serif": ["28px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex justify-center selection:bg-primary selection:text-on-primary">
+<!-- Mobile-constrained App Container for focused gameplay -->
+<main class="w-full max-w-md bg-surface-container-lowest min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
+<!-- Game Header -->
+<header class="px-container-padding pt-8 pb-4 flex flex-col gap-6 z-10 relative">
+<!-- Top Controls & Opponent -->
+<div class="flex items-center justify-between">
+<button class="w-12 h-12 rounded-full border-2 border-outline-variant flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors active:scale-95">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="flex items-center gap-3 bg-surface-container rounded-full pr-5 pl-1.5 py-1.5 border border-outline-variant shadow-sm">
+<img alt="Opponent Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-lowest" data-alt="Close up portrait of a young woman with dark hair smiling gently, warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs6d-TSqiyvXmuCLSbb1iZ58H2hFtvp-jtFxgB8OqfVvO5wP-E1xtZwMEwf1_oQ5BOhl95j49WU2Hegar5cZZKSCQlCoQt7tvPYOQ7yU-36KzUXLTK7XWMMcl5TBZLkZnzEVzkKodwcL-6aIiPbjZETOuOoBFmRwVUbEz79dsVU19jD_-gPFqRl4uQHswaL0CY0JQ_BoTnZkb6qNY47O7PvEnWL458eQSRQ8h9iUBw3XwqGF2KjaBISzJqIg1I4MHG_rjl1SkY1ahC"/>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest text-[10px]">Opponent</span>
+<span class="font-body-md text-sm font-semibold text-on-surface leading-none mt-1">Mystery Player</span>
+</div>
+</div>
+<!-- Spacer for perfect centering -->
+<div class="w-12 h-12"></div>
+</div>
+<!-- Progress Bar Section -->
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-end">
+<span class="font-label-caps text-label-caps text-primary uppercase">Question 3</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">6 Total</span>
+</div>
+<div class="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden relative border border-outline-variant">
+<div class="absolute top-0 left-0 h-full bg-primary rounded-full transition-all duration-500 ease-out w-1/2"></div>
+</div>
+</div>
+</header>
+<!-- Question Area -->
+<div class="px-container-padding pt-10 pb-12 flex-shrink-0 flex items-center justify-center text-center">
+<h1 class="font-question-serif text-question-serif text-on-surface tracking-tight leading-snug">
+                旅行节奏?
+            </h1>
+</div>
+<!-- Options / Bento Grid Area -->
+<div class="px-container-padding flex-grow flex flex-col gap-card-gap pb-12 z-10">
+<!-- Option A Card -->
+<button class="group w-full flex-1 bg-surface-container border-2 border-outline-variant rounded-lg p-container-padding flex flex-col items-center justify-center gap-6 relative overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] focus:outline-none focus:border-primary active:scale-[0.98]">
+<!-- Decorative subtle background element -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors duration-500 pointer-events-none"></div>
+<div class="w-20 h-20 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all duration-300 shadow-sm">
+<span class="material-symbols-outlined text-[40px] font-light" data-weight="fill">directions_run</span>
+</div>
+<span class="font-h2 text-h2 text-on-surface tracking-tight">暴走打卡</span>
+<!-- Selection Radio Indicator -->
+<div class="absolute top-6 right-6 w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors">
+<div class="w-3.5 h-3.5 rounded-full bg-transparent group-focus:bg-primary transition-colors"></div>
+</div>
+</button>
+<!-- Option B Card -->
+<button class="group w-full flex-1 bg-surface-container border-2 border-outline-variant rounded-lg p-container-padding flex flex-col items-center justify-center gap-6 relative overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] focus:outline-none focus:border-primary active:scale-[0.98]">
+<!-- Decorative subtle background element -->
+<div class="absolute -left-8 -bottom-8 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors duration-500 pointer-events-none"></div>
+<div class="w-20 h-20 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all duration-300 shadow-sm">
+<span class="material-symbols-outlined text-[40px] font-light" data-weight="fill">self_improvement</span>
+</div>
+<span class="font-h2 text-h2 text-on-surface tracking-tight">慢旅行</span>
+<!-- Selection Radio Indicator -->
+<div class="absolute top-6 right-6 w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors">
+<div class="w-3.5 h-3.5 rounded-full bg-transparent group-focus:bg-primary transition-colors"></div>
+</div>
+</button>
+</div>
+</main>
+</body></html>

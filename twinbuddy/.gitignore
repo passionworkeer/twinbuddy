@@ -1,0 +1,42 @@
+
+# TwinBuddy media source (use frontend/public/ instead)
+photo/
+video/
+
+# Runtime data (persisted stores)
+backend/data/
+agents/buddies/migrate.py
+agents/buddies/repair_encoding.py
+agents/persona_doc.py
+
+# Docs
+docs/期末大作业展示方案.md
+!docs/
+期末大作业展示方案.docx
+docs/PRD.md
+docs/_archived/
+docs/api-backend.md
+docs/api-frontend.md
+docs/DEPLOY.md
+docs/TwinBuddy-V2-Issues-Report.md
+project-architecture-analysis.md
+
+# E2E scripts (we use .cjs scripts directly, not playwright spec files)
+frontend/e2e/*.spec.ts
+frontend/e2e/*.spec.js
+
+# UI reference materials (large images, keep out of repo)
+ui_reference/
+
+# Docs (all generated/archived docs)
+api/negotiation/
+docs/.archive/
+docs/assets/
+docs/PRD.md
+docs/project-architecture-analysis.md
+
+# Playwright artifacts
+frontend/playwright-report/
+frontend/test-results/
+frontend/.playwright/
+

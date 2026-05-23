@@ -12,13 +12,12 @@ const mockCard: TwinBuddyV2BuddyCard = {
     mbti: 'INTJ',
     city: '深圳',
     avatar: '🦊',
-    status: '平时晚上有空',
-    is_verified: false,
+    summary: '适合从同城轻松见面开始。',
   },
   radar_chart: [
-    { dimension: '节奏', user_score: 88, buddy_score: 82 },
-    { dimension: '预算', user_score: 75, buddy_score: 70 },
-    { dimension: '美食', user_score: 92, buddy_score: 88 },
+    { dimension: '节奏', user_score: 88, buddy_score: 82, weight: 1 },
+    { dimension: '预算', user_score: 75, buddy_score: 70, weight: 1 },
+    { dimension: '美食', user_score: 92, buddy_score: 88, weight: 1 },
   ],
   negotiation_summary: {
     negotiation_id: 'neg-123',
@@ -42,7 +41,6 @@ describe('BuddyDetailModal', () => {
       </MemoryRouter>,
     );
     expect(screen.getByText('Layer 2 协商详情')).toBeInTheDocument();
-    // nickname renders as @ + text node; use regex to match partial content
     const nicknameEls = screen.getAllByText(/小明不困/);
     expect(nicknameEls.length).toBeGreaterThan(0);
   });
@@ -75,7 +73,6 @@ describe('BuddyDetailModal', () => {
       </MemoryRouter>,
     );
     expect(screen.getByLabelText('兼容性雷达图')).toBeInTheDocument();
-    // SVG axis labels + legend may produce duplicate text nodes
     const rhythmEls = screen.getAllByText('节奏');
     expect(rhythmEls.length).toBeGreaterThan(0);
     const budgetEls = screen.getAllByText('预算');
@@ -89,7 +86,6 @@ describe('BuddyDetailModal', () => {
       </MemoryRouter>,
     );
     expect(screen.getByRole('button', { name: /开始盲选/i })).toBeInTheDocument();
-    // Action button labels may vary; check at least one action button is visible
     const buttons = screen.getAllByRole('button');
     expect(buttons.length).toBeGreaterThanOrEqual(2);
   });

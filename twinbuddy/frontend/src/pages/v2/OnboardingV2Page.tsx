@@ -52,6 +52,7 @@ export default function OnboardingV2Page() {
     useTwinbuddyOnboarding();
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const canAdvance = useMemo(() => {
     if (step === 0) return Boolean(data.mbti);
@@ -67,6 +68,7 @@ export default function OnboardingV2Page() {
     if (!canAdvance) return;
     if (step === 5) {
       setIsSubmitting(true);
+      setSubmitError('');
       try {
         const profile = await createTwinBuddyProfile({
           userId: data.userId,
@@ -77,14 +79,19 @@ export default function OnboardingV2Page() {
           city: data.city,
         });
         complete({ userId: profile.user_id, styleVector: profile.style_vector });
-      } catch {
-        complete();
+        navigate('/home', { replace: true });
+      } catch (error) {
+        if (error instanceof Error) {
+          setSubmitError(error.message || '创建画像失败，请稍后重试。');
+        } else {
+          setSubmitError('创建画像失败，请稍后重试。');
+        }
       } finally {
         setIsSubmitting(false);
       }
-      navigate('/home', { replace: true });
       return;
     }
+    setSubmitError('');
     setStep((prev) => prev + 1);
   };
 
@@ -99,6 +106,11 @@ export default function OnboardingV2Page() {
         <StepHeader current={step} />
 
         <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline space-y-5 p-5 sm:p-6">
+          {submitError ? (
+            <div className="rounded-DEFAULT border-2 border-outline bg-error text-on-error px-4 py-3 text-sm">
+              {submitError}
+            </div>
+          ) : null}
           {step === 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {MBTI_TYPES.map((mbti) => {

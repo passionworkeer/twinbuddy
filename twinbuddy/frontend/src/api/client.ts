@@ -263,6 +263,40 @@ export async function fetchTwinBuddyBuddyCard(
   return unwrap(res);
 }
 
+export async function acceptTwinBuddyBuddy(
+  buddyId: string,
+  userId: string,
+): Promise<{ room_id: string; peer_profile: Record<string, unknown> }> {
+  const res = await apiPost<
+    ApiResponse<{ room_id: string; peer_profile: Record<string, unknown> }>,
+    Record<string, string>
+  >(`/buddies/${buddyId}/accept`, { user_id: userId });
+  return unwrap(res);
+}
+
+export async function skipTwinBuddyBuddy(
+  buddyId: string,
+  userId: string,
+): Promise<{ status: string }> {
+  const res = await apiPost<ApiResponse<{ status: string }>, Record<string, string>>(
+    `/buddies/${buddyId}/skip`,
+    { user_id: userId },
+  );
+  return unwrap(res);
+}
+
+export async function decideTwinBuddyBuddy(
+  buddyId: string,
+  userId: string,
+  decision: string,
+): Promise<{ status: string; decision: string }> {
+  const res = await apiPost<ApiResponse<{ status: string; decision: string }>, Record<string, string>>(
+    `/buddies/${buddyId}/decide`,
+    { user_id: userId, decision },
+  );
+  return unwrap(res);
+}
+
 export async function fetchTwinBuddyChatHistory(
   conversationId: string,
 ): Promise<{ conversation_id: string; user_id: string; items: TwinBuddyV2ChatMessage[] }> {

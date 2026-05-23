@@ -1,69 +1,125 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
+import { fetchTwinBuddyProfile, fetchTwinBuddySecurityStatus, patchTwinBuddyProfile } from '../../api/client';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { profileShowcases } from '../../mocks/v2Showcase';
-import { mockProfile, mockSecurityStatus } from '../../mocks/v2ApiMock';
 import {
   TRAVEL_BUDGET_OPTIONS,
   V2_STORAGE_KEYS,
+  type TwinBuddySecurityStatus,
   type TwinBuddyV2OnboardingData,
+  type TwinBuddyV2Profile,
 } from '../../types';
-
-const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: 'INTJ',
-  travelRange: ['周末短途', '周边城市'],
-  interests: ['美食', '城市漫步', '摄影'],
-  budget: '舒适',
-  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
-  city: '深圳',
-  completed: true,
-  userId: 'user_77e92a9e',
-  timestamp: Date.now(),
-};
+import { EMPTY_ONBOARDING_PROFILE, getVerificationBadgeCopy, mergeProfileIntoOnboarding } from '../../utils/twinbuddyProfile';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [draftDesc, setDraftDesc] = useState(profile.selfDescription || mockProfile.self_desc);
-  const [draftBudget, setDraftBudget] = useState(profile.budget || mockProfile.budget);
+  const [profile, setProfile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, EMPTY_ONBOARDING_PROFILE);
+  const [remoteProfile, setRemoteProfile] = useState<TwinBuddyV2Profile | null>(null);
+  const [securityStatus, setSecurityStatus] = useState<TwinBuddySecurityStatus | null>(null);
+  const [draftDesc, setDraftDesc] = useState(profile.selfDescription);
+  const [draftBudget, setDraftBudget] = useState(profile.budget);
+  const [isLoading, setIsLoading] = useState(Boolean(profile.userId));
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const saveTimeoutRef = useRef<number | null>(null);
-  const successTimeoutRef = useRef<number | null>(null);
+  const [errorText, setErrorText] = useState('');
 
-  const styleEntries = Object.entries(mockProfile.style_vector ?? {});
+  useEffect(() => {
+    let mounted = true;
 
-  useEffect(() => () => {
-    if (saveTimeoutRef.current !== null) {
-      window.clearTimeout(saveTimeoutRef.current);
-    }
-    if (successTimeoutRef.current !== null) {
-      window.clearTimeout(successTimeoutRef.current);
-    }
-  }, []);
+    async function loadProfile() {
+      if (!profile.userId) {
+        setIsLoading(false);
+        setRemoteProfile(null);
+        setSecurityStatus(null);
+        return;
+      }
 
-  const handleSave = () => {
-    if (saveTimeoutRef.current !== null) {
-      window.clearTimeout(saveTimeoutRef.current);
+      setIsLoading(true);
+      setErrorText('');
+
+      try {
+        const [nextProfile, nextSecurityStatus] = await Promise.all([
+          fetchTwinBuddyProfile(profile.userId),
+          fetchTwinBuddySecurityStatus(profile.userId),
+        ]);
+        if (!mounted) return;
+
+        setRemoteProfile(nextProfile);
+        setSecurityStatus(nextSecurityStatus);
+        setDraftDesc(nextProfile.self_desc);
+        setDraftBudget(nextProfile.budget as TwinBuddyV2OnboardingData['budget']);
+        setProfile((prev) => mergeProfileIntoOnboarding(prev, nextProfile));
+      } catch (error) {
+        if (!mounted) return;
+        setRemoteProfile(null);
+        setSecurityStatus(null);
+        if (error instanceof Error) {
+          setErrorText(error.message || '画像加载失败，请稍后重试。');
+        } else {
+          setErrorText('画像加载失败，请稍后重试。');
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
     }
-    if (successTimeoutRef.current !== null) {
-      window.clearTimeout(successTimeoutRef.current);
+
+    void loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [profile.userId, setProfile]);
+
+  useEffect(() => {
+    if (!remoteProfile) {
+      setDraftDesc(profile.selfDescription);
+      setDraftBudget(profile.budget);
+      return;
+    }
+
+    setDraftDesc(remoteProfile.self_desc);
+    setDraftBudget(remoteProfile.budget as TwinBuddyV2OnboardingData['budget']);
+  }, [profile.budget, profile.selfDescription, remoteProfile]);
+
+  const displayProfile = remoteProfile;
+  const displayCity = displayProfile?.city || profile.city || 'TwinBuddy 用户';
+  const displayDescription = displayProfile?.self_desc || profile.selfDescription || '你还没有补充旅行自我描述。';
+  const displayBudget = displayProfile?.budget || profile.budget || '未填写';
+  const displayTravelRange = displayProfile?.travel_range ?? profile.travelRange;
+  const displayStyleVector = displayProfile?.style_vector ?? profile.styleVector ?? {};
+  const styleEntries = Object.entries(displayStyleVector);
+  const verificationBadge = useMemo(() => getVerificationBadgeCopy(securityStatus), [securityStatus]);
+
+  const handleSave = async () => {
+    if (!profile.userId) {
+      setErrorText('请先完成 onboarding 生成画像后再保存。');
+      return;
     }
 
     setIsSaving(true);
-    saveTimeoutRef.current = window.setTimeout(() => {
-      setProfile((prev) => ({
-        ...prev,
-        budget: draftBudget as TwinBuddyV2OnboardingData['budget'],
+    setSaveSuccess(false);
+    setErrorText('');
+
+    try {
+      const nextProfile = await patchTwinBuddyProfile(profile.userId, {
+        budget: draftBudget,
         selfDescription: draftDesc,
-      }));
-      setIsSaving(false);
+      });
+      setRemoteProfile(nextProfile);
+      setProfile((prev) => mergeProfileIntoOnboarding(prev, nextProfile));
       setSaveSuccess(true);
-      saveTimeoutRef.current = null;
-      successTimeoutRef.current = window.setTimeout(() => {
-        setSaveSuccess(false);
-        successTimeoutRef.current = null;
-      }, 2000);
-    }, 800);
+      window.setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '保存失败，请稍后重试。');
+      } else {
+        setErrorText('保存失败，请稍后重试。');
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const mingDimensions = [
@@ -77,8 +133,21 @@ export default function ProfilePage() {
     <div className="relative flex flex-col">
       <div className="flex-1 px-container-padding pt-14 pb-[100px]">
         <div className="flex flex-col gap-section-margin pt-8 px-container-padding pb-8">
+          {errorText ? (
+            <div className="rounded-DEFAULT border-2 border-outline bg-error text-on-error px-4 py-3 text-sm">
+              {errorText}
+            </div>
+          ) : null}
 
-          {/* Header: Avatar + Identity */}
+          {!profile.userId && !isLoading ? (
+            <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-container-padding">
+              <h2 className="font-h2 text-h2 text-on-background">先完成画像初始化</h2>
+              <p className="mt-3 text-sm text-on-surface-variant">
+                当前还没有可用的真实用户画像，请先回到 onboarding 创建你的 TwinBuddy profile。
+              </p>
+            </section>
+          ) : null}
+
           <section className="flex flex-col items-center text-center">
             <div className="relative mb-6">
               <div className="w-32 h-32 rounded-full border-4 border-outline overflow-hidden bg-secondary-fixed shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
@@ -93,21 +162,19 @@ export default function ProfilePage() {
               )}
             </div>
             <h1 className="font-h1 text-[48px] font-bold text-on-background leading-[1.1] tracking-[-0.04em]">
-              {mockProfile.city || profile.city || 'TwinBuddy 用户'}
+              {displayCity}
             </h1>
             <p className="font-body-lg text-[18px] text-on-surface-variant mt-2">
-              {mockProfile.self_desc || profile.selfDescription || '你还没有补充旅行自我描述。'}
+              {isLoading ? '正在同步真实画像...' : displayDescription}
             </p>
-            {/* Trust badge */}
-            <div className={`mt-4 px-4 py-2 rounded-full border-2 text-sm font-label-caps ${mockSecurityStatus.is_verified ? 'border-outline bg-secondary-container text-on-secondary-container' : 'border-outline bg-surface-container text-on-surface'}`}>
+            <div className={`mt-4 px-4 py-2 rounded-full border-2 text-sm font-label-caps ${securityStatus?.is_verified ? 'border-outline bg-secondary-container text-on-secondary-container' : 'border-outline bg-surface-container text-on-surface'}`}>
               <span className="material-symbols-outlined text-base align-middle mr-1">
-                {mockSecurityStatus.is_verified ? 'verified' : 'pending'}
+                {securityStatus?.is_verified ? 'verified' : 'pending'}
               </span>
-              {mockSecurityStatus.is_verified ? '已实名认证' : '待完成实名认证'}
+              {verificationBadge}
             </div>
           </section>
 
-          {/* MING 4D Section */}
           <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-container-padding shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary-container rounded-full blur-3xl opacity-50 pointer-events-none"></div>
             <div className="flex items-center justify-between mb-8 relative z-10">
@@ -129,7 +196,6 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Personal Summary */}
           <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-container-padding">
             <div className="flex items-center gap-3 mb-4">
               <span className="material-symbols-outlined text-secondary text-2xl">summarize</span>
@@ -137,9 +203,9 @@ export default function ProfilePage() {
             </div>
             <dl className="space-y-3">
               {[
-                { dt: '常驻城市', dd: mockProfile.city || profile.city || '未填写' },
-                { dt: '预算档位', dd: mockProfile.budget || profile.budget || '未填写' },
-                { dt: '偏好范围', dd: `${(mockProfile.travel_range || profile.travelRange).length} 项` },
+                { dt: '常驻城市', dd: displayCity },
+                { dt: '预算档位', dd: displayBudget },
+                { dt: '偏好范围', dd: `${displayTravelRange.length} 项` },
               ].map(({ dt, dd }) => (
                 <div key={dt} className="flex items-center justify-between">
                   <dt className="text-on-surface-variant">{dt}</dt>
@@ -149,7 +215,6 @@ export default function ProfilePage() {
             </dl>
           </section>
 
-          {/* Profile Edit */}
           <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-container-padding">
             <div className="flex items-center gap-3 mb-4">
               <span className="material-symbols-outlined text-secondary text-2xl">edit_note</span>
@@ -180,7 +245,7 @@ export default function ProfilePage() {
               />
               <button
                 className="w-full bg-primary text-on-primary font-body-md px-4 py-3 rounded-full border-2 border-outline shadow-[0_4px_0_0_#000] hover:-translate-y-1 hover:shadow-[0_2px_0_0_#000] active:translate-y-2 active:shadow-none transition-all disabled:opacity-50"
-                disabled={isSaving}
+                disabled={isSaving || !profile.userId}
                 onClick={handleSave}
                 type="button"
               >
@@ -189,7 +254,6 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Travel Preferences */}
           <section className="flex flex-col gap-4">
             <h2 className="font-h2 text-h2 text-on-background">旅行偏好</h2>
             <div className="flex flex-wrap gap-3">
@@ -209,21 +273,24 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Style Vector */}
           <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-container-padding">
             <div className="flex items-center gap-3 mb-4">
               <span className="material-symbols-outlined text-secondary text-2xl">style</span>
               <h3 className="font-h2 text-h2 text-on-background">Style Vector</h3>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              {styleEntries.map(([key, value]) => (
+              {styleEntries.length > 0 ? styleEntries.map(([key, value]) => (
                 <div key={key} className="rounded-DEFAULT border-2 border-outline bg-surface-container p-4">
                   <p className="text-xs uppercase tracking-[0.1em] text-on-surface-variant font-label-caps">{key}</p>
                   <p className="mt-2 text-sm text-on-surface">
                     {Array.isArray(value) ? value.join('、') : String(value)}
                   </p>
                 </div>
-              ))}
+              )) : (
+                <div className="rounded-DEFAULT border-2 border-outline bg-surface-container p-4 text-sm text-on-surface-variant">
+                  暂无 style vector 数据，先通过首页聊天和画像设置来逐步丰富你的数字分身。
+                </div>
+              )}
             </div>
           </section>
 

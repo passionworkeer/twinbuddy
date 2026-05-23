@@ -1,5 +1,5 @@
 import { Heart, MessageCircle, Rocket, SendHorizonal, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -30,14 +30,37 @@ export default function CommunityPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [twinChatTarget, setTwinChatTarget] = useState<string | null>(null);
   const [twinChatStatus, setTwinChatStatus] = useState<'idle' | 'confirming' | 'sending' | 'done'>('idle');
+  const refreshTimeoutRef = useRef<number | null>(null);
+  const publishTimeoutRef = useRef<number | null>(null);
+  const twinChatStartTimeoutRef = useRef<number | null>(null);
+  const twinChatFinishTimeoutRef = useRef<number | null>(null);
 
   const hotTags = useMemo(() => ['深圳', '周末', '美食', '慢节奏', '五一'], []);
 
+  useEffect(() => () => {
+    if (refreshTimeoutRef.current !== null) {
+      window.clearTimeout(refreshTimeoutRef.current);
+    }
+    if (publishTimeoutRef.current !== null) {
+      window.clearTimeout(publishTimeoutRef.current);
+    }
+    if (twinChatStartTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatStartTimeoutRef.current);
+    }
+    if (twinChatFinishTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatFinishTimeoutRef.current);
+    }
+  }, []);
+
   const loadFeed = () => {
     setIsLoading(true);
-    setTimeout(() => {
+    if (refreshTimeoutRef.current !== null) {
+      window.clearTimeout(refreshTimeoutRef.current);
+    }
+    refreshTimeoutRef.current = window.setTimeout(() => {
       setPosts(mockCommunityPosts);
       setIsLoading(false);
+      refreshTimeoutRef.current = null;
     }, 500);
   };
 
@@ -59,7 +82,14 @@ export default function CommunityPage() {
     setPublishSuccess(true);
     setPosts((prev) => [newPost, ...prev]);
     setDraft('');
-    setTimeout(() => { setStatusText(''); setPublishSuccess(false); }, 3000);
+    if (publishTimeoutRef.current !== null) {
+      window.clearTimeout(publishTimeoutRef.current);
+    }
+    publishTimeoutRef.current = window.setTimeout(() => {
+      setStatusText('');
+      setPublishSuccess(false);
+      publishTimeoutRef.current = null;
+    }, 3000);
   };
 
   const handleLike = (postId: string) => {
@@ -87,23 +117,40 @@ export default function CommunityPage() {
     setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
   };
 
-  const handleTwinChat = (postId: string, authorNickname: string) => {
+  const handleTwinChat = (_postId: string, authorNickname: string) => {
     setTwinChatTarget(authorNickname);
     setTwinChatStatus('confirming');
   };
 
   const handleTwinChatConfirm = () => {
     setTwinChatStatus('sending');
-    setTimeout(() => {
+    if (twinChatStartTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatStartTimeoutRef.current);
+    }
+    if (twinChatFinishTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatFinishTimeoutRef.current);
+    }
+
+    twinChatStartTimeoutRef.current = window.setTimeout(() => {
       setTwinChatStatus('done');
-      setTimeout(() => {
+      twinChatStartTimeoutRef.current = null;
+      twinChatFinishTimeoutRef.current = window.setTimeout(() => {
         setTwinChatTarget(null);
         setTwinChatStatus('idle');
+        twinChatFinishTimeoutRef.current = null;
       }, 4000);
     }, 2000);
   };
 
   const handleTwinChatCancel = () => {
+    if (twinChatStartTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatStartTimeoutRef.current);
+      twinChatStartTimeoutRef.current = null;
+    }
+    if (twinChatFinishTimeoutRef.current !== null) {
+      window.clearTimeout(twinChatFinishTimeoutRef.current);
+      twinChatFinishTimeoutRef.current = null;
+    }
     setTwinChatTarget(null);
     setTwinChatStatus('idle');
   };

@@ -130,7 +130,7 @@ class TwinBuddyProfilePatchRequest(BaseModel):
 class TwinBuddySecurityVerifyRequest(BaseModel):
     user_id: str
     legal_name: str = Field(..., min_length=2, max_length=20)
-    id_number_tail: str = Field(..., min_length=4, max_length=6)
+    id_number_tail: str = Field(..., pattern=r"^\d{4,6}$")
     face_checked: bool = True
 
 

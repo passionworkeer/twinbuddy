@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { profileShowcases } from '../../mocks/v2Showcase';
@@ -27,12 +27,30 @@ export default function ProfilePage() {
   const [draftBudget, setDraftBudget] = useState(profile.budget || mockProfile.budget);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const saveTimeoutRef = useRef<number | null>(null);
+  const successTimeoutRef = useRef<number | null>(null);
 
   const styleEntries = Object.entries(mockProfile.style_vector ?? {});
 
+  useEffect(() => () => {
+    if (saveTimeoutRef.current !== null) {
+      window.clearTimeout(saveTimeoutRef.current);
+    }
+    if (successTimeoutRef.current !== null) {
+      window.clearTimeout(successTimeoutRef.current);
+    }
+  }, []);
+
   const handleSave = () => {
+    if (saveTimeoutRef.current !== null) {
+      window.clearTimeout(saveTimeoutRef.current);
+    }
+    if (successTimeoutRef.current !== null) {
+      window.clearTimeout(successTimeoutRef.current);
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
+    saveTimeoutRef.current = window.setTimeout(() => {
       setProfile((prev) => ({
         ...prev,
         budget: draftBudget as TwinBuddyV2OnboardingData['budget'],
@@ -40,7 +58,11 @@ export default function ProfilePage() {
       }));
       setIsSaving(false);
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+      saveTimeoutRef.current = null;
+      successTimeoutRef.current = window.setTimeout(() => {
+        setSaveSuccess(false);
+        successTimeoutRef.current = null;
+      }, 2000);
     }, 800);
   };
 

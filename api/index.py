@@ -22,6 +22,23 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api import frontend_router, stt_router
 
+
+_DEFAULT_CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+
+def _get_cors_origins() -> list[str]:
+    configured = os.environ.get("CORS_ALLOW_ORIGINS", "")
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    if origins:
+        return origins
+    if os.environ.get("VERCEL") is not None:
+        return []
+    return _DEFAULT_CORS_ORIGINS
+
+
 app = FastAPI(
     title="TwinBuddy API",
     version="1.0.0",
@@ -31,7 +48,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_get_cors_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -19,7 +19,9 @@ export function buildInitialPool(buddies: (Buddy | null | undefined)[]): Buddy[]
 export function persistPool(buddies: Buddy[], index: number): void {
   try {
     localStorage.setItem(BUDDY_POOL_LOCAL_KEY, JSON.stringify({ pool: buddies, index }));
-  } catch { /* ignore */ }
+  } catch (error) {
+    console.warn('Failed to persist buddy pool.', error);
+  }
 }
 
 export interface StoredPool {
@@ -27,14 +29,31 @@ export interface StoredPool {
   index: number;
 }
 
+function _clampIndex(index: unknown, poolLength: number): number {
+  if (typeof index !== 'number' || !Number.isFinite(index)) {
+    return 0;
+  }
+  if (poolLength === 0) return 0;
+  const normalized = ((index % poolLength) + poolLength) % poolLength;
+  return normalized;
+}
+
 export function loadPoolFromStorage(): StoredPool | null {
   try {
     const raw = localStorage.getItem(BUDDY_POOL_LOCAL_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { pool: unknown; index: unknown };
-    if (!Array.isArray(parsed.pool) || parsed.pool.length === 0) return null;
-    return { pool: parsed.pool as Buddy[], index: parsed.index as number };
-  } catch { return null; }
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    const { pool, index } = parsed as { pool: unknown; index: unknown };
+
+    if (!Array.isArray(pool) || pool.length === 0) return null;
+    const safeIndex = _clampIndex(index, pool.length);
+    return { pool: pool as Buddy[], index: safeIndex };
+  } catch (error) {
+    console.warn('Failed to load buddy pool from storage.', error);
+    return null;
+  }
 }
 
 interface CardBuddyPoolState {
@@ -53,40 +72,30 @@ export function useCardBuddyPool(INTERVAL = 5): CardBuddyPoolState {
 
   // 从 localStorage 恢复（刷新页面后继续轮播）
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(BUDDY_POOL_LOCAL_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as { pool: Buddy[]; index: number };
-        if (Array.isArray(parsed.pool) && parsed.pool.length > 0) {
-          setPool(parsed.pool);
-          setIndex(parsed.index % parsed.pool.length);
-        }
-      }
-    } catch { /* ignore */ }
+    const stored = loadPoolFromStorage();
+    if (stored) {
+      setPool(stored.pool);
+      setIndex(stored.index);
+    }
     setIsLoading(false);
   }, []);
 
   // 持久化
   const persist = useCallback((updatedPool: Buddy[], updatedIndex: number) => {
-    try {
-      localStorage.setItem(BUDDY_POOL_LOCAL_KEY, JSON.stringify({ pool: updatedPool, index: updatedIndex }));
-    } catch { /* ignore */ }
+    persistPool(updatedPool, updatedIndex);
   }, []);
 
   // 初始化：从 API 加载搭子池
   const initPool = useCallback(async (onboardingData?: OnboardingData | null) => {
     setIsLoading(true);
     try {
-      // 优先用预计算搭子（onboarding期间算好的）
-      let initialPool: Buddy[] = [];
-
       const buddies = await fetchBuddies(
         onboardingData?.user_id, BUDDY_POOL_SIZE,
         onboardingData?.mbti,
         onboardingData?.interests,
         onboardingData?.city,
       );
-      initialPool = (buddies as unknown as Buddy[]).filter(Boolean);
+      const initialPool = (buddies as unknown as Buddy[]).filter(Boolean);
 
       setPool(initialPool);
       setIndex(0);
@@ -101,7 +110,7 @@ export function useCardBuddyPool(INTERVAL = 5): CardBuddyPoolState {
   // 推进到下一个（环形）
   const advanceIndex = useCallback(() => {
     setIndex(prev => {
-      const next = (prev + 1) % Math.max(pool.length, 1);
+      const next = advanceBuddyIndex(pool, prev);
       persist(pool, next);
       return next;
     });

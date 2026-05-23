@@ -41,13 +41,28 @@ def test_security_verify_updates_profile_and_status():
     payload = verify_response.json()["data"]
     assert payload["is_verified"] is True
     assert payload["real_name_masked"].startswith("王")
+    assert payload["id_number_tail"] == "****"
 
     status_response = client.get(f"/api/security/status/{user_id}")
     assert status_response.status_code == 200
     status_payload = status_response.json()["data"]
     assert status_payload["verification_status"] == "verified"
-    assert status_payload["id_number_tail"] == "1234"
+    assert status_payload["id_number_tail"] == "****"
 
     inbox_response = client.get(f"/api/buddies/inbox?user_id={user_id}&page=1")
     assert inbox_response.status_code == 200
     assert len(inbox_response.json()["data"]["items"]) >= 1
+
+
+def test_security_verify_rejects_non_numeric_id_tail():
+    user_id = _create_profile()
+    response = client.post(
+        "/api/security/verify",
+        json={
+            "user_id": user_id,
+            "legal_name": "李小雨",
+            "id_number_tail": "12ab",
+            "face_checked": True,
+        },
+    )
+    assert response.status_code == 422

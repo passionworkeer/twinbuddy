@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ShieldCheck, ShieldAlert, Navigation } from 'lucide-react';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
 import BuddyDetailModal from '../../components/v2/BuddyDetailModal';
@@ -34,6 +34,13 @@ export default function BuddiesPage() {
   const [legalName, setLegalName] = useState('');
   const [idNumberTail, setIdNumberTail] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const verifyTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (verifyTimeoutRef.current !== null) {
+      window.clearTimeout(verifyTimeoutRef.current);
+    }
+  }, []);
 
   const openCard = (_buddyId: string) => {
     setSelectedCard(mockBuddyCard);
@@ -42,8 +49,12 @@ export default function BuddiesPage() {
   const handleVerify = () => {
     if (!legalName.trim() || !idNumberTail.trim() || isVerifying) return;
     setIsVerifying(true);
-    setTimeout(() => {
+    if (verifyTimeoutRef.current !== null) {
+      window.clearTimeout(verifyTimeoutRef.current);
+    }
+    verifyTimeoutRef.current = window.setTimeout(() => {
       setIsVerifying(false);
+      verifyTimeoutRef.current = null;
     }, 1500);
   };
 

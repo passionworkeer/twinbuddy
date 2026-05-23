@@ -18,6 +18,19 @@ def _mask_phone(phone: str) -> str:
     return f"{'*' * max(len(phone) - 4, 0)}{phone[-4:]}"
 
 
+def _build_trip_response(trip: Dict[str, Any]) -> TwinBuddyTripStatusResponse:
+    return TwinBuddyTripStatusResponse(
+        trip_id=trip["trip_id"],
+        status=trip["status"],
+        destination=trip["destination"],
+        depart_date=trip["depart_date"],
+        return_date=trip["return_date"],
+        emergency_contact_masked=trip["emergency_contact_masked"],
+        emergency_notification_sent=trip["emergency_notification_sent"],
+        created_at=trip["created_at"],
+    )
+
+
 @router.post("/trips/report")
 async def report_trip(req: TwinBuddyTripReportRequest) -> Dict[str, Any]:
     user_a = get_profile(req.user_a_id)
@@ -47,7 +60,7 @@ async def report_trip(req: TwinBuddyTripReportRequest) -> Dict[str, Any]:
         "emergency_contact_name": req.emergency_contact_name[:1] + "*",
     }
     save_trip(trip_id, trip)
-    return {"success": True, "data": trip}
+    return {"success": True, "data": payload.model_dump()}
 
 
 @router.get("/trips/{trip_id}/status")
@@ -55,4 +68,4 @@ async def get_trip_status(trip_id: str) -> Dict[str, Any]:
     trip = get_trip(trip_id)
     if not trip:
         raise HTTPException(status_code=404, detail="Trip not found")
-    return {"success": True, "data": trip}
+    return {"success": True, "data": _build_trip_response(trip).model_dump()}

@@ -68,6 +68,8 @@ export default function MessagesPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const focusTimeoutRef = useRef<number | null>(null);
+  const replyTimeoutRef = useRef<number | null>(null);
 
   // Scroll to bottom whenever messages for the active room change
   useEffect(() => {
@@ -78,11 +80,34 @@ export default function MessagesPage() {
 
   // Focus input when panel opens
   useEffect(() => {
-    if (activeRoomId) {
-      // Small tick to let the DOM render first
-      setTimeout(() => inputRef.current?.focus(), 80);
+    if (focusTimeoutRef.current !== null) {
+      window.clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = null;
     }
+
+    if (activeRoomId) {
+      focusTimeoutRef.current = window.setTimeout(() => {
+        inputRef.current?.focus();
+        focusTimeoutRef.current = null;
+      }, 80);
+    }
+
+    return () => {
+      if (focusTimeoutRef.current !== null) {
+        window.clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+    };
   }, [activeRoomId]);
+
+  useEffect(() => () => {
+    if (replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current);
+    }
+    if (focusTimeoutRef.current !== null) {
+      window.clearTimeout(focusTimeoutRef.current);
+    }
+  }, []);
 
   const activeConversation = conversations.find((c) => c.room_id === activeRoomId) ?? null;
 
@@ -90,34 +115,38 @@ export default function MessagesPage() {
     const text = draft.trim();
     if (!text || !activeRoomId) return;
 
+    const roomId = activeRoomId;
     const userMsg: TwinBuddyV2ChatMessage = {
-      id: `${activeRoomId}-${Date.now()}`,
+      id: `${roomId}-${Date.now()}`,
       role: 'user',
       content: text,
       created_at: Date.now(),
     };
 
-    // Optimistically add user message
     setMessages((prev) => ({
       ...prev,
-      [activeRoomId]: [...(prev[activeRoomId] ?? []), userMsg],
+      [roomId]: [...(prev[roomId] ?? []), userMsg],
     }));
     setDraft('');
     setIsSending(true);
 
-    // Simulate AI reply after 1200ms
-    setTimeout(() => {
+    if (replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current);
+    }
+
+    replyTimeoutRef.current = window.setTimeout(() => {
       const buddyReply: TwinBuddyV2ChatMessage = {
-        id: `${activeRoomId}-${Date.now()}-r`,
+        id: `${roomId}-${Date.now()}-r`,
         role: 'assistant',
         content: `好的，这个问题我已经记下来了。我来帮你查一下具体的安排，晚点给你一个完整的回复。`,
         created_at: Date.now(),
       };
       setMessages((prev) => ({
         ...prev,
-        [activeRoomId]: [...(prev[activeRoomId] ?? []), buddyReply],
+        [roomId]: [...(prev[roomId] ?? []), buddyReply],
       }));
       setIsSending(false);
+      replyTimeoutRef.current = null;
     }, 1200);
   }, [draft, activeRoomId]);
 

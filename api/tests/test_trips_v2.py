@@ -49,9 +49,16 @@ def test_trip_report_can_be_created_and_queried():
     payload = report_response.json()["data"]
     assert payload["emergency_notification_sent"] is True
     assert payload["destination"] == "顺德"
+    assert "user_a_id" not in payload
+    assert "user_b_id" not in payload
+    assert "peer_label" not in payload
+    assert "emergency_contact_name" not in payload
 
     status_response = client.get(f"/api/trips/{payload['trip_id']}/status")
     assert status_response.status_code == 200
     status_payload = status_response.json()["data"]
     assert status_payload["status"] == "reported"
     assert status_payload["emergency_contact_masked"].endswith("8000")
+    assert "user_a_id" not in status_payload
+    assert "user_b_id" not in status_payload
+    assert "emergency_contact_name" not in status_payload

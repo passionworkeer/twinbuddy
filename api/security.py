@@ -11,10 +11,24 @@ from api._store import get_profile, get_security_status, save_profile, save_secu
 router = APIRouter(prefix="/api", tags=["SecurityV2"])
 
 
+MASKED_ID_NUMBER_TAIL = "****"
+
+
 def _mask_name(name: str) -> str:
     if len(name) <= 1:
         return "*"
     return name[0] + "*" * (len(name) - 1)
+
+
+def _build_status_payload(user_id: str, profile: Dict[str, Any], status: Dict[str, Any]) -> TwinBuddySecurityStatusResponse:
+    return TwinBuddySecurityStatusResponse(
+        user_id=user_id,
+        is_verified=bool(profile.get("is_verified")),
+        verification_status=profile.get("verification_status", "unverified"),
+        real_name_masked=status.get("real_name_masked", ""),
+        id_number_tail=MASKED_ID_NUMBER_TAIL if status.get("id_number_tail") else "",
+        verified_at=profile.get("verified_at"),
+    )
 
 
 @router.get("/security/status/{user_id}")
@@ -24,14 +38,7 @@ async def get_verification_status(user_id: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail="Profile not found")
 
     status = get_security_status(user_id) or {}
-    payload = TwinBuddySecurityStatusResponse(
-        user_id=user_id,
-        is_verified=bool(profile.get("is_verified")),
-        verification_status=profile.get("verification_status", "unverified"),
-        real_name_masked=status.get("real_name_masked", ""),
-        id_number_tail=status.get("id_number_tail", ""),
-        verified_at=profile.get("verified_at"),
-    )
+    payload = _build_status_payload(user_id, profile, status)
     return {"success": True, "data": payload.model_dump()}
 
 
@@ -57,12 +64,5 @@ async def verify_user(req: TwinBuddySecurityVerifyRequest) -> Dict[str, Any]:
     }
     save_security_status(req.user_id, status)
 
-    payload = TwinBuddySecurityStatusResponse(
-        user_id=req.user_id,
-        is_verified=True,
-        verification_status="verified",
-        real_name_masked=status["real_name_masked"],
-        id_number_tail=req.id_number_tail,
-        verified_at=verified_at,
-    )
+    payload = _build_status_payload(req.user_id, profile, status)
     return {"success": True, "data": payload.model_dump()}

@@ -1,5 +1,5 @@
 import { MessageSquareText, SendHorizonal } from 'lucide-react';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -40,12 +40,19 @@ export default function HomePage() {
   const [hint, setHint] = useState('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const replyTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => () => {
+    if (replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current);
+    }
+  }, []);
 
   const placeholderText = useMemo(() => {
     return profile.city ? '出发的心愿...' : '聊聊你的想法...';
@@ -69,7 +76,11 @@ export default function HomePage() {
     setInput('');
     setIsSending(true);
 
-    setTimeout(() => {
+    if (replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current);
+    }
+
+    replyTimeoutRef.current = window.setTimeout(() => {
       setMessages((prev) =>
         prev.map((item) =>
           item.id === assistantId
@@ -78,6 +89,7 @@ export default function HomePage() {
         ),
       );
       setIsSending(false);
+      replyTimeoutRef.current = null;
     }, 1500);
   };
 

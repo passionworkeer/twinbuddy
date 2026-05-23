@@ -85,8 +85,8 @@ export function useTwinbuddyOnboarding() {
 
     try {
       window.localStorage.setItem(V2_STORAGE_KEYS.onboarding, JSON.stringify(nextValue));
-    } catch {
-      // Ignore storage failures and still update in-memory state.
+    } catch (error) {
+      console.warn(`Failed to eagerly persist onboarding key "${V2_STORAGE_KEYS.onboarding}".`, error);
     }
 
     setData((prev) => ({

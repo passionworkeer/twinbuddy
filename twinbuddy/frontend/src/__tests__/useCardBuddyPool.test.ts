@@ -92,11 +92,22 @@ describe('localStorage round-trip', () => {
     expect(loadPoolFromStorage()).toBeNull();
   });
 
-  it('wraps index modulo pool length on restore', () => {
-    persistPool(mockBuddies, 5); // 5 % 3 = 2
-    // loadPoolFromStorage does NOT wrap — that's the caller's responsibility
+  it('clamps invalid index to 0', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ pool: mockBuddies, index: 'bad' as any }));
     const loaded = loadPoolFromStorage();
-    expect(loaded?.index).toBe(5); // stored as-is
+    expect(loaded?.index).toBe(0);
+  });
+
+  it('clamps out-of-range positive index via modulo', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ pool: mockBuddies, index: 5 }));
+    const loaded = loadPoolFromStorage();
+    expect(loaded?.index).toBe(2); // 5 % 3 = 2
+  });
+
+  it('clamps negative index via modulo', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ pool: mockBuddies, index: -1 }));
+    const loaded = loadPoolFromStorage();
+    expect(loaded?.index).toBe(2); // (-1 % 3 + 3) % 3 = 2
   });
 });
 

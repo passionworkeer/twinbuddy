@@ -1,5 +1,5 @@
 import { RefreshCcw, Handshake, CheckCircle2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { V2_STORAGE_KEYS } from '../../types';
@@ -61,6 +61,7 @@ export default function BlindGamePage() {
   const [loading, setLoading] = useState(true);
   const [actionStatus, setActionStatus] = useState<string>('');
   const [showQuestions, setShowQuestions] = useState(false);
+  const reloadTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -72,7 +73,12 @@ export default function BlindGamePage() {
       }
     };
     loadData();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+      if (reloadTimeoutRef.current !== null) {
+        window.clearTimeout(reloadTimeoutRef.current);
+      }
+    };
   }, [profile.userId]);
 
   const handleAction = (actionType: 'accept' | 'reject') => {
@@ -82,7 +88,12 @@ export default function BlindGamePage() {
       setShowQuestions(true);
     } else {
       setActionStatus('rejected');
-      setTimeout(() => window.location.reload(), 1500);
+      if (reloadTimeoutRef.current !== null) {
+        window.clearTimeout(reloadTimeoutRef.current);
+      }
+      reloadTimeoutRef.current = window.setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     }
   };
 

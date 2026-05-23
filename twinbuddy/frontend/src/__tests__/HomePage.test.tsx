@@ -1,15 +1,11 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import HomePage from '../pages/v2/HomePage';
-
-const fetchMock = vi.fn();
 
 describe('HomePage', () => {
   beforeEach(() => {
-    fetchMock.mockReset();
-    vi.stubGlobal('fetch', fetchMock);
+    vi.useFakeTimers();
     localStorage.setItem(
       'twinbuddy_v2_onboarding',
       JSON.stringify({
@@ -25,79 +21,54 @@ describe('HomePage', () => {
     );
   });
 
-  it('renders the page and shows the showcase carousel', async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          user_id: 'user_test',
-          nickname: '深圳引路人',
-          mbti: 'INFJ',
-          travel_range: ['国内'],
-          budget: '舒适',
-          self_desc: '想找舒服一点的搭子',
-          city: '深圳',
-          style_vector: {},
-          is_verified: false,
-          verification_status: 'unverified',
-          updated_at: Date.now(),
-        },
-      }),
-    });
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
 
+  it('renders the page and shows the showcase carousel', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>,
     );
 
-    // Page title visible
-    expect(await screen.findByText(/推荐搭子/i)).toBeInTheDocument();
-
-    // Showcase carousel is present (check for any carousel item text)
+    expect(screen.getByText(/推荐搭子/i)).toBeInTheDocument();
     const showcaseItems = screen.getAllByText(/深圳出发/i);
     expect(showcaseItems.length).toBeGreaterThan(0);
   });
 
-  it('prompt buttons fill the chat input when clicked', async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          user_id: 'user_test',
-          nickname: '深圳引路人',
-          mbti: 'INFJ',
-          travel_range: ['国内'],
-          budget: '舒适',
-          self_desc: '想找舒服一点的搭子',
-          city: '深圳',
-          style_vector: {},
-          is_verified: false,
-          verification_status: 'unverified',
-          updated_at: Date.now(),
-        },
-      }),
-    });
-
-    const user = userEvent.setup();
-    render(
+  it('uses prompt text and sends a message without timer leaks', () => {
+    const { unmount } = render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>,
     );
 
-    // Wait for page to render
-    await screen.findByText(/推荐搭子/i);
+    const promptButton = screen.getByRole('button', {
+      name: /如果我不想太赶，又希望能吃得好，适合找什么样的搭子？/i,
+    });
 
-    // Find and click a prompt button
-    const promptBtns = screen.getAllByRole('button');
-    const promptBtn = promptBtns.find((btn) => /如果不想|想.*搭/i.test(btn.textContent || ''));
-    if (promptBtn) {
-      await user.click(promptBtn);
-      const input = screen.getByRole('textbox');
-      expect(input).toBeInTheDocument();
-    }
+    act(() => {
+      fireEvent.click(promptButton);
+    });
+
+    const input = screen.getByPlaceholderText(/出发的心愿|聊聊你的想法/i) as HTMLInputElement;
+    expect(input.value).toContain('如果我不想太赶');
+
+    act(() => {
+      fireEvent.change(input, { target: { value: '推荐一个周末路线' } });
+    });
+
+    const sendButton = screen.getAllByRole('button').at(-1) as HTMLButtonElement;
+    act(() => {
+      fireEvent.click(sendButton);
+    });
+
+    unmount();
+
+    expect(() => {
+      vi.runOnlyPendingTimers();
+    }).not.toThrow();
   });
 });

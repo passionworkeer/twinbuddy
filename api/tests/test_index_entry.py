@@ -1,11 +1,36 @@
-# api/tests/test_index_entry.py
-"""验证 api/index.py 是可用的 FastAPI 入口"""
-import pytest
-from fastapi.testclient import TestClient
+from __future__ import annotations
+
+import importlib
+import os
+import sys
+
+from fastapi.middleware.cors import CORSMiddleware
+
+
+def _reload_index_module(monkeypatch, origins: str | None = None, vercel: str | None = None):
+    if origins is None:
+        monkeypatch.delenv("CORS_ALLOW_ORIGINS", raising=False)
+    else:
+        monkeypatch.setenv("CORS_ALLOW_ORIGINS", origins)
+
+    if vercel is None:
+        monkeypatch.delenv("VERCEL", raising=False)
+    else:
+        monkeypatch.setenv("VERCEL", vercel)
+
+    sys.modules.pop("api.index", None)
+    module = importlib.import_module("api.index")
+    return module
+
+
+def _get_cors_origins(app):
+    for middleware in app.user_middleware:
+        if middleware.cls is CORSMiddleware:
+            return middleware.kwargs["allow_origins"]
+    raise AssertionError("CORSMiddleware not found")
 
 
 def test_index_app_has_all_routes():
-    """验证 index.py 注册了所有必要路由"""
     from api.index import app
 
     routes = [route.path for route in app.routes]
@@ -28,8 +53,39 @@ def test_index_app_has_all_routes():
 
 
 def test_stt_routes_registered():
-    """验证 STT 路由已注册无双前缀"""
     from api.index import app
+
     routes = {route.path for route in app.routes}
     assert "/api/api/stt/recognize" not in routes, "STT 路由有双前缀 /api/api/"
     assert "/api/stt/recognize" in routes or "/api/stt/ws" in routes
+
+
+def test_cors_defaults_to_local_dev_origins(monkeypatch):
+    module = _reload_index_module(monkeypatch)
+    origins = _get_cors_origins(module.app)
+
+    assert origins == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+
+def test_cors_uses_configured_origins(monkeypatch):
+    module = _reload_index_module(
+        monkeypatch,
+        origins="https://app.example.com, https://admin.example.com",
+    )
+    origins = _get_cors_origins(module.app)
+
+    assert origins == [
+        "https://app.example.com",
+        "https://admin.example.com",
+    ]
+
+
+def test_cors_does_not_fallback_to_wildcard_on_vercel(monkeypatch):
+    module = _reload_index_module(monkeypatch, vercel="1")
+    origins = _get_cors_origins(module.app)
+
+    assert origins == []
+    assert "*" not in origins

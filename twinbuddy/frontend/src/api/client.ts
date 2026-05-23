@@ -22,14 +22,21 @@ import type {
   TwinBuddyTripStatus,
   TwinBuddyCommunityPost,
   TwinBuddyCommunityComment,
+  Buddy,
 } from '../types';
 
 // ── 环境配置 ─────────────────────────────────────────
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_CREDENTIALS: RequestCredentials = 'same-origin';
 
 function apiUrl(path: string): string {
   return `${API_BASE}${path}`;
+}
+
+async function parseError(res: Response): Promise<Error> {
+  const err = await res.json().catch(() => ({ detail: res.statusText }));
+  return new Error(err.detail || err.error || `HTTP ${res.status}`);
 }
 
 // ── 请求工具 ─────────────────────────────────────────
@@ -40,12 +47,11 @@ async function apiGet<T>(path: string, params?: Record<string, string>): Promise
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   }
   const res = await fetch(url.toString(), {
-    credentials: 'include',
+    credentials: API_CREDENTIALS,
     headers: { 'Content-Type': 'application/json' },
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+    throw await parseError(res);
   }
   return res.json() as Promise<T>;
 }
@@ -64,14 +70,13 @@ async function apiPost<T, B = unknown>(
   try {
     const res = await fetch(apiUrl(path), {
       method: 'POST',
-      credentials: 'include',
+      credentials: API_CREDENTIALS,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || `HTTP ${res.status}`);
+      throw await parseError(res);
     }
     return res.json() as Promise<T>;
   } catch (error) {
@@ -91,24 +96,67 @@ async function apiPost<T, B = unknown>(
 
 // ── API 响应结构 ────────────────────────────────────
 
-interface ApiSuccess<T> {
+export interface ApiSuccess<T> {
   success: true;
   data: T;
   meta?: Record<string, unknown>;
 }
 
-interface ApiError {
+export interface ApiError {
   success: false;
   error: string;
 }
 
 type ApiResponse<T> = ApiSuccess<T> | ApiError;
+type BuddiesResponse = ApiResponse<Buddy[]> | { buddies: Buddy[] };
 
-function unwrap<T>(res: ApiResponse<T>): T {
+type StreamPayload = {
+  type: string;
+  conversation_id?: string;
+  content?: string;
+};
+
+export function unwrap<T>(res: ApiResponse<T>): T {
   if (!res.success) {
     throw new Error((res as ApiError).error);
   }
   return (res as ApiSuccess<T>).data;
+}
+
+function hasBuddiesArray(value: unknown): value is { buddies: Buddy[] } {
+  return Boolean(
+    value
+    && typeof value === 'object'
+    && 'buddies' in value
+    && Array.isArray((value as { buddies?: unknown }).buddies),
+  );
+}
+
+export function parseSseEvent(rawEvent: string): StreamPayload | null {
+  const dataLines = rawEvent
+    .split('\n')
+    .filter((line) => line.startsWith('data:'))
+    .map((line) => line.slice(5).trimStart());
+
+  if (dataLines.length === 0) {
+    return null;
+  }
+
+  const rawPayload = dataLines.join('\n');
+  if (!rawPayload || rawPayload === '[DONE]') {
+    return { type: 'done' };
+  }
+
+  try {
+    const payload = JSON.parse(rawPayload) as unknown;
+    if (!payload || typeof payload !== 'object' || typeof (payload as StreamPayload).type !== 'string') {
+      return null;
+    }
+    return payload as StreamPayload;
+  } catch (error) {
+    console.warn('Failed to parse SSE event.', error);
+    return null;
+  }
 }
 
 // ── API 接口 ────────────────────────────────────────
@@ -145,17 +193,17 @@ export async function fetchBuddies(
   mbti?: string,
   interests?: string[],
   city?: string,
-) {
+): Promise<Buddy[]> {
   const params: Record<string, string> = { limit: String(limit) };
   if (userId) params.user_id = userId;
   if (mbti) params.mbti = mbti;
   if (interests && interests.length > 0) params.interests = interests.join(',');
   if (city) params.city = city;
-  const res = await apiGet<ApiResponse<unknown[]> & { buddies?: unknown[] }>('/buddies', params);
-  if (Array.isArray((res as any).buddies)) {
-    return (res as any).buddies as Record<string, unknown>[];
+  const res = await apiGet<BuddiesResponse>('/buddies', params);
+  if (hasBuddiesArray(res)) {
+    return res.buddies;
   }
-  return unwrap(res) as Record<string, unknown>[];
+  return unwrap(res);
 }
 
 /**
@@ -234,7 +282,7 @@ export async function streamTwinBuddyChat(
 ): Promise<{ conversationId: string }> {
   const response = await fetch(apiUrl('/chat/send'), {
     method: 'POST',
-    credentials: 'include',
+    credentials: API_CREDENTIALS,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       user_id: body.userId,
@@ -252,39 +300,57 @@ export async function streamTwinBuddyChat(
   let buffer = '';
   let conversationId = body.conversationId ?? '';
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        buffer += decoder.decode();
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
 
-    const events = buffer.split('\n\n');
-    buffer = events.pop() ?? '';
+      const events = buffer.split('\n\n');
+      buffer = events.pop() ?? '';
 
-    for (const rawEvent of events) {
-      const line = rawEvent
-        .split('\n')
-        .find((item) => item.startsWith('data: '));
-      if (!line) continue;
+      for (const rawEvent of events) {
+        const payload = parseSseEvent(rawEvent);
+        if (!payload) continue;
+        if (payload.conversation_id) {
+          conversationId = payload.conversation_id;
+        }
 
-      const payload = JSON.parse(line.slice(6)) as {
-        type: string;
-        conversation_id?: string;
-        content?: string;
-      };
-      if (payload.conversation_id) {
+        if (payload.type === 'meta' && payload.conversation_id) {
+          handlers.onMeta?.(payload.conversation_id);
+        }
+        if (payload.type === 'message' && payload.content) {
+          handlers.onMessage?.(payload.content);
+        }
+        if (payload.type === 'preference_hint' && payload.content) {
+          handlers.onPreferenceHint?.(payload.content);
+        }
+        if (payload.type === 'done') {
+          return { conversationId };
+        }
+      }
+    }
+
+    if (buffer) {
+      const payload = parseSseEvent(buffer);
+      if (payload?.conversation_id) {
         conversationId = payload.conversation_id;
       }
-
-      if (payload.type === 'meta' && payload.conversation_id) {
+      if (payload?.type === 'meta' && payload.conversation_id) {
         handlers.onMeta?.(payload.conversation_id);
       }
-      if (payload.type === 'message' && payload.content) {
+      if (payload?.type === 'message' && payload.content) {
         handlers.onMessage?.(payload.content);
       }
-      if (payload.type === 'preference_hint' && payload.content) {
+      if (payload?.type === 'preference_hint' && payload.content) {
         handlers.onPreferenceHint?.(payload.content);
       }
     }
+  } finally {
+    reader.releaseLock();
   }
 
   return { conversationId };
@@ -331,7 +397,7 @@ export async function patchTwinBuddyProfile(
 ): Promise<TwinBuddyV2Profile> {
   const res = await fetch(apiUrl(`/profiles/${userId}`), {
     method: 'PATCH',
-    credentials: 'include',
+    credentials: API_CREDENTIALS,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       budget: body.budget,
@@ -342,7 +408,7 @@ export async function patchTwinBuddyProfile(
     }),
   });
   if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
+    throw await parseError(res);
   }
   return unwrap(await res.json() as ApiResponse<TwinBuddyV2Profile>);
 }

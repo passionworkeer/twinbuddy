@@ -22,7 +22,7 @@ function setOnboardingComplete(page: Page) {
     const data = {
       mbti: 'ENFP',
       travelRange: ['周末短途', '周边城市'],
-      interests: ['美食', '城市漫步', '摄影'],
+      interests: ['美食优先', '摄影打卡', '城市夜游'],
       budget: '舒适',
       selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
       city: '深圳',
@@ -174,8 +174,8 @@ test.describe('Onboarding', () => {
 
     // ── Step 3: Interests ─────────────────────────────────────────────────────
     await expect(page.locator('h2', { hasText: '你的旅行偏好是什么？' })).toBeVisible();
-    await page.locator('button', { hasText: '美食' }).click();
-    await page.locator('button', { hasText: '摄影' }).click();
+    await page.locator('button', { hasText: '美食优先' }).click();
+    await page.locator('button', { hasText: '摄影打卡' }).click();
     await page.waitForTimeout(200);
     await nextBtn.click();
 

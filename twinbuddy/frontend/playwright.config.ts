@@ -17,12 +17,20 @@ export default defineConfig({
     video: 'retain-on-failure',
     headless: true,
   },
-  webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173',
-    port: 5173,
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'D:/python/python.exe -m uvicorn api.index:app --host 127.0.0.1 --port 8000 --app-dir E:/desktop/hecker',
+      port: 8000,
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev -- --host 127.0.0.1 --port 5173',
+      port: 5173,
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+  ],
   projects: [
     {
       name: 'chromium',

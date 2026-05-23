@@ -33,7 +33,7 @@ describe('App navigation shell', () => {
     render(<App />);
 
     await user.click(await screen.findByRole('link', { name: /Profile$/i }));
-    expect(await screen.findByText(/Style Vector/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Style Vector/i)).length).toBeGreaterThan(0);
 
     // Click Messages tab — MessagesPage renders with mockConversations
     await user.click(screen.getByRole('link', { name: /Messages$/i }));

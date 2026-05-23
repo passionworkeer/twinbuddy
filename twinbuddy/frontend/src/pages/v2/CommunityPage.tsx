@@ -1,120 +1,147 @@
 import { Heart, MessageCircle, Rocket, SendHorizonal, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
 import ShowcaseCarousel from '../../components/v2/ShowcaseCarousel';
+import {
+  commentTwinBuddyCommunityPost,
+  createTwinBuddyCommunityPost,
+  fetchTwinBuddyCommunityFeed,
+  likeTwinBuddyCommunityPost,
+  triggerTwinBuddyCommunityTwinChat,
+} from '../../api/client';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { communityShowcases } from '../../mocks/v2Showcase';
-import { mockCommunityPosts } from '../../mocks/v2ApiMock';
 import type { TwinBuddyCommunityPost, TwinBuddyV2OnboardingData } from '../../types';
 import { V2_STORAGE_KEYS } from '../../types';
-
-const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: 'INTJ',
-  travelRange: ['周末短途', '周边城市'],
-  interests: ['美食', '城市漫步', '摄影'],
-  budget: '舒适',
-  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
-  city: '深圳',
-  completed: true,
-  userId: 'user_77e92a9e',
-  timestamp: Date.now(),
-};
+import { EMPTY_ONBOARDING_PROFILE } from '../../utils/twinbuddyProfile';
 
 export default function CommunityPage() {
-  const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [posts, setPosts] = useState<TwinBuddyCommunityPost[]>(mockCommunityPosts);
+  const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, EMPTY_ONBOARDING_PROFILE);
+  const [posts, setPosts] = useState<TwinBuddyCommunityPost[]>([]);
   const [draft, setDraft] = useState('');
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [statusText, setStatusText] = useState('');
   const [publishSuccess, setPublishSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(profile.userId));
   const [twinChatTarget, setTwinChatTarget] = useState<string | null>(null);
   const [twinChatStatus, setTwinChatStatus] = useState<'idle' | 'confirming' | 'sending' | 'done'>('idle');
-  const refreshTimeoutRef = useRef<number | null>(null);
-  const publishTimeoutRef = useRef<number | null>(null);
-  const twinChatStartTimeoutRef = useRef<number | null>(null);
-  const twinChatFinishTimeoutRef = useRef<number | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [errorText, setErrorText] = useState('');
 
   const hotTags = useMemo(() => ['深圳', '周末', '美食', '慢节奏', '五一'], []);
 
-  useEffect(() => () => {
-    if (refreshTimeoutRef.current !== null) {
-      window.clearTimeout(refreshTimeoutRef.current);
-    }
-    if (publishTimeoutRef.current !== null) {
-      window.clearTimeout(publishTimeoutRef.current);
-    }
-    if (twinChatStartTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatStartTimeoutRef.current);
-    }
-    if (twinChatFinishTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatFinishTimeoutRef.current);
-    }
-  }, []);
-
-  const loadFeed = () => {
-    setIsLoading(true);
-    if (refreshTimeoutRef.current !== null) {
-      window.clearTimeout(refreshTimeoutRef.current);
-    }
-    refreshTimeoutRef.current = window.setTimeout(() => {
-      setPosts(mockCommunityPosts);
+  const loadFeed = async () => {
+    if (!profile.userId) {
+      setPosts([]);
       setIsLoading(false);
-      refreshTimeoutRef.current = null;
-    }, 500);
-  };
-
-  const handlePublish = () => {
-    if (!draft.trim()) return;
-    const newPost: TwinBuddyCommunityPost = {
-      id: `post_${Date.now()}`,
-      author: { nickname: '你', mbti: profile.mbti || 'INTJ' },
-      content: draft.trim(),
-      location: profile.city || '深圳',
-      likes_count: 0,
-      comments_count: 0,
-      comments: [],
-      tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
-      images: [],
-      created_at: Date.now(),
-    };
-    setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
-    setPublishSuccess(true);
-    setPosts((prev) => [newPost, ...prev]);
-    setDraft('');
-    if (publishTimeoutRef.current !== null) {
-      window.clearTimeout(publishTimeoutRef.current);
+      return;
     }
-    publishTimeoutRef.current = window.setTimeout(() => {
-      setStatusText('');
-      setPublishSuccess(false);
-      publishTimeoutRef.current = null;
-    }, 3000);
+
+    setIsLoading(true);
+    setErrorText('');
+    try {
+      const items = await fetchTwinBuddyCommunityFeed(profile.userId);
+      setPosts(items);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '社区动态加载失败，请稍后重试。');
+      } else {
+        setErrorText('社区动态加载失败，请稍后重试。');
+      }
+      setPosts([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleLike = (postId: string) => {
-    setPosts((prev) => prev.map((post) =>
-      post.id === postId ? { ...post, likes_count: post.likes_count + 1 } : post,
-    ));
+  useEffect(() => {
+    void loadFeed();
+  }, [profile.userId]);
+
+  const handlePublish = async () => {
+    if (!profile.userId) {
+      setErrorText('请先完成 onboarding 生成画像后再发布动态。');
+      return;
+    }
+    if (!draft.trim() || isPublishing) return;
+
+    setIsPublishing(true);
+    setErrorText('');
+    try {
+      const createdPost = await createTwinBuddyCommunityPost({
+        userId: profile.userId,
+        content: draft.trim(),
+        location: profile.city || '深圳',
+        tags: hotTags.filter((tag) => draft.includes(tag)).slice(0, 3),
+      });
+      setStatusText('动态已发布，数字分身会把这条内容纳入偏好画像。');
+      setPublishSuccess(true);
+      setPosts((prev) => [createdPost, ...prev]);
+      setDraft('');
+      window.setTimeout(() => {
+        setStatusText('');
+        setPublishSuccess(false);
+      }, 3000);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '发布失败，请稍后重试。');
+      } else {
+        setErrorText('发布失败，请稍后重试。');
+      }
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
-  const handleComment = (postId: string) => {
-    if (!commentDrafts[postId]?.trim()) return;
-    const comment = {
-      id: `c_${Date.now()}`,
-      user_id: profile.userId!,
-      author_nickname: '你',
-      content: commentDrafts[postId].trim(),
-      created_at: Date.now(),
-    };
-    setPosts((prev) =>
-      prev.map((post) =>
+  const handleLike = async (postId: string) => {
+    if (!profile.userId) {
+      setErrorText('请先完成 onboarding 生成画像后再点赞。');
+      return;
+    }
+
+    try {
+      const result = await likeTwinBuddyCommunityPost(postId, profile.userId);
+      setPosts((prev) => prev.map((post) => (
         post.id === postId
-          ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
-          : post,
-      ),
-    );
-    setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+          ? { ...post, likes_count: result.likes_count }
+          : post
+      )));
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '点赞失败，请稍后重试。');
+      } else {
+        setErrorText('点赞失败，请稍后重试。');
+      }
+    }
+  };
+
+  const handleComment = async (postId: string) => {
+    if (!profile.userId) {
+      setErrorText('请先完成 onboarding 生成画像后再评论。');
+      return;
+    }
+    if (!commentDrafts[postId]?.trim()) return;
+
+    try {
+      const comment = await commentTwinBuddyCommunityPost(postId, {
+        userId: profile.userId,
+        content: commentDrafts[postId].trim(),
+      });
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, comment], comments_count: post.comments_count + 1 }
+            : post,
+        ),
+      );
+      setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '评论失败，请稍后重试。');
+      } else {
+        setErrorText('评论失败，请稍后重试。');
+      }
+    }
   };
 
   const handleTwinChat = (_postId: string, authorNickname: string) => {
@@ -122,45 +149,50 @@ export default function CommunityPage() {
     setTwinChatStatus('confirming');
   };
 
-  const handleTwinChatConfirm = () => {
-    setTwinChatStatus('sending');
-    if (twinChatStartTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatStartTimeoutRef.current);
-    }
-    if (twinChatFinishTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatFinishTimeoutRef.current);
+  const handleTwinChatConfirm = async () => {
+    if (!profile.userId || !twinChatTarget) {
+      setErrorText('请先完成 onboarding 后再发起代聊。');
+      return;
     }
 
-    twinChatStartTimeoutRef.current = window.setTimeout(() => {
+    const targetPost = posts.find((post) => post.author.nickname === twinChatTarget);
+    if (!targetPost) {
+      setErrorText('没有找到可代聊的目标帖子。');
+      return;
+    }
+
+    setTwinChatStatus('sending');
+    setErrorText('');
+    try {
+      const result = await triggerTwinBuddyCommunityTwinChat(targetPost.id, profile.userId);
+      setStatusText(result.summary);
+      setPublishSuccess(false);
       setTwinChatStatus('done');
-      twinChatStartTimeoutRef.current = null;
-      twinChatFinishTimeoutRef.current = window.setTimeout(() => {
+      window.setTimeout(() => {
         setTwinChatTarget(null);
         setTwinChatStatus('idle');
-        twinChatFinishTimeoutRef.current = null;
-      }, 4000);
-    }, 2000);
+      }, 2500);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '代聊发起失败，请稍后重试。');
+      } else {
+        setErrorText('代聊发起失败，请稍后重试。');
+      }
+      setTwinChatStatus('idle');
+      setTwinChatTarget(null);
+    }
   };
 
   const handleTwinChatCancel = () => {
-    if (twinChatStartTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatStartTimeoutRef.current);
-      twinChatStartTimeoutRef.current = null;
-    }
-    if (twinChatFinishTimeoutRef.current !== null) {
-      window.clearTimeout(twinChatFinishTimeoutRef.current);
-      twinChatFinishTimeoutRef.current = null;
-    }
     setTwinChatTarget(null);
     setTwinChatStatus('idle');
   };
 
   return (
     <div className="relative flex flex-col">
-      {/* FAB: Refresh */}
       <button
         className="fixed bottom-[100px] right-6 w-12 h-12 bg-surface-container-lowest border-2 border-outline shadow-[4px_4px_0_0_#000] rounded-full flex items-center justify-center hover:-translate-y-1 hover:shadow-[2px_2px_0_0_#000] transition-all z-40"
-        onClick={loadFeed}
+        onClick={() => void loadFeed()}
         type="button"
         aria-label="刷新动态"
       >
@@ -192,6 +224,18 @@ export default function CommunityPage() {
               ) : null}
             </section>
 
+            {errorText ? (
+              <div className="rounded-DEFAULT border-2 border-outline bg-error text-on-error px-4 py-3 text-sm">
+                {errorText}
+              </div>
+            ) : null}
+
+            {!profile.userId ? (
+              <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+                先完成 onboarding 创建画像，才能进入真实社区互动。
+              </div>
+            ) : null}
+
             <section className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline transition-all duration-300 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
               <h3 className="font-h2 text-h2 text-on-background leading-tight">发布你的旅行信号</h3>
               <textarea
@@ -210,18 +254,29 @@ export default function CommunityPage() {
                 </div>
                 <div className="flex items-center justify-end gap-3">
                   <VoiceInputButton onTranscribed={(text) => setDraft((current) => current.trim() ? `${current.trim()}\n${text}` : text)} />
-                  <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={handlePublish} type="button">
+                  <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all disabled:opacity-60" onClick={() => void handlePublish()} type="button" disabled={isPublishing || !profile.userId}>
                     <SendHorizonal className="h-4 w-4 inline mr-1" />
-                    发布动态
+                    {isPublishing ? '发布中...' : '发布动态'}
                   </button>
                 </div>
               </div>
             </section>
 
             <div className="space-y-4">
+              {isLoading ? (
+                <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+                  正在同步真实社区内容...
+                </div>
+              ) : null}
+
+              {!isLoading && posts.length === 0 && profile.userId ? (
+                <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+                  暂时还没有社区动态，发出第一条旅行信号吧。
+                </div>
+              ) : null}
+
               {posts.map((post) => (
                 <article key={post.id} className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-container-padding hover:-translate-y-1 hover:shadow-[0_4px_0_0_#000] transition-all duration-300">
-                  {/* Header */}
                   <div className="flex items-center justify-between mb-gutter">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-outline bg-secondary-fixed">
@@ -244,12 +299,10 @@ export default function CommunityPage() {
                     </button>
                   </div>
 
-                  {/* Content */}
                   <p className="font-body-md text-base text-on-surface mb-gutter line-clamp-3">
                     {post.content}
                   </p>
 
-                  {/* Image Grid */}
                   {post.images && post.images.length > 0 && (
                     <div className={`grid gap-2 rounded-DEFAULT overflow-hidden border-2 border-outline mb-gutter ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                       {post.images.slice(0, 4).map((img, i) => (
@@ -260,9 +313,8 @@ export default function CommunityPage() {
                     </div>
                   )}
 
-                  {/* Actions */}
                   <div className="flex items-center gap-6 text-on-surface-variant">
-                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" onClick={() => handleLike(post.id)} type="button">
+                    <button className="flex items-center gap-1.5 hover:text-primary transition-colors group" onClick={() => void handleLike(post.id)} type="button">
                       <Heart className="h-4 w-4 group-hover:scale-110 transition-transform" />
                       <span className="font-body-md text-[14px]">{post.likes_count}</span>
                     </button>
@@ -276,7 +328,6 @@ export default function CommunityPage() {
                     </button>
                   </div>
 
-                  {/* Comments */}
                   {post.comments_count > 0 && (
                     <div className="mt-5 rounded-DEFAULT border-2 border-outline bg-surface-container p-4">
                       <div className="flex items-center gap-2 text-sm text-on-surface-variant font-body-md">
@@ -294,7 +345,6 @@ export default function CommunityPage() {
                     </div>
                   )}
 
-                  {/* Comment Input */}
                   <div className="mt-4 flex gap-3">
                     <input
                       className="border-2 border-outline rounded-DEFAULT bg-surface-container-lowest text-on-background px-4 py-3 placeholder:text-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all flex-1 font-body-md"
@@ -302,12 +352,11 @@ export default function CommunityPage() {
                       placeholder="补一句你的偏好，帮助数字分身理解你"
                       value={commentDrafts[post.id] ?? ''}
                     />
-                    <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={() => handleComment(post.id)} type="button">
+                    <button className="bg-primary text-on-primary font-body-md px-4 py-2 rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all" onClick={() => void handleComment(post.id)} type="button">
                       回复
                     </button>
                   </div>
 
-                  {/* Tags */}
                   {post.tags && post.tags.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {post.tags.map((tag) => (
@@ -340,7 +389,6 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      {/* TwinChat Modal */}
       {twinChatTarget && twinChatStatus !== 'idle' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-surface-container-lowest rounded-DEFAULT border-2 border-outline p-6 w-full max-w-sm shadow-[4px_4px_0_0_#000]">
@@ -362,7 +410,7 @@ export default function CommunityPage() {
                   </button>
                   <button
                     className="px-4 py-2 text-sm bg-primary text-on-primary rounded-DEFAULT border-2 border-transparent hover:brightness-110 active:scale-95 transition-all"
-                    onClick={handleTwinChatConfirm}
+                    onClick={() => void handleTwinChatConfirm()}
                     type="button"
                   >
                     确认出发
@@ -380,7 +428,7 @@ export default function CommunityPage() {
               <div className="flex flex-col items-center gap-3 py-4">
                 <CheckCircle2 className="h-10 w-10 text-tertiary" />
                 <p className="font-body-md text-on-surface text-center">
-                  代聊已发起，对方将在24小时内收到数字分身协商请求。
+                  {statusText || '代聊已发起，对方将在24小时内收到数字分身协商请求。'}
                 </p>
               </div>
             )}

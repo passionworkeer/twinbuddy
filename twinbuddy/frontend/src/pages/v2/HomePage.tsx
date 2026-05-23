@@ -2,26 +2,15 @@ import { MessageSquareText, SendHorizonal } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import VoiceInputButton from '../../components/stt/VoiceInputButton';
+import { fetchTwinBuddyChatHistory, streamTwinBuddyChat } from '../../api/client';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { homeShowcases } from '../../mocks/v2Showcase';
-import { mockChatHistory } from '../../mocks/v2ApiMock';
 import {
   V2_STORAGE_KEYS,
   type TwinBuddyV2ChatMessage,
   type TwinBuddyV2OnboardingData,
 } from '../../types';
-
-const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: 'INTJ',
-  travelRange: ['周末短途', '周边城市'],
-  interests: ['美食', '城市漫步', '摄影'],
-  budget: '舒适',
-  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
-  city: '深圳',
-  completed: true,
-  userId: 'user_77e92a9e',
-  timestamp: Date.now(),
-};
+import { EMPTY_ONBOARDING_PROFILE } from '../../utils/twinbuddyProfile';
 
 const prompts = [
   '如果我不想太赶，又希望能吃得好，适合找什么样的搭子？',
@@ -29,30 +18,65 @@ const prompts = [
 ];
 
 function appendVoiceText(currentValue: string, nextText: string) {
-  return currentValue.trim() ? '\n' : nextText;
+  return currentValue.trim() ? `${currentValue.trim()}\n${nextText}` : nextText;
 }
 
 export default function HomePage() {
-  const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, initialProfile);
-  const [messages, setMessages] = useState<TwinBuddyV2ChatMessage[]>(mockChatHistory.items);
+  const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(V2_STORAGE_KEYS.onboarding, EMPTY_ONBOARDING_PROFILE);
+  const [conversationId, setConversationId] = useLocalStorage<string | null>(V2_STORAGE_KEYS.chatConversation, null);
+  const [messages, setMessages] = useState<TwinBuddyV2ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(Boolean(conversationId));
   const [hint, setHint] = useState('');
+  const [errorText, setErrorText] = useState('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const replyTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadHistory() {
+      if (!conversationId) {
+        setMessages([]);
+        setIsLoadingHistory(false);
+        return;
+      }
+
+      setIsLoadingHistory(true);
+      setErrorText('');
+      try {
+        const history = await fetchTwinBuddyChatHistory(conversationId);
+        if (!mounted) return;
+        setMessages(history.items);
+      } catch (error) {
+        if (!mounted) return;
+        setMessages([]);
+        setConversationId(null);
+        if (error instanceof Error) {
+          setErrorText(error.message || '聊天历史加载失败，请稍后重试。');
+        } else {
+          setErrorText('聊天历史加载失败，请稍后重试。');
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingHistory(false);
+        }
+      }
+    }
+
+    void loadHistory();
+
+    return () => {
+      mounted = false;
+    };
+  }, [conversationId, setConversationId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
-
-  useEffect(() => () => {
-    if (replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current);
-    }
-  }, []);
+  }, [messages, isSending]);
 
   const placeholderText = useMemo(() => {
     return profile.city ? '出发的心愿...' : '聊聊你的想法...';
@@ -75,36 +99,53 @@ export default function HomePage() {
     ]);
     setInput('');
     setIsSending(true);
+    setHint('');
+    setErrorText('');
 
-    if (replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current);
-    }
-
-    replyTimeoutRef.current = window.setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((item) =>
-          item.id === assistantId
-            ? { ...item, content: '好的，我帮你记下了。你的旅行偏好我会同步给数字分身，后续匹配搭子时会重点参考这个方向。' }
-            : item,
-        ),
+    try {
+      const result = await streamTwinBuddyChat(
+        {
+          userId: profile.userId,
+          message: text,
+          conversationId: conversationId ?? undefined,
+        },
+        {
+          onMeta: (nextConversationId) => {
+            setConversationId(nextConversationId);
+          },
+          onMessage: (chunk) => {
+            setMessages((prev) => prev.map((item) => (
+              item.id === assistantId
+                ? { ...item, content: `${item.content}${chunk}` }
+                : item
+            )));
+          },
+          onPreferenceHint: (nextHint) => {
+            setHint(nextHint);
+          },
+        },
       );
+      setConversationId(result.conversationId);
+    } catch (error) {
+      setMessages((prev) => prev.filter((item) => item.id !== assistantId));
+      if (error instanceof Error) {
+        setErrorText(error.message || '发送失败，请稍后重试。');
+      } else {
+        setErrorText('发送失败，请稍后重试。');
+      }
+    } finally {
       setIsSending(false);
-      replyTimeoutRef.current = null;
-    }, 1500);
+    }
   };
 
   return (
     <div className="relative flex flex-col" style={{ minHeight: '100dvh' }}>
-      {/* Page background */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-secondary-fixed opacity-20 blur-[100px]" />
         <div className="absolute bottom-32 left-0 w-60 h-60 rounded-full bg-tertiary-fixed opacity-15 blur-[80px]" />
       </div>
 
-      {/* Scrollable content */}
       <div className="flex-1 px-container-padding pt-14 pb-[110px] overflow-y-auto">
-
-        {/* ── Hero Section ── */}
         <section className="mb-10">
           <div className="mb-1">
             <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">
@@ -118,23 +159,21 @@ export default function HomePage() {
             今天想去哪儿？
           </p>
 
-          {/* Quick stats bar */}
           <div className="flex items-center gap-4 mt-5 mb-6">
             <div className="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline">
               <span className="material-symbols-outlined text-sm text-secondary">psychology</span>
-              <span className="font-label-caps text-label-caps text-on-surface">{profile.mbti}</span>
+              <span className="font-label-caps text-label-caps text-on-surface">{profile.mbti || '未完成画像'}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline">
               <span className="material-symbols-outlined text-sm text-secondary">location_on</span>
-              <span className="font-label-caps text-label-caps text-on-surface">{profile.city}</span>
+              <span className="font-label-caps text-label-caps text-on-surface">{profile.city || '未设置城市'}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full border border-secondary">
               <span className="material-symbols-outlined text-sm">verified</span>
-              <span className="font-label-caps text-label-caps">已认证</span>
+              <span className="font-label-caps text-label-caps">{profile.userId ? '画像已同步' : '待完成 onboarding'}</span>
             </div>
           </div>
 
-          {/* CTA Buttons */}
           <div className="flex gap-3">
             <Link
               to="/onboarding"
@@ -154,7 +193,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Divider ── */}
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-outline-variant" />
           <div className="flex items-center gap-2 text-on-surface-variant">
@@ -164,12 +202,21 @@ export default function HomePage() {
           <div className="flex-1 h-px bg-outline-variant" />
         </div>
 
-        {/* ── Chat Section ── */}
+        {errorText ? (
+          <div className="mb-4 rounded-DEFAULT border-2 border-outline bg-error text-on-error px-4 py-3 text-sm">
+            {errorText}
+          </div>
+        ) : null}
+
         <section className="flex flex-col gap-4 mb-10">
           <div
             ref={chatContainerRef}
             className="flex flex-col gap-3 max-h-[45dvh] overflow-y-auto hide-scrollbar"
           >
+            {isLoadingHistory && messages.length === 0 ? (
+              <div className="text-sm text-on-surface-variant">正在同步聊天历史...</div>
+            ) : null}
+
             {messages.map((message) => {
               const isUser = message.role === 'user';
               return (
@@ -210,7 +257,6 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Prompt chips */}
           <div className="flex flex-col gap-2">
             <span className="font-label-caps text-label-caps text-[10px] text-outline uppercase tracking-widest">试试问</span>
             <div className="flex flex-wrap gap-2">
@@ -228,7 +274,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Divider ── */}
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-outline-variant" />
           <div className="flex items-center gap-2 text-on-surface-variant">
@@ -238,7 +283,6 @@ export default function HomePage() {
           <div className="flex-1 h-px bg-outline-variant" />
         </div>
 
-        {/* ── Horizontal Scroll Carousel ── */}
         <section className="mb-8">
           <div className="flex items-end justify-between mb-4">
             <h2 className="font-h2 text-h2 text-on-background">推荐搭子</h2>
@@ -257,7 +301,6 @@ export default function HomePage() {
                 key={item.id}
                 className="flex-shrink-0 w-[200px] snap-center bg-surface-container-lowest rounded-DEFAULT border-2 border-outline shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
               >
-                {/* Image */}
                 <div className="relative aspect-video bg-secondary-fixed overflow-hidden">
                   {item.imageUrl ? (
                     <img
@@ -278,7 +321,6 @@ export default function HomePage() {
                   )}
                 </div>
 
-                {/* Content */}
                 <div className="p-3">
                   <p className="font-label-caps text-label-caps text-[9px] text-secondary uppercase tracking-widest mb-0.5">{item.eyebrow}</p>
                   <h3 className="font-h2 text-[14px] leading-snug text-on-background line-clamp-2">{item.title}</h3>
@@ -298,7 +340,6 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* ── Floating Input Bar ── */}
       <div className="fixed bottom-[70px] left-0 right-0 px-container-padding z-40 md:bottom-[70px] pointer-events-none">
         <div className="max-w-screen-md mx-auto pointer-events-auto">
           {hint && (
@@ -318,13 +359,14 @@ export default function HomePage() {
               placeholder={placeholderText}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') void handleSend(); }}
               className="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-base text-on-background placeholder:text-outline py-2 px-2 outline-none"
             />
             <button
-              disabled={!input.trim() || isSending}
-              onClick={handleSend}
+              disabled={!input.trim() || isSending || !profile.userId}
+              onClick={() => void handleSend()}
               className="bg-primary text-on-primary w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors active:scale-95 shrink-0 disabled:opacity-30"
+              aria-label="发送首页消息"
             >
               <SendHorizonal className="h-4 w-4" />
             </button>

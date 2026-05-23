@@ -1,84 +1,80 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { mockConversations } from '../../mocks/v2ApiMock';
+import { useEffect, useRef, useState } from 'react';
 import type {
   TwinBuddyConversationItem,
-  TwinBuddyV2ChatMessage,
+  TwinBuddyRoomMessage,
   TwinBuddyV2OnboardingData,
 } from '../../types';
 import { V2_STORAGE_KEYS } from '../../types';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-
-const initialProfile: TwinBuddyV2OnboardingData = {
-  mbti: 'INTJ',
-  travelRange: ['周末短途', '周边城市'],
-  interests: ['美食', '城市漫步', '摄影'],
-  budget: '舒适',
-  selfDescription: '喜欢慢慢走，不赶行程，吃好住好最重要。',
-  city: '深圳',
-  completed: true,
-  userId: 'user_77e92a9e',
-  timestamp: Date.now(),
-};
-
-// Build a 3-message mock thread from a conversation item
-const buildMockThread = (chat: TwinBuddyConversationItem): TwinBuddyV2ChatMessage[] => [
-  {
-    id: `${chat.room_id}-1`,
-    role: 'assistant',
-    content: `你好呀，我是小满的旅行搭子。我们已经完成了预协商，你有什么想确认的可以随时问。`,
-    created_at: Date.now() - 3600000 * 3,
-  },
-  {
-    id: `${chat.room_id}-2`,
-    role: 'user',
-    content: `好的，我想了解一下你们的行程节奏偏好。`,
-    created_at: Date.now() - 3600000 * 2.5,
-  },
-  {
-    id: `${chat.room_id}-3`,
-    role: 'assistant',
-    content: chat.last_message,
-    created_at: Date.now() - 3600000 * 2,
-  },
-];
-
-// Initialize messages for all conversations
-const initMessages = (
-  convs: TwinBuddyConversationItem[]
-): Record<string, TwinBuddyV2ChatMessage[]> => {
-  const map: Record<string, TwinBuddyV2ChatMessage[]> = {};
-  for (const c of convs) {
-    map[c.room_id] = buildMockThread(c);
-  }
-  return map;
-};
+import {
+  fetchTwinBuddyConversations,
+  fetchTwinBuddyRoomMessages,
+  sendTwinBuddyRoomMessage,
+} from '../../api/client';
+import { EMPTY_ONBOARDING_PROFILE } from '../../utils/twinbuddyProfile';
 
 export default function MessagesPage() {
   const [profile] = useLocalStorage<TwinBuddyV2OnboardingData>(
     V2_STORAGE_KEYS.onboarding,
-    initialProfile
+    EMPTY_ONBOARDING_PROFILE,
   );
-  const [conversations] = useState<TwinBuddyConversationItem[]>(mockConversations);
+  const [conversations, setConversations] = useState<TwinBuddyConversationItem[]>([]);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Record<string, TwinBuddyV2ChatMessage[]>>(() =>
-    initMessages(mockConversations)
-  );
+  const [messages, setMessages] = useState<Record<string, TwinBuddyRoomMessage[]>>({});
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(Boolean(profile.userId));
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [errorText, setErrorText] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const focusTimeoutRef = useRef<number | null>(null);
-  const replyTimeoutRef = useRef<number | null>(null);
 
-  // Scroll to bottom whenever messages for the active room change
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadConversations() {
+      if (!profile.userId) {
+        setConversations([]);
+        setIsLoadingConversations(false);
+        return;
+      }
+
+      setIsLoadingConversations(true);
+      setErrorText('');
+      try {
+        const items = await fetchTwinBuddyConversations(profile.userId);
+        if (!mounted) return;
+        setConversations(items);
+      } catch (error) {
+        if (!mounted) return;
+        setConversations([]);
+        if (error instanceof Error) {
+          setErrorText(error.message || '会话列表加载失败，请稍后重试。');
+        } else {
+          setErrorText('会话列表加载失败，请稍后重试。');
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingConversations(false);
+        }
+      }
+    }
+
+    void loadConversations();
+
+    return () => {
+      mounted = false;
+    };
+  }, [profile.userId]);
+
   useEffect(() => {
     if (activeRoomId) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [activeRoomId, messages]);
+  }, [activeRoomId, messages, isSending]);
 
-  // Focus input when panel opens
   useEffect(() => {
     if (focusTimeoutRef.current !== null) {
       window.clearTimeout(focusTimeoutRef.current);
@@ -100,55 +96,67 @@ export default function MessagesPage() {
     };
   }, [activeRoomId]);
 
-  useEffect(() => () => {
-    if (replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current);
+  const loadRoomMessages = async (roomId: string) => {
+    setIsLoadingMessages(true);
+    setErrorText('');
+    try {
+      const roomMessages = await fetchTwinBuddyRoomMessages(roomId);
+      setMessages((prev) => ({
+        ...prev,
+        [roomId]: roomMessages,
+      }));
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '消息加载失败，请稍后重试。');
+      } else {
+        setErrorText('消息加载失败，请稍后重试。');
+      }
+    } finally {
+      setIsLoadingMessages(false);
     }
-    if (focusTimeoutRef.current !== null) {
-      window.clearTimeout(focusTimeoutRef.current);
+  };
+
+  const handleOpenConversation = async (roomId: string) => {
+    setActiveRoomId(roomId);
+    if (!messages[roomId]) {
+      await loadRoomMessages(roomId);
     }
-  }, []);
+  };
 
   const activeConversation = conversations.find((c) => c.room_id === activeRoomId) ?? null;
 
-  const handleSend = useCallback(() => {
+  const handleSend = async () => {
     const text = draft.trim();
-    if (!text || !activeRoomId) return;
+    if (!text || !activeRoomId || !profile.userId || isSending) return;
 
-    const roomId = activeRoomId;
-    const userMsg: TwinBuddyV2ChatMessage = {
-      id: `${roomId}-${Date.now()}`,
-      role: 'user',
-      content: text,
-      created_at: Date.now(),
-    };
-
-    setMessages((prev) => ({
-      ...prev,
-      [roomId]: [...(prev[roomId] ?? []), userMsg],
-    }));
-    setDraft('');
     setIsSending(true);
-
-    if (replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current);
-    }
-
-    replyTimeoutRef.current = window.setTimeout(() => {
-      const buddyReply: TwinBuddyV2ChatMessage = {
-        id: `${roomId}-${Date.now()}-r`,
-        role: 'assistant',
-        content: `好的，这个问题我已经记下来了。我来帮你查一下具体的安排，晚点给你一个完整的回复。`,
-        created_at: Date.now(),
-      };
+    setErrorText('');
+    try {
+      const sentMessage = await sendTwinBuddyRoomMessage({
+        roomId: activeRoomId,
+        senderId: profile.userId,
+        content: text,
+      });
       setMessages((prev) => ({
         ...prev,
-        [roomId]: [...(prev[roomId] ?? []), buddyReply],
+        [activeRoomId]: [...(prev[activeRoomId] ?? []), sentMessage],
       }));
+      setConversations((prev) => prev.map((item) => (
+        item.room_id === activeRoomId
+          ? { ...item, last_message: sentMessage.content }
+          : item
+      )));
+      setDraft('');
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorText(error.message || '发送失败，请稍后重试。');
+      } else {
+        setErrorText('发送失败，请稍后重试。');
+      }
+    } finally {
       setIsSending(false);
-      replyTimeoutRef.current = null;
-    }, 1200);
-  }, [draft, activeRoomId]);
+    }
+  };
 
   const handleClose = () => {
     setActiveRoomId(null);
@@ -157,13 +165,12 @@ export default function MessagesPage() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
   };
 
   return (
     <div className="relative flex flex-col">
-      {/* Background blobs — solid surface colors, no glassmorphism */}
       <div className="fixed top-10 right-10 w-64 h-64 bg-primary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
       <div className="fixed bottom-20 left-10 w-80 h-80 bg-secondary/5 blur-3xl -z-10 rounded-full pointer-events-none"></div>
 
@@ -173,7 +180,18 @@ export default function MessagesPage() {
             <h1 className="font-h1 text-h1 text-primary">消息</h1>
           </header>
 
-          {/* Search Bar (Neo-Brutalist) */}
+          {errorText ? (
+            <div className="rounded-DEFAULT border-2 border-outline bg-error text-on-error px-4 py-3 text-sm">
+              {errorText}
+            </div>
+          ) : null}
+
+          {!profile.userId ? (
+            <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+              先完成 onboarding 创建画像，才能进入真实私信会话。
+            </div>
+          ) : null}
+
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span className="material-symbols-outlined text-outline">search</span>
@@ -185,8 +203,19 @@ export default function MessagesPage() {
             />
           </div>
 
-          {/* Messages List */}
           <div className="flex flex-col gap-card-gap pb-8">
+            {isLoadingConversations ? (
+              <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+                正在同步真实会话列表...
+              </div>
+            ) : null}
+
+            {!isLoadingConversations && conversations.length === 0 && profile.userId ? (
+              <div className="rounded-DEFAULT border-2 border-outline bg-surface-container-lowest px-4 py-4 text-sm text-on-surface-variant">
+                还没有可展示的私信会话，等数字分身帮你解锁新的对话关系。
+              </div>
+            ) : null}
+
             {conversations.map((chat) => (
               <button
                 key={chat.room_id}
@@ -195,7 +224,7 @@ export default function MessagesPage() {
                     ? 'bg-surface-container-lowest border-2 border-primary shadow-[0_4px_0_0_#000] hover:-translate-y-[-2px] hover:shadow-[0_6px_0_0_#000]'
                     : 'bg-surface-container-low border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-lowest'
                 }`}
-                onClick={() => setActiveRoomId(chat.room_id)}
+                onClick={() => void handleOpenConversation(chat.room_id)}
                 type="button"
               >
                 <div className="relative shrink-0">
@@ -238,12 +267,9 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* ── Chat Detail Panel ── */}
       {activeRoomId && activeConversation && (
         <div className="fixed inset-0 z-50 flex flex-col bg-surface-container-lowest">
-          {/* Panel header */}
           <div className="flex items-center gap-3 px-container-padding py-4 border-b-2 border-outline bg-surface-container-lowest">
-            {/* Close / back button */}
             <button
               type="button"
               onClick={handleClose}
@@ -253,7 +279,6 @@ export default function MessagesPage() {
               <span className="material-symbols-outlined text-on-surface text-body-lg">close</span>
             </button>
 
-            {/* Buddy avatar + info */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-12 h-12 rounded-full bg-secondary-fixed border-2 border-outline flex items-center justify-center shrink-0">
                 <span className="font-h2 text-h2 text-on-secondary-fixed">
@@ -271,10 +296,13 @@ export default function MessagesPage() {
             </div>
           </div>
 
-          {/* Message thread */}
           <div className="flex-1 overflow-y-auto px-container-padding py-6 flex flex-col gap-4">
-            {messages[activeRoomId]?.map((msg) => {
-              const isUser = msg.role === 'user';
+            {isLoadingMessages ? (
+              <div className="text-sm text-on-surface-variant">正在加载聊天内容...</div>
+            ) : null}
+
+            {(messages[activeRoomId] ?? []).map((msg) => {
+              const isUser = msg.sender_id === profile.userId;
               return (
                 <div
                   key={msg.id}
@@ -285,16 +313,14 @@ export default function MessagesPage() {
                       isUser ? 'items-end' : 'items-start'
                     }`}
                   >
-                    {/* Sender label */}
                     <span
                       className={`font-label-caps text-label-caps ${
                         isUser ? 'text-outline text-right' : 'text-outline text-left'
                       }`}
                     >
-                      {isUser ? profile.mbti : activeConversation.peer_user.nickname}
+                      {isUser ? profile.mbti || '你' : activeConversation.peer_user.nickname}
                     </span>
 
-                    {/* Bubble */}
                     <div
                       className={`px-4 py-3 rounded-DEFAULT font-body-md text-body-md ${
                         isUser
@@ -309,27 +335,24 @@ export default function MessagesPage() {
               );
             })}
 
-            {/* Typing indicator */}
             {isSending && (
-              <div className="flex justify-start">
-                <div className="flex flex-col gap-1 items-start">
-                  <span className="font-label-caps text-label-caps text-outline text-left">
-                    {activeConversation.peer_user.nickname}
+              <div className="flex justify-end">
+                <div className="flex flex-col gap-1 items-end">
+                  <span className="font-label-caps text-label-caps text-outline text-right">
+                    {profile.mbti || '你'}
                   </span>
-                  <div className="px-4 py-3 rounded-DEFAULT rounded-tl-sm bg-surface-container border-2 border-outline flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-outline animate-bounce [animation-delay:0ms]"></span>
-                    <span className="w-2 h-2 rounded-full bg-outline animate-bounce [animation-delay:150ms]"></span>
-                    <span className="w-2 h-2 rounded-full bg-outline animate-bounce [animation-delay:300ms]"></span>
+                  <div className="px-4 py-3 rounded-DEFAULT rounded-tr-sm bg-primary text-on-primary flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-on-primary animate-bounce [animation-delay:0ms]"></span>
+                    <span className="w-2 h-2 rounded-full bg-on-primary animate-bounce [animation-delay:150ms]"></span>
+                    <span className="w-2 h-2 rounded-full bg-on-primary animate-bounce [animation-delay:300ms]"></span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Scroll anchor */}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input bar */}
           <div className="border-t-2 border-outline px-container-padding py-4 bg-surface-container-lowest">
             <div className="flex items-center gap-3">
               <input
@@ -344,8 +367,8 @@ export default function MessagesPage() {
               />
               <button
                 type="button"
-                onClick={handleSend}
-                disabled={!draft.trim() || isSending}
+                onClick={() => void handleSend()}
+                disabled={!draft.trim() || isSending || !profile.userId}
                 className="w-12 h-12 rounded-DEFAULT bg-primary border-2 border-outline shadow-[0_4px_0_0_#000] flex items-center justify-center hover:shadow-[0_6px_0_0_#000] hover:-translate-y-[-2px] active:shadow-[0_2px_0_0_#000] active:translate-y-[2px] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-[0_4px_0_0_#000] disabled:hover:translate-y-[0]"
                 aria-label="发送消息"
               >

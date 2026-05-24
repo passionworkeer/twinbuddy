@@ -87,7 +87,7 @@ test.describe('Feed & TwinCard', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1500);
 
-    await page.getByText('小满').click();
+    await page.getByRole('heading', { name: '小满', exact: true }).click();
     await page.waitForTimeout(800);
 
     await expect(page.locator('text=Layer 2 协商详情')).toBeVisible({ timeout: 5_000 });
@@ -105,7 +105,7 @@ test.describe('Feed & TwinCard', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1500);
 
-    await page.getByText('小满').click();
+    await page.getByRole('heading', { name: '小满', exact: true }).click();
     await expect(page.locator('text=Layer 2 协商详情')).toBeVisible({ timeout: 5_000 });
     const blindGameBtn = page.locator('button', { hasText: '开始盲选' });
     await expect(blindGameBtn).toBeVisible();
@@ -216,7 +216,7 @@ test.describe('Buddies & Radar Chart', () => {
     await page.goto('/buddies');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1500);
-    await page.getByText('小满').click();
+    await page.getByRole('heading', { name: '小满', exact: true }).click();
     await expect(page.locator('text=数字分身协商记录').first()).toBeVisible({ timeout: 5_000 });
     await expect(page.locator('text=数字分身').first()).toBeVisible();
     await expect(page.locator('text=适合进入盲选').first()).toBeVisible();
@@ -338,6 +338,7 @@ test.describe('BlindGame', () => {
 
   test('blindgame-report-flow: completing rounds renders a report', async ({ page }) => {
     await page.goto('/blind-game/buddy-001/neg-001');
+    await expect(page.locator('text=作息节奏')).toBeVisible({ timeout: 10_000 });
     const answers = ['早睡早起', '计划周全', '省钱第一', '必须出片', '社交达人', '深度美食游'];
     for (const answer of answers) {
       await page.getByRole('button', { name: new RegExp(answer) }).click();

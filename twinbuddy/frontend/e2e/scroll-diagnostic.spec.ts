@@ -100,11 +100,11 @@ test.describe('Scroll Diagnostic', () => {
 
   test('home-page-scroll: visit /home, verify scrollable content, scroll down and back up', async ({ page }) => {
     await page.goto('/home');
-    await page.waitForLoadState('networkidle', { timeout: 10_000 });
+    await page.waitForLoadState('domcontentloaded');
+    const heroHeading = page.getByRole('heading', { name: /嘿/ });
+    await expect(heroHeading).toBeVisible({ timeout: 10_000 });
 
     await captureScrollState(page, 'home-before-scroll');
-    const heroHeading = page.getByRole('heading', { name: /嘿/ });
-    await expect(heroHeading).toBeVisible();
 
     await scrollToBottom(page);
     await page.waitForTimeout(800);
@@ -119,11 +119,11 @@ test.describe('Scroll Diagnostic', () => {
 
   test('buddies-page-scroll: visit /buddies, scroll the buddy list, verify items render', async ({ page }) => {
     await page.goto('/buddies');
-    await page.waitForLoadState('networkidle', { timeout: 10_000 });
+    await page.waitForLoadState('domcontentloaded');
 
-    await captureScrollState(page, 'buddies-before-scroll');
     const buddyListHeader = page.locator('h1', { hasText: '探索搭子' });
-    await expect(buddyListHeader).toBeVisible();
+    await expect(buddyListHeader).toBeVisible({ timeout: 10_000 });
+    await captureScrollState(page, 'buddies-before-scroll');
 
     const count = await page.locator('text=小满').count();
     expect(count).toBeGreaterThan(0);

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
 from api.index import app
@@ -45,3 +47,29 @@ def test_buddy_card_returns_negotiation_summary_and_radar():
     assert data["profile"]["buddy_id"] == "buddy-001"
     assert len(data["radar_chart"]) >= 4
     assert data["negotiation_summary"]["match_score"] > 0
+
+
+def test_seed_persona_buddy_card_can_open_from_inbox_item():
+    user_id = _seed_profile()
+    persona = {
+        "id": "persona-123",
+        "name": "测试搭子",
+        "mbti": "ENFP",
+        "city": "深圳",
+        "score": 88,
+        "preferences": {"likes": ["美食", "慢节奏"], "dislikes": ["太赶"]},
+        "breakdown": {"strengths": ["美食", "慢节奏"], "red_flags": ["太赶"]},
+        "dialogue": {"summary": "适合深圳周边慢游"},
+    }
+
+    with patch("api.buddies_v2.get_top_personas", return_value=[persona]), patch(
+        "api.buddies_v2.get_persona_by_id", return_value=persona
+    ):
+        inbox_response = client.get(f"/api/buddies/inbox?user_id={user_id}&page=1")
+        seed_item = next(item for item in inbox_response.json()["data"]["items"] if item["source"] == "seed_persona")
+        card_response = client.get(f"/api/buddies/{seed_item['buddy_id']}/card?negotiation_id={seed_item['negotiation_id']}")
+
+    assert card_response.status_code == 200
+    data = card_response.json()["data"]
+    assert data["profile"]["buddy_id"] == seed_item["buddy_id"]
+    assert data["negotiation_summary"]["match_score"] == 88

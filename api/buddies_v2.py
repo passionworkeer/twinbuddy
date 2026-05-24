@@ -5,11 +5,13 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException, Query
 
 from api._constants import MBTI_EMOJI
+from api.real_persona_index import get_persona_by_id, get_top_personas
 from api._store import get_profile
 
 router = APIRouter(prefix="/api", tags=["BuddiesV2"])
 
-_CANDIDATES = [
+
+_FALLBACK_CANDIDATES = [
     {
         "buddy_id": "buddy-001",
         "nickname": "小满",
@@ -18,6 +20,8 @@ _CANDIDATES = [
         "status": "等待你决定",
         "highlights": ["周末短途", "会做攻略", "吃饭不纠结"],
         "conflicts": ["拍照诉求略高"],
+        "source": "mock_fallback",
+        "is_seed": True,
     },
     {
         "buddy_id": "buddy-002",
@@ -27,6 +31,8 @@ _CANDIDATES = [
         "status": "协商完成",
         "highlights": ["深度慢游", "预算稳定", "情绪平稳"],
         "conflicts": ["社交强度偏低"],
+        "source": "mock_fallback",
+        "is_seed": True,
     },
     {
         "buddy_id": "buddy-003",
@@ -36,46 +42,22 @@ _CANDIDATES = [
         "status": "继续观察",
         "highlights": ["城市散步", "美食优先", "出片稳定"],
         "conflicts": ["作息偏晚"],
-    },
-    {
-        "buddy_id": "buddy-004",
-        "nickname": "栗子",
-        "mbti": "ESFJ",
-        "city": "佛山",
-        "status": "等待你决定",
-        "highlights": ["会照顾同行体验", "预算稳定", "节奏舒服"],
-        "conflicts": ["可能会过度在意细节"],
-    },
-    {
-        "buddy_id": "buddy-005",
-        "nickname": "Ryan",
-        "mbti": "ENTP",
-        "city": "深圳",
-        "status": "协商完成",
-        "highlights": ["路线灵活", "愿意尝鲜", "聊天推进快"],
-        "conflicts": ["临时改计划概率偏高"],
-    },
-    {
-        "buddy_id": "buddy-006",
-        "nickname": "南枝",
-        "mbti": "INFP",
-        "city": "广州",
-        "status": "继续观察",
-        "highlights": ["情绪稳定", "审美在线", "拍照细腻"],
-        "conflicts": ["效率偏低"],
+        "source": "mock_fallback",
+        "is_seed": True,
     },
 ]
 
 
 def _calculate_match_score(profile: Dict[str, Any], candidate: Dict[str, Any]) -> int:
     score = 68
-    if profile.get("city") == candidate["city"]:
+    if profile.get("city") == candidate.get("city"):
         score += 8
     if profile.get("budget") in ("经济", "舒适"):
         score += 5
     if "周边城市" in profile.get("travel_range", []) or "国内" in profile.get("travel_range", []):
         score += 4
-    if profile.get("mbti", "").startswith(candidate["mbti"][0]):
+    candidate_mbti = candidate.get("mbti", "")
+    if profile.get("mbti", "") and candidate_mbti and profile.get("mbti", "").startswith(candidate_mbti[0]):
         score += 2
     return min(score, 92)
 
@@ -92,6 +74,92 @@ def _build_radar(score: int) -> List[Dict[str, Any]]:
     ]
 
 
+def _build_user_prefs(profile: Dict[str, Any]) -> Dict[str, Any]:
+    travel_range = profile.get("travel_range") or []
+    budget = profile.get("budget") or "舒适"
+    mbti = (profile.get("mbti") or "ENFP").upper()
+    city = profile.get("city") or ""
+    style_vector = profile.get("style_vector") or {}
+
+    pace = style_vector.get("travel_pace")
+    if not pace:
+        if "周边城市" in travel_range or "周末短途" in travel_range:
+            pace = "慢悠悠，睡到自然醒，不赶景点，享受过程"
+        else:
+            pace = "有计划，每天有明确目标，不喜欢临时改变"
+
+    negotiation_style = style_vector.get("decision_style")
+    if not negotiation_style:
+        negotiation_style = "用感受和价值观说服，温和但坚定，容易被真诚打动"
+
+    likes = profile.get("interests") or []
+
+    return {
+        "mbti": mbti,
+        "likes": likes,
+        "dislikes": [],
+        "budget": budget,
+        "pace": pace,
+        "travel_style": pace,
+        "negotiation_style": negotiation_style,
+        "city": city,
+    }
+
+
+def _build_persona_candidate(persona: Dict[str, Any], index: int, profile: Dict[str, Any]) -> Dict[str, Any]:
+    breakdown = persona.get("breakdown") or {}
+    highlights = breakdown.get("strengths") or persona.get("preferences", {}).get("likes") or ["偏好稳定"]
+    conflicts = breakdown.get("red_flags") or persona.get("preferences", {}).get("dislikes") or ["需要继续协商"]
+    score = int(round(persona.get("score", 72)))
+    city = persona.get("city") or profile.get("city") or "未设置城市"
+    persona_id = persona.get("id", str(index))
+    buddy_id = f"seed-{persona_id}"
+    dialogue = persona.get("dialogue") or {}
+
+    return {
+        "buddy_id": buddy_id,
+        "nickname": persona.get("name") or f"搭子{index}",
+        "mbti": persona.get("mbti") or "ENFP",
+        "city": city,
+        "status": "种子候选",
+        "highlights": highlights[:3],
+        "conflicts": conflicts[:2],
+        "avatar": persona.get("avatar_emoji") or MBTI_EMOJI.get(persona.get("mbti", ""), "✨"),
+        "match_score": score,
+        "negotiation_id": f"neg-seed-{index:03d}",
+        "preview": dialogue.get("summary") or f"基于 {city} 与 {profile.get('budget', '舒适')} 预算偏好，系统为你挑出的一位种子搭子。",
+        "source": "seed_persona",
+        "is_seed": True,
+    }
+
+
+def _build_fallback_candidate(profile: Dict[str, Any], candidate: Dict[str, Any], index: int) -> Dict[str, Any]:
+    score = _calculate_match_score(profile, candidate)
+    return {
+        **candidate,
+        "avatar": MBTI_EMOJI.get(candidate["mbti"], "✨"),
+        "match_score": score,
+        "negotiation_id": f"neg-{index:03d}",
+        "preview": f"数字分身已经帮你们对齐了 {profile.get('budget')} 预算和 {profile.get('city')} 出发节奏。",
+    }
+
+
+def _get_candidate_pool(profile: Dict[str, Any]) -> List[Dict[str, Any]]:
+    fallback_items = [
+        _build_fallback_candidate(profile, candidate, index)
+        for index, candidate in enumerate(_FALLBACK_CANDIDATES, start=1)
+    ]
+    personas = get_top_personas(_build_user_prefs(profile), limit=3)
+    if not personas:
+        return fallback_items
+
+    persona_items = [
+        _build_persona_candidate(persona, index, profile)
+        for index, persona in enumerate(personas, start=len(fallback_items) + 1)
+    ]
+    return fallback_items + persona_items
+
+
 @router.get("/buddies/inbox")
 async def get_buddy_inbox(
     user_id: str = Query(..., description="用户 ID"),
@@ -103,18 +171,7 @@ async def get_buddy_inbox(
     if not profile.get("is_verified"):
         raise HTTPException(status_code=403, detail="请先完成实名认证后再查看搭子动态")
 
-    items = []
-    for index, candidate in enumerate(_CANDIDATES, start=1):
-        score = _calculate_match_score(profile, candidate)
-        items.append(
-            {
-                **candidate,
-                "avatar": MBTI_EMOJI.get(candidate["mbti"], "✨"),
-                "match_score": score,
-                "negotiation_id": f"neg-{index:03d}",
-                "preview": f"数字分身已经帮你们对齐了 {profile.get('budget')} 预算和 {profile.get('city')} 出发节奏。",
-            }
-        )
+    items = _get_candidate_pool(profile)
 
     return {
         "success": True,
@@ -122,22 +179,34 @@ async def get_buddy_inbox(
     }
 
 
+def _resolve_card_candidate(buddy_id: str) -> Dict[str, Any] | None:
+    fallback = next((item for item in _FALLBACK_CANDIDATES if item["buddy_id"] == buddy_id), None)
+    if fallback:
+        return fallback
+    if not buddy_id.startswith("seed-"):
+        return None
+    persona = get_persona_by_id(buddy_id.removeprefix("seed-"))
+    if not persona:
+        return None
+    return _build_persona_candidate(persona, 1, {})
+
+
 @router.get("/buddies/{buddy_id}/card")
 async def get_buddy_card(
     buddy_id: str,
     negotiation_id: str = Query(default=""),
 ) -> Dict[str, Any]:
-    candidate = next((item for item in _CANDIDATES if item["buddy_id"] == buddy_id), None)
+    candidate = _resolve_card_candidate(buddy_id)
     if not candidate:
         raise HTTPException(status_code=404, detail="Buddy not found")
 
-    score = 82 if candidate["buddy_id"] == "buddy-001" else 77 if candidate["buddy_id"] == "buddy-002" else 74
+    score = candidate.get("match_score") or _calculate_match_score({"city": candidate["city"], "budget": "舒适", "mbti": candidate["mbti"], "travel_range": ["周边城市"]}, candidate)
     card = {
         "profile": {
             "buddy_id": buddy_id,
             "nickname": candidate["nickname"],
             "mbti": candidate["mbti"],
-            "avatar": MBTI_EMOJI.get(candidate["mbti"], "✨"),
+            "avatar": candidate.get("avatar") or MBTI_EMOJI.get(candidate["mbti"], "✨"),
             "city": candidate["city"],
             "summary": f"{candidate['nickname']} 更偏向 {candidate['highlights'][0]}，在协商里表现出较高的稳定度。",
         },

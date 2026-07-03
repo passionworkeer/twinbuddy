@@ -60,7 +60,7 @@ def get_profile_root() -> Path | None:
 
 
 def project_root() -> Path:
-    """Return E:\desktop\hecker\MING\ as absolute Path."""
+    """Return D:\Data\Desktop\twinbuddy\MING\ as absolute Path."""
     return Path(__file__).parent.parent.resolve()
 
 

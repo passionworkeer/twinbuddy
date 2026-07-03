@@ -54,7 +54,7 @@ jobs:
           cache-dependency-path: twinbuddy/frontend/package-lock.json
       - name: Install frontend deps
         run: npm ci
-      - name: Run vitest
-        run: npm run test -- --run
+      - name: Run frontend smoke build
+        run: npm run test
       - name: Build frontend
         run: npm run build

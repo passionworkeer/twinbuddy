@@ -10,8 +10,8 @@
 
 **Trigger:** User says "create my digital twin", "创造我的明我", "/create-ming", or any equivalent.
 
-**Step 1:** Read `E:\desktop\hecker\MING\SKILL.md` — full spec is there.
-**Step 2:** Read `E:\desktop\hecker\MING\prompts\00-intake.md` — this is the session entry point.
+**Step 1:** Read `D:\Data\Desktop\twinbuddy\MING\SKILL.md` — full spec is there.
+**Step 2:** Read `D:\Data\Desktop\twinbuddy\MING\prompts\00-intake.md` — this is the session entry point.
 **Step 3:** Follow the 9-step creation workflow defined in SKILL.md:
 
 1. **Opening & Trust** — read `prompts/00-intake.md`, greet warmly, detect interaction mode (default: `daily`), ask name and preferred address. Output a session header.
@@ -32,9 +32,9 @@
 
 **Trigger:** User says "my MING", "/ming", "和我的明我说话", or starts a new conversation with an existing twin.
 
-**Step 1:** Read `E:\desktop\hecker\MING\SKILL.md` — verify the twin exists (check `memory/00-core/synthesis.md`).
-**Step 2:** Read `E:\desktop\hecker\MING\prompts\00-intake.md` to detect interaction mode.
-**Step 3:** Load the active mode prompt from `E:\desktop\hecker\MING\prompts\02-modes\[mode].md`:
+**Step 1:** Read `D:\Data\Desktop\twinbuddy\MING\SKILL.md` — verify the twin exists (check `memory/00-core/synthesis.md`).
+**Step 2:** Read `D:\Data\Desktop\twinbuddy\MING\prompts\00-intake.md` to detect interaction mode.
+**Step 3:** Load the active mode prompt from `D:\Data\Desktop\twinbuddy\MING\prompts\02-modes\[mode].md`:
   - `daily.md` — warm, grounded, default
   - `memory.md` — reflective, narrative, when user invokes past
   - `deep_night.md` — intimate, unhurried, when time is 22:00–05:00 or emotional depth
@@ -55,8 +55,8 @@
 
 **Trigger:** User says "this is wrong", "追加", "evolve MING", "/ming-evolve", or provides new information.
 
-**Step 1:** Read `E:\desktop\hecker\MING\prompts\03-evolution\01-evidence.md` to understand the evidence format.
-**Step 2:** Read `E:\desktop\hecker\MING\prompts\03-evolution\02-correction.md` if the user is correcting an existing distillation.
+**Step 1:** Read `D:\Data\Desktop\twinbuddy\MING\prompts\03-evolution\01-evidence.md` to understand the evidence format.
+**Step 2:** Read `D:\Data\Desktop\twinbuddy\MING\prompts\03-evolution\02-correction.md` if the user is correcting an existing distillation.
 
 **Evidence format** (write to `memory/05-evidence/`):
 ```markdown
@@ -92,7 +92,7 @@ confidence: high | medium | low
 **Trigger:** User says "明我考古", "/ming-archaeology", "/ming-rollback", "/ming-snapshot", or "view history".
 
 **Snapshot creation** (`/ming-snapshot`):
-1. Read `E:\desktop\hecker\MING\prompts\04-archaeology\01-snapshot-log.md` for format.
+1. Read `D:\Data\Desktop\twinbuddy\MING\prompts\04-archaeology\01-snapshot-log.md` for format.
 2. Export current full memory state (all `memory/` subdirectories).
 3. Write to `memory/04-snapshots/v[n.n]-[date].md` using the snapshot template from SKILL.md.
 4. Append entry to `memory/04-snapshots/index.md`.
@@ -108,7 +108,7 @@ confidence: high | medium | low
 7. Confirm: "Rolled back to [snapshot_id]. Current state backed up as [rollback_id]."
 
 **Archaeology / Diff review** (`/ming-archaeology`):
-1. Read `E:\desktop\hecker\MING\prompts\04-archaeology\02-diff-review.md`.
+1. Read `D:\Data\Desktop\twinbuddy\MING\prompts\04-archaeology\02-diff-review.md`.
 2. Read two user-selected snapshots (or latest two if none specified).
 3. Present a structured diff: what changed between snapshots, which dimensions evolved, what evidence was added.
 4. Offer to re-synthesize from the diff if the user wants a merged state.
@@ -132,7 +132,7 @@ L0-7: Dimension is distilled only with 3+ reviewed evidence pieces.
 ## Key File Paths (Absolute)
 
 ```
-E:\desktop\hecker\MING\
+D:\Data\Desktop\twinbuddy\MING\
 ├── SKILL.md                              ← Full system spec (read first)
 ├── FOR_AI.md                             ← This file
 ├── prompts/00-intake.md                  ← Session entry point

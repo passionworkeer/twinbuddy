@@ -4,11 +4,28 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+def _registered_paths(app) -> set[str]:
+    """Return fully expanded registered paths across included routers."""
+    paths = set(app.openapi()["paths"].keys())
+
+    def _walk(routes):
+        for route in routes:
+            path = getattr(route, "path", None)
+            if path:
+                paths.add(path)
+            original_router = getattr(route, "original_router", None)
+            if original_router is not None:
+                _walk(original_router.routes)
+
+    _walk(app.routes)
+    return paths
+
+
 def test_index_app_has_all_routes():
     """验证 index.py 注册了所有必要路由"""
     from api.index import app
 
-    routes = [route.path for route in app.routes]
+    routes = _registered_paths(app)
     assert "/api/buddies" in routes, f"缺少 /api/buddies，当前路由: {routes}"
     assert "/api/buddies/inbox" in routes, f"缺少 /api/buddies/inbox，当前路由: {routes}"
     assert "/api/games/blind/start" in routes, f"缺少 /api/games/blind/start，当前路由: {routes}"
@@ -30,6 +47,6 @@ def test_index_app_has_all_routes():
 def test_stt_routes_registered():
     """验证 STT 路由已注册无双前缀"""
     from api.index import app
-    routes = {route.path for route in app.routes}
+    routes = _registered_paths(app)
     assert "/api/api/stt/recognize" not in routes, "STT 路由有双前缀 /api/api/"
     assert "/api/stt/recognize" in routes or "/api/stt/ws" in routes

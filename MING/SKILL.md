@@ -2,7 +2,7 @@
 
 > Version: 1.0.0
 > System: MING = "明·我" — Self-Distillation Digital Human System
-> Entry: E:\desktop\hecker\MING\
+> Entry: D:\Data\Desktop\twinbuddy\MING\
 
 ---
 
@@ -65,7 +65,7 @@ The active mode is always recorded in the session header.
 
 ## Prompts Subdirectories
 
-All prompt assets live under `E:\desktop\hecker\MING\prompts\`.
+All prompt assets live under `D:\Data\Desktop\twinbuddy\MING\prompts\`.
 
 ```
 prompts/
@@ -377,7 +377,7 @@ When writing durable knowledge (after user approval):
 ## File Locations Summary
 
 ```
-E:\desktop\hecker\MING\
+D:\Data\Desktop\twinbuddy\MING\
 ├── SKILL.md                       ← You are here
 ├── FOR_AI.md                      ← AI quick-start
 ├── prompts/

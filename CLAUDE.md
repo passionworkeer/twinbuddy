@@ -73,7 +73,7 @@ npx playwright test e2e/twinbuddy-e2e.spec.ts    # one spec
 npx playwright test --ui                         # interactive
 ```
 
-CI (`.github/workflows/ci.yml`) triggers on `main` and `feat/**`, `fix/**`, `chores/**` branches and runs: backend `pytest api/tests` (with a Postgres service + alembic migrate), frontend `vitest --run` + `npm run build`. **Use `npm`, not `pnpm**` — CI and `package-lock.json` are npm-based (the README's `pnpm` reference is stale).
+CI (`.github/workflows/ci.yml`) triggers on `main` and `feat/**`, `fix/**`, `chore/**`, `codex/**` branches and runs: backend `pytest api/tests` (with a Postgres service + alembic migrate), frontend smoke build + `npm run build`. **Use `npm`, not `pnpm**` — CI and `package-lock.json` are npm-based (the README's `pnpm` reference is stale).
 
 ## Architecture
 
@@ -97,9 +97,11 @@ CI (`.github/workflows/ci.yml`) triggers on `main` and `feat/**`, `fix/**`, `cho
 
 Dev state is held in process-memory dicts in `api/_store.py`, each backed by a JSON file under repo-root `data/` (gitignored, auto-created). This is what the running app uses locally. Postgres is the production target: DDL in `database/schema/` (numbered files), Alembic migrations in `api/migrations/`. When adding a new persisted entity, extend `_store.py` for dev and add a migration + schema file for prod.
 
-### Frontend: routing, onboarding gate, offline mocks
+### Frontend: Vue 3 mobile shell, routing, onboarding gate, offline mocks
 
-`src/main.tsx` → `App.tsx`. `react-router-dom` v6. `/` redirects to `/onboarding` unless `localStorage` flag `completed` is set (see `HomeRedirect` + `useLocalStorage` + `VITE_STORAGE_KEYS`), otherwise `/home`. Authed pages share `components/layout/AppLayout`. Pages live in `src/pages/v2/` (Home/Buddies/BlindGame/Community/Messages/Profile/Onboarding). Path alias `@` → `src/`. The client (`src/api/client.ts`) reads `VITE_API_BASE` (defaults to `/api`, proxied by Vite). `src/mocks/` holds fixture data so the UI can run without the backend.
+Active frontend is `twinbuddy/frontend/` — a Vue 3 + Vite graft of `zyronon/douyin` (GPL-3.0), kept as the product shell until TwinBuddy-specific cards/recommendations/settings migrate in. Entry is `src/main.ts` → `App.vue`. `vue-router` v4: routes declared in `src/router/routes.ts` (large surface inherited from the upstream Douyin fork — home / message / me / shop / live / search / etc.). The team is currently adding TwinBuddy-specific routes on this branch (`codex/project-structure-cleanup`); see `docs/BRANCHES.md` for the active dev branch.
+
+Local dev: Vite runs on `:5173` and proxies `/api` (incl. WebSocket) to `http://localhost:8000` — see `vite.config.ts`. Production: `VITE_API_BASE` / `VITE_WS_BASE` point at the Railway backend. HTTP requests go through `src/utils/request.ts` (axios); feature modules under `src/api/*` re-export typed helpers. Mock fixtures live in `src/mock/` and `src/assets/data/` so the UI can render without the backend. Path alias `@` → `src/`.
 
 ### Conventions
 

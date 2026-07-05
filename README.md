@@ -126,6 +126,19 @@ twinbuddy/frontend
 
 See `docs/DEPLOY.md` for the current runbook.
 
+## Development Branch
+
+The active development branch is `codex/project-structure-cleanup` — the line that
+onboarded the `zyronon/douyin` Vue shell and archived the old React frontend.
+GitHub's default branch is still `main` (which points at the deployed codebase);
+after cloning, switch to the active dev branch:
+
+```bash
+git checkout codex/project-structure-cleanup
+```
+
+See `BRANCHES.md` at the repo root for the full branch map, naming conventions, and SSH / merge notes (kept fresh by `wang`).
+
 ## Current Cleanup Rule
 
 Keep active code in the live paths above. Move stale experiments, duplicate entrypoints, old generated apps, and superseded docs into `archive/` with a dated folder. Do not add new root-level app entrypoints unless deployment or CI is changed at the same time.

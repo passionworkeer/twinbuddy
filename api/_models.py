@@ -198,3 +198,124 @@ class BlindGameAnswerRequest(BaseModel):
     game_id: str
     round_id: str
     choice: str = Field(..., pattern="^(A|B)$")
+
+
+# ===== TwinBuddy 懂你行动卡 (依据 docs/action-cards.md §8) =====
+
+SCENE_VALUES = ("trip", "food", "fitness", "study", "event", "shopping")
+VARIANT_VALUES = ("hint", "plan", "buddy", "complete")
+NEEDS_BUDDY_VALUES = ("required", "optional", "none")
+TONE_VALUES = ("casual", "direct", "warm")
+KEY_MOMENT_OUTCOME_VALUES = ("agreed", "pending", "escalated")
+
+
+class ActionCardKeyMoment(BaseModel):
+    """1 个关键瞬间（评审要求：不是聊天记录）"""
+    speaker: str = Field(..., description="user_twin | buddy_twin | system")
+    text: str = Field(..., min_length=1, max_length=200)
+    detected_conflict: str = Field(..., min_length=1, max_length=200)
+    resolution: str = Field(..., min_length=1, max_length=200)
+    outcome: str = Field(..., description="agreed | pending | escalated")
+
+
+class ActionCardNegotiationSummary(BaseModel):
+    """AI 协商摘要：已达成 / 待确认 / 风险 + 关键瞬间 + 推进度"""
+    agreed: List[str] = Field(default_factory=list, max_length=4)
+    pending: List[str] = Field(default_factory=list, max_length=3)
+    risks: List[str] = Field(default_factory=list, max_length=2)
+    key_moment: Optional[ActionCardKeyMoment] = None
+    progress: int = Field(..., ge=0, lt=100, description="永远 < 100%（PRD §16 红线）")
+
+
+class ActionCardCandidate(BaseModel):
+    id: str
+    avatar_url: str
+    nickname: str
+    match_label: str = Field(..., description="most_match | most_complement | most_interesting")
+    match_reason: str
+    conflicts: List[str] = Field(default_factory=list)
+
+
+class ActionCardFollowUp(BaseModel):
+    type: str
+    label: str
+
+
+class ActionCard(BaseModel):
+    """懂你行动卡（PRD §5.2 全部 10 项）"""
+    id: str
+    scene: str
+    variant: str
+    state: str
+    title: str
+    trigger_reason: str
+    intent: str = ""
+    plan: str = ""
+    needs_buddy: str
+    candidates: List[ActionCardCandidate] = Field(default_factory=list)
+    negotiation_summary: Optional[ActionCardNegotiationSummary] = None
+    risks: List[str] = Field(default_factory=list)
+    next_actions: List[Dict[str, Any]] = Field(default_factory=list)
+    follow_up: List[ActionCardFollowUp] = Field(default_factory=list)
+    invite_text: str = ""
+    meta: Dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("scene")
+    @classmethod
+    def validate_scene(cls, v: str) -> str:
+        if v not in SCENE_VALUES:
+            raise ValueError(f"scene must be one of {SCENE_VALUES}, got {v}")
+        return v
+
+    @field_validator("variant")
+    @classmethod
+    def validate_variant(cls, v: str) -> str:
+        if v not in VARIANT_VALUES:
+            raise ValueError(f"variant must be one of {VARIANT_VALUES}, got {v}")
+        return v
+
+    @field_validator("needs_buddy")
+    @classmethod
+    def validate_needs_buddy(cls, v: str) -> str:
+        if v not in NEEDS_BUDDY_VALUES:
+            raise ValueError(f"needs_buddy must be one of {NEEDS_BUDDY_VALUES}, got {v}")
+        return v
+
+
+class ActionCardDampenRequest(BaseModel):
+    scene: str
+    skip_count: int = Field(default=1, ge=1, le=10)
+
+
+class ActionCardDampenResponse(BaseModel):
+    scene: str
+    dampened: bool
+    expiry: Optional[int] = None  # epoch ms
+
+
+class ActionCardInviteRequest(BaseModel):
+    scene: str
+    tone: str = "casual"
+    partner_name: Optional[str] = None
+    deadline: Optional[str] = None
+    follow_up: List[ActionCardFollowUp] = Field(default_factory=list)
+
+    @field_validator("scene")
+    @classmethod
+    def validate_scene(cls, v: str) -> str:
+        if v not in SCENE_VALUES:
+            raise ValueError(f"scene must be one of {SCENE_VALUES}")
+        return v
+
+    @field_validator("tone")
+    @classmethod
+    def validate_tone(cls, v: str) -> str:
+        if v not in TONE_VALUES:
+            raise ValueError(f"tone must be one of {TONE_VALUES}")
+        return v
+
+
+class ActionCardInviteResponse(BaseModel):
+    text: str
+    scene: str
+    tone: str

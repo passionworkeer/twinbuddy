@@ -32,6 +32,7 @@ from api.persona import router as _persona_router
 from api.profiles import router as _profiles_router
 from api.security import router as _security_router
 from api.trips import router as _trips_router
+from api.action_cards import router as _action_cards_router  # 真实懂你行动卡
 
 # 主 router：不设 prefix（子 router 已包含 /api）
 router = APIRouter(tags=["前端对接"])
@@ -46,6 +47,7 @@ router.include_router(_profiles_router)
 router.include_router(_negotiate_router)
 router.include_router(_security_router)
 router.include_router(_trips_router)
+router.include_router(_action_cards_router)  # /api/action-cards/*
 
 __all__ = ["router"]
 

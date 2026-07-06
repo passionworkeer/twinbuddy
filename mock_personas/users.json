@@ -1,0 +1,998 @@
+[
+  {
+    "uid": "twinbuddy-mock-001",
+    "nickname": "周末出逃型 ENFP",
+    "city": "深圳",
+    "mbti": "ENFP",
+    "age_band": "20-23",
+    "identity": "大学生 / 实习生",
+    "interests": [
+      "海边",
+      "咖啡",
+      "拍照",
+      "citywalk"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所"
+    ],
+    "conflicts": [
+      "喜欢拍照影响同行节奏",
+      "不爱早起"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food",
+      "event"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-001"
+  },
+  {
+    "uid": "twinbuddy-mock-002",
+    "nickname": "路线控 INTJ",
+    "city": "深圳",
+    "mbti": "INTJ",
+    "age_band": "24-27",
+    "identity": "研究生",
+    "interests": [
+      "旅行攻略",
+      "展览",
+      "城市探索"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "需要提前确认集合地点和返程"
+    ],
+    "conflicts": [
+      "不喜欢太随性的搭子"
+    ],
+    "fit_scenes": [
+      "trip",
+      "event",
+      "study"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-002"
+  },
+  {
+    "uid": "twinbuddy-mock-003",
+    "nickname": "今晚吃点好的",
+    "city": "深圳",
+    "mbti": "ENFJ",
+    "age_band": "24-27",
+    "identity": "职场新人",
+    "interests": [
+      "日料",
+      "火锅",
+      "咖啡",
+      "甜品"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次吃饭可以，但不接受太晚结束"
+    ],
+    "conflicts": [
+      "不能吃太辣"
+    ],
+    "fit_scenes": [
+      "food",
+      "trip",
+      "event"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-003"
+  },
+  {
+    "uid": "twinbuddy-mock-004",
+    "nickname": "低能量 INFJ",
+    "city": "深圳",
+    "mbti": "INFJ",
+    "age_band": "28-32",
+    "identity": "程序员",
+    "interests": [
+      "citywalk",
+      "咖啡",
+      "展览",
+      "阅读"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "工作日晚上 10 点前结束"
+    ],
+    "conflicts": [
+      "讨厌特种兵旅行",
+      "周末只想独处"
+    ],
+    "fit_scenes": [
+      "event",
+      "study",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-004"
+  },
+  {
+    "uid": "twinbuddy-mock-005",
+    "nickname": "特种兵旅行 ESTP",
+    "city": "深圳",
+    "mbti": "ESTP",
+    "age_band": "20-23",
+    "identity": "大学生",
+    "interests": [
+      "特种兵",
+      "徒步",
+      "爬山",
+      "夜市"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "接受临时住宿"
+    ],
+    "conflicts": [
+      "节奏太快",
+      "预算太紧"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food",
+      "event"
+    ],
+    "avoid_scenes": [
+      "study",
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-005"
+  },
+  {
+    "uid": "twinbuddy-mock-006",
+    "nickname": "深夜觅食 ESFP",
+    "city": "深圳",
+    "mbti": "ESFP",
+    "age_band": "24-27",
+    "identity": "广告策划",
+    "interests": [
+      "烧烤",
+      "夜宵",
+      "日料",
+      "咖啡"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "晚 11 点前回"
+    ],
+    "conflicts": [
+      "吃饭必拍照",
+      "易冲动点单"
+    ],
+    "fit_scenes": [
+      "food",
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-006"
+  },
+  {
+    "uid": "twinbuddy-mock-007",
+    "nickname": "口味挑剔 ISFP",
+    "city": "深圳",
+    "mbti": "ISFP",
+    "age_band": "28-32",
+    "identity": "设计师",
+    "interests": [
+      "私房菜",
+      "咖啡",
+      "甜品"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "必须提前 3 天预约"
+    ],
+    "conflicts": [
+      "不接受排队 ≥ 1 小时"
+    ],
+    "fit_scenes": [
+      "food",
+      "event"
+    ],
+    "avoid_scenes": [
+      "trip",
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-007"
+  },
+  {
+    "uid": "twinbuddy-mock-008",
+    "nickname": "减脂餐打卡 INTP",
+    "city": "深圳",
+    "mbti": "INTP",
+    "age_band": "24-27",
+    "identity": "数据分析师",
+    "interests": [
+      "减脂餐",
+      "健身",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只看热量表"
+    ],
+    "conflicts": [
+      "晚上不吃饭",
+      "不能喝含糖饮料"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "food",
+      "study"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-008"
+  },
+  {
+    "uid": "twinbuddy-mock-009",
+    "nickname": "早茶控 ENFJ",
+    "city": "深圳",
+    "mbti": "ENFJ",
+    "age_band": "28-32",
+    "identity": "产品经理",
+    "interests": [
+      "早茶",
+      "粤菜",
+      "城市漫游"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "约定时间不迟到"
+    ],
+    "conflicts": [
+      "希望搭子 9:30 准时"
+    ],
+    "fit_scenes": [
+      "food",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-009"
+  },
+  {
+    "uid": "twinbuddy-mock-010",
+    "nickname": "AA 战士 ISTJ",
+    "city": "深圳",
+    "mbti": "ISTJ",
+    "age_band": "24-27",
+    "identity": "审计师",
+    "interests": [
+      "记账",
+      "咖啡",
+      "citywalk"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "必须 AA",
+      "不接受借钱"
+    ],
+    "conflicts": [
+      "搭子迟到会扣印象分"
+    ],
+    "fit_scenes": [
+      "food",
+      "trip",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-010"
+  },
+  {
+    "uid": "twinbuddy-mock-011",
+    "nickname": "瑜伽打卡 ISFJ",
+    "city": "深圳",
+    "mbti": "ISFJ",
+    "age_band": "28-32",
+    "identity": "护士",
+    "interests": [
+      "瑜伽",
+      "冥想",
+      "跑步"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "不带去嘈杂场地"
+    ],
+    "conflicts": [
+      "不想被拉去跳舞"
+    ],
+    "fit_scenes": [
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-011"
+  },
+  {
+    "uid": "twinbuddy-mock-012",
+    "nickname": "撸铁 ESFJ",
+    "city": "深圳",
+    "mbti": "ESFJ",
+    "age_band": "24-27",
+    "identity": "健身教练",
+    "interests": [
+      "撸铁",
+      "蛋白粉",
+      "跑步",
+      "拳击"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "一定要有器械"
+    ],
+    "conflicts": [
+      "不接受偷懒搭子"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-012"
+  },
+  {
+    "uid": "twinbuddy-mock-013",
+    "nickname": "晨跑 INTJ",
+    "city": "深圳",
+    "mbti": "INTJ",
+    "age_band": "28-32",
+    "identity": "工程师",
+    "interests": [
+      "跑步",
+      "骑行",
+      "数据复盘"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "夜跑不独自"
+    ],
+    "conflicts": [
+      "配速 < 5:30 km 不聊"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "study"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-013"
+  },
+  {
+    "uid": "twinbuddy-mock-014",
+    "nickname": "散步 ENFP",
+    "city": "深圳",
+    "mbti": "ENFP",
+    "age_band": "20-23",
+    "identity": "自由职业",
+    "interests": [
+      "citywalk",
+      "摄影",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "不接受夜场"
+    ],
+    "conflicts": [
+      "走 2 万步以下嫌无聊"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food",
+      "event"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-014"
+  },
+  {
+    "uid": "twinbuddy-mock-015",
+    "nickname": "伤病恢复中 ISTP",
+    "city": "深圳",
+    "mbti": "ISTP",
+    "age_band": "28-32",
+    "identity": "数据工程师",
+    "interests": [
+      "低强度训练",
+      "拉伸",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "不接受跳绳/跑步"
+    ],
+    "conflicts": [
+      "不想被推剧烈运动"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "study"
+    ],
+    "avoid_scenes": [
+      "trip",
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-015"
+  },
+  {
+    "uid": "twinbuddy-mock-016",
+    "nickname": "AI Agent 入门 INTP",
+    "city": "深圳",
+    "mbti": "INTP",
+    "age_band": "24-27",
+    "identity": "后端工程师",
+    "interests": [
+      "编程",
+      "AI Agent",
+      "论文阅读"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只看代码不拍照"
+    ],
+    "conflicts": [
+      "无法坚持早 8 点起床"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "food",
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-016"
+  },
+  {
+    "uid": "twinbuddy-mock-017",
+    "nickname": "考研 ISFP",
+    "city": "深圳",
+    "mbti": "ISFP",
+    "age_band": "20-23",
+    "identity": "应届考研生",
+    "interests": [
+      "刷题",
+      "自习",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只想安静复习"
+    ],
+    "conflicts": [
+      "被打扰会焦虑"
+    ],
+    "fit_scenes": [
+      "study",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event",
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-017"
+  },
+  {
+    "uid": "twinbuddy-mock-018",
+    "nickname": "英语口语 ENFJ",
+    "city": "深圳",
+    "mbti": "ENFJ",
+    "age_band": "24-27",
+    "identity": "外贸",
+    "interests": [
+      "英语口语",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "不接受深夜 11 点后"
+    ],
+    "conflicts": [
+      "希望搭子英文沟通"
+    ],
+    "fit_scenes": [
+      "study",
+      "food",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-018"
+  },
+  {
+    "uid": "twinbuddy-mock-019",
+    "nickname": "论文抑郁 INFJ",
+    "city": "深圳",
+    "mbti": "INFJ",
+    "age_band": "24-27",
+    "identity": "博士生",
+    "interests": [
+      "论文阅读",
+      "写作",
+      "咖啡"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只想打卡论文"
+    ],
+    "conflicts": [
+      "被打扰会发脾气"
+    ],
+    "fit_scenes": [
+      "study",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip",
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-019"
+  },
+  {
+    "uid": "twinbuddy-mock-020",
+    "nickname": "副业折腾 ESFP",
+    "city": "深圳",
+    "mbti": "ESFP",
+    "age_band": "28-32",
+    "identity": "产品经理",
+    "interests": [
+      "副业",
+      "Side project",
+      "咖啡"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "只聊技术细节"
+    ],
+    "conflicts": [
+      "不浪费时间在没产出的对话"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-020"
+  },
+  {
+    "uid": "twinbuddy-mock-021",
+    "nickname": "演唱会追星 ESFJ",
+    "city": "深圳",
+    "mbti": "ESFJ",
+    "age_band": "20-23",
+    "identity": "大学生",
+    "interests": [
+      "演唱会",
+      "追星",
+      "应援"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "必须有同行人"
+    ],
+    "conflicts": [
+      "必须接受拍照 2 小时"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-021"
+  },
+  {
+    "uid": "twinbuddy-mock-022",
+    "nickname": "看展 INFJ",
+    "city": "深圳",
+    "mbti": "INFJ",
+    "age_band": "28-32",
+    "identity": "策展人",
+    "interests": [
+      "展览",
+      "艺术",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "不接受吵闹搭子"
+    ],
+    "conflicts": [
+      "现场必须静音讲解"
+    ],
+    "fit_scenes": [
+      "event",
+      "study"
+    ],
+    "avoid_scenes": [
+      "fitness",
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-022"
+  },
+  {
+    "uid": "twinbuddy-mock-023",
+    "nickname": "Livehouse INFP",
+    "city": "深圳",
+    "mbti": "INFP",
+    "age_band": "24-27",
+    "identity": "音乐人",
+    "interests": [
+      "Livehouse",
+      "独立音乐",
+      "酒"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "搭子要能喝"
+    ],
+    "conflicts": [
+      "不接受喝可乐的人"
+    ],
+    "fit_scenes": [
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study",
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-023"
+  },
+  {
+    "uid": "twinbuddy-mock-024",
+    "nickname": "漫展 cos ESTP",
+    "city": "深圳",
+    "mbti": "ESTP",
+    "age_band": "20-23",
+    "identity": "学生",
+    "interests": [
+      "漫展",
+      "cos",
+      "二次元"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "衣品合得来"
+    ],
+    "conflicts": [
+      "不接受钢铁直男搭子"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study",
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-024"
+  },
+  {
+    "uid": "twinbuddy-mock-025",
+    "nickname": "脱口秀 ISTJ",
+    "city": "深圳",
+    "mbti": "ISTJ",
+    "age_band": "28-32",
+    "identity": "律师",
+    "interests": [
+      "脱口秀",
+      "喜剧",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只去笑果文化"
+    ],
+    "conflicts": [
+      "不喜欢被 call 的风险"
+    ],
+    "fit_scenes": [
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip",
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-025"
+  },
+  {
+    "uid": "twinbuddy-mock-026",
+    "nickname": "数码控 ENTP",
+    "city": "深圳",
+    "mbti": "ENTP",
+    "age_band": "24-27",
+    "identity": "程序员",
+    "interests": [
+      "数码",
+      "AI 硬件",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "只看评测"
+    ],
+    "conflicts": [
+      "只看参数"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "study"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-026"
+  },
+  {
+    "uid": "twinbuddy-mock-027",
+    "nickname": "穿搭博主 ESFP",
+    "city": "深圳",
+    "mbti": "ESFP",
+    "age_band": "20-23",
+    "identity": "博主",
+    "interests": [
+      "穿搭",
+      "vintage",
+      "香水"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "必须光线好"
+    ],
+    "conflicts": [
+      "一次只逛 2 小时以上"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "food",
+      "event"
+    ],
+    "avoid_scenes": [
+      "study",
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-027"
+  },
+  {
+    "uid": "twinbuddy-mock-028",
+    "nickname": "性价比 ESFJ",
+    "city": "深圳",
+    "mbti": "ESFJ",
+    "age_band": "28-32",
+    "identity": "小学老师",
+    "interests": [
+      "家居",
+      "儿童用品",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "只看性价比"
+    ],
+    "conflicts": [
+      "超过预算不看"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "food",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-028"
+  },
+  {
+    "uid": "twinbuddy-mock-029",
+    "nickname": "通勤包控 ISTJ",
+    "city": "深圳",
+    "mbti": "ISTJ",
+    "age_band": "28-32",
+    "identity": "产品经理",
+    "interests": [
+      "通勤包",
+      "手表",
+      "数码"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "只去实体店"
+    ],
+    "conflicts": [
+      "不接受七天无理由退"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip",
+      "fitness",
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-029"
+  },
+  {
+    "uid": "twinbuddy-mock-030",
+    "nickname": "J 人 daily planner",
+    "city": "深圳",
+    "mbti": "ESTJ",
+    "age_band": "24-27",
+    "identity": "运营",
+    "interests": [
+      "打卡",
+      "citywalk",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "打卡要带小本本"
+    ],
+    "conflicts": [
+      "不接受迷路搭子"
+    ],
+    "fit_scenes": [
+      "trip",
+      "shopping",
+      "food",
+      "event",
+      "fitness",
+      "study"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-030"
+  }
+]

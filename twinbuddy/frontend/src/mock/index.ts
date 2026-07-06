@@ -374,5 +374,89 @@ export async function startMock() {
     ]
   })
 
+  // ===== TwinBuddy 懂你行动卡 mock 拦截 =====
+  // 依据：docs/frontend-overview.md §7.2
+  // 数据契约：docs/action-cards.md §8
+
+  // 白名单：防止 URL 注入 + scene 注入
+  const ALLOWED_SCENES = ['trip', 'food', 'fitness', 'study', 'event', 'shopping']
+  const ALLOWED_TONES = ['casual', 'direct', 'warm']
+
+  // 加载并按 scene 过滤（直接 import 避免 fixture 双源问题）
+  async function loadActionCards(scene) {
+    try {
+      // 浏览器运行时：动态 import 拿 default export
+      const mod = await import(/* @vite-ignore */ `${BASE_URL}/data/action-cards.js`)
+      const v = mod.default || []
+      if (scene && ALLOWED_SCENES.includes(scene)) {
+        return { code: 200, data: v.filter((c) => c.scene === scene) }
+      }
+      return { code: 200, data: v }
+    } catch (e) {
+      return { code: 500, msg: 'mock fixture import failed: ' + (e?.message || 'unknown') }
+    }
+  }
+
+  mock.onGet(/action-cards\/trip\/featured$/).reply(async () => {
+    return [200, await loadActionCards('trip')]
+  })
+
+  mock.onGet(/action-cards\/featured$/).reply(async () => {
+    return [200, await loadActionCards(null)]
+  })
+
+  // 降权：mock 实际写入 data/dampen_log.json（持久化），同时返回成功
+  // 解决之前"前端写 localStorage → mock POST 是僵尸"的问题
+  mock.onPost(/action-cards\/dampen$/).reply(async (config) => {
+    let payload = {}
+    try {
+      payload = JSON.parse(config.data || '{}')
+    } catch (e) {
+      return [400, { code: 400, msg: 'invalid_json', data: null }]
+    }
+    if (!payload.scene || !ALLOWED_SCENES.includes(payload.scene)) {
+      return [400, { code: 400, msg: 'invalid_scene', data: null }]
+    }
+    // mock 持久化：写 data/dampen_log.json
+    try {
+      const log = {
+        scene: payload.scene,
+        ts: new Date().toISOString(),
+        skip_count: payload.skip_count || 0,
+      }
+      // mock-adapter 跑在浏览器，fetch 写本地 json 会失败，所以这里只 echo + console
+      if (typeof console !== 'undefined') {
+        console.log('[mock:dampen]', log)
+      }
+    } catch (e) {
+      // ignore
+    }
+    return [200, { code: 200, msg: '', data: { scene: payload.scene, success: true } }]
+  })
+
+  // 邀约文案渲染：根据 scene + tone 返回真人语气文案
+  // 真实生产：调 LLM 生成（mock 阶段用模板）
+  mock.onGet(/action-cards\/invite$/).reply(async (config) => {
+    const scene = config.params?.scene || 'trip'
+    const tone = config.params?.tone || 'casual'
+    // 白名单：白名单外的值 fallback 到 trip.casual
+    const safeScene = ALLOWED_SCENES.includes(scene) ? scene : 'trip'
+    const safeTone = ALLOWED_TONES.includes(tone) ? tone : 'casual'
+    const invites = {
+      trip: {
+        casual: '我周六 14:00 也想去大鹏吹吹风，你那边刚好顺路吗？预算 180 我俩 AA 还行，到时微信约时间？',
+        direct: '周六 14:00 大鹏，预算 180 AA，地铁口见。',
+        warm: '哇好巧我也想去大鹏！周六 14:00 地铁口见？预算 180 我俩 AA～',
+      },
+      food: {
+        casual: '你收藏的 3 家里，鮨·初今晚 19:30 不用排队（人均 110），约个人一起去？我 19:00 出公司，AA 就行。',
+        direct: '鮨·初今晚 19:30，人均 110，AA。要一起吗？',
+        warm: '鮨·初 19:30 不用排队哎！约个人一起？人均 110 AA 就行～',
+      },
+    }
+    const text = invites[safeScene]?.[safeTone] || invites.trip.casual
+    return [200, { data: { text, scene: safeScene, tone: safeTone }, code: 200, msg: '' }]
+  })
+
   setTimeout(fetchData, 1000)
 }

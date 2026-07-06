@@ -5,7 +5,8 @@ import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   // {path: '/', redirect: '/attention'},
-  { path: '/', redirect: '/home' },
+  // TwinBuddy 第一屏必须是 Feed（评审要求）
+  { path: '/', redirect: '/feed' },
   { path: '/test', component: Test },
   { path: '/test4', component: Test4 },
 
@@ -233,7 +234,22 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/home/search',
     component: () => import('@/pages/home/SearchPage.vue')
-  }
+  },
+
+  // ===== TwinBuddy 懂你行动卡 路由 (依据 docs/component-designs.md §8.1) =====
+  { path: '/feed', component: () => import('@/pages/feed/index.vue') },
+  { path: '/card/:id', component: () => import('@/pages/feed/index.vue') },
+  {
+    path: '/negotiate/:cardId',
+    component: () => import('@/pages/negotiate/AiTwinNegotiation.vue')
+  },
+  {
+    path: '/invite/:cardId/:candidateId',
+    component: () => import('@/pages/invite/OneClickInvite.vue')
+  },
+  { path: '/survey', component: () => import('@/pages/survey/OnboardingSurvey.vue') },
+  { path: '/twin', component: () => import('@/components/TwinMaturity.vue') },
+  { path: '/archive', component: () => import('@/pages/action-box/ActionBox.vue') },
 ]
 
 export default routes

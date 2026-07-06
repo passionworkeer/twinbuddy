@@ -336,9 +336,17 @@ export const shoppingCardA6 = {
   },
 }
 
+export const tripCardA1Buddy = {
+  ...tripCardA1,
+  id: 'trip-a1-dapeng-buddy',
+  variant: 'buddy',
+  state: 'buddy',
+}
+
 export const allMockCards = [
   tripHintCard,
   tripCardA1,
+  tripCardA1Buddy,
   foodCardA2,
   fitnessCardA3,
   studyCardA4,

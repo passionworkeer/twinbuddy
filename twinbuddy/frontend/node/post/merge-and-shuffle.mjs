@@ -26,11 +26,15 @@ import { items as eventItems } from './scene-config/event.mjs'
 import { items as shoppingItems } from './scene-config/shopping.mjs'
 import { items as noiseItems } from './scene-config/noise.mjs'
 
-import { users } from '../../../../mock_personas/users.mjs'
 import { generateSceneFeed } from './make-scene-data.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// 读编译产物 users.json(与后端 api/action_cards.py:_load_mock_users 同源),
+// 不再依赖仓库里不存在的 users.mjs。
+const repoRoot = path.resolve(__dirname, '..', '..', '..', '..')
+const users = JSON.parse(fs.readFileSync(path.join(repoRoot, 'mock_personas', 'users.json'), 'utf-8'))
 
 const SCENES = [
   { id: 'trip', items: tripItems },

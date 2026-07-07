@@ -14,9 +14,17 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
 
 import { allMockCards, tripCardA1, foodCardA2, tripHintCard, tripCompleteCard } from './action-cards.js'
-import { users } from '../../../../mock_personas/users.mjs'
+
+// 读编译产物 users.json(与后端 api/action_cards.py:_load_mock_users 同源),
+// 不再依赖仓库里不存在的 users.mjs。
+const __dirname_selfcheck = dirname(fileURLToPath(import.meta.url))
+const usersPath = resolve(__dirname_selfcheck, '../../../../mock_personas/users.json')
+const users = JSON.parse(readFileSync(usersPath, 'utf-8'))
 
 // ===== 1. 卡片必填字段 =====
 test('每张卡必填字段齐全（PRD §5.2）', () => {

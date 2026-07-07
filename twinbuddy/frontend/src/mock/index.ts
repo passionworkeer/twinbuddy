@@ -401,12 +401,19 @@ export async function startMock() {
     return [200, await loadActionCards('trip')]
   })
 
+  // 其它 5 场景统一走 loadActionCards 白名单过滤(防止 URL 注入)
+  for (const scene of ['food', 'fitness', 'study', 'event', 'shopping']) {
+    mock.onGet(new RegExp(`action-cards\\/${scene}\\/featured$`)).reply(async () => {
+      return [200, await loadActionCards(scene)]
+    })
+  }
+
   mock.onGet(/action-cards\/featured$/).reply(async () => {
     return [200, await loadActionCards(null)]
   })
 
-  // 降权：mock 实际写入 data/dampen_log.json（持久化），同时返回成功
-  // 解决之前"前端写 localStorage → mock POST 是僵尸"的问题
+  // 降权：mock 写入 localStorage(与 utils/feed-dampener.js 同样机制),
+  // 累计 skip_count >= 3 设 24h 过期标记
   mock.onPost(/action-cards\/dampen$/).reply(async (config) => {
     let payload = {}
     try {
@@ -417,21 +424,31 @@ export async function startMock() {
     if (!payload.scene || !ALLOWED_SCENES.includes(payload.scene)) {
       return [400, { code: 400, msg: 'invalid_scene', data: null }]
     }
-    // mock 持久化：写 data/dampen_log.json
+    let dampened = false
+    let expiry: number | null = null
     try {
-      const log = {
-        scene: payload.scene,
-        ts: new Date().toISOString(),
-        skip_count: payload.skip_count || 0,
+      const storageKey = 'twinbuddy.dampen.v1'
+      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(storageKey) : null
+      const state: Record<string, { skip_count: number; expiry: number | null; last_seen: number }> =
+        raw ? JSON.parse(raw) : {}
+      const prev = state[payload.scene] || { skip_count: 0, expiry: null, last_seen: 0 }
+      const skipCount = (prev.skip_count || 0) + (payload.skip_count || 1)
+      const now = Date.now()
+      if (skipCount >= 3) {
+        expiry = now + 24 * 3600 * 1000
+        dampened = true
       }
-      // mock-adapter 跑在浏览器，fetch 写本地 json 会失败，所以这里只 echo + console
+      state[payload.scene] = { skip_count: skipCount, expiry, last_seen: now }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(storageKey, JSON.stringify(state))
+      }
       if (typeof console !== 'undefined') {
-        console.log('[mock:dampen]', log)
+        console.log('[mock:dampen]', { scene: payload.scene, skip_count: skipCount, dampened, expiry })
       }
     } catch (e) {
-      // ignore
+      // ignore — mock 不阻塞业务
     }
-    return [200, { code: 200, msg: '', data: { scene: payload.scene, success: true } }]
+    return [200, { code: 200, msg: '', data: { scene: payload.scene, dampened, expiry } }]
   })
 
   // 邀约文案渲染：根据 scene + tone 返回真人语气文案

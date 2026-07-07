@@ -4,9 +4,11 @@ import { defineConfig, devices } from '@playwright/test'
  * Playwright 配置（占位，安装后启用）
  * 依据：docs/frontend-overview.md §11.2
  *
- * 安装：cd twinbuddy/frontend && pnpm add -D @playwright/test
- * 安装浏览器：pnpm exec playwright install
- * 跑法：pnpm exec playwright test
+ * 安装：cd twinbuddy/frontend && npm install --save-dev @playwright/test
+ * 安装浏览器：npx playwright install
+ * 跑法：npx playwright test
+ *
+ * (项目统一使用 npm，与根 CLAUDE.md 一致；不要再用 pnpm。)
  */
 export default defineConfig({
   testDir: './e2e',

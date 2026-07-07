@@ -39,8 +39,9 @@ from api._models import (
 router = APIRouter(prefix="/api/action-cards", tags=["懂你行动卡"])
 
 # ===== 真实存储 =====
-_DAMPEN_FILE = Path("data/dampen_store.json")
-_INVITE_TEMPLATE = Path("api/templates/invite.md")
+# 用 __file__ 锚定绝对路径,跟 api/_store.py 同款,避免 Vercel / 临时 cwd 错写
+_DAMPEN_FILE = Path(__file__).resolve().parent.parent / "data" / "dampen_store.json"
+_INVITE_TEMPLATE = Path(__file__).resolve().parent / "templates" / "invite.md"
 
 
 # ----- dampen 持久化 -----
@@ -489,6 +490,31 @@ async def get_invite(
         text = text.replace("{partner_name}", partner_name)
     if deadline:
         text = text.replace("{deadline}", deadline)
+
+    # 模板里仍未替换的占位变量(由前端按场景/语气在调用前补;这里给个空 fallback,
+    # 避免原文里出现 `{weekday} {time}` 这种未渲染半成品)。
+    # 用 None 表示"按场景用合理默认一句话",否则直接清空占位避免视觉杂乱。
+    fallback_phrases = {
+        "{weekday}": "周末",
+        "{time}": "晚 7 点",
+        "{place}": "目的地",
+        "{action}": "一起玩",
+        "{adj}": "",
+        "{budget}": "人均 200",
+        "{aa_or_buy}": "AA",
+        "{contact}": "微信",
+        "{pace}": "正常",
+    }
+    for placeholder, default in fallback_phrases.items():
+        if default:
+            text = text.replace(placeholder, default)
+        else:
+            text = text.replace(placeholder, "")
+    # 清掉残留的未知占位变量(以防以后模板加新占位但 API 还没跟上)
+    import re as _re
+    text = _re.sub(r"\{[a-z_]+\}", "", text)
+    # 清掉多余空格(比如"{adj}"被替换成空后留下的双空格)
+    text = _re.sub(r"\s{2,}", " ", text).strip()
 
     return {
         "success": True,

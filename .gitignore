@@ -63,7 +63,18 @@ docs/plans/
 twinbuddy/data/
 twinbuddy/test_negotiation_result.json
 twinbuddy/agents/_archived/
-data/
+/data/
+
+# node/post/data/ 下 track 生成的 4 个 fixture,其余 user-*.json 是临时嗅探文件不入
+twinbuddy/frontend/node/post/data/user-*.json
+
+# 上游 douyin fork 的本地抖音评论嗅探缓存,不属于 TwinBuddy 数据源
+twinbuddy/frontend/public/data/comments/video_id_*
+twinbuddy/frontend/node/comment/data/
+# 历史替换残留(新版本 posts6.json 是正常产物)
+twinbuddy/frontend/src/assets/data/posts6-old.json
+# 上游 douyin SPA 自带的本地缓存,跟 TwinBuddy 无关
+twinbuddy/frontend/src/assets/data/posts6.json
 
 # Archived/generate docs
 docs/.archive/

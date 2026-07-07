@@ -5,7 +5,7 @@
  * 用法：
  *   node merge-and-shuffle.mjs
  *
- * 它把 6 个场景 config + 30 个 mock user 合并成：
+ * 它把 6 个场景 config + 200 个 mock user 合并成：
  *   - posts.json  : 全量视频（每场景 50+ 条，author 已绑定）
  *   - posts6.json : 首屏 6 条（随机选）
  *   - golden-order.json : 黄金顺序 list（PRD §10.4 8+1+2+1+4+1+1）
@@ -26,6 +26,15 @@ import { items as eventItems } from './scene-config/event.mjs'
 import { items as shoppingItems } from './scene-config/shopping.mjs'
 import { items as noiseItems } from './scene-config/noise.mjs'
 
+// 扩充条目(每场景 +25~30 条,共 80/场景;扩出 200 user 后规模匹配)
+import { items as tripExtra } from './scene-config/trip.add.mjs'
+import { items as foodExtra } from './scene-config/food.add.mjs'
+import { items as fitnessExtra } from './scene-config/fitness.add.mjs'
+import { items as studyExtra } from './scene-config/study.add.mjs'
+import { items as eventExtra } from './scene-config/event.add.mjs'
+import { items as shoppingExtra } from './scene-config/shopping.add.mjs'
+import { items as noiseExtra } from './scene-config/noise.add.mjs'
+
 import { generateSceneFeed } from './make-scene-data.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -37,14 +46,14 @@ const repoRoot = path.resolve(__dirname, '..', '..', '..', '..')
 const users = JSON.parse(fs.readFileSync(path.join(repoRoot, 'mock_personas', 'users.json'), 'utf-8'))
 
 const SCENES = [
-  { id: 'trip', items: tripItems },
-  { id: 'food', items: foodItems },
-  { id: 'fitness', items: fitnessItems },
-  { id: 'study', items: studyItems },
-  { id: 'event', items: eventItems },
-  { id: 'shopping', items: shoppingItems },
-  { id: 'noise', items: noiseItems },
-]
+  { id: 'trip', items: [...tripItems, ...tripExtra] },
+  { id: 'food', items: [...foodItems, ...foodExtra] },
+  { id: 'fitness', items: [...fitnessItems, ...fitnessExtra] },
+  { id: 'study', items: [...studyItems, ...studyExtra] },
+  { id: 'event', items: [...eventItems, ...eventExtra] },
+  { id: 'shopping', items: [...shoppingItems, ...shoppingExtra] },
+  { id: 'noise', items: [...noiseItems, ...noiseExtra] },
+]  // ~80/场景(原 53 + 额外)
 
 // 黄金顺序：依据 PRD §10.4
 const GOLDEN_ORDER = [
@@ -64,7 +73,7 @@ function ensureDir(p) {
 }
 
 function build() {
-  console.log('▶ 合并 6 场景 config + 30 mock user → 全量 videos')
+  console.log('▶ 合并 6 场景 config + 200 mock user → 全量 videos')
 
   const allVideos = []
   for (const scene of SCENES) {

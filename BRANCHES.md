@@ -93,3 +93,18 @@ git@github.com-passionworkeer:passionworkeer/twinbuddy.git
 - **所有 push/fetch 都走 SSH**（`github.com-passionworkeer` alias）
 - 只删 `--merged main` 的分支；`develop` / `hotfix/*` / `release/*` 保留
 - 8 个新 commit 全部 push 成功，远端与本地 `f568730` 同步
+
+---
+
+## 7. 公开仓库安全注意
+
+写到这份文档或仓库 README / commit message 时**不要**附上下面的敏感信息:
+
+- 真实 SSH alias 主机名、SSH config 文件路径
+- 私钥文件名(private key path / private key basename)
+- 端口号、SOCKS/HTTPS 转发细节
+- 任何只在你自己机器上有意义的实现路径
+
+这些不是密钥本身,但**是给 recon 的人的精确路线图**——公开仓库里只要让 collaborator 读到,任何 fork watcher 都能复现同样的攻击面。
+
+如果确实需要写到工作笔记,放进 `.gitignore` 名单(如 `fuwuqi.md` 规则)或者不 commit。

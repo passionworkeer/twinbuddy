@@ -6,7 +6,8 @@ digital-life/
 immortal-skill/
 relic.skill/
 yourself-skill/
-mock_personas/
+# mock_personas/ used to be here but was actually just data sources (.mjs + .json)
+# — now tracked normally so CI scripts can import them
 
 # Build outputs
 dist/

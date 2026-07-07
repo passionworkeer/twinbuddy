@@ -994,5 +994,6519 @@
     ],
     "avoid_scenes": [],
     "avatar_seed": "twinbuddy-mock-030"
+  },
+  {
+    "uid": "twinbuddy-mock-031",
+    "nickname": "周末出逃型 ESFJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESFJ",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "羽毛球",
+      "咖啡探店",
+      "海边",
+      "音乐节"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-031",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-032",
+    "nickname": "路线控 ENFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ENFJ",
+    "age_band": "23-25",
+    "identity": "新晋设计师",
+    "interests": [
+      "日料",
+      "演唱会",
+      "撸铁",
+      "AI Agent",
+      "旅行"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "study",
+      "trip",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-032",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-033",
+    "nickname": "今晚吃点好的 INFP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "INFP",
+    "age_band": "26-29",
+    "identity": "UI 设计师",
+    "interests": [
+      "羽毛球",
+      "舞蹈",
+      "通勤包",
+      "深夜食堂",
+      "撸铁"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-033",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-034",
+    "nickname": "咖啡星人 ISFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFP",
+    "age_band": "30-33",
+    "identity": "建筑设计师",
+    "interests": [
+      "播客",
+      "深夜食堂",
+      "香水"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-034",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-035",
+    "nickname": "理性分析者 ISTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISTP",
+    "age_band": "34-37",
+    "identity": "高级审计师",
+    "interests": [
+      "通勤包",
+      "撸铁",
+      "威士忌"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-035",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-036",
+    "nickname": "说走就走 INTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INTP",
+    "age_band": "38-42",
+    "identity": "高级合伙人",
+    "interests": [
+      "五月天",
+      "威士忌",
+      "跑步",
+      "露营",
+      "甜品"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-036",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-037",
+    "nickname": "随遇而安 INTJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "INTJ",
+    "age_band": "19-22",
+    "identity": "实习生",
+    "interests": [
+      "精酿啤酒",
+      "数码",
+      "甜品"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-037",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-038",
+    "nickname": "细节控 ENTP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ENTP",
+    "age_band": "23-25",
+    "identity": "新律师助理",
+    "interests": [
+      "草莓音乐节",
+      "通勤包",
+      "逛展",
+      "citywalk"
+    ],
+    "pace": "night",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-038",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-039",
+    "nickname": "节奏快手 ISFP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ISFP",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "草莓音乐节",
+      "露营",
+      "咖啡",
+      "护肤品"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-039",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-040",
+    "nickname": "慢热观察者 ISTJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ISTJ",
+    "age_band": "30-33",
+    "identity": "运营总监",
+    "interests": [
+      "通勤包",
+      "瑜伽",
+      "家居用品",
+      "普拉提",
+      "海边"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-040",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-041",
+    "nickname": "全场MVP ISTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTJ",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "演唱会",
+      "草莓音乐节",
+      "数码"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-041",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-042",
+    "nickname": "安静充电者 ENFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFJ",
+    "age_band": "38-42",
+    "identity": "副总裁",
+    "interests": [
+      "演唱会",
+      "旅行",
+      "徒步"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-042",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-043",
+    "nickname": "甜味依赖 ESTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESTP",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "瑜伽",
+      "护肤品",
+      "舞蹈",
+      "撸铁"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-043",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-044",
+    "nickname": "视觉动物 INFP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "INFP",
+    "age_band": "23-25",
+    "identity": "新律师助理",
+    "interests": [
+      "逛展",
+      "普拉提",
+      "citywalk",
+      "舞蹈",
+      "拍照"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-044",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-045",
+    "nickname": "路演王 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "26-29",
+    "identity": "公务员",
+    "interests": [
+      "通勤包",
+      "旅行",
+      "英语学习"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-045",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-046",
+    "nickname": "规律生活派 ISFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFJ",
+    "age_band": "30-33",
+    "identity": "运营总监",
+    "interests": [
+      "读论文",
+      "Live House",
+      "旅行",
+      "话剧"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-046",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-047",
+    "nickname": "凌晨 3 点失眠 ISTJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISTJ",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "咖啡探店",
+      "甜品",
+      "香水",
+      "特种兵旅游",
+      "CrossFit"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-047",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-048",
+    "nickname": "认真过周末 INTJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "INTJ",
+    "age_band": "38-42",
+    "identity": "首席设计师",
+    "interests": [
+      "演唱会",
+      "特种兵旅游",
+      "威士忌",
+      "周杰伦",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-048",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-049",
+    "nickname": "不卷主义者 ISFP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ISFP",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "徒步",
+      "潮鞋",
+      "咖啡探店",
+      "五月天",
+      "英语学习"
+    ],
+    "pace": "night",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-049",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-050",
+    "nickname": "主场作战 ESFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFP",
+    "age_band": "23-25",
+    "identity": "职场新人",
+    "interests": [
+      "海边",
+      "读论文",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-050",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-051",
+    "nickname": "周末出逃型 ESTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESTP",
+    "age_band": "26-29",
+    "identity": "数据分析师",
+    "interests": [
+      "威士忌",
+      "骑行",
+      "播客"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-051",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-052",
+    "nickname": "路线控 ESFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESFP",
+    "age_band": "30-33",
+    "identity": "外科医生",
+    "interests": [
+      "露营",
+      "徒步",
+      "甜品"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-052",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-053",
+    "nickname": "今晚吃点好的 ISTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTJ",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "逛展",
+      "刷题",
+      "拍照"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-053",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-054",
+    "nickname": "咖啡星人 ESTJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESTJ",
+    "age_band": "38-42",
+    "identity": "首席工程师",
+    "interests": [
+      "咖啡探店",
+      "深夜食堂",
+      "海边",
+      "播客",
+      "citywalk"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-054",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-055",
+    "nickname": "理性分析者 ISTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISTP",
+    "age_band": "19-22",
+    "identity": "本科在读",
+    "interests": [
+      "特种兵旅游",
+      "机械键盘",
+      "护肤品",
+      "咖啡探店"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-055",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-056",
+    "nickname": "说走就走 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "23-25",
+    "identity": "职场新人",
+    "interests": [
+      "香水",
+      "英语学习",
+      "海边",
+      "AI Agent"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-056",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-057",
+    "nickname": "随遇而安 ESFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESFJ",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "通勤包",
+      "话剧",
+      "机械键盘",
+      "旅行"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-057",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-058",
+    "nickname": "细节控 ESTJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESTJ",
+    "age_band": "30-33",
+    "identity": "资深工程师",
+    "interests": [
+      "AI Agent",
+      "精酿啤酒",
+      "读论文",
+      "普拉提"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-058",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-059",
+    "nickname": "节奏快手 ENTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENTP",
+    "age_band": "34-37",
+    "identity": "科室主任",
+    "interests": [
+      "演唱会",
+      "话剧",
+      "音乐节",
+      "机械键盘"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-059",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-060",
+    "nickname": "慢热观察者 ESTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESTJ",
+    "age_band": "38-42",
+    "identity": "副总裁",
+    "interests": [
+      "演唱会",
+      "精酿啤酒",
+      "舞蹈",
+      "话剧",
+      "日料"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-060",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-061",
+    "nickname": "全场MVP ESFJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ESFJ",
+    "age_band": "19-22",
+    "identity": "实习生",
+    "interests": [
+      "机械键盘",
+      "咖啡探店",
+      "通勤包",
+      "露营",
+      "周杰伦"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-061",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-062",
+    "nickname": "安静充电者 INFJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "INFJ",
+    "age_band": "23-25",
+    "identity": "新晋设计师",
+    "interests": [
+      "话剧",
+      "咖啡探店",
+      "草莓音乐节",
+      "Live House"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-062",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-063",
+    "nickname": "甜味依赖 ENFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ENFP",
+    "age_band": "26-29",
+    "identity": "建筑师",
+    "interests": [
+      "威士忌",
+      "特种兵旅游",
+      "海边",
+      "家居用品",
+      "逛展"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-063",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-064",
+    "nickname": "视觉动物 ISTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISTP",
+    "age_band": "30-33",
+    "identity": "产品总监",
+    "interests": [
+      "骑行",
+      "机械键盘",
+      "羽毛球"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-064",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-065",
+    "nickname": "路演王 ESTJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESTJ",
+    "age_band": "34-37",
+    "identity": "资深建筑师",
+    "interests": [
+      "家居用品",
+      "五月天",
+      "旅行",
+      "citywalk",
+      "露营"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-065",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-066",
+    "nickname": "规律生活派 INFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INFP",
+    "age_band": "38-42",
+    "identity": "主理人",
+    "interests": [
+      "潮鞋",
+      "火锅",
+      "精酿啤酒",
+      "旅行",
+      "音乐节"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-066",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-067",
+    "nickname": "凌晨 3 点失眠 ENTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENTJ",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "通勤包",
+      "草莓音乐节",
+      "拍照",
+      "威士忌"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-067",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-068",
+    "nickname": "认真过周末 ENFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ENFP",
+    "age_band": "23-25",
+    "identity": "新律师助理",
+    "interests": [
+      "草莓音乐节",
+      "脱口秀",
+      "海边",
+      "普拉提",
+      "英语学习"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-068",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-069",
+    "nickname": "不卷主义者 ISFJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISFJ",
+    "age_band": "26-29",
+    "identity": "公务员",
+    "interests": [
+      "咖啡",
+      "机械键盘",
+      "CrossFit",
+      "甜品"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-069",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-070",
+    "nickname": "主场作战 INTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INTP",
+    "age_band": "30-33",
+    "identity": "运营总监",
+    "interests": [
+      "播客",
+      "脱口秀",
+      "威士忌",
+      "演唱会"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-070",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-071",
+    "nickname": "周末出逃型 ENTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENTP",
+    "age_band": "34-37",
+    "identity": "音乐人",
+    "interests": [
+      "海边",
+      "五月天",
+      "护肤品",
+      "演唱会"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-071",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-072",
+    "nickname": "路线控 ISTJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISTJ",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "威士忌",
+      "护肤品",
+      "露营",
+      "演唱会",
+      "旅行"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-072",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-073",
+    "nickname": "今晚吃点好的 INTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INTP",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "AI Agent",
+      "旅行",
+      "普拉提",
+      "citywalk",
+      "家居用品"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-073",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-074",
+    "nickname": "咖啡星人 ESFJ",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ESFJ",
+    "age_band": "23-25",
+    "identity": "应届生",
+    "interests": [
+      "深夜食堂",
+      "舞蹈",
+      "草莓音乐节",
+      "读论文",
+      "旅行"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "study",
+      "trip",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-074",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-075",
+    "nickname": "理性分析者 INTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "INTP",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "香水",
+      "海边",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-075",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-076",
+    "nickname": "说走就走 ENTJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENTJ",
+    "age_band": "30-33",
+    "identity": "投资经理",
+    "interests": [
+      "咖啡探店",
+      "草莓音乐节",
+      "瑜伽",
+      "露营",
+      "日料"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-076",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-077",
+    "nickname": "随遇而安 ISTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTP",
+    "age_band": "34-37",
+    "identity": "科室主任",
+    "interests": [
+      "普拉提",
+      "英语学习",
+      "咖啡"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-077",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-078",
+    "nickname": "细节控 ESFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ESFP",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "徒步",
+      "撸铁",
+      "五月天",
+      "跑步",
+      "露营"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-078",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-079",
+    "nickname": "节奏快手 ENFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFP",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "潮鞋",
+      "海边",
+      "AI Agent"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-079",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-080",
+    "nickname": "慢热观察者 ISFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFP",
+    "age_band": "23-25",
+    "identity": "新晋设计师",
+    "interests": [
+      "火锅",
+      "草莓音乐节",
+      "露营",
+      "英语学习",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-080",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-081",
+    "nickname": "全场MVP ISFP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ISFP",
+    "age_band": "26-29",
+    "identity": "数据分析师",
+    "interests": [
+      "咖啡探店",
+      "潮鞋",
+      "普拉提",
+      "特种兵旅游"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-081",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-082",
+    "nickname": "安静充电者 ENFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ENFJ",
+    "age_band": "30-33",
+    "identity": "产品总监",
+    "interests": [
+      "拍照",
+      "精酿啤酒",
+      "逛展"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-082",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-083",
+    "nickname": "甜味依赖 INFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INFP",
+    "age_band": "34-37",
+    "identity": "高级审计师",
+    "interests": [
+      "音乐节",
+      "英语学习",
+      "家居用品",
+      "演唱会",
+      "威士忌"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-083",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-084",
+    "nickname": "视觉动物 INFP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "INFP",
+    "age_band": "38-42",
+    "identity": "首席设计师",
+    "interests": [
+      "精酿啤酒",
+      "旅行",
+      "逛展",
+      "护肤品",
+      "徒步"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-084",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-085",
+    "nickname": "路演王 ENFJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ENFJ",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "深夜食堂",
+      "瑜伽",
+      "潮鞋",
+      "威士忌",
+      "海边"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-085",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-086",
+    "nickname": "规律生活派 ENTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENTP",
+    "age_band": "23-25",
+    "identity": "应届生",
+    "interests": [
+      "脱口秀",
+      "五月天",
+      "读论文"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-086",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-087",
+    "nickname": "凌晨 3 点失眠 ESFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFJ",
+    "age_band": "26-29",
+    "identity": "广告策划",
+    "interests": [
+      "周杰伦",
+      "草莓音乐节",
+      "通勤包",
+      "拍照",
+      "瑜伽"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-087",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-088",
+    "nickname": "认真过周末 INTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INTP",
+    "age_band": "30-33",
+    "identity": "外科医生",
+    "interests": [
+      "逛展",
+      "脱口秀",
+      "潮鞋",
+      "AI Agent",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-088",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-089",
+    "nickname": "不卷主义者 ESFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESFP",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "演唱会",
+      "日料",
+      "家居用品",
+      "火锅",
+      "跑步"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-089",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-090",
+    "nickname": "主场作战 ISTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISTP",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "旅行",
+      "羽毛球",
+      "刷题",
+      "徒步",
+      "演唱会"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-090",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-091",
+    "nickname": "周末出逃型 ENFP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ENFP",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "旅行",
+      "机械键盘",
+      "舞蹈",
+      "清酒"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-091",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-092",
+    "nickname": "路线控 ENTP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ENTP",
+    "age_band": "23-25",
+    "identity": "新护士",
+    "interests": [
+      "脱口秀",
+      "草莓音乐节",
+      "演唱会",
+      "读论文",
+      "播客"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-092",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-093",
+    "nickname": "今晚吃点好的 ESFJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ESFJ",
+    "age_band": "26-29",
+    "identity": "产品经理",
+    "interests": [
+      "AI Agent",
+      "香水",
+      "骑行",
+      "citywalk"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-093",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-094",
+    "nickname": "咖啡星人 ESFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFP",
+    "age_band": "30-33",
+    "identity": "产品总监",
+    "interests": [
+      "护肤品",
+      "特种兵旅游",
+      "精酿啤酒",
+      "瑜伽",
+      "英语学习"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "food",
+      "study",
+      "shopping",
+      "trip",
+      "fitness"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-094",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-095",
+    "nickname": "理性分析者 ESFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESFP",
+    "age_band": "34-37",
+    "identity": "资深建筑师",
+    "interests": [
+      "周杰伦",
+      "草莓音乐节",
+      "跑步"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-095",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-096",
+    "nickname": "说走就走 INFJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INFJ",
+    "age_band": "38-42",
+    "identity": "首席工程师",
+    "interests": [
+      "写代码",
+      "护肤品",
+      "周杰伦"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-096",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-097",
+    "nickname": "随遇而安 ISTJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ISTJ",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "日料",
+      "羽毛球",
+      "周杰伦",
+      "citywalk",
+      "护肤品"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "shopping",
+      "trip",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-097",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-098",
+    "nickname": "细节控 ENFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENFP",
+    "age_band": "23-25",
+    "identity": "新护士",
+    "interests": [
+      "播客",
+      "咖啡",
+      "AI Agent",
+      "徒步"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-098",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-099",
+    "nickname": "节奏快手 ENFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFJ",
+    "age_band": "26-29",
+    "identity": "建筑师",
+    "interests": [
+      "拍照",
+      "深夜食堂",
+      "潮鞋",
+      "Live House",
+      "话剧"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-099",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-100",
+    "nickname": "慢热观察者 ISFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFP",
+    "age_band": "30-33",
+    "identity": "投资经理",
+    "interests": [
+      "五月天",
+      "护肤品",
+      "清酒",
+      "周杰伦"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-100",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-101",
+    "nickname": "全场MVP INTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INTP",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "citywalk",
+      "CrossFit",
+      "英语学习",
+      "护肤品"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-101",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-102",
+    "nickname": "安静充电者 ISFJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISFJ",
+    "age_band": "38-42",
+    "identity": "主理人",
+    "interests": [
+      "CrossFit",
+      "香水",
+      "跑步",
+      "音乐节"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-102",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-103",
+    "nickname": "甜味依赖 INFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INFP",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "清酒",
+      "CrossFit",
+      "潮鞋",
+      "威士忌",
+      "演唱会"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-103",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-104",
+    "nickname": "视觉动物 INTJ",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "INTJ",
+    "age_band": "23-25",
+    "identity": "刚入行运营",
+    "interests": [
+      "音乐节",
+      "羽毛球",
+      "AI Agent"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-104",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-105",
+    "nickname": "路演王 ESTJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESTJ",
+    "age_band": "26-29",
+    "identity": "小学老师",
+    "interests": [
+      "火锅",
+      "瑜伽",
+      "拍照",
+      "咖啡",
+      "音乐节"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-105",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-106",
+    "nickname": "规律生活派 ENTJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ENTJ",
+    "age_band": "30-33",
+    "identity": "广告创意总监",
+    "interests": [
+      "精酿啤酒",
+      "拍照",
+      "刷题",
+      "咖啡探店",
+      "citywalk"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-106",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-107",
+    "nickname": "凌晨 3 点失眠 ENTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ENTP",
+    "age_band": "34-37",
+    "identity": "科室主任",
+    "interests": [
+      "周杰伦",
+      "citywalk",
+      "露营",
+      "逛展",
+      "演唱会"
+    ],
+    "pace": "night",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-107",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-108",
+    "nickname": "认真过周末 ENTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENTP",
+    "age_band": "38-42",
+    "identity": "首席设计师",
+    "interests": [
+      "脱口秀",
+      "羽毛球",
+      "护肤品"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-108",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-109",
+    "nickname": "不卷主义者 INFP",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "INFP",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "露营",
+      "瑜伽",
+      "数码",
+      "机械键盘",
+      "音乐节"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-109",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-110",
+    "nickname": "主场作战 ENTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ENTP",
+    "age_band": "23-25",
+    "identity": "职场新人",
+    "interests": [
+      "香水",
+      "AI Agent",
+      "英语学习"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-110",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-111",
+    "nickname": "周末出逃型 INFP",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "INFP",
+    "age_band": "26-29",
+    "identity": "建筑师",
+    "interests": [
+      "日料",
+      "写代码",
+      "英语学习",
+      "五月天",
+      "通勤包"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-111",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-112",
+    "nickname": "路线控 ISTJ",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ISTJ",
+    "age_band": "30-33",
+    "identity": "策展人",
+    "interests": [
+      "话剧",
+      "潮鞋",
+      "机械键盘",
+      "旅行",
+      "草莓音乐节"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-112",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-113",
+    "nickname": "今晚吃点好的 ENFJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ENFJ",
+    "age_band": "34-37",
+    "identity": "合伙人律师",
+    "interests": [
+      "英语学习",
+      "瑜伽",
+      "特种兵旅游"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-113",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-114",
+    "nickname": "咖啡星人 ESFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFJ",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "英语学习",
+      "撸铁",
+      "甜品"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-114",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-115",
+    "nickname": "理性分析者 ENFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ENFJ",
+    "age_band": "19-22",
+    "identity": "大学生",
+    "interests": [
+      "清酒",
+      "普拉提",
+      "特种兵旅游",
+      "家居用品",
+      "citywalk"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-115",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-116",
+    "nickname": "说走就走 ISTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISTP",
+    "age_band": "23-25",
+    "identity": "新晋设计师",
+    "interests": [
+      "羽毛球",
+      "清酒",
+      "草莓音乐节",
+      "跑步"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-116",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-117",
+    "nickname": "随遇而安 ISFJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISFJ",
+    "age_band": "26-29",
+    "identity": "产品经理",
+    "interests": [
+      "咖啡",
+      "读论文",
+      "特种兵旅游",
+      "逛展"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-117",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-118",
+    "nickname": "细节控 ISTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISTP",
+    "age_band": "30-33",
+    "identity": "项目经理",
+    "interests": [
+      "护肤品",
+      "香水",
+      "话剧",
+      "海边"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-118",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-119",
+    "nickname": "节奏快手 INTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INTP",
+    "age_band": "34-37",
+    "identity": "运营总监",
+    "interests": [
+      "Live House",
+      "撸铁",
+      "citywalk",
+      "拍照"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-119",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-120",
+    "nickname": "慢热观察者 ESTP",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ESTP",
+    "age_band": "38-42",
+    "identity": "主理人",
+    "interests": [
+      "周杰伦",
+      "甜品",
+      "读论文",
+      "普拉提"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-120",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-121",
+    "nickname": "全场MVP ISTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTJ",
+    "age_band": "19-22",
+    "identity": "本科在读",
+    "interests": [
+      "香水",
+      "通勤包",
+      "咖啡探店",
+      "AI Agent"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-121",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-122",
+    "nickname": "安静充电者 ESTP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESTP",
+    "age_band": "23-25",
+    "identity": "新闻记者",
+    "interests": [
+      "咖啡探店",
+      "瑜伽",
+      "英语学习"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-122",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-123",
+    "nickname": "甜味依赖 INTP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INTP",
+    "age_band": "26-29",
+    "identity": "程序员",
+    "interests": [
+      "草莓音乐节",
+      "脱口秀",
+      "舞蹈"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-123",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-124",
+    "nickname": "视觉动物 ESTJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESTJ",
+    "age_band": "30-33",
+    "identity": "资深工程师",
+    "interests": [
+      "护肤品",
+      "甜品",
+      "播客",
+      "通勤包",
+      "演唱会"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-124",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-125",
+    "nickname": "路演王 ESTJ",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ESTJ",
+    "age_band": "34-37",
+    "identity": "技术负责人",
+    "interests": [
+      "羽毛球",
+      "咖啡",
+      "拍照"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-125",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-126",
+    "nickname": "规律生活派 ESFJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ESFJ",
+    "age_band": "38-42",
+    "identity": "合伙人",
+    "interests": [
+      "写代码",
+      "旅行",
+      "甜品",
+      "露营",
+      "话剧"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-126",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-127",
+    "nickname": "凌晨 3 点失眠 INFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INFJ",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "Live House",
+      "日料",
+      "护肤品",
+      "深夜食堂",
+      "刷题"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-127",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-128",
+    "nickname": "认真过周末 ISTP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ISTP",
+    "age_band": "23-25",
+    "identity": "新审计师",
+    "interests": [
+      "写代码",
+      "家居用品",
+      "瑜伽",
+      "机械键盘",
+      "羽毛球"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-128",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-129",
+    "nickname": "不卷主义者 ISFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFP",
+    "age_band": "26-29",
+    "identity": "UI 设计师",
+    "interests": [
+      "日料",
+      "写代码",
+      "播客"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-129",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-130",
+    "nickname": "主场作战 ENTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENTJ",
+    "age_band": "30-33",
+    "identity": "资深工程师",
+    "interests": [
+      "写代码",
+      "海边",
+      "旅行",
+      "日料",
+      "周杰伦"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-130",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-131",
+    "nickname": "周末出逃型 INFJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "INFJ",
+    "age_band": "34-37",
+    "identity": "高级审计师",
+    "interests": [
+      "精酿啤酒",
+      "威士忌",
+      "瑜伽",
+      "周杰伦",
+      "深夜食堂"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-131",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-132",
+    "nickname": "路线控 ISFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFJ",
+    "age_band": "38-42",
+    "identity": "投资合伙人",
+    "interests": [
+      "潮鞋",
+      "瑜伽",
+      "音乐节",
+      "徒步"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-132",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-133",
+    "nickname": "今晚吃点好的 INFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INFJ",
+    "age_band": "19-22",
+    "identity": "大学生",
+    "interests": [
+      "通勤包",
+      "播客",
+      "清酒",
+      "日料"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-133",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-134",
+    "nickname": "咖啡星人 INFJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "INFJ",
+    "age_band": "23-25",
+    "identity": "刚入行运营",
+    "interests": [
+      "citywalk",
+      "普拉提",
+      "撸铁"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-134",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-135",
+    "nickname": "理性分析者 INFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "INFJ",
+    "age_band": "26-29",
+    "identity": "建筑师",
+    "interests": [
+      "数码",
+      "撸铁",
+      "英语学习"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-135",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-136",
+    "nickname": "说走就走 INFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "INFP",
+    "age_band": "30-33",
+    "identity": "运营总监",
+    "interests": [
+      "脱口秀",
+      "跑步",
+      "机械键盘",
+      "草莓音乐节"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-136",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-137",
+    "nickname": "随遇而安 ISTJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISTJ",
+    "age_band": "34-37",
+    "identity": "自媒体博主",
+    "interests": [
+      "跑步",
+      "骑行",
+      "通勤包",
+      "日料",
+      "羽毛球"
+    ],
+    "pace": "night",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-137",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-138",
+    "nickname": "细节控 ESTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESTP",
+    "age_band": "38-42",
+    "identity": "首席工程师",
+    "interests": [
+      "潮鞋",
+      "读论文",
+      "AI Agent",
+      "机械键盘"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-138",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-139",
+    "nickname": "节奏快手 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "19-22",
+    "identity": "大学生",
+    "interests": [
+      "五月天",
+      "舞蹈",
+      "撸铁",
+      "跑步",
+      "脱口秀"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-139",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-140",
+    "nickname": "慢热观察者 INTJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "INTJ",
+    "age_band": "23-25",
+    "identity": "新护士",
+    "interests": [
+      "咖啡",
+      "刷题",
+      "拍照",
+      "通勤包",
+      "撸铁"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-140",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-141",
+    "nickname": "全场MVP ESTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESTP",
+    "age_band": "26-29",
+    "identity": "产品经理",
+    "interests": [
+      "露营",
+      "日料",
+      "脱口秀",
+      "精酿啤酒",
+      "写代码"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-141",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-142",
+    "nickname": "安静充电者 ENFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFJ",
+    "age_band": "30-33",
+    "identity": "产品总监",
+    "interests": [
+      "瑜伽",
+      "话剧",
+      "舞蹈",
+      "草莓音乐节",
+      "数码"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-142",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-143",
+    "nickname": "甜味依赖 ESFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ESFP",
+    "age_band": "34-37",
+    "identity": "音乐人",
+    "interests": [
+      "特种兵旅游",
+      "周杰伦",
+      "护肤品",
+      "普拉提"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-143",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-144",
+    "nickname": "视觉动物 ESTJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ESTJ",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "甜品",
+      "家居用品",
+      "特种兵旅游",
+      "深夜食堂"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-144",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-145",
+    "nickname": "路演王 ENFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENFP",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "日料",
+      "舞蹈",
+      "家居用品",
+      "咖啡探店"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-145",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-146",
+    "nickname": "规律生活派 ENFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFP",
+    "age_band": "23-25",
+    "identity": "职场新人",
+    "interests": [
+      "护肤品",
+      "AI Agent",
+      "五月天",
+      "跑步"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-146",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-147",
+    "nickname": "凌晨 3 点失眠 ISTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ISTP",
+    "age_band": "26-29",
+    "identity": "产品经理",
+    "interests": [
+      "羽毛球",
+      "瑜伽",
+      "普拉提",
+      "机械键盘",
+      "AI Agent"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "food"
+    ],
+    "avatar_seed": "twinbuddy-mock-147",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-148",
+    "nickname": "认真过周末 ISTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTP",
+    "age_band": "30-33",
+    "identity": "财务经理",
+    "interests": [
+      "机械键盘",
+      "瑜伽",
+      "刷题",
+      "舞蹈",
+      "写代码"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-148",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-149",
+    "nickname": "不卷主义者 ENFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ENFP",
+    "age_band": "34-37",
+    "identity": "音乐人",
+    "interests": [
+      "演唱会",
+      "撸铁",
+      "拍照",
+      "旅行"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-149",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-150",
+    "nickname": "主场作战 ISTJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISTJ",
+    "age_band": "38-42",
+    "identity": "高级合伙人",
+    "interests": [
+      "CrossFit",
+      "通勤包",
+      "话剧",
+      "机械键盘",
+      "英语学习"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-150",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-151",
+    "nickname": "周末出逃型 ENTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENTJ",
+    "age_band": "19-22",
+    "identity": "本科在读",
+    "interests": [
+      "CrossFit",
+      "数码",
+      "香水"
+    ],
+    "pace": "morning",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-151",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-152",
+    "nickname": "路线控 ISFJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISFJ",
+    "age_band": "23-25",
+    "identity": "新律师助理",
+    "interests": [
+      "日料",
+      "羽毛球",
+      "咖啡",
+      "威士忌"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-152",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-153",
+    "nickname": "今晚吃点好的 ESTJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ESTJ",
+    "age_band": "26-29",
+    "identity": "小学老师",
+    "interests": [
+      "撸铁",
+      "日料",
+      "话剧",
+      "音乐节",
+      "香水"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-153",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-154",
+    "nickname": "咖啡星人 INFJ",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "INFJ",
+    "age_band": "30-33",
+    "identity": "运营总监",
+    "interests": [
+      "写代码",
+      "香水",
+      "音乐节",
+      "咖啡"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-154",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-155",
+    "nickname": "理性分析者 ENFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ENFJ",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "甜品",
+      "旅行",
+      "AI Agent",
+      "拍照"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-155",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-156",
+    "nickname": "说走就走 ESFJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESFJ",
+    "age_band": "38-42",
+    "identity": "合伙人",
+    "interests": [
+      "刷题",
+      "跑步",
+      "咖啡探店",
+      "咖啡",
+      "旅行"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-156",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-157",
+    "nickname": "随遇而安 ESFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESFP",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "话剧",
+      "清酒",
+      "拍照"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-157",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-158",
+    "nickname": "细节控 INFJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "INFJ",
+    "age_band": "23-25",
+    "identity": "刚入行运营",
+    "interests": [
+      "五月天",
+      "瑜伽",
+      "跑步",
+      "citywalk",
+      "草莓音乐节"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-158",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-159",
+    "nickname": "节奏快手 ISFJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISFJ",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "家居用品",
+      "羽毛球",
+      "甜品",
+      "日料"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-159",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-160",
+    "nickname": "慢热观察者 ESFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESFP",
+    "age_band": "30-33",
+    "identity": "资深工程师",
+    "interests": [
+      "演唱会",
+      "威士忌",
+      "播客",
+      "读论文",
+      "露营"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-160",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-161",
+    "nickname": "全场MVP ESTP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESTP",
+    "age_band": "34-37",
+    "identity": "运营总监",
+    "interests": [
+      "数码",
+      "清酒",
+      "咖啡探店",
+      "CrossFit"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-161",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-162",
+    "nickname": "安静充电者 ESTP",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESTP",
+    "age_band": "38-42",
+    "identity": "资深 HRD",
+    "interests": [
+      "普拉提",
+      "周杰伦",
+      "撸铁"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-162",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-163",
+    "nickname": "甜味依赖 ESFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFJ",
+    "age_band": "19-22",
+    "identity": "博士生",
+    "interests": [
+      "徒步",
+      "精酿啤酒",
+      "脱口秀"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-163",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-164",
+    "nickname": "视觉动物 INFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "INFP",
+    "age_band": "23-25",
+    "identity": "刚入行运营",
+    "interests": [
+      "音乐节",
+      "逛展",
+      "英语学习",
+      "咖啡"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-164",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-165",
+    "nickname": "路演王 INTJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "INTJ",
+    "age_band": "26-29",
+    "identity": "后端工程师",
+    "interests": [
+      "逛展",
+      "咖啡探店",
+      "通勤包",
+      "周杰伦",
+      "脱口秀"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-165",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-166",
+    "nickname": "规律生活派 ENTJ",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ENTJ",
+    "age_band": "30-33",
+    "identity": "产品总监",
+    "interests": [
+      "香水",
+      "五月天",
+      "脱口秀",
+      "徒步"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-166",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-167",
+    "nickname": "凌晨 3 点失眠 ESTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESTP",
+    "age_band": "34-37",
+    "identity": "科室主任",
+    "interests": [
+      "海边",
+      "日料",
+      "舞蹈"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-167",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-168",
+    "nickname": "认真过周末 INTJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "INTJ",
+    "age_band": "38-42",
+    "identity": "首席工程师",
+    "interests": [
+      "家居用品",
+      "周杰伦",
+      "话剧",
+      "写代码",
+      "精酿啤酒"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-168",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-169",
+    "nickname": "不卷主义者 ISTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTJ",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "徒步",
+      "普拉提",
+      "英语学习"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-169",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-170",
+    "nickname": "主场作战 ENTP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ENTP",
+    "age_band": "23-25",
+    "identity": "新审计师",
+    "interests": [
+      "逛展",
+      "撸铁",
+      "AI Agent"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-170",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-171",
+    "nickname": "周末出逃型 ESTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESTP",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "露营",
+      "演唱会",
+      "咖啡探店"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-171",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-172",
+    "nickname": "路线控 INTJ",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "INTJ",
+    "age_band": "30-33",
+    "identity": "建筑设计师",
+    "interests": [
+      "AI Agent",
+      "清酒",
+      "精酿啤酒"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-172",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-173",
+    "nickname": "今晚吃点好的 ESTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ESTJ",
+    "age_band": "34-37",
+    "identity": "运营总监",
+    "interests": [
+      "火锅",
+      "演唱会",
+      "海边"
+    ],
+    "pace": "night",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-173",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-174",
+    "nickname": "咖啡星人 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "38-42",
+    "identity": "首席工程师",
+    "interests": [
+      "话剧",
+      "周杰伦",
+      "咖啡探店",
+      "AI Agent",
+      "羽毛球"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-174",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-175",
+    "nickname": "理性分析者 ESFP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESFP",
+    "age_band": "19-22",
+    "identity": "研究生",
+    "interests": [
+      "撸铁",
+      "清酒",
+      "深夜食堂"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-175",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-176",
+    "nickname": "说走就走 INFJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "INFJ",
+    "age_band": "23-25",
+    "identity": "刚入行运营",
+    "interests": [
+      "AI Agent",
+      "播客",
+      "特种兵旅游"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-176",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-177",
+    "nickname": "随遇而安 ISFP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISFP",
+    "age_band": "26-29",
+    "identity": "建筑师",
+    "interests": [
+      "特种兵旅游",
+      "羽毛球",
+      "Live House",
+      "机械键盘"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-177",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-178",
+    "nickname": "细节控 ENFP",
+    "city": "重庆",
+    "city_en": "chongqing",
+    "mbti": "ENFP",
+    "age_band": "30-33",
+    "identity": "项目经理",
+    "interests": [
+      "英语学习",
+      "普拉提",
+      "咖啡",
+      "读论文"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-178",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-179",
+    "nickname": "节奏快手 INTJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "INTJ",
+    "age_band": "34-37",
+    "identity": "技术负责人",
+    "interests": [
+      "撸铁",
+      "CrossFit",
+      "深夜食堂"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "fitness",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-179",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-180",
+    "nickname": "慢热观察者 ISFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFP",
+    "age_band": "38-42",
+    "identity": "投资合伙人",
+    "interests": [
+      "威士忌",
+      "Live House",
+      "英语学习",
+      "音乐节",
+      "刷题"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-180",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-181",
+    "nickname": "全场MVP INTP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "INTP",
+    "age_band": "19-22",
+    "identity": "应考研生",
+    "interests": [
+      "徒步",
+      "清酒",
+      "逛展",
+      "citywalk"
+    ],
+    "pace": "night",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-181",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-182",
+    "nickname": "安静充电者 ENTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENTJ",
+    "age_band": "23-25",
+    "identity": "职场新人",
+    "interests": [
+      "舞蹈",
+      "撸铁",
+      "英语学习",
+      "清酒",
+      "citywalk"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-182",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-183",
+    "nickname": "甜味依赖 ENFJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ENFJ",
+    "age_band": "26-29",
+    "identity": "数据分析师",
+    "interests": [
+      "火锅",
+      "刷题",
+      "威士忌"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "food"
+    ],
+    "avoid_scenes": [
+      "event"
+    ],
+    "avatar_seed": "twinbuddy-mock-183",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-184",
+    "nickname": "视觉动物 ISFP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ISFP",
+    "age_band": "30-33",
+    "identity": "财务经理",
+    "interests": [
+      "徒步",
+      "刷题",
+      "精酿啤酒",
+      "AI Agent",
+      "逛展"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-184",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-185",
+    "nickname": "路演王 ISFP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFP",
+    "age_band": "34-37",
+    "identity": "独立摄影师",
+    "interests": [
+      "海边",
+      "写代码",
+      "潮鞋",
+      "骑行"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "minimal",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-185",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-186",
+    "nickname": "规律生活派 ESFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ESFJ",
+    "age_band": "38-42",
+    "identity": "主理人",
+    "interests": [
+      "火锅",
+      "潮鞋",
+      "草莓音乐节",
+      "瑜伽",
+      "露营"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food",
+      "shopping",
+      "trip",
+      "fitness"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-186",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-187",
+    "nickname": "凌晨 3 点失眠 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "19-22",
+    "identity": "本科在读",
+    "interests": [
+      "徒步",
+      "拍照",
+      "英语学习",
+      "演唱会"
+    ],
+    "pace": "morning",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-187",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-188",
+    "nickname": "认真过周末 ISFJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFJ",
+    "age_band": "23-25",
+    "identity": "新审计师",
+    "interests": [
+      "咖啡",
+      "甜品",
+      "五月天",
+      "清酒"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "food"
+    ],
+    "avoid_scenes": [
+      "study"
+    ],
+    "avatar_seed": "twinbuddy-mock-188",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-189",
+    "nickname": "不卷主义者 ENFP",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENFP",
+    "age_band": "26-29",
+    "identity": "服装设计师",
+    "interests": [
+      "刷题",
+      "咖啡探店",
+      "甜品",
+      "机械键盘"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-189",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-190",
+    "nickname": "主场作战 ENTP",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ENTP",
+    "age_band": "30-33",
+    "identity": "投资经理",
+    "interests": [
+      "徒步",
+      "拍照",
+      "威士忌"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-190",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-191",
+    "nickname": "周末出逃型 ESFJ",
+    "city": "广州",
+    "city_en": "guangzhou",
+    "mbti": "ESFJ",
+    "age_band": "34-37",
+    "identity": "技术负责人",
+    "interests": [
+      "潮鞋",
+      "深夜食堂",
+      "AI Agent",
+      "通勤包"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-191",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-192",
+    "nickname": "路线控 INTP",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "INTP",
+    "age_band": "38-42",
+    "identity": "副总裁",
+    "interests": [
+      "日料",
+      "写代码",
+      "特种兵旅游"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "INTP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-192",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-193",
+    "nickname": "今晚吃点好的 ISTJ",
+    "city": "杭州",
+    "city_en": "hangzhou",
+    "mbti": "ISTJ",
+    "age_band": "19-22",
+    "identity": "实习生",
+    "interests": [
+      "话剧",
+      "露营",
+      "撸铁",
+      "跑步"
+    ],
+    "pace": "morning",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "minimal",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "minimal 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "trip"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-193",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-194",
+    "nickname": "咖啡星人 ISTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ISTJ",
+    "age_band": "23-25",
+    "identity": "新闻记者",
+    "interests": [
+      "Live House",
+      "周杰伦",
+      "骑行",
+      "深夜食堂",
+      "香水"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-194",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-195",
+    "nickname": "理性分析者 ISFP",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISFP",
+    "age_band": "26-29",
+    "identity": "小学老师",
+    "interests": [
+      "跑步",
+      "数码",
+      "播客",
+      "威士忌",
+      "写代码"
+    ],
+    "pace": "flexible",
+    "budget_band": "high",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [
+      "trip"
+    ],
+    "avatar_seed": "twinbuddy-mock-195",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-196",
+    "nickname": "说走就走 ESFP",
+    "city": "南京",
+    "city_en": "nanjing",
+    "mbti": "ESFP",
+    "age_band": "30-33",
+    "identity": "投资经理",
+    "interests": [
+      "Live House",
+      "演唱会",
+      "露营",
+      "逛展"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "trip"
+    ],
+    "avoid_scenes": [
+      "shopping"
+    ],
+    "avatar_seed": "twinbuddy-mock-196",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-197",
+    "nickname": "随遇而安 ESFP",
+    "city": "成都",
+    "city_en": "chengdu",
+    "mbti": "ESFP",
+    "age_band": "34-37",
+    "identity": "技术负责人",
+    "interests": [
+      "咖啡",
+      "精酿啤酒",
+      "骑行",
+      "数码"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "planner",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ESFP 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "shopping",
+      "trip",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-197",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-198",
+    "nickname": "细节控 ISFJ",
+    "city": "深圳",
+    "city_en": "shenzhen",
+    "mbti": "ISFJ",
+    "age_band": "38-42",
+    "identity": "首席设计师",
+    "interests": [
+      "周杰伦",
+      "护肤品",
+      "刷题",
+      "家居用品",
+      "AI Agent"
+    ],
+    "pace": "flexible",
+    "budget_band": "mid",
+    "social_style": "slow_warm",
+    "photo_pref": "moderate",
+    "plan_style": "spontaneous",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISFJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "study",
+      "event",
+      "shopping"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-198",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-199",
+    "nickname": "节奏快手 ISTJ",
+    "city": "北京",
+    "city_en": "beijing",
+    "mbti": "ISTJ",
+    "age_band": "19-22",
+    "identity": "本科在读",
+    "interests": [
+      "citywalk",
+      "特种兵旅游",
+      "旅行"
+    ],
+    "pace": "night",
+    "budget_band": "mid",
+    "social_style": "outgoing",
+    "photo_pref": "moderate",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ISTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "moderate 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "trip"
+    ],
+    "avoid_scenes": [
+      "fitness"
+    ],
+    "avatar_seed": "twinbuddy-mock-199",
+    "evidence_grade": "inference"
+  },
+  {
+    "uid": "twinbuddy-mock-200",
+    "nickname": "慢热观察者 ENTJ",
+    "city": "上海",
+    "city_en": "shanghai",
+    "mbti": "ENTJ",
+    "age_band": "23-25",
+    "identity": "新人程序员",
+    "interests": [
+      "Live House",
+      "通勤包",
+      "威士忌",
+      "撸铁",
+      "咖啡探店"
+    ],
+    "pace": "flexible",
+    "budget_band": "low",
+    "social_style": "slow_warm",
+    "photo_pref": "love",
+    "plan_style": "casual",
+    "safety": [
+      "首次见面只接受公开场所",
+      "留出紧急联系人",
+      "位置共享 24 小时"
+    ],
+    "conflicts": [
+      "ENTJ 性格典型阻力点:开放性强 vs 决策犹豫",
+      "love 拍照风格与他人节奏差异"
+    ],
+    "fit_scenes": [
+      "event",
+      "fitness",
+      "shopping",
+      "food"
+    ],
+    "avoid_scenes": [],
+    "avatar_seed": "twinbuddy-mock-200",
+    "evidence_grade": "inference"
   }
 ]

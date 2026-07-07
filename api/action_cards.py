@@ -73,21 +73,21 @@ def _load_invite_templates() -> Dict[str, Dict[str, str]]:
         _INVITE_TEXTS_CACHE = {}
         return _INVITE_TEXTS_CACHE
     try:
-        # 模板格式：每行 `scene.tone: text`（简化版，真实生产可换 YAML）
-        result: Dict[str, Dict[str, str]] = {s: {} for s in SCENE_VALUES}
+        # 模板格式：每行 `scene.tone:index: text`
+        #   scene ∈ SCENE_VALUES, tone ∈ TONE_VALUES, index ∈ {1,2,3,...}
+        #   同 scene+tone 下支持多个变体,前端按用户偏好选择。
+        import re as _re
+        result: Dict[str, Dict[str, List[str]]] = {s: {} for s in SCENE_VALUES}
         for line in _INVITE_TEMPLATE.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            if ":" not in line:
+            m = _re.match(r"^([a-z]+)\.([a-z]+):(\d+):\s*(.+)$", line)
+            if not m:
                 continue
-            key, _, text = line.partition(":")
-            key = key.strip()
-            text = text.strip()
-            if "." in key:
-                scene, tone = key.split(".", 1)
-                if scene in SCENE_VALUES and tone in TONE_VALUES:
-                    result[scene][tone] = text
+            scene, tone, _idx, text = m.groups()
+            if scene in SCENE_VALUES and tone in TONE_VALUES and text:
+                result[scene].setdefault(tone, []).append(text)
         _INVITE_TEXTS_CACHE = result
     except Exception:
         _INVITE_TEXTS_CACHE = {s: {} for s in SCENE_VALUES}
@@ -478,12 +478,14 @@ async def get_invite(
         raise HTTPException(status_code=400, detail=f"tone must be one of {TONE_VALUES}")
 
     templates = _load_invite_templates()
-    text = templates.get(scene, {}).get(tone)
-    if not text:
-        # fallback：trip.casual
-        text = templates.get("trip", {}).get("casual", "")
-    if not text:
+    candidates = templates.get(scene, {}).get(tone) or []
+    if not candidates:
+        candidates = templates.get("trip", {}).get("casual") or []
+    if not candidates:
         raise HTTPException(status_code=500, detail="invite template not loaded")
+    # 同 scene+tone 下随机挑一个变体,让前端每次刷新拿到不同文案
+    import random as _rnd
+    text = _rnd.choice(candidates)
 
     # 变量替换（真实）
     if partner_name:

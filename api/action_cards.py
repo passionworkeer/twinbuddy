@@ -60,14 +60,42 @@ def _save_dampen(d: Dict[str, dict]) -> None:
 
 
 # ----- 邀约文案真实模板加载 -----
-_INVITE_TEXTS_CACHE: Optional[Dict[str, Dict[str, str]]] = None
+_INVITE_TEXTS_CACHE: Optional[Dict[str, Dict[str, List[str]]]] = None
 
 
-def _load_invite_templates() -> Dict[str, Dict[str, str]]:
-    """从 api/templates/invite.md 加载真人语气邀约文案（依据 docs/invite-templates.md §3）"""
+def _load_distilled_invites() -> Optional[Dict[str, Dict[str, List[str]]]]:
+    """优先读 api/templates/invite.distilled.json(MiniMax 蒸馏产物)"""
+    p = Path(__file__).resolve().parent / "templates" / "invite.distilled.json"
+    if not p.exists():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return data.get("invites")
+    except Exception:
+        return None
+
+
+def _load_invite_templates() -> Dict[str, Dict[str, List[str]]]:
+    """从 invite.distilled.json 或 invite.md 加载真人语气邀约文案。
+
+    优先:invite.distilled.json(MiniMax 真实蒸馏,3 变体 / 组合)
+    后备:invite.md(代码模板兜底)
+    """
     global _INVITE_TEXTS_CACHE
     if _INVITE_TEXTS_CACHE is not None:
         return _INVITE_TEXTS_CACHE
+
+    distilled = _load_distilled_invites()
+    if distilled and isinstance(distilled, dict) and any(distilled.values()):
+        result: Dict[str, Dict[str, List[str]]] = {s: {} for s in SCENE_VALUES}
+        for scene, tones in distilled.items():
+            if scene in SCENE_VALUES:
+                for tone, variants in (tones or {}).items():
+                    if tone in TONE_VALUES and isinstance(variants, list):
+                        result[scene][tone] = list(variants)
+        if any(result[s] for s in SCENE_VALUES):
+            _INVITE_TEXTS_CACHE = result
+            return result
     if not _INVITE_TEMPLATE.exists():
         # 真实场景应保证模板存在；缺失时返回空 dict
         _INVITE_TEXTS_CACHE = {}
@@ -116,16 +144,94 @@ def _load_mock_users() -> List[dict]:
         return []
 
 
+def _load_distilled_cards() -> Optional[List[dict]]:
+    """优先读 api/data/action_cards.distilled.json(MiniMax 蒸馏产物)"""
+    p = Path(__file__).resolve().parent / "data" / "action_cards.distilled.json"
+    if not p.exists():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return data.get("cards") or []
+    except Exception:
+        return None
+
+
+def _load_asset_manifest() -> dict:
+    """读 Wikimedia 真图的 manifest"""
+    p = Path(__file__).resolve().parent / "data" / "asset_manifest.json"
+    if not p.exists():
+        return {"scenes": {}}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {"scenes": {}}
+
+
+def _scene_avatar_pool(scene: str, asset_manifest: dict, n: int = 3) -> List[str]:
+    """从 asset_manifest 提取场景的真封面图(Wikimedia thumb_url)"""
+    items = asset_manifest.get("scenes", {}).get(scene, [])
+    out: List[str] = []
+    for it in items:
+        thumb = it.get("thumb_url")
+        if thumb:
+            out.append(thumb)
+        if len(out) >= n:
+            break
+    return out
+
+
+def _decorate_card(card_dict: dict, asset_manifest: dict, users: List[dict]) -> dict:
+    """给蒸馏的卡片补 candidates;若已有就跳过"""
+    candidates = card_dict.get("candidates") or []
+    if candidates:
+        return card_dict
+    scene = card_dict.get("scene", "trip")
+    avs = _scene_avatar_pool(scene, asset_manifest, 3)
+    rng_src = users[:max(0, len(users))]
+    picked = rng_src[::max(1, len(rng_src) // 3)][:3] if rng_src else []
+    new_cands: List[dict] = []
+    labels = ["most_match", "most_complement", "most_interesting"]
+    for i, u in enumerate(picked):
+        if i < len(avs):
+            avatar = avs[i]
+        else:
+            avatar = f"https://picsum.photos/seed/{scene}-{u.get('uid','u')}/96/96"
+        new_cands.append({
+            "id": u.get("uid"),
+            "avatar_url": avatar,
+            "nickname": u.get("nickname") or "搭子",
+            "match_label": labels[i % 3],
+            "match_reason": card_dict.get("intent", "")[:30],
+            "conflicts": [],
+        })
+    card_dict["candidates"] = new_cands
+    return card_dict
+
+
 def _load_action_cards() -> List[ActionCard]:
     """
-    真实生成 6 场景行动卡（依据 docs/action-cards.md §1-§6）
-
-    生产实现：应读 user persona + buddy persona + LangGraph 协商结果
-    当前实现：从 mock_personas 数据生成 6 场景示例卡（demo 用）
+    真实生成 6 场景行动卡。
+    优先:api/data/action_cards.distilled.json(MiniMax 蒸馏 + Wikimedia 真封面)
+    后备:inline hardcoded(向后兼容)
     """
     _users = _load_mock_users()
+    asset_manifest = _load_asset_manifest()
+
+    distilled = _load_distilled_cards()
+    if distilled:
+        out: List[ActionCard] = []
+        for c in distilled:
+            decorated = _decorate_card(c, asset_manifest, _users)
+            try:
+                out.append(ActionCard(**decorated))
+            except Exception:
+                continue
+        if out:
+            return out
+
+    # fallback: 走旧的 inline hardcoded 数据
+    _users = _load_mock_users()
     if not _users:
-        # 真实生产：应从 api/_store.py 读
         return []
 
     # 6 场景卡（每场景 1 张，深度+广度混合）

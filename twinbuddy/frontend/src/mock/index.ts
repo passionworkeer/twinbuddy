@@ -382,12 +382,44 @@ export async function startMock() {
   const ALLOWED_SCENES = ['trip', 'food', 'fitness', 'study', 'event', 'shopping']
   const ALLOWED_TONES = ['casual', 'direct', 'warm']
 
+  // 真实 Wikimedia 封面池:从 public/data/scene-covers.json 拉,
+  // 给 action-cards mock 的 candidate.avatar_url 优先用真图 URL。
+  type WikimediaCover = { thumb_url: string; title: string; author: string; license: string; license_url: string }
+  let wikiCovers: Record<string, WikimediaCover[]> = {}
+  try {
+    const res = await fetch(BASE_URL + '/data/scene-covers.json')
+    if (res.ok) {
+      const j = await res.json() as { scenes?: Record<string, WikimediaCover[]> }
+      wikiCovers = j.scenes || {}
+    }
+  } catch (_e) { /* ignore — 用 picsum fallback */ }
+
+  function pickAvatar(scene: string, seed: string): string {
+    const list = wikiCovers[scene] || []
+    if (list.length > 0) {
+      let h = 0
+      for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0
+      const idx = Math.abs(h) % list.length
+      return list[idx].thumb_url
+    }
+    return 'https://picsum.photos/seed/' + seed + '/96/96'
+  }
+
   // 加载并按 scene 过滤（直接 import 避免 fixture 双源问题）
   async function loadActionCards(scene) {
     try {
       // 浏览器运行时：动态 import 拿 default export
       const mod = await import(/* @vite-ignore */ `${BASE_URL}/data/action-cards.js`)
-      const v = mod.default || []
+      let v = mod.default || []
+      // 真实数据注入:每个 candidate 的 avatar_url 用真 Wikimedia URL 替换
+      v = v.map((c) => {
+        if (!c.candidates) return c
+        const newCands = c.candidates.map((u, i) => ({
+          ...u,
+          avatar_url: pickAvatar(c.scene || 'trip', `${c.id || 'card'}-${i}`),
+        }))
+        return { ...c, candidates: newCands }
+      })
       if (scene && ALLOWED_SCENES.includes(scene)) {
         return { code: 200, data: v.filter((c) => c.scene === scene) }
       }

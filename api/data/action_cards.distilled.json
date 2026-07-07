@@ -1,0 +1,596 @@
+{
+  "generated_at": "now",
+  "model": "MiniMax-M3",
+  "cards": [
+    {
+      "title": "我给你安排个周末轻量出游，爬爬山透透气",
+      "trigger_reason": "你最近两周都在加班到很晚，周末都没怎么出门",
+      "intent": "两天一夜放空一下",
+      "plan": "周六出发去惠州盐洲岛住一晚海景民宿，周日看日出吃海鲜回深圳",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 400,
+          "max": 700,
+          "currency": "CNY"
+        },
+        "deadline": "本周末前"
+      },
+      "id": "trip-a1-dapeng",
+      "scene": "trip",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排了周末去梧桐山徒步",
+      "trigger_reason": "你最近连续3天搜索了深圳户外路线",
+      "intent": "周末用一次短途徒步给自己充电",
+      "plan": "周六早上8点从莲塘地铁站出发,走梧桐山北门上山,预计4-5小时,自带水和干粮,花费约0元",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 50,
+          "currency": "CNY"
+        },
+        "deadline": "2025-01-25"
+      },
+      "id": "trip-a7-roof",
+      "scene": "trip",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排了阳台山雾天徒步路线",
+      "trigger_reason": "你上周搜过阳台山且周末连续阴天有雾",
+      "intent": "雾里爬一次阳台山看云海",
+      "plan": "周六早上 8 点石岩入口上山,慢走 3 小时到顶,自备水和小面包,人均 30 元以内",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 30,
+          "currency": "CNY"
+        },
+        "deadline": "本周六 08:00"
+      },
+      "id": "trip-a8-mountain",
+      "scene": "trip",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你找个海边散散心的地方吧",
+      "trigger_reason": "你这周工作日连续加班到9点,周末还没安排",
+      "intent": "找个能发呆看海的地方透口气",
+      "plan": "周六出发,坐高铁去惠州双月湾,两日一夜预算控制在500以内,订间能看海的民宿",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 400,
+          "max": 500,
+          "currency": "CNY"
+        },
+        "deadline": "2024-10-20"
+      },
+      "id": "trip-hint-1",
+      "scene": "trip",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "你最近约好了搭子，出发前把行程定下来吧",
+      "trigger_reason": "你这周和大木确认了周末去惠州双月湾的出行",
+      "intent": "把周末行程和住宿一并定好",
+      "plan": "今晚挑好海景民宿并下单两晚，预算400-600元",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 400,
+          "max": 600,
+          "currency": "CNY"
+        },
+        "deadline": "2026-01-11"
+      },
+      "id": "trip-complete-1",
+      "scene": "trip",
+      "variant": "complete",
+      "state": "complete",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你订了家深圳的私藏日料",
+      "trigger_reason": "你上周在福田连吃了 3 顿火锅,该换个清淡口味了",
+      "intent": "找一顿精致一点的晚餐犒赏自己",
+      "plan": "周五 19:00 预约鮨·初晚餐,omakase 套餐,人均 800 以内",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 600,
+          "max": 1000,
+          "currency": "CNY"
+        },
+        "deadline": "2026-02-07 19:00"
+      },
+      "id": "food-a2-sushi",
+      "scene": "food",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排一顿热乎的豚骨拉面",
+      "trigger_reason": "你上周搜过两次拉面店,但周末又点了外卖凑合",
+      "intent": "今晚出门好好吃碗拉面暖暖",
+      "plan": "今晚 7 点半去公司附近那家一兰拉面,人均 80-120",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 80,
+          "max": 120,
+          "currency": "CNY"
+        },
+        "deadline": "2026-05-22T19:30:00+08:00"
+      },
+      "id": "food-a8-ramen",
+      "scene": "food",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你找了一家潮汕牛肉火锅，鲜切现涮",
+      "trigger_reason": "你上周搜过两次潮汕牛肉锅，今天又在看火锅店",
+      "intent": "去吃一顿正宗的潮汕鲜牛肉火锅",
+      "plan": "这周六晚7点去福田那家吊龙伴火锅，AA人均150左右",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 120,
+          "max": 180,
+          "currency": "CNY"
+        },
+        "deadline": "2025-01-18"
+      },
+      "id": "food-a9-hotpot",
+      "scene": "food",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你找家好馆子,好好吃一顿",
+      "trigger_reason": "你最近连续三天都是外卖简餐,周末该犒劳下自己",
+      "intent": "在深圳找家馆子好好吃一顿",
+      "plan": "今晚下班后去福田/南山评分4.5以上的店,人均100-200",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 100,
+          "max": 200,
+          "currency": "CNY"
+        },
+        "deadline": "今天 21:00"
+      },
+      "id": "food-hint-1",
+      "scene": "food",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "周末去吃你之前看上的那家店",
+      "trigger_reason": "你周一收藏了南山那家日料店,评论里说想找个人一起去",
+      "intent": "本周内吃到那家店",
+      "plan": "周六晚上7点去南头古城那家日料,人均150左右,你约个人一起",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 120,
+          "max": 180,
+          "currency": "CNY"
+        },
+        "deadline": "本周日"
+      },
+      "id": "food-complete-1",
+      "scene": "food",
+      "variant": "complete",
+      "state": "complete",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排了14天肩背训练计划，跟练起来！",
+      "trigger_reason": "你最近在小红书收藏了2篇'办公室肩背拉伸'笔记，超过7天没动了",
+      "intent": "缓解肩颈僵硬，14天练出紧致肩背线条",
+      "plan": "每天晚上8点跟练15分钟居家肩背训练（B站/Keep免费跟练），0元搞定",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 50,
+          "currency": "CNY"
+        },
+        "deadline": "2026-02-10"
+      },
+      "id": "fitness-a3-shoulder",
+      "scene": "fitness",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排一次瑜伽拉伸课,身心都放松下",
+      "trigger_reason": "最近加班多,昨晚11点还在改方案,身体估计绷得不行",
+      "intent": "把肩膀和腰的僵硬松开,睡个好觉",
+      "plan": "明晚7点半,楼下那家瑜伽馆上一节60分钟拉伸课,会员价80块",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 60,
+          "max": 120,
+          "currency": "CNY"
+        },
+        "deadline": "明天 19:30"
+      },
+      "id": "fitness-a4-yoga",
+      "scene": "fitness",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排一场5公里晨跑",
+      "trigger_reason": "你最近连续3天没动,周末天气晴,适合出门跑一跑",
+      "intent": "想出门跑个5公里透透气",
+      "plan": "周六早上6:30出发,沿深圳湾公园跑5公里,预算0元(免费路线)",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 0,
+          "currency": "CNY"
+        },
+        "deadline": "2026-02-07"
+      },
+      "id": "fitness-a5-run",
+      "scene": "fitness",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "下班后一起跑个步吧,我帮你找个搭子",
+      "trigger_reason": "你最近一周都没在傍晚出门活动过,今天深圳天气22℃刚好适合跑步",
+      "intent": "今晚出门动一动,出点汗",
+      "plan": "今晚7点到深圳湾公园跑3-5公里,带瓶水就行,免费",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 20,
+          "currency": "CNY"
+        },
+        "deadline": "今晚19:00"
+      },
+      "id": "fitness-hint-1",
+      "scene": "fitness",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排好了,周末先来场3公里跑跑看",
+      "trigger_reason": "你上次说想练跑步,昨天又看了两篇跑步入门文章,是时候迈出第一步了",
+      "intent": "周末完成第一次3公里慢跑",
+      "plan": "周六早上7点在深圳湾公园碰面,热身5分钟后开跑,跑完一起拉伸;装备先不花钱,穿你现有的运动鞋就行",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 50,
+          "currency": "CNY"
+        },
+        "deadline": "2024-11-17"
+      },
+      "id": "fitness-complete-1",
+      "scene": "fitness",
+      "variant": "complete",
+      "state": "complete",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你安排个7天AI Agent入门计划",
+      "trigger_reason": "你最近在B站收藏了3个Agent教程视频,但一直没开始动手做",
+      "intent": "7天内跑通第一个自己的AI Agent小项目",
+      "plan": "前3天每天1小时看公开课+读官方文档,第4-5天跟着GitHub示例敲代码,第6-7天做个小项目(自动回邮件/爬虫总结)。预算:0元(全部用免费开源工具)",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 0,
+          "currency": "CNY"
+        },
+        "deadline": "2026-01-20"
+      },
+      "id": "study-a4-ai-agent",
+      "scene": "study",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你拉个搭子,一起练Prompt工程",
+      "trigger_reason": "你这周连看了3篇AIGC相关的帖子,看起来对Prompt挺上头",
+      "intent": "一周内能写出稳定的结构化Prompt",
+      "plan": "找2-3个在玩GPT的搭子,周中晚上线上对练1次,互相出题改Prompt,0花费",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 50,
+          "currency": "CNY"
+        },
+        "deadline": "本周日"
+      },
+      "id": "study-a5-prompt",
+      "scene": "study",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你拉个30天雅思备考搭子，陪你一起冲",
+      "trigger_reason": "你上周搜了两次雅思资料，还收藏了一篇口语高频话题",
+      "intent": "30天搞定雅思首考，稳过6.5",
+      "plan": "前3天定计划拆分数，每天1.5小时模考+复盘，预算0元（用免费真题）",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 0,
+          "max": 200,
+          "currency": "CNY"
+        },
+        "deadline": "2026-07-15"
+      },
+      "id": "study-a6-ielts",
+      "scene": "study",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你扒一份深圳周末兴趣课清单，挑个动手的",
+      "trigger_reason": "你昨晚搜了「深圳 兴趣班 周末」，但没下单，先把选择面打开",
+      "intent": "选一门周末能上手的短期兴趣课",
+      "plan": "这周六下午先体验 1 节课，预算 100–200 元；先看 3 家评价高的手工/调酒/陶艺课再定",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 100,
+          "max": 200,
+          "currency": "CNY"
+        },
+        "deadline": "2026-02-01"
+      },
+      "id": "study-hint-1",
+      "scene": "study",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你把学习计划锁死,接下来就开干",
+      "trigger_reason": "你上周收藏了3篇机器学习文章,现在该把计划落下来了",
+      "intent": "锁定一套可执行的学习计划并开练",
+      "plan": "今晚用30分钟列出本周3个学习模块,周末各投入2小时",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {},
+        "deadline": "本周日"
+      },
+      "id": "study-complete-1",
+      "scene": "study",
+      "variant": "complete",
+      "state": "complete",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我帮你盯周杰伦8月深圳站门票",
+      "trigger_reason": "你最近循环了《晴天》《七里香》这些老歌",
+      "intent": "一起去看周杰伦演唱会",
+      "plan": "先盯8月深圳站开票,抢到再订场馆附近酒店,两人预算控制在1500内",
+      "needs_buddy": "required",
+      "meta": {
+        "budget": {
+          "min": 800,
+          "max": 1500,
+          "currency": "CNY"
+        },
+        "deadline": "2025-08-15"
+      },
+      "id": "event-a5-jay-chou",
+      "scene": "event",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "五月天深圳站,带你感受一场青春",
+      "trigger_reason": "你上周搜过五月天深圳演唱会,场子开票没多久",
+      "intent": "去现场听一场五月天不留遗憾",
+      "plan": "这周末抢张看台票,预算 500 以内,自己去或者拉个朋友都行",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 380,
+          "max": 580,
+          "currency": "CNY"
+        },
+        "deadline": "2026-01-31"
+      },
+      "id": "event-a6-mayday",
+      "scene": "event",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你挑了场不错的演出,周末有空去看看?",
+      "trigger_reason": "你这周搜了两次「深圳 演出」,看来是真想出门看看",
+      "intent": "约你周末看场演出,放松一下",
+      "plan": "周六晚去深圳音乐厅看场音乐会,预算 200-350 元,提前在公众号订票",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 200,
+          "max": 350,
+          "currency": "CNY"
+        },
+        "deadline": "2026-01-25"
+      },
+      "id": "event-hint-1",
+      "scene": "event",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你挑个通勤包,背上不累还好看",
+      "trigger_reason": "你最近在地铁通勤路上经常刷包类短视频,周末还收藏了一款邮差包",
+      "intent": "找到一只上班路上舒服又能装的通勤包",
+      "plan": "这周六下午去南山万象城逛包店,预算 300-600 元,主看邮差款和托特",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 300,
+          "max": 600,
+          "currency": "CNY"
+        },
+        "deadline": "2026-01-25"
+      },
+      "id": "shopping-a6-backpack",
+      "scene": "shopping",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你找了几款机械键盘,周末去试试手感",
+      "trigger_reason": "你这周在京东看了2次机械键盘,还收藏了一篇入门指南",
+      "intent": "挑一把趁手又不太贵的机械键盘",
+      "plan": "周末去华强北或万象城键盘实体店各试一圈,预算控制在300-600元",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 300,
+          "max": 600,
+          "currency": "CNY"
+        },
+        "deadline": "这周末"
+      },
+      "id": "shopping-a7-keyboard",
+      "scene": "shopping",
+      "variant": "plan",
+      "state": "plan",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我给你提个醒,该买点啥犒劳下自己",
+      "trigger_reason": "你最近搜了好几次蓝牙耳机但一直没下单",
+      "intent": "帮你锁定一件真心想入手的好物",
+      "plan": "这周末去华强北或线上比价,预算控制在 500 以内",
+      "needs_buddy": "optional",
+      "meta": {
+        "budget": {
+          "min": 200,
+          "max": 500,
+          "currency": "CNY"
+        },
+        "deadline": "2025-01-12"
+      },
+      "id": "shopping-hint-1",
+      "scene": "shopping",
+      "variant": "hint",
+      "state": "hint",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    },
+    {
+      "title": "我帮你把这款拿下，别再犹豫啦",
+      "trigger_reason": "你昨天收藏了这款耳机，今天又看了两次价格",
+      "intent": "把心仪已久的耳机带回家",
+      "plan": "今晚22点前下单，预算控制在600-800元",
+      "needs_buddy": "none",
+      "meta": {
+        "budget": {
+          "min": 600,
+          "max": 800,
+          "currency": "CNY"
+        },
+        "deadline": "今晚22:00"
+      },
+      "id": "shopping-complete-1",
+      "scene": "shopping",
+      "variant": "complete",
+      "state": "complete",
+      "candidates": [],
+      "risks": [],
+      "follow_up": []
+    }
+  ]
+}
